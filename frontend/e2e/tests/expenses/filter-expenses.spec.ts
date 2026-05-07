@@ -42,6 +42,7 @@ test('should show empty state when no expenses match the selected category', asy
 test('should restore all expenses after clearing filters', async ({ page }) => {
   const listPage = new ExpensesListPage(page);
   await listPage.navigate();
+  await expect(listPage.tableRows).toHaveCount(2);
 
   await listPage.filterByCategory('Fuel');
   await expect(listPage.tableRows).toHaveCount(1);

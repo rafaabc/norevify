@@ -34,20 +34,24 @@ export default function ExpensesListPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
-  const fetchExpenses = useCallback(async (f) => {
+  const fetchExpenses = useCallback(async (f, signal) => {
     setLoading(true);
     setError('');
     try {
-      const data = await expensesApi.list(f);
+      const data = await expensesApi.list(f, signal);
       setExpenses(data.sort((a, b) => new Date(b.date) - new Date(a.date)));
     } catch (err) {
-      setError(err.message);
+      if (err.name !== 'AbortError') setError(err.message);
     } finally {
       setLoading(false);
     }
   }, []);
 
-  useEffect(() => { fetchExpenses(filters); }, [filters, fetchExpenses]);
+  useEffect(() => {
+    const controller = new AbortController();
+    fetchExpenses(filters, controller.signal);
+    return () => controller.abort();
+  }, [filters, fetchExpenses]);
 
   function handleFilterChange(e) {
     setFilters((f) => ({ ...f, [e.target.name]: e.target.value }));
