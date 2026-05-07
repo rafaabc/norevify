@@ -42,7 +42,7 @@ describe('ExpensesListPage', () => {
     renderPage();
     // Assert
     await waitFor(() => {
-      expect(expensesApi.list).toHaveBeenCalledWith({ category: '', year: '2026', month: '' });
+      expect(expensesApi.list).toHaveBeenCalledWith({ category: '', year: '2026', month: '' }, expect.any(AbortSignal));
     });
   });
 
@@ -95,7 +95,7 @@ describe('ExpensesListPage', () => {
     });
     // Assert
     await waitFor(() => {
-      expect(expensesApi.list).toHaveBeenCalledWith(expect.objectContaining({ year: '2025' }));
+      expect(expensesApi.list).toHaveBeenCalledWith(expect.objectContaining({ year: '2025' }), expect.any(AbortSignal));
     });
   });
 
@@ -110,7 +110,7 @@ describe('ExpensesListPage', () => {
     });
     // Assert
     await waitFor(() => {
-      expect(expensesApi.list).toHaveBeenCalledWith(expect.objectContaining({ category: 'Fuel' }));
+      expect(expensesApi.list).toHaveBeenCalledWith(expect.objectContaining({ category: 'Fuel' }), expect.any(AbortSignal));
     });
   });
 

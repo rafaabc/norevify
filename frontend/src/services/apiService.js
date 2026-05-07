@@ -4,7 +4,7 @@ function getToken() {
   return localStorage.getItem('token');
 }
 
-async function request(path, { method = 'GET', body = null, auth = true } = {}) {
+async function request(path, { method = 'GET', body = null, auth = true, signal = null } = {}) {
   const headers = { 'Content-Type': 'application/json' };
   if (auth) {
     const token = getToken();
@@ -13,6 +13,7 @@ async function request(path, { method = 'GET', body = null, auth = true } = {}) 
 
   const options = { method, headers };
   if (body !== null) options.body = JSON.stringify(body);
+  if (signal) options.signal = signal;
 
   const res = await fetch(`${BASE}${path}`, options);
 
@@ -41,13 +42,13 @@ export const authApi = {
 };
 
 export const expensesApi = {
-  list: ({ category, year, month } = {}) => {
+  list: ({ category, year, month } = {}, signal = null) => {
     const params = new URLSearchParams();
     if (category) params.set('category', category);
     if (year) params.set('year', year);
     if (month) params.set('month', month);
     const qs = params.toString();
-    return request(`/expenses${qs ? `?${qs}` : ''}`);
+    return request(`/expenses${qs ? `?${qs}` : ''}`, { signal });
   },
   get: (id) => request(`/expenses/${id}`),
   create: (data) => request('/expenses', { method: 'POST', body: data }),
