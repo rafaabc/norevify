@@ -5,6 +5,23 @@ const authRoutes = require('./routes/auth.routes');
 const expensesRoutes = require('./routes/expenses.routes');
 
 const app = express();
+
+const ALLOWED_ORIGINS = [
+  'https://drive-ledger-front.vercel.app',
+  'http://localhost:5173',
+];
+
+app.use((req, res, next) => {
+  const origin = req.headers.origin;
+  if (ALLOWED_ORIGINS.includes(origin)) {
+    res.setHeader('Access-Control-Allow-Origin', origin);
+  }
+  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, PATCH, DELETE, OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+  if (req.method === 'OPTIONS') return res.sendStatus(204);
+  next();
+});
+
 app.use(express.json());
 
 app.get('/api-docs/swagger.json', (req, res) => res.json(swaggerDocument));
