@@ -15,8 +15,6 @@ npm run dev
 npm install
 ```
 
-No test runner is configured yet (`npm test` exits with error).
-
 ## Environment
 
 Copy `.env.example` to `.env` and fill in:
@@ -26,32 +24,41 @@ PORT=3000
 JWT_SECRET=your-secret
 JWT_EXPIRES_IN=1h
 BASE_URL=http://localhost:3000
+MONGODB_URI=mongodb+srv://<USER>:<PASS>@cluster0.xxxxx.mongodb.net/drive-ledger?retryWrites=true&w=majority&appName=Cluster0
 ```
+
+`MONGODB_URI` points to the `drive-ledger` database on the shared Atlas `Cluster0`. The database is created automatically on first write.
 
 ## Architecture
 
-Layered Express.js REST API with **in-memory storage** (no database — data resets on restart).
+Layered Express.js REST API backed by **MongoDB Atlas via Mongoose** (data persists across restarts).
 
 ```
-routes → controllers → services → models
+routes → controllers → services → models (Mongoose)
+                                        ↕
+                                   MongoDB Atlas
 ```
 
+- **`src/config/db.js`**: `connectDB()` — called once at boot in `server.js` before `app.listen`
 - **routes**: wire HTTP verbs to controller functions; `expenses.routes.js` applies `authMiddleware` globally
-- **controllers**: thin try/catch wrappers that map service results to HTTP responses
+- **controllers**: async try/catch wrappers that map service results to HTTP responses
 - **services**: all business logic and validation; throw errors with `.status` property (picked up by controllers)
-- **models**: in-memory arrays with CRUD helpers; `user.model.js` and `expense.model.js`
+- **models**: Mongoose schemas + compiled models; export thin async wrappers (`findById`, `findByUserId`, `create`, `update`, `remove`, `_reset`) so services stay decoupled from the ODM API
 
 Error convention: `makeError(status, message)` in each service creates an `Error` with a `.status` field. Controllers read `err.status || 500`.
+
+IDs are MongoDB `ObjectId` values, exposed as 24-character hex strings. JWT payload carries `{ id: string, username: string }`.
 
 ## Unit Tests
 
 - Framework: Node.js native Test Runner (`node:test`) + `node:assert`
 - No external test libraries (no Mocha, Jest, Chai, Supertest)
 - Test files live in `test/unit/`, mirroring the source structure
+- Database isolation via `mongodb-memory-server` (no Atlas connection needed)
 
 ### Test layers covered
-- `services/` — business logic
-- `models/` — data validation and in-memory store
+- `services/` — business logic and validation
+- `models/` — Mongoose schema behaviour and CRUD
 - `middleware/` — JWT auth logic
 
 ### Scripts
@@ -61,40 +68,20 @@ Error convention: `makeError(status, message)` in each service creates an `Error
 ### Conventions
 - Pattern: AAA (Arrange, Act, Assert)
 - Test naming: `should <behavior> when <condition>`
-- In-memory store is reset via `_reset()` in `beforeEach` to guarantee test isolation (helper exported from both models)
+- Each test file boots an in-memory Mongo via `test/helpers/mongo.js`:
+  - `before(async () => startMongo())` / `after(async () => stopMongo())`
+  - `beforeEach(async () => resetMongo())` — calls `deleteMany({})` on both collections
 - No HTTP/endpoint tests here — those belong to the API test layer
-
-## API
-
-Swagger UI at `GET /api-docs` (served from `resources/swagger.json`).
-
-| Prefix | Auth required | Description |
-|---|---|---|
-| `/api/auth` | No | `POST /register`, `POST /login` |
-| `/api/expenses` | Yes (Bearer JWT) | CRUD + `GET /summary` |
-
-Auth: `Authorization: Bearer <token>` header. JWT decoded into `req.user` (`{ id, username }`).
-
-## Expense domain rules
-
-Valid categories: `Fuel`, `Maintenance`, `Insurance`, `Parking`, `Toll`, `Tax`, `Other`.
-
-- **Fuel**: requires `litres` and `price_per_litre` (both positive numbers); `amount` is auto-computed as `litres * price_per_litre` (rounded to 2 decimals). Passing `amount` → 400 error.
-- **Non-Fuel**: requires `amount` (positive number). Do not pass `litres` or `price_per_litre`.
-- **PATCH/PUT Fuel**: `amount` is ignored in the merge — only `litres`/`price_per_litre` can change the computed amount.
-- `date` must not be in the future.
-
-`GET /api/expenses` supports `?category=`, `?year=`, `?month=` filters.  
-`GET /api/expenses/summary` requires `?year=` (must not be in the future); optional `?month=` and `?category=`.
 
 ## Integration Tests
 
 - Framework: Node.js native Test Runner (`node:test`) + `node:assert`
 - No mocks, no HTTP calls — real internal collaborators only
 - Test files live in `test/integration/`, organized by flow (not by source layer)
+- Database isolation via `mongodb-memory-server` (same helper as unit tests)
 
 ### What integration tests cover
-- Service ↔ model collaboration (real in-memory store)
+- Service ↔ Mongoose model collaboration (real in-memory Mongo)
 - Middleware → service context hand-off (decoded `req.user.id` drives real service calls)
 - Multi-step internal flows: register → login → create expense → summary
 - Cross-layer CRUD state consistency: create → update → delete → verify via read
@@ -106,18 +93,18 @@ Valid categories: `Fuel`, `Maintenance`, `Insurance`, `Parking`, `Toll`, `Tax`, 
 ### Scripts
 - `npm run test:integration` — run all integration tests
 - `npm run test:integration:coverage` — run with c8 coverage report
-- `npm run test:all` — run unit + integration suites together
+- `npm run test:backend` — run unit + integration suites together
 
 ### Conventions
 - Pattern: AAA (Arrange, Act, Assert)
 - Files named `<flow>.flow.test.js` under `test/integration/`
-- Both in-memory stores reset via `_reset()` in `beforeEach`
+- Both collections reset via `resetMongo()` in `beforeEach` (async `deleteMany`)
 - No mocking of internal modules — real implementations only
 
 ## API Tests
 
 - Framework: Mocha + Chai + Supertest; HTML reports via Mochawesome
-- **Requires a running server** — start with `npm run dev` before executing the suite
+- **Requires a running server connected to Atlas** — start with `npm run dev` before executing the suite
 - Test files live in `test/api/`, organized by feature (auth, expenses, summary)
 
 ### Structure
@@ -153,6 +140,29 @@ Valid categories: `Fuel`, `Maintenance`, `Insurance`, `Parking`, `Toll`, `Tax`, 
 - No real HTTP calls — `global.fetch` is mocked in service tests; `apiService` is mocked at module level in component/page tests
 - `localStorage` cleared in `beforeEach` via `jest.setup.js`
 - Fake timers (`jest.useFakeTimers`) used for date-sensitive tests
+
+## API
+
+Swagger UI at `GET /api-docs` (served from `resources/swagger.json`). Also logged to console on startup.
+
+| Prefix | Auth required | Description |
+|---|---|---|
+| `/api/auth` | No | `POST /register`, `POST /login` |
+| `/api/expenses` | Yes (Bearer JWT) | CRUD + `GET /summary` |
+
+Auth: `Authorization: Bearer <token>` header. JWT decoded into `req.user` (`{ id, username }`). `id` is an ObjectId hex string.
+
+## Expense domain rules
+
+Valid categories: `Fuel`, `Maintenance`, `Insurance`, `Parking`, `Toll`, `Tax`, `Other`.
+
+- **Fuel**: requires `litres` and `price_per_litre` (both positive numbers); `amount` is auto-computed as `litres * price_per_litre` (rounded to 2 decimals). Passing `amount` → 400 error.
+- **Non-Fuel**: requires `amount` (positive number). Do not pass `litres` or `price_per_litre`.
+- **PATCH/PUT Fuel**: `amount` is ignored in the merge — only `litres`/`price_per_litre` can change the computed amount.
+- `date` must not be in the future.
+
+`GET /api/expenses` supports `?category=`, `?year=`, `?month=` filters.  
+`GET /api/expenses/summary` requires `?year=` (must not be in the future); optional `?month=` and `?category=`.
 
 ## Frontend
 
@@ -213,6 +223,19 @@ To add a new endpoint: export a new function from `apiService.js` that calls the
 - Components: PascalCase in `src/components/`
 - Services: `*Api` object exported from `src/services/apiService.js`
 - CSS Modules: `*.module.css` co-located with the component/page
+
+## CI Pipelines
+
+Two separate workflow files under `.github/workflows/`:
+
+| Workflow | Triggers on | Chain |
+|---|---|---|
+| `backend.yml` | `src/**`, `test/**`, `package*.json` | test-unit → test-integration → test-api |
+| `frontend.yml` | `frontend/**` | test-unit → e2e |
+
+- `test-unit` and `test-integration` use `mongodb-memory-server` — no secrets needed
+- `test-api` and `e2e` boot the real server and require `JWT_SECRET` + `MONGODB_URI` from GitHub Secrets
+- Both workflows support `workflow_dispatch` for manual runs
 
 ## Visual Identity
 

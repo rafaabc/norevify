@@ -1,4 +1,5 @@
-[![Full Test Suite](https://github.com/rafaabc/drive-ledger/actions/workflows/ci-cd-pipeline.yml/badge.svg)](https://github.com/rafaabc/drive-ledger/actions/workflows/ci-cd-pipeline.yml)
+[![Backend CI](https://github.com/rafaabc/drive-ledger/actions/workflows/backend.yml/badge.svg)](https://github.com/rafaabc/drive-ledger/actions/workflows/backend.yml)
+[![Frontend CI](https://github.com/rafaabc/drive-ledger/actions/workflows/frontend.yml/badge.svg)](https://github.com/rafaabc/drive-ledger/actions/workflows/frontend.yml)
 
 # Drive Ledger
 
@@ -10,13 +11,12 @@
 
 ## Description
 
-Drive Ledger is a full-stack vehicle expense management application. The backend is a Node.js/Express REST API that lets users log and analyze expenses by category (fuel, maintenance, insurance, tolls, and more), with JWT-based authentication and user isolation. The frontend is a React SPA (Vite) that consumes the API. Data is stored in-memory — no database setup required.
+Drive Ledger is a full-stack vehicle expense management application. The backend is a Node.js/Express REST API that lets users log and analyze expenses by category (fuel, maintenance, insurance, tolls, and more), with JWT-based authentication and user isolation. The frontend is a React SPA (Vite) that consumes the API. Data is persisted in MongoDB Atlas — a free cluster is sufficient.
 
 ## Dependencies
 
 - **Node.js** v18 or higher
-
-No external services or databases are required.
+- **MongoDB Atlas** cluster (any free tier cluster)
 
 ## Technologies Used
 
@@ -27,6 +27,7 @@ No external services or databases are required.
 | express | ^5.2.1 | HTTP framework |
 | jsonwebtoken | ^9.0.3 | JWT auth |
 | bcryptjs | ^3.0.3 | Password hashing |
+| mongoose | ^8.x | MongoDB ODM |
 | dotenv | ^17.4.2 | Environment variables |
 | swagger-ui-express | ^5.0.1 | API docs |
 
@@ -54,18 +55,41 @@ npm install
 cp .env.example .env
 ```
 
-| Variable | Description | Example |
-|---|---|---|
-| `PORT` | Server port | `3000` |
-| `JWT_SECRET` | JWT signing key | `supersecretkey` |
-| `JWT_EXPIRES_IN` | Token expiry | `1h` |
-| `BASE_URL` | Base URL for API tests | `http://localhost:3000` |
+Fill in the values:
+
+| Variable | Description |
+|---|---|
+| `PORT` | Server port (e.g. `3000`) |
+| `JWT_SECRET` | JWT signing key |
+| `JWT_EXPIRES_IN` | Token expiry (e.g. `1h`) |
+| `BASE_URL` | Base URL for API tests (e.g. `http://localhost:3000`) |
+| `MONGODB_URI` | MongoDB Atlas connection string (see below) |
+
+### MongoDB Setup
+
+1. Go to [MongoDB Atlas](https://cloud.mongodb.com) → your cluster → **Connect** → **Drivers** → **Node.js**.
+2. Copy the connection string and add the database name before the query string:
+   ```
+   mongodb+srv://<USER>:<PASS>@cluster0.xxxxx.mongodb.net/drive-ledger?retryWrites=true&w=majority&appName=Cluster0
+   ```
+3. Paste it as `MONGODB_URI` in your `.env`.
+4. In Atlas → **Network Access**, add your current IP (or `0.0.0.0/0` for unrestricted access).
+5. In Atlas → **Database Access**, create a dedicated user with `readWrite` on the `drive-ledger` database.
+
+> The `drive-ledger` database is created automatically on the first write — no manual setup needed.
 
 3. Start the backend:
 
 ```bash
 npm run dev   # development (hot reload)
 npm start     # production
+```
+
+Output on startup:
+```
+MongoDB connected
+Server running on port 3000
+Swagger UI: http://localhost:3000/api-docs
 ```
 
 4. Install and start the frontend:
@@ -104,15 +128,34 @@ Swagger UI available at `http://localhost:3000/api-docs`. For validation rules, 
 
 ### Test Commands
 
+**Backend** (from project root)
+
 | Command | Scope | Runner |
 |---|---|---|
 | `npm run test:unit` | Unit — services, models, middleware | Node.js native |
+| `npm run test:unit:coverage` | Unit tests + HTML coverage report | Node.js native + c8 |
 | `npm run test:integration` | Integration — cross-layer flows | Node.js native |
+| `npm run test:integration:coverage` | Integration tests + HTML coverage report | Node.js native + c8 |
 | `npm run test:backend` | Unit + integration | Node.js native |
 | `npm run test:api` | API contracts (server must be running) | Mocha + Supertest |
 | `npm run test:api:report` | API tests + HTML report in `reports/` | Mochawesome |
-| `cd frontend && npm run test:front` | Frontend unit tests | Jest + Testing Library |
-| `cd frontend && npm run test:e2e` | E2E (both servers must be running) | Playwright |
+
+**Frontend** (from `frontend/`)
+
+| Command | Scope | Runner |
+|---|---|---|
+| `npm run test:front` | Frontend unit tests | Jest + Testing Library |
+| `npm run test:front:coverage` | Frontend unit tests + HTML coverage report | Jest + c8 |
+| `npm run test:e2e` | E2E (both servers must be running) | Playwright |
+
+### CI Pipelines
+
+| Workflow | Triggers on | Jobs |
+|---|---|---|
+| `backend.yml` | `src/**`, `test/**`, `package*.json` | test-unit → test-integration → test-api |
+| `frontend.yml` | `frontend/**` | test-unit → e2e |
+
+Unit and integration jobs use `mongodb-memory-server` — no Atlas connection needed. API and E2E jobs connect to Atlas via `MONGODB_URI` secret.
 
 ## File Structure
 
@@ -123,14 +166,16 @@ drive-ledger/
 │   ├── test/            # Frontend unit tests
 │   └── e2e/             # Playwright E2E tests
 ├── src/
+│   ├── config/          # db.js — MongoDB connection
 │   ├── routes/          # HTTP route definitions
 │   ├── controllers/     # HTTP response mapping
 │   ├── services/        # Business logic and validation
-│   ├── models/          # In-memory data stores
+│   ├── models/          # Mongoose schemas and models
 │   ├── middleware/       # JWT auth middleware
 │   ├── app.js           # Express app setup
 │   └── server.js        # Entry point
 ├── test/
+│   ├── helpers/         # mongo.js — mongodb-memory-server helpers
 │   ├── unit/            # Isolated function tests
 │   ├── integration/     # Cross-layer flow tests
 │   └── api/             # HTTP contract tests

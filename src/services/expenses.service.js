@@ -1,3 +1,4 @@
+const mongoose = require('mongoose');
 const expenseModel = require('../models/expense.model');
 
 const CATEGORIES = ['Fuel', 'Maintenance', 'Insurance', 'Parking', 'Toll', 'Tax', 'Other'];
@@ -50,29 +51,35 @@ function buildExpenseData({ category, amount, litres, price_per_litre, date }) {
   return base;
 }
 
-function createExpense(userId, body) {
+function assertValidObjectId(id) {
+  if (!mongoose.isValidObjectId(id)) throw makeError(404, 'Expense not found');
+}
+
+async function createExpense(userId, body) {
   validateExpenseFields(body);
   const data = buildExpenseData(body);
   return expenseModel.create({ userId, ...data });
 }
 
-function listExpenses(userId, query) {
-  let results = expenseModel.findByUserId(userId);
+async function listExpenses(userId, query) {
+  let results = await expenseModel.findByUserId(userId);
   if (query.category) results = results.filter((e) => e.category === query.category);
   if (query.year) results = results.filter((e) => new Date(e.date).getFullYear() === Number(query.year));
   if (query.month) results = results.filter((e) => new Date(e.date).getMonth() + 1 === Number(query.month));
   return results;
 }
 
-function getExpense(userId, id) {
-  const expense = expenseModel.findById(Number(id));
-  if (!expense || expense.userId !== userId) throw makeError(404, 'Expense not found');
+async function getExpense(userId, id) {
+  assertValidObjectId(id);
+  const expense = await expenseModel.findById(id);
+  if (!expense || expense.userId.toString() !== userId) throw makeError(404, 'Expense not found');
   return expense;
 }
 
-function updateExpense(userId, id, body) {
-  const existing = expenseModel.findById(Number(id));
-  if (!existing || existing.userId !== userId) throw makeError(404, 'Expense not found');
+async function updateExpense(userId, id, body) {
+  assertValidObjectId(id);
+  const existing = await expenseModel.findById(id);
+  if (!existing || existing.userId.toString() !== userId) throw makeError(404, 'Expense not found');
 
   const resolvedCategory = body.category !== undefined ? body.category : existing.category;
   const merged = {
@@ -87,16 +94,17 @@ function updateExpense(userId, id, body) {
 
   validateExpenseFields(merged);
   const data = buildExpenseData(merged);
-  return expenseModel.update(Number(id), data);
+  return expenseModel.update(id, data);
 }
 
-function deleteExpense(userId, id) {
-  const expense = expenseModel.findById(Number(id));
-  if (!expense || expense.userId !== userId) throw makeError(404, 'Expense not found');
-  expenseModel.remove(Number(id));
+async function deleteExpense(userId, id) {
+  assertValidObjectId(id);
+  const expense = await expenseModel.findById(id);
+  if (!expense || expense.userId.toString() !== userId) throw makeError(404, 'Expense not found');
+  await expenseModel.remove(id);
 }
 
-function getSummary(userId, query) {
+async function getSummary(userId, query) {
   if (!query.year) throw makeError(400, 'year query parameter is required');
   const year = Number(query.year);
   if (isNaN(year)) throw makeError(400, 'year must be a number');
@@ -111,7 +119,8 @@ function getSummary(userId, query) {
 
   const targetCategories = query.category ? [query.category] : [...CATEGORIES];
 
-  let expenses = expenseModel.findByUserId(userId).filter((e) => {
+  const allExpenses = await expenseModel.findByUserId(userId);
+  const expenses = allExpenses.filter((e) => {
     const d = new Date(e.date);
     const matchYear = d.getFullYear() === year;
     const matchMonth = month ? d.getMonth() + 1 === month : true;

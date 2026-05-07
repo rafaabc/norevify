@@ -3,16 +3,16 @@
 process.env.JWT_SECRET = process.env.JWT_SECRET || 'test-secret';
 process.env.JWT_EXPIRES_IN = process.env.JWT_EXPIRES_IN || '1h';
 
-const { describe, it, beforeEach } = require('node:test');
+const { describe, it, before, after, beforeEach } = require('node:test');
 const assert = require('node:assert/strict');
 const jwt = require('jsonwebtoken');
 
-const userModel = require('../../../src/models/user.model');
+const { startMongo, stopMongo, resetMongo } = require('../../helpers/mongo');
 const authService = require('../../../src/services/auth.service');
 
-beforeEach(() => {
-  userModel._reset();
-});
+before(async () => await startMongo());
+after(async () => await stopMongo());
+beforeEach(async () => await resetMongo());
 
 // ---------------------------------------------------------------------------
 // US-01 — User Registration
