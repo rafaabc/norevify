@@ -1,74 +1,64 @@
 'use strict';
 
-const { describe, it, beforeEach } = require('node:test');
+const mongoose = require('mongoose');
+const { describe, it, before, after, beforeEach } = require('node:test');
 const assert = require('node:assert/strict');
 
+const { startMongo, stopMongo, resetMongo } = require('../../helpers/mongo');
 const userModel = require('../../../src/models/user.model');
 
-beforeEach(() => {
-  userModel._reset();
-});
+before(async () => await startMongo());
+after(async () => await stopMongo());
+beforeEach(async () => await resetMongo());
 
 describe('userModel.create()', () => {
-  it('should create a user with an auto-incremented id', () => {
-    const user = userModel.create({ username: 'alice', password: 'hashed' });
-    assert.strictEqual(user.id, 1);
+  it('should create a user with a unique _id', async () => {
+    const user = await userModel.create({ username: 'alice', password: 'hashed' });
+    assert.ok(user._id);
     assert.strictEqual(user.username, 'alice');
   });
 
-  it('should assign sequential ids to multiple users', () => {
-    const first = userModel.create({ username: 'alice', password: 'hashed' });
-    const second = userModel.create({ username: 'bob', password: 'hashed' });
-    assert.strictEqual(first.id, 1);
-    assert.strictEqual(second.id, 2);
+  it('should assign distinct _ids to multiple users', async () => {
+    const first = await userModel.create({ username: 'alice', password: 'hashed' });
+    const second = await userModel.create({ username: 'bob', password: 'hashed' });
+    assert.notStrictEqual(first._id.toString(), second._id.toString());
   });
 });
 
 describe('userModel.findByUsername()', () => {
-  it('should return the user when the username matches', () => {
-    userModel.create({ username: 'alice', password: 'hashed' });
-    const found = userModel.findByUsername('alice');
+  it('should return the user when the username matches', async () => {
+    await userModel.create({ username: 'alice', password: 'hashed' });
+    const found = await userModel.findByUsername('alice');
     assert.ok(found);
     assert.strictEqual(found.username, 'alice');
   });
 
-  it('should return undefined when the username does not exist', () => {
-    const found = userModel.findByUsername('nobody');
-    assert.strictEqual(found, undefined);
+  it('should return null when the username does not exist', async () => {
+    const found = await userModel.findByUsername('nobody');
+    assert.strictEqual(found, null);
   });
 });
 
 describe('userModel.findById()', () => {
-  it('should return the user when id matches', () => {
-    const created = userModel.create({ username: 'alice', password: 'hashed' });
-    const found = userModel.findById(created.id);
-    assert.deepStrictEqual(found, created);
+  it('should return the user when id matches', async () => {
+    const created = await userModel.create({ username: 'alice', password: 'hashed' });
+    const found = await userModel.findById(created._id);
+    assert.ok(found);
+    assert.strictEqual(found.username, 'alice');
   });
 
-  it('should return undefined when id does not exist', () => {
-    const found = userModel.findById(999);
-    assert.strictEqual(found, undefined);
-  });
-});
-
-describe('userModel.findAll()', () => {
-  it('should return an empty array when no users exist', () => {
-    assert.deepStrictEqual(userModel.findAll(), []);
-  });
-
-  it('should return all created users', () => {
-    userModel.create({ username: 'alice', password: 'hashed' });
-    userModel.create({ username: 'bob', password: 'hashed' });
-    assert.strictEqual(userModel.findAll().length, 2);
+  it('should return null when id does not exist', async () => {
+    const fakeId = new mongoose.Types.ObjectId();
+    const found = await userModel.findById(fakeId);
+    assert.strictEqual(found, null);
   });
 });
 
 describe('userModel._reset()', () => {
-  it('should clear all users and reset id counter', () => {
-    userModel.create({ username: 'alice', password: 'hashed' });
-    userModel._reset();
-    assert.deepStrictEqual(userModel.findAll(), []);
-    const user = userModel.create({ username: 'bob', password: 'hashed' });
-    assert.strictEqual(user.id, 1);
+  it('should clear all users from the collection', async () => {
+    await userModel.create({ username: 'alice', password: 'hashed' });
+    await userModel._reset();
+    const found = await userModel.findByUsername('alice');
+    assert.strictEqual(found, null);
   });
 });

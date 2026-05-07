@@ -1,26 +1,24 @@
-const expenses = [];
-let nextId = 1;
+const mongoose = require('mongoose');
+
+const CATEGORIES = ['Fuel', 'Maintenance', 'Insurance', 'Parking', 'Toll', 'Tax', 'Other'];
+
+const expenseSchema = new mongoose.Schema({
+  userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true, index: true },
+  date: { type: Date, required: true },
+  category: { type: String, enum: CATEGORIES, required: true },
+  amount: { type: Number, required: true },
+  litres: { type: Number },
+  price_per_litre: { type: Number },
+});
+
+const Expense = mongoose.model('Expense', expenseSchema);
 
 module.exports = {
-  findAll: () => expenses,
-  findById: (id) => expenses.find((e) => e.id === id),
-  findByUserId: (userId) => expenses.filter((e) => e.userId === userId),
-  create: (data) => {
-    const expense = { id: nextId++, ...data };
-    expenses.push(expense);
-    return expense;
-  },
-  update: (id, data) => {
-    const index = expenses.findIndex((e) => e.id === id);
-    if (index === -1) return null;
-    expenses[index] = { ...expenses[index], ...data };
-    return expenses[index];
-  },
-  remove: (id) => {
-    const index = expenses.findIndex((e) => e.id === id);
-    if (index === -1) return false;
-    expenses.splice(index, 1);
-    return true;
-  },
-  _reset: () => { expenses.length = 0; nextId = 1; },
+  findAll: () => Expense.find(),
+  findById: (id) => Expense.findById(id),
+  findByUserId: (userId) => Expense.find({ userId }),
+  create: (data) => Expense.create(data),
+  update: (id, data) => Expense.findByIdAndUpdate(id, data, { returnDocument: 'after' }),
+  remove: (id) => Expense.findByIdAndDelete(id),
+  _reset: () => Expense.deleteMany({}),
 };

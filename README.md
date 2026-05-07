@@ -10,13 +10,12 @@
 
 ## Description
 
-Drive Ledger is a full-stack vehicle expense management application. The backend is a Node.js/Express REST API that lets users log and analyze expenses by category (fuel, maintenance, insurance, tolls, and more), with JWT-based authentication and user isolation. The frontend is a React SPA (Vite) that consumes the API. Data is stored in-memory — no database setup required.
+Drive Ledger is a full-stack vehicle expense management application. The backend is a Node.js/Express REST API that lets users log and analyze expenses by category (fuel, maintenance, insurance, tolls, and more), with JWT-based authentication and user isolation. The frontend is a React SPA (Vite) that consumes the API. Data is persisted in MongoDB Atlas — a free cluster is sufficient.
 
 ## Dependencies
 
 - **Node.js** v18 or higher
-
-No external services or databases are required.
+- **MongoDB Atlas** cluster (Cluster0 or any free tier cluster)
 
 ## Technologies Used
 
@@ -28,6 +27,7 @@ No external services or databases are required.
 | jsonwebtoken | ^9.0.3 | JWT auth |
 | bcryptjs | ^3.0.3 | Password hashing |
 | dotenv | ^17.4.2 | Environment variables |
+| mongoose | ^8.x | MongoDB ODM |
 | swagger-ui-express | ^5.0.1 | API docs |
 
 **Frontend**
@@ -60,6 +60,24 @@ cp .env.example .env
 | `JWT_SECRET` | JWT signing key | `supersecretkey` |
 | `JWT_EXPIRES_IN` | Token expiry | `1h` |
 | `BASE_URL` | Base URL for API tests | `http://localhost:3000` |
+| `MONGODB_URI` | MongoDB Atlas connection string | see below |
+
+### MongoDB Setup
+
+1. Go to [MongoDB Atlas](https://cloud.mongodb.com) → your cluster → **Connect** → **Drivers** → **Node.js**.
+2. Copy the connection string. It looks like:
+   ```
+   mongodb+srv://<USER>:<PASS>@cluster0.xxxxx.mongodb.net/?retryWrites=true&w=majority
+   ```
+3. Add the database name (`drive-ledger`) before the query string:
+   ```
+   mongodb+srv://<USER>:<PASS>@cluster0.xxxxx.mongodb.net/drive-ledger?retryWrites=true&w=majority&appName=Cluster0
+   ```
+4. Paste that string as `MONGODB_URI` in your `.env`.
+5. In Atlas → **Network Access**, add your current IP (or `0.0.0.0/0` for unrestricted).
+6. Create a dedicated database user in Atlas → **Database Access** with `readWrite` on the `drive-ledger` database.
+
+> The `drive-ledger` database is created automatically on first write — no manual setup needed.
 
 3. Start the backend:
 
