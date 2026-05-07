@@ -18,8 +18,8 @@ describe('US-03 - Register / Manage Vehicle Expense', () => {
         .send(fixtures.validFuel);
 
       expect(res.status).to.equal(201);
-      expect(res.body).to.have.property('id').that.is.a('number');
-      expect(res.body).to.have.property('userId').that.is.a('number');
+      expect(res.body).to.have.property('id').that.is.a('string');
+      expect(res.body).to.have.property('userId').that.is.a('string');
       expect(res.body).to.have.property('date').that.is.a('string');
       expect(res.body).to.have.property('category', 'Fuel');
       expect(res.body).to.have.property('amount').that.is.a('number');

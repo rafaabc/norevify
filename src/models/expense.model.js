@@ -2,14 +2,26 @@ const mongoose = require('mongoose');
 
 const CATEGORIES = ['Fuel', 'Maintenance', 'Insurance', 'Parking', 'Toll', 'Tax', 'Other'];
 
-const expenseSchema = new mongoose.Schema({
-  userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true, index: true },
-  date: { type: Date, required: true },
-  category: { type: String, enum: CATEGORIES, required: true },
-  amount: { type: Number, required: true },
-  litres: { type: Number },
-  price_per_litre: { type: Number },
-});
+const expenseSchema = new mongoose.Schema(
+  {
+    userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true, index: true },
+    date: { type: Date, required: true },
+    category: { type: String, enum: CATEGORIES, required: true },
+    amount: { type: Number, required: true },
+    litres: { type: Number },
+    price_per_litre: { type: Number },
+  },
+  {
+    toJSON: {
+      transform(_, ret) {
+        ret.id = ret._id.toString();
+        ret.userId = ret.userId.toString();
+        delete ret._id;
+        delete ret.__v;
+      },
+    },
+  }
+);
 
 const Expense = mongoose.model('Expense', expenseSchema);
 

@@ -25,7 +25,7 @@ describe('US-01 - User Registration', () => {
         .send({ username: uniqueUsername('tc0101'), password: 'Password1' });
 
       expect(res.status).to.equal(201);
-      expect(res.body).to.have.property('id').that.is.a('number');
+      expect(res.body).to.have.property('id').that.is.a('string');
       expect(res.body).to.have.property('username').that.is.a('string');
     });
 
