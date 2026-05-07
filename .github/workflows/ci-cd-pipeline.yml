@@ -69,6 +69,7 @@ jobs:
       BASE_URL: 'http://localhost:3000'
       JWT_EXPIRES_IN: '1h'
       JWT_SECRET: ${{ secrets.JWT_SECRET }}
+      MONGODB_URI: ${{ secrets.MONGODB_URI }}
 
     steps:
       - uses: actions/checkout@v4
@@ -118,6 +119,7 @@ jobs:
       PORT: '3000'
       JWT_EXPIRES_IN: '1h'
       JWT_SECRET: ${{ secrets.JWT_SECRET }}
+      MONGODB_URI: ${{ secrets.MONGODB_URI }}
 
     steps:
       - uses: actions/checkout@v4
