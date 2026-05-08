@@ -173,6 +173,7 @@ Location: `frontend/` at the project root.
 - **React 18** + **Vite 5** — dev server on `:5173`, proxies `/api/*` to backend `:3000` (no CORS package needed)
 - **react-router-dom v6** — client-side routing with `<ProtectedRoute>`
 - **Plain CSS Modules** — scoped per component/page; global base in `src/styles/globals.css`
+- **vite-plugin-pwa** — generates `sw.js` + `manifest.webmanifest` at build time; SW disabled in dev mode by default
 
 ### Commands
 
@@ -216,6 +217,14 @@ To add a new endpoint: export a new function from `apiService.js` that calls the
 ### Display behavior
 
 - Expenses list (`ExpensesListPage`) sorts by `date` descending (newest first) client-side after each fetch — insertion order from the API is ignored.
+
+### PWA
+
+- **Manifest**: configured in `vite.config.js` under `VitePWA({ manifest })` — name, icons, `standalone` display, dark theme/background color.
+- **Service worker**: `registerType: 'autoUpdate'`. `/api/*` routes use `NetworkFirst` (5s timeout, 200-only, 1-day cache). All app assets are precached.
+- **Update flow**: SW dispatches `pwa:update-available` custom event → `App.jsx` shows `<UpdatePrompt>` toast → user clicks "Recarregar" → `updateSW(true)` skips waiting and reloads.
+- **Icons**: static PNGs in `frontend/public/icons/` (192, 512, 512-maskable, 180 apple-touch). Were generated via Playwright/Chromium from `favicon.svg`; regenerate with `node generate-icons.mjs` if the icon changes (script not committed — recreate from plan if needed).
+- **iOS**: `index.html` carries `apple-mobile-web-app-*` meta tags and `apple-touch-icon` link. No install banner on iOS — user must use Share → Add to Home Screen manually.
 
 ### Naming conventions
 

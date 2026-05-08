@@ -3,7 +3,7 @@
 
 # Drive Ledger
 
-> Full-stack vehicle expense manager — Node.js/Express REST API with a React SPA, JWT authentication, and spending summaries by period.
+> Full-stack vehicle expense manager — Node.js/Express REST API with a React PWA, JWT authentication, and spending summaries by period.
 
 > https://github.com/user-attachments/assets/aa83e4c7-adfd-422d-8088-3656878346d4
 
@@ -11,7 +11,7 @@
 
 ## Description
 
-Drive Ledger is a full-stack vehicle expense management application. The backend is a Node.js/Express REST API that lets users log and analyze expenses by category (fuel, maintenance, insurance, tolls, and more), with JWT-based authentication and user isolation. The frontend is a React SPA (Vite) that consumes the API. Data is persisted in MongoDB Atlas — a free cluster is sufficient.
+Drive Ledger is a full-stack vehicle expense management application. The backend is a Node.js/Express REST API that lets users log and analyze expenses by category (fuel, maintenance, insurance, tolls, and more), with JWT-based authentication and user isolation. The frontend is a React PWA (Vite) that consumes the API and can be installed on Android and iOS directly from the browser. Data is persisted in MongoDB Atlas — a free cluster is sufficient.
 
 ## Dependencies
 
@@ -38,6 +38,7 @@ Drive Ledger is a full-stack vehicle expense management application. The backend
 | react | ^18.3.1 | UI framework |
 | react-router-dom | ^6.26.2 | Client-side routing |
 | vite | ^5.4.8 | Dev server and bundler |
+| vite-plugin-pwa | ^1.3.0 | Service worker + web app manifest (PWA) |
 
 ## Installation and Setup
 
@@ -103,6 +104,15 @@ npm run dev   # available at http://localhost:5173
 > The backend must be running on port 3000 before starting the frontend. Vite proxies `/api/*` to port 3000 automatically.
 
 ## Features
+
+### PWA — Install on mobile
+
+The app is a Progressive Web App. No app store required.
+
+- **Android (Chrome)**: open the app → tap "Install app" banner (or browser menu → "Add to Home Screen").
+- **iOS (Safari)**: open the app → Share → "Add to Home Screen".
+
+Once installed, the app runs fullscreen (no browser chrome) and loads offline from cache. A "Nova versão disponível" toast appears automatically when a new version is deployed.
 
 ### API Endpoints
 
