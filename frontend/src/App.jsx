@@ -1,3 +1,4 @@
+import { useState, useEffect } from 'react';
 import { Routes, Route } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext.jsx';
 import ProtectedRoute from './routes/ProtectedRoute.jsx';
@@ -9,10 +10,20 @@ import ExpensesListPage from './pages/ExpensesListPage.jsx';
 import ExpenseFormPage from './pages/ExpenseFormPage.jsx';
 import SummaryPage from './pages/SummaryPage.jsx';
 import NotFoundPage from './pages/NotFoundPage.jsx';
+import UpdatePrompt from './components/UpdatePrompt.jsx';
 
 export default function App() {
+  const [updateSW, setUpdateSW] = useState(null);
+
+  useEffect(() => {
+    const handler = (e) => setUpdateSW(() => e.detail.updateSW);
+    window.addEventListener('pwa:update-available', handler);
+    return () => window.removeEventListener('pwa:update-available', handler);
+  }, []);
+
   return (
     <AuthProvider>
+      {updateSW && <UpdatePrompt onUpdate={() => updateSW(true)} />}
       <Routes>
         <Route path="/login" element={<LoginPage />} />
         <Route path="/register" element={<RegisterPage />} />
