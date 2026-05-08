@@ -1,7 +1,7 @@
 'use strict';
 
 const jwt = require('jsonwebtoken');
-const { request, expect, BASE_URL, getToken, getUser, uniqueUsername } = require('../base/api-base');
+const { request, expect, BASE_URL, getToken, getUser, uniqueUsername, registerAndTrack } = require('../base/api-base');
 const fixtures = require('../fixtures/auth.json');
 
 function exactUsername(len) {
@@ -20,9 +20,7 @@ describe('US-01 - User Registration', () => {
   describe('POST /api/auth/register', () => {
 
     it('[TC-01-01] should return 201 with id and username when credentials are valid', async () => {
-      const res = await request(BASE_URL)
-        .post('/api/auth/register')
-        .send({ username: uniqueUsername('tc0101'), password: 'Password1' });
+      const res = await registerAndTrack(uniqueUsername('tc0101'), 'Password1');
 
       expect(res.status).to.equal(201);
       expect(res.body).to.have.property('id').that.is.a('string');
@@ -31,7 +29,7 @@ describe('US-01 - User Registration', () => {
 
     it('[TC-01-02] should return 409 when username is already taken', async () => {
       const username = uniqueUsername('tc0102');
-      await request(BASE_URL).post('/api/auth/register').send({ username, password: 'Password1' });
+      await registerAndTrack(username, 'Password1');
 
       const res = await request(BASE_URL)
         .post('/api/auth/register')
@@ -42,7 +40,7 @@ describe('US-01 - User Registration', () => {
 
     it('[TC-01-03] should include an error message in the response body when username is duplicate', async () => {
       const username = uniqueUsername('tc0103');
-      await request(BASE_URL).post('/api/auth/register').send({ username, password: 'Password1' });
+      await registerAndTrack(username, 'Password1');
 
       const res = await request(BASE_URL)
         .post('/api/auth/register')
@@ -68,43 +66,32 @@ describe('US-01 - User Registration', () => {
     });
 
     it('[TC-01-08] should return 201 when password has exactly 8 characters', async () => {
-      const res = await request(BASE_URL)
-        .post('/api/auth/register')
-        .send({ username: uniqueUsername('tc0108'), password: 'Pass1234' });
+      const res = await registerAndTrack(uniqueUsername('tc0108'), 'Pass1234');
 
       expect(res.status).to.equal(201);
     });
 
     it('[TC-01-10] should return 201 when username has exactly 3 characters', async () => {
-      const res = await request(BASE_URL)
-        .post('/api/auth/register')
-        .send({ username: exactUsername(3), password: 'Password1' });
+      const res = await registerAndTrack(exactUsername(3), 'Password1');
 
       expect(res.status).to.equal(201);
     });
 
     it('[TC-01-13] should return 201 when username contains alphanumeric characters and underscores', async () => {
       const username = uniqueUsername('v_u').replace(/-/g, '_').slice(0, 50);
-
-      const res = await request(BASE_URL)
-        .post('/api/auth/register')
-        .send({ username, password: 'Password1' });
+      const res = await registerAndTrack(username, 'Password1');
 
       expect(res.status).to.equal(201);
     });
 
     it('[TC-01-15] should return 201 when username has exactly 50 characters', async () => {
-      const res = await request(BASE_URL)
-        .post('/api/auth/register')
-        .send({ username: exactUsername(50), password: 'Password1' });
+      const res = await registerAndTrack(exactUsername(50), 'Password1');
 
       expect(res.status).to.equal(201);
     });
 
     it('[TC-01-17] should return 201 when password has exactly 20 characters', async () => {
-      const res = await request(BASE_URL)
-        .post('/api/auth/register')
-        .send({ username: uniqueUsername('tc0117'), password: 'Password1234567890ab'.slice(0, 20) });
+      const res = await registerAndTrack(uniqueUsername('tc0117'), 'Password1234567890ab'.slice(0, 20));
 
       expect(res.status).to.equal(201);
     });
