@@ -114,6 +114,15 @@ The app is a Progressive Web App. No app store required.
 
 Once installed, the app runs fullscreen (no browser chrome) and loads offline from cache. A "Nova versão disponível" toast appears automatically when a new version is deployed.
 
+### Mobile responsiveness
+
+The layout is fully responsive at **≤ 640 px** (CSS-only, no JS):
+
+- Sidebar collapses from 232 px to a 52 px icon-only strip.
+- Tables become horizontally scrollable; column widths are reduced to fit ~340 px of content.
+- KPI card values and page titles scale down for smaller viewports.
+- Summary page filter fields expand to full width.
+
 ### API Endpoints
 
 **Auth** — no JWT required
