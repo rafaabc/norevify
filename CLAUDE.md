@@ -135,11 +135,18 @@ IDs are MongoDB `ObjectId` values, exposed as 24-character hex strings. JWT payl
 - `npm run test:front:watch` — watch mode
 - `npm run test:front:coverage` — c8 coverage (HTML report in `frontend/coverage/`)
 
+### Test files added (responsive + PWA coverage)
+- `test/components/UpdatePrompt.test.jsx` — render and click behaviour
+- `test/components/AppShell.test.jsx` — Sidebar + Outlet integration
+- `test/components/Sidebar.test.jsx` — nav links, logout, username, brand
+- `test/App.test.jsx` — `pwa:update-available` event wiring, `updateSW(true)` call, listener cleanup on unmount
+
 ### Conventions
 - Pattern: AAA (Arrange, Act, Assert)
 - No real HTTP calls — `global.fetch` is mocked in service tests; `apiService` is mocked at module level in component/page tests
 - `localStorage` cleared in `beforeEach` via `jest.setup.js`
 - Fake timers (`jest.useFakeTimers`) used for date-sensitive tests
+- CSS Modules not testable in jsdom — responsive breakpoints are covered by E2E (`e2e/tests/ui/sidebar-responsive.spec.ts`)
 
 ## API
 
@@ -217,6 +224,16 @@ To add a new endpoint: export a new function from `apiService.js` that calls the
 ### Display behavior
 
 - Expenses list (`ExpensesListPage`) sorts by `date` descending (newest first) client-side after each fetch — insertion order from the API is ignored.
+
+### Responsive layout
+
+- **Breakpoint**: `≤ 640px` — targets all mobile devices (iOS 14 Pro is 390px).
+- **Sidebar**: collapses from 232px → 52px, showing only icons; text labels hidden via CSS. Pure CSS — no JS state.
+- **Main content**: `margin-left` and `padding` adjust at the same breakpoint via `AppShell.module.css`.
+- **`.page` utility**: `padding` reduced to `0` and `margin` to `1rem auto` at `≤ 640px` (defined in `globals.css`).
+- **Tables** (`ExpensesListPage`, `DashboardPage`): wrapped in a `overflow-x: auto` div; column widths shrink at `≤ 640px` to fit ~340px.
+- **KpiCard**: value `font-size` scales down from `1.875rem` → `1.375rem` at `≤ 640px`.
+- **SummaryPage**: filter fields expand to `100%` width; charts grid was already collapsing to 1 column at `≤ 800px`.
 
 ### PWA
 

@@ -121,6 +121,15 @@
 .thCategory { width: 150px; }
 .thAmount   { width: 120px; }
 
+@media (max-width: 640px) {
+  .pageTitle  { font-size: 1.4rem; }
+  .thDate     { width: 90px; }
+  .thCategory { width: 100px; }
+  .thAmount   { width: 90px; }
+  .recentTable th,
+  .recentTable td { padding: .4rem .5rem; }
+}
+
 /* Recent expenses table cells */
 .dateCell {
   white-space: nowrap;

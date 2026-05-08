@@ -146,6 +146,7 @@ export default function ExpensesListPage() {
         </div>
       ) : (
         <div className="card" style={{ padding: 0, overflow: 'hidden' }}>
+          <div className={styles.tableScroll}>
           <table className={styles.expenseTable}>
             <thead>
               <tr>
@@ -161,6 +162,7 @@ export default function ExpensesListPage() {
               ))}
             </tbody>
           </table>
+          </div>
         </div>
       )}
     </div>

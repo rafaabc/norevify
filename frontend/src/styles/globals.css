@@ -69,6 +69,7 @@
 
   /* Layout */
   --sidebar-width: 232px;
+  --sidebar-width-collapsed: 52px;
   --topbar-height: 56px;
 }
 
@@ -193,6 +194,13 @@ label {
 @keyframes fadeUp {
   from { opacity: 0; transform: translateY(10px); }
   to   { opacity: 1; transform: translateY(0); }
+}
+
+@media (max-width: 640px) {
+  .page {
+    margin: 1rem auto;
+    padding: 0;
+  }
 }
 
 .page-title {
