@@ -10,3 +10,10 @@
   background: var(--bg);
   padding: 2rem 2.5rem;
 }
+
+@media (max-width: 640px) {
+  .main {
+    margin-left: var(--sidebar-width-collapsed);
+    padding: 1rem;
+  }
+}

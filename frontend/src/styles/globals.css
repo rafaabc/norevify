@@ -69,6 +69,7 @@
 
   /* Layout */
   --sidebar-width: 232px;
+  --sidebar-width-collapsed: 52px;
   --topbar-height: 56px;
 }
 
