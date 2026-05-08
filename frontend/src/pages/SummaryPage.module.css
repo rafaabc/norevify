@@ -34,6 +34,10 @@
   .chartsGrid { grid-template-columns: 1fr; }
 }
 
+@media (max-width: 640px) {
+  .filterField { min-width: 100%; max-width: 100%; }
+}
+
 .sectionTitle {
   font-family: var(--font-sans);
   font-size: .75rem;

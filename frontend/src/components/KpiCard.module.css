@@ -54,3 +54,7 @@
 .spark {
   margin-top: var(--space-1);
 }
+
+@media (max-width: 640px) {
+  .value { font-size: 1.375rem; }
+}

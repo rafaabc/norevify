@@ -196,6 +196,13 @@ label {
   to   { opacity: 1; transform: translateY(0); }
 }
 
+@media (max-width: 640px) {
+  .page {
+    margin: 1rem auto;
+    padding: 0;
+  }
+}
+
 .page-title {
   font-family: var(--font-sans);
   font-size: 1.85rem;
