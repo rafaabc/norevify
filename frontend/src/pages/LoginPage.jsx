@@ -12,6 +12,7 @@ export default function LoginPage() {
   const location = useLocation();
   const [showRegistered, setShowRegistered] = useState(!!location.state?.justRegistered);
   const [showLoggedOut, setShowLoggedOut] = useState(!!location.state?.justLoggedOut);
+  const [showPasswordChanged, setShowPasswordChanged] = useState(!!location.state?.passwordChanged);
 
   const [form, setForm] = useState({ username: '', password: '' });
   const [error, setError] = useState('');
@@ -28,6 +29,12 @@ export default function LoginPage() {
     const t = setTimeout(() => setShowLoggedOut(false), 3000);
     return () => clearTimeout(t);
   }, [showLoggedOut]);
+
+  useEffect(() => {
+    if (!showPasswordChanged) return;
+    const t = setTimeout(() => setShowPasswordChanged(false), 3000);
+    return () => clearTimeout(t);
+  }, [showPasswordChanged]);
 
   useEffect(() => {
     if (!expiredBanner) return;
@@ -74,6 +81,7 @@ export default function LoginPage() {
           {expiredBanner && <ErrorBanner message="Your session expired. Please log in again." type="info" />}
           {showLoggedOut && <ErrorBanner message="Logged out successfully." type="success" />}
           {showRegistered && <ErrorBanner message="Account created — please log in." type="success" />}
+          {showPasswordChanged && <ErrorBanner message="Password updated. Please log in." type="success" />}
           {error && <ErrorBanner message={error} />}
 
           <form onSubmit={handleSubmit}>
@@ -92,6 +100,9 @@ export default function LoginPage() {
 
           <p className={styles.switchLink}>
             Don&apos;t have an account? <Link to="/register">Register</Link>
+          </p>
+          <p className={styles.switchLink}>
+            <Link to="/change-password">Change password</Link>
           </p>
         </div>
       </main>

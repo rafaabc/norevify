@@ -43,7 +43,7 @@ routes → controllers → services → models (Mongoose)
 - **routes**: wire HTTP verbs to controller functions; `expenses.routes.js` applies `authMiddleware` globally
 - **controllers**: async try/catch wrappers that map service results to HTTP responses
 - **services**: all business logic and validation; throw errors with `.status` property (picked up by controllers)
-- **models**: Mongoose schemas + compiled models; export thin async wrappers (`findById`, `findByUserId`, `create`, `update`, `remove`, `_reset`) so services stay decoupled from the ODM API
+- **models**: Mongoose schemas + compiled models; export thin async wrappers (`findById`, `findByUserId`, `create`, `update`, `remove`, `_reset`, `updatePassword`) so services stay decoupled from the ODM API
 
 Error convention: `makeError(status, message)` in each service creates an `Error` with a `.status` field. Controllers read `err.status || 500`.
 
@@ -148,13 +148,32 @@ IDs are MongoDB `ObjectId` values, exposed as 24-character hex strings. JWT payl
 - Fake timers (`jest.useFakeTimers`) used for date-sensitive tests
 - CSS Modules not testable in jsdom — responsive breakpoints are covered by E2E (`e2e/tests/ui/sidebar-responsive.spec.ts`)
 
+## E2E Tests
+
+- Framework: Playwright (`@playwright/test` v1.47+)
+- **Requires both servers running** — backend on `:3000`, frontend dev server on `:5173`
+- Test files live in `frontend/e2e/tests/`, organised by feature
+- Page Objects in `frontend/e2e/pages/`; shared fixtures in `frontend/e2e/fixtures/`
+
+### Scripts (run from `frontend/`)
+- `npm run test:e2e` — run all E2E tests (Chromium)
+
+### Atlas cleanup — globalTeardown
+Every user created via `createAndLoginUser()` during a run is tracked in `e2e/.test-user-ids.json` (gitignored). After all tests finish, `e2e/global-teardown.ts` opens a direct Mongoose connection to Atlas, deletes those users and their expenses, then removes the file. IDs accumulate across crashed runs — the next successful teardown cleans everything.
+
+### Conventions
+- Pattern: Page Object Model — each page is a class in `e2e/pages/`
+- Test naming: `[TC-XX-YY] should <behavior> when <condition>`
+- `createAndLoginUser(request, prefix)` — registers + logs in a fresh user, tracks the ID for teardown, returns `{ username, token }`
+- `createExpenseViaApi(request, token, data)` — creates an expense via API, returns the response body
+
 ## API
 
 Swagger UI at `GET /api-docs` (served from `resources/swagger.json`). Also logged to console on startup.
 
 | Prefix | Auth required | Description |
 |---|---|---|
-| `/api/auth` | No | `POST /register`, `POST /login` |
+| `/api/auth` | No | `POST /register`, `POST /login`, `PATCH /password` |
 | `/api/expenses` | Yes (Bearer JWT) | CRUD + `GET /summary` |
 
 Auth: `Authorization: Bearer <token>` header. JWT decoded into `req.user` (`{ id, username }`). `id` is an ObjectId hex string.
@@ -245,7 +264,7 @@ To add a new endpoint: export a new function from `apiService.js` that calls the
 
 ### Naming conventions
 
-- Pages: `*Page.jsx` in `src/pages/`
+- Pages: `*Page.jsx` in `src/pages/` (e.g. `LoginPage`, `RegisterPage`, `ChangePasswordPage`)
 - Components: PascalCase in `src/components/`
 - Services: `*Api` object exported from `src/services/apiService.js`
 - CSS Modules: `*.module.css` co-located with the component/page
