@@ -121,6 +121,20 @@
         "properties": {
           "message": { "type": "string", "example": "Error description" }
         }
+      },
+      "ChangePasswordRequest": {
+        "type": "object",
+        "required": ["username", "newPassword"],
+        "properties": {
+          "username": { "type": "string", "example": "alice" },
+          "newPassword": { "type": "string", "example": "newSecret99" }
+        }
+      },
+      "SuccessMessage": {
+        "type": "object",
+        "properties": {
+          "message": { "type": "string", "example": "Password updated successfully" }
+        }
       }
     }
   },
@@ -192,6 +206,34 @@
           },
           "500": {
             "description": "Internal server error",
+            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } }
+          }
+        }
+      }
+    },
+    "/api/auth/password": {
+      "patch": {
+        "tags": ["Auth"],
+        "summary": "Change user password",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/ChangePasswordRequest" }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Password updated successfully",
+            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/SuccessMessage" } } }
+          },
+          "400": {
+            "description": "Validation error",
+            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } }
+          },
+          "404": {
+            "description": "User not found",
             "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } }
           }
         }
