@@ -38,4 +38,16 @@ async function login({ username, password }) {
   return { token };
 }
 
-module.exports = { register, login };
+async function changePassword({ username, newPassword }) {
+  if (!username || !newPassword) throw makeError(400, 'username and newPassword are required');
+  if (newPassword.length < 8) throw makeError(400, 'password must be at least 8 characters');
+  if (newPassword.length > 20) throw makeError(400, 'password must be at most 20 characters');
+  const user = await userModel.findByUsername(username);
+  if (!user) throw makeError(404, 'User not found');
+
+  const hash = await bcrypt.hash(newPassword, 10);
+  await userModel.updatePassword(username, hash);
+  return { message: 'Password updated successfully' };
+}
+
+module.exports = { register, login, changePassword };
