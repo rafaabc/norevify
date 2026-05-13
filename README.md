@@ -1,7 +1,9 @@
 [![Backend CI](https://github.com/rafaabc/drive-ledger/actions/workflows/backend.yml/badge.svg)](https://github.com/rafaabc/drive-ledger/actions/workflows/backend.yml)
 [![Frontend CI](https://github.com/rafaabc/drive-ledger/actions/workflows/frontend.yml/badge.svg)](https://github.com/rafaabc/drive-ledger/actions/workflows/frontend.yml)
 
-# Drive Ledger
+## Live demo
+
+`https://drive-ledger-front.vercel.app/`
 
 > Full-stack vehicle expense manager — Node.js/Express REST API with a React PWA, JWT authentication, and spending summaries by period.
 
