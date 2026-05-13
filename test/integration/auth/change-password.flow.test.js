@@ -16,14 +16,14 @@ beforeEach(async () => await resetMongo());
 describe('Change-password flow integration', () => {
   it('should allow login with new password after change', async () => {
     await authService.register({ username: 'rafael', password: 'password1' });
-    await authService.changePassword({ username: 'rafael', newPassword: 'newPass99' });
+    await authService.changePassword({ username: 'rafael', currentPassword: 'password1', newPassword: 'newPass99' });
     const { token } = await authService.login({ username: 'rafael', password: 'newPass99' });
     assert.ok(token, 'login with new password must return a token');
   });
 
   it('should reject login with old password after change', async () => {
     await authService.register({ username: 'rafael', password: 'password1' });
-    await authService.changePassword({ username: 'rafael', newPassword: 'newPass99' });
+    await authService.changePassword({ username: 'rafael', currentPassword: 'password1', newPassword: 'newPass99' });
     await assert.rejects(
       () => authService.login({ username: 'rafael', password: 'password1' }),
       (err) => {

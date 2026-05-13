@@ -235,15 +235,27 @@ describe('authService.login()', () => {
 // US-03 — Change Password
 // ---------------------------------------------------------------------------
 describe('authService.changePassword()', () => {
-  it('should update password when username exists and password is valid', async () => {
+  it('should update password when username exists and credentials are valid', async () => {
     await authService.register({ username: 'alice', password: 'password1' });
-    const result = await authService.changePassword({ username: 'alice', newPassword: 'newPass99' });
+    const result = await authService.changePassword({ username: 'alice', currentPassword: 'password1', newPassword: 'newPass99' });
     assert.strictEqual(result.message, 'Password updated successfully');
+  });
+
+  it('should throw 401 when currentPassword is wrong', async () => {
+    await authService.register({ username: 'alice', password: 'password1' });
+    await assert.rejects(
+      () => authService.changePassword({ username: 'alice', currentPassword: 'wrongPass1', newPassword: 'newPass99' }),
+      (err) => {
+        assert.strictEqual(err.status, 401);
+        assert.match(err.message, /invalid credentials/i);
+        return true;
+      }
+    );
   });
 
   it('should throw 404 when username not found', async () => {
     await assert.rejects(
-      () => authService.changePassword({ username: 'nobody', newPassword: 'newPass99' }),
+      () => authService.changePassword({ username: 'nobody', currentPassword: 'password1', newPassword: 'newPass99' }),
       (err) => {
         assert.strictEqual(err.status, 404);
         assert.match(err.message, /user not found/i);
@@ -255,7 +267,7 @@ describe('authService.changePassword()', () => {
   it('should throw 400 when newPassword is too short', async () => {
     await authService.register({ username: 'alice', password: 'password1' });
     await assert.rejects(
-      () => authService.changePassword({ username: 'alice', newPassword: '1234567' }),
+      () => authService.changePassword({ username: 'alice', currentPassword: 'password1', newPassword: '1234567' }),
       (err) => {
         assert.strictEqual(err.status, 400);
         assert.match(err.message, /at least 8 characters/i);
@@ -267,7 +279,7 @@ describe('authService.changePassword()', () => {
   it('should throw 400 when newPassword is too long', async () => {
     await authService.register({ username: 'alice', password: 'password1' });
     await assert.rejects(
-      () => authService.changePassword({ username: 'alice', newPassword: 'a'.repeat(21) }),
+      () => authService.changePassword({ username: 'alice', currentPassword: 'password1', newPassword: 'a'.repeat(21) }),
       (err) => {
         assert.strictEqual(err.status, 400);
         assert.match(err.message, /at most 20/i);
@@ -278,10 +290,21 @@ describe('authService.changePassword()', () => {
 
   it('should throw 400 when username is missing', async () => {
     await assert.rejects(
-      () => authService.changePassword({ newPassword: 'newPass99' }),
+      () => authService.changePassword({ currentPassword: 'password1', newPassword: 'newPass99' }),
       (err) => {
         assert.strictEqual(err.status, 400);
-        assert.match(err.message, /username and newPassword are required/i);
+        assert.match(err.message, /username, currentPassword and newPassword are required/i);
+        return true;
+      }
+    );
+  });
+
+  it('should throw 400 when currentPassword is missing', async () => {
+    await assert.rejects(
+      () => authService.changePassword({ username: 'alice', newPassword: 'newPass99' }),
+      (err) => {
+        assert.strictEqual(err.status, 400);
+        assert.match(err.message, /username, currentPassword and newPassword are required/i);
         return true;
       }
     );
@@ -289,10 +312,10 @@ describe('authService.changePassword()', () => {
 
   it('should throw 400 when newPassword is missing', async () => {
     await assert.rejects(
-      () => authService.changePassword({ username: 'alice' }),
+      () => authService.changePassword({ username: 'alice', currentPassword: 'password1' }),
       (err) => {
         assert.strictEqual(err.status, 400);
-        assert.match(err.message, /username and newPassword are required/i);
+        assert.match(err.message, /username, currentPassword and newPassword are required/i);
         return true;
       }
     );

@@ -38,12 +38,15 @@ async function login({ username, password }) {
   return { token };
 }
 
-async function changePassword({ username, newPassword }) {
-  if (!username || !newPassword) throw makeError(400, 'username and newPassword are required');
+async function changePassword({ username, currentPassword, newPassword }) {
+  if (!username || !currentPassword || !newPassword)
+    throw makeError(400, 'username, currentPassword and newPassword are required');
   if (newPassword.length < 8) throw makeError(400, 'password must be at least 8 characters');
   if (newPassword.length > 20) throw makeError(400, 'password must be at most 20 characters');
   const user = await userModel.findByUsername(username);
   if (!user) throw makeError(404, 'User not found');
+  const match = await bcrypt.compare(currentPassword, user.password);
+  if (!match) throw makeError(401, 'Invalid credentials');
 
   const hash = await bcrypt.hash(newPassword, 10);
   await userModel.updatePassword(username, hash);

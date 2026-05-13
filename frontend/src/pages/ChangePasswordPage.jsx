@@ -8,7 +8,7 @@ import styles from './LoginPage.module.css';
 
 export default function ChangePasswordPage() {
   const navigate = useNavigate();
-  const [form, setForm] = useState({ username: '', newPassword: '', confirmPassword: '' });
+  const [form, setForm] = useState({ username: '', currentPassword: '', newPassword: '', confirmPassword: '' });
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
@@ -25,7 +25,7 @@ export default function ChangePasswordPage() {
     }
     setLoading(true);
     try {
-      await authApi.changePassword({ username: form.username, newPassword: form.newPassword });
+      await authApi.changePassword({ username: form.username, currentPassword: form.currentPassword, newPassword: form.newPassword });
       navigate('/login', { state: { passwordChanged: true } });
     } catch (err) {
       setError(err.message);
@@ -54,6 +54,10 @@ export default function ChangePasswordPage() {
             <div className="form-group">
               <label htmlFor="cp-username">Username</label>
               <input id="cp-username" name="username" value={form.username} onChange={handleChange} required autoFocus />
+            </div>
+            <div className="form-group">
+              <label htmlFor="cp-currentPassword">Current password</label>
+              <input id="cp-currentPassword" type="password" name="currentPassword" value={form.currentPassword} onChange={handleChange} required />
             </div>
             <div className="form-group">
               <label htmlFor="cp-newPassword">New password</label>

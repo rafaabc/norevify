@@ -22,9 +22,10 @@ describe('ChangePasswordPage', () => {
     jest.clearAllMocks();
   });
 
-  test('should render username, newPassword, confirmPassword fields and submit button', () => {
+  test('should render username, currentPassword, newPassword, confirmPassword fields and submit button', () => {
     const { container } = renderPage();
     expect(container.querySelector('input[name="username"]')).toBeInTheDocument();
+    expect(container.querySelector('input[name="currentPassword"]')).toBeInTheDocument();
     expect(container.querySelector('input[name="newPassword"]')).toBeInTheDocument();
     expect(container.querySelector('input[name="confirmPassword"]')).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /Change password/i })).toBeInTheDocument();
@@ -35,6 +36,7 @@ describe('ChangePasswordPage', () => {
     const { container } = renderPage();
 
     fireEvent.change(container.querySelector('input[name="username"]'), { target: { value: 'alice' } });
+    fireEvent.change(container.querySelector('input[name="currentPassword"]'), { target: { value: 'password1' } });
     fireEvent.change(container.querySelector('input[name="newPassword"]'), { target: { value: 'abc123456' } });
     fireEvent.change(container.querySelector('input[name="confirmPassword"]'), { target: { value: 'different' } });
     fireEvent.submit(container.querySelector('form'));
@@ -48,12 +50,13 @@ describe('ChangePasswordPage', () => {
     const { container } = renderPage();
 
     fireEvent.change(container.querySelector('input[name="username"]'), { target: { value: 'alice' } });
+    fireEvent.change(container.querySelector('input[name="currentPassword"]'), { target: { value: 'password1' } });
     fireEvent.change(container.querySelector('input[name="newPassword"]'), { target: { value: 'newPass99' } });
     fireEvent.change(container.querySelector('input[name="confirmPassword"]'), { target: { value: 'newPass99' } });
     fireEvent.submit(container.querySelector('form'));
 
     await waitFor(() => {
-      expect(authApi.changePassword).toHaveBeenCalledWith({ username: 'alice', newPassword: 'newPass99' });
+      expect(authApi.changePassword).toHaveBeenCalledWith({ username: 'alice', currentPassword: 'password1', newPassword: 'newPass99' });
     });
   });
 
@@ -62,6 +65,7 @@ describe('ChangePasswordPage', () => {
     const { container } = renderPage();
 
     fireEvent.change(container.querySelector('input[name="username"]'), { target: { value: 'alice' } });
+    fireEvent.change(container.querySelector('input[name="currentPassword"]'), { target: { value: 'password1' } });
     fireEvent.change(container.querySelector('input[name="newPassword"]'), { target: { value: 'newPass99' } });
     fireEvent.change(container.querySelector('input[name="confirmPassword"]'), { target: { value: 'newPass99' } });
     fireEvent.submit(container.querySelector('form'));
@@ -72,14 +76,15 @@ describe('ChangePasswordPage', () => {
   });
 
   test('should render ErrorBanner when API call fails', async () => {
-    authApi.changePassword.mockRejectedValue(new Error('User not found'));
+    authApi.changePassword.mockRejectedValue(new Error('Invalid credentials'));
     const { container } = renderPage();
 
-    fireEvent.change(container.querySelector('input[name="username"]'), { target: { value: 'nobody' } });
+    fireEvent.change(container.querySelector('input[name="username"]'), { target: { value: 'alice' } });
+    fireEvent.change(container.querySelector('input[name="currentPassword"]'), { target: { value: 'wrongpass1' } });
     fireEvent.change(container.querySelector('input[name="newPassword"]'), { target: { value: 'newPass99' } });
     fireEvent.change(container.querySelector('input[name="confirmPassword"]'), { target: { value: 'newPass99' } });
     fireEvent.submit(container.querySelector('form'));
 
-    await screen.findByText('User not found');
+    await screen.findByText('Invalid credentials');
   });
 });
