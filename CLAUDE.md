@@ -148,6 +148,25 @@ IDs are MongoDB `ObjectId` values, exposed as 24-character hex strings. JWT payl
 - Fake timers (`jest.useFakeTimers`) used for date-sensitive tests
 - CSS Modules not testable in jsdom — responsive breakpoints are covered by E2E (`e2e/tests/ui/sidebar-responsive.spec.ts`)
 
+## E2E Tests
+
+- Framework: Playwright (`@playwright/test` v1.47+)
+- **Requires both servers running** — backend on `:3000`, frontend dev server on `:5173`
+- Test files live in `frontend/e2e/tests/`, organised by feature
+- Page Objects in `frontend/e2e/pages/`; shared fixtures in `frontend/e2e/fixtures/`
+
+### Scripts (run from `frontend/`)
+- `npm run test:e2e` — run all E2E tests (Chromium)
+
+### Atlas cleanup — globalTeardown
+Every user created via `createAndLoginUser()` during a run is tracked in `e2e/.test-user-ids.json` (gitignored). After all tests finish, `e2e/global-teardown.ts` opens a direct Mongoose connection to Atlas, deletes those users and their expenses, then removes the file. IDs accumulate across crashed runs — the next successful teardown cleans everything.
+
+### Conventions
+- Pattern: Page Object Model — each page is a class in `e2e/pages/`
+- Test naming: `[TC-XX-YY] should <behavior> when <condition>`
+- `createAndLoginUser(request, prefix)` — registers + logs in a fresh user, tracks the ID for teardown, returns `{ username, token }`
+- `createExpenseViaApi(request, token, data)` — creates an expense via API, returns the response body
+
 ## API
 
 Swagger UI at `GET /api-docs` (served from `resources/swagger.json`). Also logged to console on startup.
