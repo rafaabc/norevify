@@ -11,6 +11,7 @@ import ExpenseFormPage from './pages/ExpenseFormPage.jsx';
 import SummaryPage from './pages/SummaryPage.jsx';
 import NotFoundPage from './pages/NotFoundPage.jsx';
 import UpdatePrompt from './components/UpdatePrompt.jsx';
+import ChangePasswordPage from './pages/ChangePasswordPage.jsx';
 
 export default function App() {
   const [updateSW, setUpdateSW] = useState(null);
@@ -27,6 +28,7 @@ export default function App() {
       <Routes>
         <Route path="/login" element={<LoginPage />} />
         <Route path="/register" element={<RegisterPage />} />
+        <Route path="/change-password" element={<ChangePasswordPage />} />
         <Route element={<ProtectedRoute><AppShell /></ProtectedRoute>}>
           <Route path="/" element={<DashboardPage />} />
           <Route path="/expenses" element={<ExpensesListPage />} />

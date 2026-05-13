@@ -1,14 +1,18 @@
 import { APIRequestContext } from '@playwright/test';
 import { DEFAULT_PASSWORD, uniqueUsername, todayISO } from './test-data';
+import { trackUserId } from './tracked-users';
 
 export async function createAndLoginUser(
   request: APIRequestContext,
   prefix = 'user'
 ): Promise<{ username: string; token: string }> {
   const username = uniqueUsername(prefix);
-  await request.post('/api/auth/register', {
+  const regRes = await request.post('/api/auth/register', {
     data: { username, password: DEFAULT_PASSWORD },
   });
+  const { id } = await regRes.json();
+  if (id) trackUserId(id);
+
   const res = await request.post('/api/auth/login', {
     data: { username, password: DEFAULT_PASSWORD },
   });

@@ -5,5 +5,6 @@ const router = Router();
 
 router.post('/register', authController.register);
 router.post('/login', authController.login);
+router.patch('/password', authController.changePassword);
 
 module.exports = router;

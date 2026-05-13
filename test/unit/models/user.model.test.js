@@ -62,3 +62,12 @@ describe('userModel._reset()', () => {
     assert.strictEqual(found, null);
   });
 });
+
+describe('userModel.updatePassword()', () => {
+  it('should persist hashed password to the user document', async () => {
+    await userModel.create({ username: 'alice', password: 'original_hash' });
+    await userModel.updatePassword('alice', 'new_hash');
+    const found = await userModel.findByUsername('alice');
+    assert.strictEqual(found.password, 'new_hash');
+  });
+});
