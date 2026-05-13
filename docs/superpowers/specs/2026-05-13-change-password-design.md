@@ -62,7 +62,7 @@ changePassword: (data) =>
 
 ### `frontend/src/pages/ChangePasswordPage.jsx` (new)
 
-- Split-screen layout reusing `AuthPage.module.css` (same as `LoginPage` / `RegisterPage`).
+- Split-screen layout by importing `LoginPage.module.css` directly — avoids creating a third identical copy of the 102-line split-screen stylesheet (`LoginPage.module.css` and `RegisterPage.module.css` are already identical, adding a third would worsen Sonar duplication).
 - Fields: `username`, `newPassword`, `confirmPassword`.
 - Client-side validation: if `newPassword !== confirmPassword` show inline error without calling the API.
 - On success: `navigate('/login', { state: { passwordChanged: true } })`.
@@ -177,4 +177,4 @@ No changes required.
 
 ## Duplication Budget
 
-All new frontend pages reuse `AuthPage.module.css` and `form-group` / `btn-primary` global classes. No business logic is duplicated across layers — validation lives exclusively in `auth.service.js`. Target: SonarQube duplication < 3%.
+`ChangePasswordPage` imports `LoginPage.module.css` (existing) instead of a new identical copy. All pages reuse `form-group` / `btn-primary` global classes. No business logic is duplicated across layers — validation lives exclusively in `auth.service.js`. Target: SonarQube duplication < 3%.
