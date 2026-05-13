@@ -43,7 +43,7 @@ routes → controllers → services → models (Mongoose)
 - **routes**: wire HTTP verbs to controller functions; `expenses.routes.js` applies `authMiddleware` globally
 - **controllers**: async try/catch wrappers that map service results to HTTP responses
 - **services**: all business logic and validation; throw errors with `.status` property (picked up by controllers)
-- **models**: Mongoose schemas + compiled models; export thin async wrappers (`findById`, `findByUserId`, `create`, `update`, `remove`, `_reset`) so services stay decoupled from the ODM API
+- **models**: Mongoose schemas + compiled models; export thin async wrappers (`findById`, `findByUserId`, `create`, `update`, `remove`, `_reset`, `updatePassword`) so services stay decoupled from the ODM API
 
 Error convention: `makeError(status, message)` in each service creates an `Error` with a `.status` field. Controllers read `err.status || 500`.
 
@@ -154,7 +154,7 @@ Swagger UI at `GET /api-docs` (served from `resources/swagger.json`). Also logge
 
 | Prefix | Auth required | Description |
 |---|---|---|
-| `/api/auth` | No | `POST /register`, `POST /login` |
+| `/api/auth` | No | `POST /register`, `POST /login`, `PATCH /password` |
 | `/api/expenses` | Yes (Bearer JWT) | CRUD + `GET /summary` |
 
 Auth: `Authorization: Bearer <token>` header. JWT decoded into `req.user` (`{ id, username }`). `id` is an ObjectId hex string.
@@ -245,7 +245,7 @@ To add a new endpoint: export a new function from `apiService.js` that calls the
 
 ### Naming conventions
 
-- Pages: `*Page.jsx` in `src/pages/`
+- Pages: `*Page.jsx` in `src/pages/` (e.g. `LoginPage`, `RegisterPage`, `ChangePasswordPage`)
 - Components: PascalCase in `src/components/`
 - Services: `*Api` object exported from `src/services/apiService.js`
 - CSS Modules: `*.module.css` co-located with the component/page

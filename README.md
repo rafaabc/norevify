@@ -131,6 +131,7 @@ The layout is fully responsive at **≤ 640 px** (CSS-only, no JS):
 |---|---|---|
 | POST | `/api/auth/register` | Register a new user |
 | POST | `/api/auth/login` | Login and receive a JWT |
+| PATCH | `/api/auth/password` | Change user password |
 
 **Expenses** — `Authorization: Bearer <token>` required
 
