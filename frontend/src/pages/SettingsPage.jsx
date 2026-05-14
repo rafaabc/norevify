@@ -1,4 +1,6 @@
 import { useState } from 'react';
+import { Link } from 'react-router-dom';
+import { KeyRound } from 'lucide-react';
 import { useAuth } from '../context/AuthContext.jsx';
 import ErrorBanner from '../components/ErrorBanner.jsx';
 import { SUPPORTED_CURRENCIES } from '../constants/currencies.js';
@@ -53,6 +55,13 @@ export default function SettingsPage() {
           {loading ? 'Saving…' : 'Save'}
         </button>
       </form>
+
+      <hr style={{ margin: '2rem 0', borderColor: 'var(--border)' }} />
+
+      <Link to="/change-password" className={styles.settingsLink}>
+        <KeyRound size={16} />
+        Change password
+      </Link>
     </div>
   );
 }
