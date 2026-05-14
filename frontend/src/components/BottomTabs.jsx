@@ -1,12 +1,12 @@
 import { NavLink, useNavigate } from 'react-router-dom';
-import { LayoutDashboard, Receipt, Plus, BarChart3, KeyRound } from 'lucide-react';
+import { LayoutDashboard, Receipt, Plus, BarChart3, Settings } from 'lucide-react';
 import styles from './BottomTabs.module.css';
 
 const TABS = [
-  { to: '/',            icon: LayoutDashboard, label: 'Dashboard', end: true },
-  { to: '/expenses',    icon: Receipt,         label: 'Expenses' },
-  { to: '/summary',     icon: BarChart3,       label: 'Summary' },
-  { to: '/change-password', icon: KeyRound,    label: 'Settings' },
+  { to: '/',         icon: LayoutDashboard, label: 'Dashboard', end: true },
+  { to: '/expenses', icon: Receipt,         label: 'Expenses' },
+  { to: '/summary',  icon: BarChart3,       label: 'Summary' },
+  { to: '/settings', icon: Settings,        label: 'Settings' },
 ];
 
 export default function BottomTabs() {
