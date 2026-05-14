@@ -24,10 +24,15 @@ PORT=3000
 JWT_SECRET=your-secret
 JWT_EXPIRES_IN=1h
 BASE_URL=http://localhost:3000
+FRONTEND_URL=http://localhost:5173
 MONGODB_URI=mongodb+srv://<USER>:<PASS>@cluster0.xxxxx.mongodb.net/drive-ledger?retryWrites=true&w=majority&appName=Cluster0
+RESEND_API_KEY=re_xxxxxxxxxxxx
+RESET_PASSWORD_EXPIRES_IN=15m
 ```
 
 `MONGODB_URI` points to the `drive-ledger` database on the shared Atlas `Cluster0`. The database is created automatically on first write.
+
+`FRONTEND_URL` is used to build the password-reset link included in recovery emails — set to the frontend origin. `RESEND_API_KEY` authenticates with the [Resend](https://resend.com) email API. `RESET_PASSWORD_EXPIRES_IN` controls reset-token lifetime (default `15m`).
 
 ## Architecture
 
@@ -60,6 +65,7 @@ IDs are MongoDB `ObjectId` values, exposed as 24-character hex strings. JWT payl
 - `services/` — business logic and validation
 - `models/` — Mongoose schema behaviour and CRUD
 - `middleware/` — JWT auth logic
+- `controllers/` — HTTP status code mapping and `err.status || 500` fallback
 
 ### Scripts
 - `npm run test:unit` — run all unit tests
@@ -85,6 +91,7 @@ IDs are MongoDB `ObjectId` values, exposed as 24-character hex strings. JWT payl
 - Middleware → service context hand-off (decoded `req.user.id` drives real service calls)
 - Multi-step internal flows: register → login → create expense → summary
 - Cross-layer CRUD state consistency: create → update → delete → verify via read
+- Password-recovery cycle: forgotPassword → resetPassword → login with new password
 
 ### What they do NOT cover
 - Isolated function logic — that's unit tests in `test/unit/`
@@ -173,7 +180,7 @@ Swagger UI at `GET /api-docs` (served from `resources/swagger.json`). Also logge
 
 | Prefix | Auth required | Description |
 |---|---|---|
-| `/api/auth` | No | `POST /register`, `POST /login`, `PATCH /password` |
+| `/api/auth` | No | `POST /register`, `POST /login`, `PATCH /password`, `POST /forgot-password`, `POST /reset-password` |
 | `/api/expenses` | Yes (Bearer JWT) | CRUD + `GET /summary` |
 
 Auth: `Authorization: Bearer <token>` header. JWT decoded into `req.user` (`{ id, username }`). `id` is an ObjectId hex string.
