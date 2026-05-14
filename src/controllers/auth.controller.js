@@ -22,7 +22,10 @@ async function login(req, res) {
 
 async function changePassword(req, res) {
   try {
-    const result = await authService.changePassword(req.body);
+    const result = await authService.changePassword({
+      ...req.body,
+      username: req.user.username,
+    });
     res.status(200).json(result);
   } catch (err) {
     res.status(err.status || 500).json({ message: err.message });

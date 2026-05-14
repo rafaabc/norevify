@@ -104,9 +104,6 @@ export default function LoginPage() {
           <p className={styles.switchLink}>
             <Link to="/forgot-password">Forgot your password?</Link>
           </p>
-          <p className={styles.switchLink}>
-            <Link to="/change-password">Change password</Link>
-          </p>
         </div>
       </main>
     </div>

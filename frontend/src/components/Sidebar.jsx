@@ -1,5 +1,5 @@
 import { NavLink } from 'react-router-dom';
-import { LayoutDashboard, Receipt, BarChart3, LogOut, Gauge } from 'lucide-react';
+import { LayoutDashboard, Receipt, BarChart3, LogOut, Gauge, KeyRound } from 'lucide-react';
 import { useAuth } from '../context/AuthContext.jsx';
 import styles from './Sidebar.module.css';
 
@@ -7,6 +7,7 @@ const NAV_ITEMS = [
   { to: '/', icon: LayoutDashboard, label: 'Dashboard', end: true },
   { to: '/expenses', icon: Receipt, label: 'Expenses' },
   { to: '/summary', icon: BarChart3, label: 'Summary' },
+  { to: '/change-password', icon: KeyRound, label: 'Change password' },
 ];
 
 export default function Sidebar() {

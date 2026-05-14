@@ -1,15 +1,13 @@
 import { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import { Gauge } from 'lucide-react';
 import { authApi } from '../services/apiService.js';
+import { useAuth } from '../context/AuthContext.jsx';
 import ErrorBanner from '../components/ErrorBanner.jsx';
-// Reuses LoginPage styles intentionally — see spec 2026-05-13
-import styles from './LoginPage.module.css';
 
 export default function ChangePasswordPage() {
-  const navigate = useNavigate();
-  const [form, setForm] = useState({ username: '', currentPassword: '', newPassword: '', confirmPassword: '' });
+  const { username } = useAuth();
+  const [form, setForm] = useState({ currentPassword: '', newPassword: '', confirmPassword: '' });
   const [error, setError] = useState('');
+  const [success, setSuccess] = useState(false);
   const [loading, setLoading] = useState(false);
 
   function handleChange(e) {
@@ -18,15 +16,17 @@ export default function ChangePasswordPage() {
 
   async function handleSubmit(e) {
     e.preventDefault();
-    setError('');
     if (form.newPassword !== form.confirmPassword) {
       setError('Passwords do not match.');
       return;
     }
+    setError('');
+    setSuccess(false);
     setLoading(true);
     try {
-      await authApi.changePassword({ username: form.username, currentPassword: form.currentPassword, newPassword: form.newPassword });
-      navigate('/login', { state: { passwordChanged: true } });
+      await authApi.changePassword({ currentPassword: form.currentPassword, newPassword: form.newPassword });
+      setSuccess(true);
+      setForm({ currentPassword: '', newPassword: '', confirmPassword: '' });
     } catch (err) {
       setError(err.message);
     } finally {
@@ -35,48 +35,32 @@ export default function ChangePasswordPage() {
   }
 
   return (
-    <div className={styles.screen}>
-      <aside className={styles.brand}>
-        <div className={styles.brandContent}>
-          <Gauge size={64} strokeWidth={1.5} className={styles.brandIcon} />
-          <span className={styles.wordmark}>DRIVELEDGER</span>
-          <p className={styles.tagline}>Track every kilometer.</p>
+    <div className="page">
+      <h1 style={{ marginBottom: '1.5rem' }}>Change password</h1>
+      <p style={{ marginBottom: '1.5rem', color: 'var(--muted)' }}>
+        Logged in as <strong style={{ color: 'var(--text)' }}>{username}</strong>
+      </p>
+
+      {success && <ErrorBanner message="Password updated successfully." type="success" />}
+      {error && <ErrorBanner message={error} />}
+
+      <form onSubmit={handleSubmit} style={{ maxWidth: '400px' }}>
+        <div className="form-group">
+          <label htmlFor="cp-currentPassword">Current password</label>
+          <input id="cp-currentPassword" type="password" name="currentPassword" value={form.currentPassword} onChange={handleChange} required autoFocus />
         </div>
-      </aside>
-
-      <main className={styles.formPanel}>
-        <div className={styles.formCard}>
-          <h1 className={styles.formHeading}>Change password</h1>
-
-          {error && <ErrorBanner message={error} />}
-
-          <form onSubmit={handleSubmit}>
-            <div className="form-group">
-              <label htmlFor="cp-username">Username</label>
-              <input id="cp-username" name="username" value={form.username} onChange={handleChange} required autoFocus />
-            </div>
-            <div className="form-group">
-              <label htmlFor="cp-currentPassword">Current password</label>
-              <input id="cp-currentPassword" type="password" name="currentPassword" value={form.currentPassword} onChange={handleChange} required />
-            </div>
-            <div className="form-group">
-              <label htmlFor="cp-newPassword">New password</label>
-              <input id="cp-newPassword" type="password" name="newPassword" value={form.newPassword} onChange={handleChange} required />
-            </div>
-            <div className="form-group">
-              <label htmlFor="cp-confirmPassword">Confirm new password</label>
-              <input id="cp-confirmPassword" type="password" name="confirmPassword" value={form.confirmPassword} onChange={handleChange} required />
-            </div>
-            <button type="submit" className="btn-primary" style={{ width: '100%' }} disabled={loading}>
-              {loading ? 'Updating…' : 'Change password'}
-            </button>
-          </form>
-
-          <p className={styles.switchLink}>
-            Remember your password? <Link to="/login">Sign in</Link>
-          </p>
+        <div className="form-group">
+          <label htmlFor="cp-newPassword">New password</label>
+          <input id="cp-newPassword" type="password" name="newPassword" value={form.newPassword} onChange={handleChange} required minLength={8} maxLength={20} />
         </div>
-      </main>
+        <div className="form-group">
+          <label htmlFor="cp-confirmPassword">Confirm new password</label>
+          <input id="cp-confirmPassword" type="password" name="confirmPassword" value={form.confirmPassword} onChange={handleChange} required minLength={8} maxLength={20} />
+        </div>
+        <button type="submit" className="btn-primary" disabled={loading}>
+          {loading ? 'Updating…' : 'Change password'}
+        </button>
+      </form>
     </div>
   );
 }
