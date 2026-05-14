@@ -13,7 +13,9 @@
 
 @media (max-width: 640px) {
   .main {
-    margin-left: var(--sidebar-width-collapsed);
+    margin-left: 0;
     padding: 1rem;
+    padding-top: calc(var(--topbar-height) + var(--safe-top) + 1rem);
+    padding-bottom: calc(var(--bottomtabs-height) + var(--safe-bottom) + 1rem);
   }
 }

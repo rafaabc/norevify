@@ -24,8 +24,8 @@ test('should show only Fuel expenses when filtered by Fuel category', async ({ p
   await listPage.filterByCategory('Fuel');
 
   await expect(listPage.tableRows).toHaveCount(1);
-  await expect(page.locator('[data-cat="Fuel"]')).toBeVisible();
-  await expect(page.locator('[data-cat="Maintenance"]')).not.toBeVisible();
+  await expect(page.locator('table [data-cat="Fuel"]')).toBeVisible();
+  await expect(page.locator('table [data-cat="Maintenance"]')).not.toBeVisible();
 });
 
 test('should show empty state when no expenses match the selected category', async ({ page }) => {

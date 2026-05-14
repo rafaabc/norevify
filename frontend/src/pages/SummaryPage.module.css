@@ -85,6 +85,68 @@ details[open] .pivotSummary::before {
   color: var(--primary);
 }
 
+.pivotMobile { display: none; }
+
+@media (max-width: 640px) {
+  .pivotDesktop { display: none; }
+  .pivotMobile  { display: block; }
+}
+
+/* ── Category bars (mobile breakdown) ────────── */
+.catBars {
+  display: flex;
+  flex-direction: column;
+  gap: .875rem;
+}
+
+.catBarRow {
+  display: flex;
+  flex-direction: column;
+  gap: .3rem;
+}
+
+.catBarMeta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.catBarValue {
+  font-family: var(--font-mono);
+  font-size: .82rem;
+  color: var(--text-2);
+}
+
+.catBarTrack {
+  height: 8px;
+  background: var(--surface-2);
+  border-radius: 99px;
+  overflow: hidden;
+}
+
+.catBarFill {
+  height: 100%;
+  border-radius: 99px;
+  background: var(--cat-color, var(--primary));
+  transition: width .3s ease;
+}
+
+.catBarTotal {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-top: .5rem;
+  border-top: 1px solid var(--border);
+  font-size: .875rem;
+  font-weight: 600;
+  color: var(--primary);
+}
+
+.catBarTotal .catBarValue {
+  font-size: .875rem;
+  color: var(--primary);
+}
+
 .totalRow td {
   border-top: 1px solid var(--border-strong) !important;
   border-bottom: none !important;

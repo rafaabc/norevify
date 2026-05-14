@@ -1,12 +1,12 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { Filter, FileX2 } from 'lucide-react';
+import { Filter, FileX2, ChevronDown, ChevronUp, Pencil, Trash2 } from 'lucide-react';
 import { expensesApi } from '../services/apiService.js';
 import ExpenseRow from '../components/ExpenseRow.jsx';
 import ErrorBanner from '../components/ErrorBanner.jsx';
 import Loading from '../components/Loading.jsx';
 import { CATEGORIES } from '../utils/categories.js';
-import { currentYear } from '../utils/formatDate.js';
+import { currentYear, formatDate } from '../utils/formatDate.js';
 import styles from './ExpensesListPage.module.css';
 
 const MONTHS = [
@@ -21,6 +21,53 @@ function buildYearOptions() {
   return [cy, cy - 1, cy - 2, cy - 3, cy - 4].filter((y) => y >= 2000);
 }
 
+function ExpenseCard({ expense, onDeleted, onError, navigate }) {
+  async function handleDelete() {
+    if (!window.confirm(`Delete this ${expense.category} expense?`)) return;
+    try {
+      await expensesApi.remove(expense.id);
+      onDeleted(expense.id);
+    } catch (err) {
+      onError?.(err.message);
+    }
+  }
+
+  return (
+    <div className={styles.expenseCard}>
+      <div className={styles.cardTop}>
+        <span className={styles.cardDate}>{formatDate(expense.date)}</span>
+        <span className="badge" data-cat={expense.category}>{expense.category}</span>
+      </div>
+      <div className={styles.cardBody}>
+        <span className={styles.cardAmount}>R$ {expense.amount?.toFixed(2)}</span>
+        {expense.category === 'Fuel' && expense.litres != null && (
+          <span className={styles.cardSub}>
+            {expense.litres}L · R$ {expense.price_per_litre?.toFixed(2)}/L
+          </span>
+        )}
+      </div>
+      <div className={styles.cardActions}>
+        <button
+          className={styles.iconBtn}
+          onClick={() => navigate(`/expenses/${expense.id}/edit`)}
+          aria-label={`Edit ${expense.category} expense`}
+          type="button"
+        >
+          <Pencil size={16} />
+        </button>
+        <button
+          className={`${styles.iconBtn} ${styles.iconBtnDanger}`}
+          onClick={handleDelete}
+          aria-label={`Delete ${expense.category} expense`}
+          type="button"
+        >
+          <Trash2 size={16} />
+        </button>
+      </div>
+    </div>
+  );
+}
+
 export default function ExpensesListPage() {
   const navigate = useNavigate();
 
@@ -33,6 +80,7 @@ export default function ExpensesListPage() {
   const [expenses, setExpenses] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [filtersOpen, setFiltersOpen] = useState(false);
 
   const fetchExpenses = useCallback(async (f, signal) => {
     setLoading(true);
@@ -80,54 +128,67 @@ export default function ExpensesListPage() {
         </button>
       </div>
 
-      {/* Filter toolbar */}
-      <div className={styles.toolbar}>
-        <Filter size={16} className={styles.toolbarIcon} aria-hidden="true" />
-
-        <select
-          name="category"
-          value={filters.category}
-          onChange={handleFilterChange}
-          className={styles.toolbarSelect}
-          aria-label="Filter by category"
+      {/* Filter toolbar — desktop always visible; mobile collapsible */}
+      <div className={styles.toolbarWrap}>
+        <button
+          type="button"
+          className={styles.filterToggle}
+          onClick={() => setFiltersOpen((o) => !o)}
+          aria-expanded={filtersOpen}
         >
-          <option value="">Category</option>
-          {CATEGORIES.map((c) => (
-            <option key={c} value={c}>{c}</option>
-          ))}
-        </select>
+          <Filter size={15} aria-hidden="true" />
+          Filters{hasActiveFilters ? ` (${[filters.category, filters.year !== DEFAULT_YEAR ? filters.year : '', filters.month].filter(Boolean).length})` : ''}
+          {filtersOpen ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
+        </button>
 
-        <select
-          name="year"
-          value={filters.year}
-          onChange={handleFilterChange}
-          className={styles.toolbarSelect}
-          aria-label="Filter by year"
-        >
-          <option value="">Year</option>
-          {buildYearOptions().map((y) => (
-            <option key={y} value={String(y)}>{y}</option>
-          ))}
-        </select>
+        <div className={`${styles.toolbar} ${filtersOpen ? styles.toolbarOpen : ''}`}>
+          <Filter size={16} className={styles.toolbarIcon} aria-hidden="true" />
 
-        <select
-          name="month"
-          value={filters.month}
-          onChange={handleFilterChange}
-          className={styles.toolbarSelect}
-          aria-label="Filter by month"
-        >
-          <option value="">Month</option>
-          {MONTHS.slice(1).map((m, i) => (
-            <option key={i + 1} value={i + 1}>{m}</option>
-          ))}
-        </select>
+          <select
+            name="category"
+            value={filters.category}
+            onChange={handleFilterChange}
+            className={styles.toolbarSelect}
+            aria-label="Filter by category"
+          >
+            <option value="">Category</option>
+            {CATEGORIES.map((c) => (
+              <option key={c} value={c}>{c}</option>
+            ))}
+          </select>
 
-        {hasActiveFilters && (
-          <button type="button" className={styles.clearBtn} onClick={clearFilters}>
-            Clear filters
-          </button>
-        )}
+          <select
+            name="year"
+            value={filters.year}
+            onChange={handleFilterChange}
+            className={styles.toolbarSelect}
+            aria-label="Filter by year"
+          >
+            <option value="">Year</option>
+            {buildYearOptions().map((y) => (
+              <option key={y} value={String(y)}>{y}</option>
+            ))}
+          </select>
+
+          <select
+            name="month"
+            value={filters.month}
+            onChange={handleFilterChange}
+            className={styles.toolbarSelect}
+            aria-label="Filter by month"
+          >
+            <option value="">Month</option>
+            {MONTHS.slice(1).map((m, i) => (
+              <option key={i + 1} value={i + 1}>{m}</option>
+            ))}
+          </select>
+
+          {hasActiveFilters && (
+            <button type="button" className={styles.clearBtn} onClick={clearFilters}>
+              Clear filters
+            </button>
+          )}
+        </div>
       </div>
 
       {error && <ErrorBanner message={error} />}
@@ -145,25 +206,35 @@ export default function ExpensesListPage() {
           </Link>
         </div>
       ) : (
-        <div className="card" style={{ padding: 0, overflow: 'hidden' }}>
-          <div className={styles.tableScroll}>
-          <table className={styles.expenseTable}>
-            <thead>
-              <tr>
-                <th scope="col" className={styles.thDate}>Date</th>
-                <th scope="col" className={styles.thCategory}>Category</th>
-                <th scope="col" className={`num ${styles.thAmount}`}>Amount</th>
-                <th scope="col" className={styles.thActions}><span className="sr-only">Actions</span></th>
-              </tr>
-            </thead>
-            <tbody>
-              {expenses.map((exp) => (
-                <ExpenseRow key={exp.id} expense={exp} onDeleted={handleDeleted} onError={setError} />
-              ))}
-            </tbody>
-          </table>
+        <>
+          {/* Desktop table */}
+          <div className={`card ${styles.tableCard}`} style={{ padding: 0, overflow: 'hidden' }}>
+            <div className={styles.tableScroll}>
+              <table className={styles.expenseTable}>
+                <thead>
+                  <tr>
+                    <th scope="col" className={styles.thDate}>Date</th>
+                    <th scope="col" className={styles.thCategory}>Category</th>
+                    <th scope="col" className={`num ${styles.thAmount}`}>Amount</th>
+                    <th scope="col" className={styles.thActions}><span className="sr-only">Actions</span></th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {expenses.map((exp) => (
+                    <ExpenseRow key={exp.id} expense={exp} onDeleted={handleDeleted} onError={setError} />
+                  ))}
+                </tbody>
+              </table>
+            </div>
           </div>
-        </div>
+
+          {/* Mobile cards */}
+          <div className={styles.cardList}>
+            {expenses.map((exp) => (
+              <ExpenseCard key={exp.id} expense={exp} onDeleted={handleDeleted} onError={setError} navigate={navigate} />
+            ))}
+          </div>
+        </>
       )}
     </div>
   );

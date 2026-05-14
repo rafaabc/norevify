@@ -15,6 +15,7 @@ import {
   computeAvgMonthly,
   computePrevMonthTotal,
 } from '../utils/aggregations.js';
+import { formatDate } from '../utils/formatDate.js';
 import styles from './DashboardPage.module.css';
 
 export default function DashboardPage() {
@@ -167,7 +168,7 @@ export default function DashboardPage() {
               <tbody>
                 {recentExpenses.map((exp) => (
                   <tr key={exp.id}>
-                    <td className={styles.dateCell}>{exp.date}</td>
+                    <td className={styles.dateCell}>{formatDate(exp.date)}</td>
                     <td>
                       <span className="badge" data-cat={exp.category}>{exp.category}</span>
                     </td>

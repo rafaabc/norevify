@@ -87,31 +87,5 @@
 .logoutBtn:hover { color: var(--danger); }
 
 @media (max-width: 640px) {
-  .sidebar {
-    width: var(--sidebar-width-collapsed);
-  }
-  .brand {
-    padding: 1.25rem 0;
-    justify-content: center;
-    gap: 0;
-  }
-  .brandName { display: none; }
-  .nav { padding: .75rem .25rem; }
-  .navLink {
-    justify-content: center;
-    padding: .6rem 0;
-    gap: 0;
-    font-size: 0;
-    border-left: none;
-    border-right: 2px solid transparent;
-  }
-  .navLink.active {
-    border-right-color: var(--primary);
-    border-left-color: transparent;
-  }
-  .footer {
-    padding: 1rem 0;
-    justify-content: center;
-  }
-  .username { display: none; }
+  .sidebar { display: none; }
 }

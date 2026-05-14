@@ -28,15 +28,13 @@ test.describe('Sidebar responsiveness', () => {
 
   // ── Mobile ──────────────────────────────────────────────────────────
 
-  test('[TC-UI-01] should collapse sidebar to icon-only strip on mobile viewport', async ({ page }) => {
+  test('[TC-UI-01] should hide sidebar and show bottom tab navigation on mobile viewport', async ({ page }) => {
     await page.setViewportSize(MOBILE_VIEWPORT);
     await loginAndGoTo(page);
 
-    const sidebar = page.locator('aside');
-    const box = await sidebar.boundingBox();
-
-    expect(box).not.toBeNull();
-    expect(box!.width).toBeLessThanOrEqual(60);
+    // Sidebar is fully hidden on mobile — replaced by bottom tabs
+    await expect(page.locator('aside')).not.toBeVisible();
+    await expect(page.locator('nav[aria-label="Main navigation"]')).toBeVisible();
   });
 
   test('[TC-UI-02] should hide nav labels on mobile and show only icons', async ({ page }) => {
@@ -82,8 +80,8 @@ test.describe('Sidebar responsiveness', () => {
     expect(box).not.toBeNull();
     expect(box!.width).toBeGreaterThanOrEqual(220);
 
-    await expect(page.getByText('Dashboard')).toBeVisible();
-    await expect(page.getByText('Expenses')).toBeVisible();
-    await expect(page.getByText('Summary')).toBeVisible();
+    await expect(sidebar.getByText('Dashboard')).toBeVisible();
+    await expect(sidebar.getByText('Expenses')).toBeVisible();
+    await expect(sidebar.getByText('Summary')).toBeVisible();
   });
 });

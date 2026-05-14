@@ -153,7 +153,8 @@ export default function SummaryPage() {
             </div>
           </div>
 
-          <details className={`card ${styles.pivotSection}`} open>
+          {/* Desktop pivot table */}
+          <details className={`card ${styles.pivotSection} ${styles.pivotDesktop}`} open>
             <summary className={styles.pivotSummary}>
               <span className={styles.period}>{filters.year} breakdown</span>
             </summary>
@@ -197,6 +198,42 @@ export default function SummaryPage() {
               </table>
             </div>
           </details>
+
+          {/* Mobile category bars */}
+          <div className={`card ${styles.pivotMobile}`}>
+            <h3 className={styles.sectionTitle}>{filters.year} by category</h3>
+            {donutData.length === 0 ? (
+              <p className="text-muted">No data.</p>
+            ) : (
+              <div className={styles.catBars}>
+                {donutData
+                  .slice()
+                  .sort((a, b) => b.amount - a.amount)
+                  .map(({ category, total }) => {
+                    const max = donutData.reduce((m, d) => Math.max(m, d.total), 0);
+                    const pct = max > 0 ? (total / max) * 100 : 0;
+                    return (
+                      <div key={category} className={styles.catBarRow}>
+                        <div className={styles.catBarMeta}>
+                          <span className="badge" data-cat={category}>{category}</span>
+                          <span className={styles.catBarValue}>R$ {total.toFixed(2)}</span>
+                        </div>
+                        <div className={styles.catBarTrack}>
+                          <div
+                            className={styles.catBarFill}
+                            style={{ width: `${pct}%`, '--cat-color': `var(--cat-${category.toLowerCase()})` }}
+                          />
+                        </div>
+                      </div>
+                    );
+                  })}
+                <div className={styles.catBarTotal}>
+                  <span>Total</span>
+                  <span className={styles.catBarValue}>R$ {grandTotal.toFixed(2)}</span>
+                </div>
+              </div>
+            )}
+          </div>
         </>
       )}
 
