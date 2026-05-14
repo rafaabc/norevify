@@ -10,6 +10,10 @@ jest.mock('../../src/services/apiService.js', () => ({
   },
 }));
 
+jest.mock('../../src/context/AuthContext.jsx', () => ({
+  useAuth: () => ({ currency: 'BRL' }),
+}));
+
 const mockNavigate = jest.fn();
 jest.mock('react-router-dom', () => ({
   ...jest.requireActual('react-router-dom'),

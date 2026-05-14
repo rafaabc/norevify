@@ -1,11 +1,8 @@
 import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer } from 'recharts';
 import { CATEGORY_COLORS, TOOLTIP_STYLE } from './chartTheme.js';
+import { formatCurrency } from '../../utils/formatCurrency.js';
 
-function formatCurrency(value) {
-  return value.toFixed(2);
-}
-
-export default function CategoryDonut({ data }) {
+export default function CategoryDonut({ data, currency = 'BRL' }) {
   if (!data || data.length === 0) {
     return (
       <div style={{
@@ -46,7 +43,7 @@ export default function CategoryDonut({ data }) {
           <Tooltip
             contentStyle={TOOLTIP_STYLE.contentStyle}
             labelStyle={TOOLTIP_STYLE.labelStyle}
-            formatter={(value, name) => [formatCurrency(value), name]}
+            formatter={(value, name) => [formatCurrency(value, currency), name]}
           />
         </PieChart>
       </ResponsiveContainer>
@@ -77,7 +74,7 @@ export default function CategoryDonut({ data }) {
             }} />
             <span style={{ flex: 1, color: 'var(--text)' }}>{entry.category}</span>
             <span style={{ fontFamily: 'var(--font-mono)', fontSize: 12 }}>
-              {formatCurrency(entry.total)}
+              {formatCurrency(entry.total, currency)}
             </span>
           </li>
         ))}

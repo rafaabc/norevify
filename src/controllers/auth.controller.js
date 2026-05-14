@@ -50,4 +50,13 @@ async function resetPassword(req, res) {
   }
 }
 
-module.exports = { register, login, changePassword, forgotPassword, resetPassword };
+async function updateCurrency(req, res) {
+  try {
+    const result = await authService.updateCurrency({ id: req.user.id, currency: req.body.currency });
+    res.status(200).json(result);
+  } catch (err) {
+    res.status(err.status || 500).json({ message: err.message });
+  }
+}
+
+module.exports = { register, login, changePassword, forgotPassword, resetPassword, updateCurrency };

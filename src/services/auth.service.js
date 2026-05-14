@@ -4,6 +4,7 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const userModel = require('../models/user.model');
 const emailService = require('./email.service');
+const { SUPPORTED_CURRENCIES, DEFAULT_CURRENCY } = require('../constants/currencies');
 
 const USERNAME_REGEX = /^[a-zA-Z0-9_]{3,50}$/;
 const EMAIL_REGEX    = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -14,7 +15,7 @@ function makeError(status, message) {
   return err;
 }
 
-async function register({ username, password, email }) {
+async function register({ username, password, email, currency }) {
   if (!username || !password || !email)
     throw makeError(400, 'username, password and email are required');
   if (!USERNAME_REGEX.test(username))
@@ -22,11 +23,13 @@ async function register({ username, password, email }) {
   if (password.length < 8) throw makeError(400, 'password must be at least 8 characters');
   if (password.length > 20) throw makeError(400, 'password must be at most 20 characters');
   if (!EMAIL_REGEX.test(email)) throw makeError(400, 'invalid email format');
+  if (currency !== undefined && !SUPPORTED_CURRENCIES.includes(currency))
+    throw makeError(400, `currency must be one of: ${SUPPORTED_CURRENCIES.join(', ')}`);
   if (await userModel.findByUsername(username)) throw makeError(409, 'username already taken');
   if (await userModel.findByEmail(email)) throw makeError(409, 'email already registered');
 
   const hash = await bcrypt.hash(password, 10);
-  const user = await userModel.create({ username, password: hash, email });
+  const user = await userModel.create({ username, password: hash, email, currency: currency || DEFAULT_CURRENCY });
   return { id: user._id.toString(), username: user.username };
 }
 
@@ -38,7 +41,7 @@ async function login({ username, password }) {
   if (!match) throw makeError(401, 'Invalid credentials');
 
   const token = jwt.sign(
-    { id: user._id.toString(), username: user.username },
+    { id: user._id.toString(), username: user.username, currency: user.currency || DEFAULT_CURRENCY },
     process.env.JWT_SECRET,
     { expiresIn: process.env.JWT_EXPIRES_IN || '1h' }
   );
@@ -96,4 +99,22 @@ async function resetPassword({ token, newPassword }) {
   return { message: 'Password updated successfully' };
 }
 
-module.exports = { register, login, changePassword, forgotPassword, resetPassword };
+async function updateCurrency({ id, currency }) {
+  if (!currency) throw makeError(400, 'currency is required');
+  if (!SUPPORTED_CURRENCIES.includes(currency))
+    throw makeError(400, `currency must be one of: ${SUPPORTED_CURRENCIES.join(', ')}`);
+
+  const user = await userModel.findById(id);
+  if (!user) throw makeError(404, 'User not found');
+
+  await userModel.updateCurrency(id, currency);
+
+  const token = jwt.sign(
+    { id: user._id.toString(), username: user.username, currency },
+    process.env.JWT_SECRET,
+    { expiresIn: process.env.JWT_EXPIRES_IN || '1h' }
+  );
+  return { token };
+}
+
+module.exports = { register, login, changePassword, forgotPassword, resetPassword, updateCurrency };

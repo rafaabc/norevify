@@ -2,11 +2,13 @@ import { useState, useEffect, useCallback } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { Filter, FileX2, ChevronDown, ChevronUp, Pencil, Trash2 } from 'lucide-react';
 import { expensesApi } from '../services/apiService.js';
+import { useAuth } from '../context/AuthContext.jsx';
 import ExpenseRow from '../components/ExpenseRow.jsx';
 import ErrorBanner from '../components/ErrorBanner.jsx';
 import Loading from '../components/Loading.jsx';
 import { CATEGORIES } from '../utils/categories.js';
 import { currentYear, formatDate } from '../utils/formatDate.js';
+import { formatCurrency } from '../utils/formatCurrency.js';
 import styles from './ExpensesListPage.module.css';
 
 const MONTHS = [
@@ -21,7 +23,7 @@ function buildYearOptions() {
   return [cy, cy - 1, cy - 2, cy - 3, cy - 4].filter((y) => y >= 2000);
 }
 
-function ExpenseCard({ expense, onDeleted, onError, navigate }) {
+function ExpenseCard({ expense, onDeleted, onError, navigate, currency }) {
   async function handleDelete() {
     if (!window.confirm(`Delete this ${expense.category} expense?`)) return;
     try {
@@ -39,10 +41,10 @@ function ExpenseCard({ expense, onDeleted, onError, navigate }) {
         <span className="badge" data-cat={expense.category}>{expense.category}</span>
       </div>
       <div className={styles.cardBody}>
-        <span className={styles.cardAmount}>R$ {expense.amount?.toFixed(2)}</span>
+        <span className={styles.cardAmount}>{formatCurrency(expense.amount, currency)}</span>
         {expense.category === 'Fuel' && expense.litres != null && (
           <span className={styles.cardSub}>
-            {expense.litres}L · R$ {expense.price_per_litre?.toFixed(2)}/L
+            {expense.litres}L · {formatCurrency(expense.price_per_litre, currency)}/L
           </span>
         )}
       </div>
@@ -69,6 +71,7 @@ function ExpenseCard({ expense, onDeleted, onError, navigate }) {
 }
 
 export default function ExpensesListPage() {
+  const { currency } = useAuth();
   const navigate = useNavigate();
 
   const [filters, setFilters] = useState({
@@ -221,7 +224,7 @@ export default function ExpensesListPage() {
                 </thead>
                 <tbody>
                   {expenses.map((exp) => (
-                    <ExpenseRow key={exp.id} expense={exp} onDeleted={handleDeleted} onError={setError} />
+                    <ExpenseRow key={exp.id} expense={exp} onDeleted={handleDeleted} onError={setError} currency={currency} />
                   ))}
                 </tbody>
               </table>
@@ -231,7 +234,7 @@ export default function ExpensesListPage() {
           {/* Mobile cards */}
           <div className={styles.cardList}>
             {expenses.map((exp) => (
-              <ExpenseCard key={exp.id} expense={exp} onDeleted={handleDeleted} onError={setError} navigate={navigate} />
+              <ExpenseCard key={exp.id} expense={exp} onDeleted={handleDeleted} onError={setError} navigate={navigate} currency={currency} />
             ))}
           </div>
         </>

@@ -1,6 +1,8 @@
 import { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { decodeJwt } from '../utils/decodeJwt.js';
+import { authApi } from '../services/apiService.js';
+import { DEFAULT_CURRENCY } from '../constants/currencies.js';
 
 const AuthContext = createContext(null);
 
@@ -31,10 +33,18 @@ export function AuthProvider({ children }) {
     return () => window.removeEventListener('auth:logout', handleExpiry);
   }, [navigate]);
 
-  const username = token ? decodeJwt(token)?.username : null;
+  const decoded = token ? decodeJwt(token) : null;
+  const username = decoded?.username ?? null;
+  const currency = decoded?.currency ?? DEFAULT_CURRENCY;
+
+  const updateCurrency = useCallback(async (newCurrency) => {
+    const { token: newToken } = await authApi.updateCurrency({ currency: newCurrency });
+    localStorage.setItem('token', newToken);
+    setToken(newToken);
+  }, []);
 
   return (
-    <AuthContext.Provider value={{ token, isAuthed: !!token, username, login, logout, expiredBanner, clearExpiredBanner: () => setExpiredBanner(false) }}>
+    <AuthContext.Provider value={{ token, isAuthed: !!token, username, currency, updateCurrency, login, logout, expiredBanner, clearExpiredBanner: () => setExpiredBanner(false) }}>
       {children}
     </AuthContext.Provider>
   );

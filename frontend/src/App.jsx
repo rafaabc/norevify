@@ -12,6 +12,7 @@ import SummaryPage from './pages/SummaryPage.jsx';
 import NotFoundPage from './pages/NotFoundPage.jsx';
 import UpdatePrompt from './components/UpdatePrompt.jsx';
 import ChangePasswordPage from './pages/ChangePasswordPage.jsx';
+import SettingsPage from './pages/SettingsPage.jsx';
 import ForgotPasswordPage from './pages/ForgotPasswordPage.jsx';
 import ResetPasswordPage from './pages/ResetPasswordPage.jsx';
 
@@ -39,6 +40,7 @@ export default function App() {
           <Route path="/expenses/:id/edit" element={<ExpenseFormPage />} />
           <Route path="/summary" element={<SummaryPage />} />
           <Route path="/change-password" element={<ChangePasswordPage />} />
+          <Route path="/settings" element={<SettingsPage />} />
         </Route>
         <Route path="*" element={<NotFoundPage />} />
       </Routes>

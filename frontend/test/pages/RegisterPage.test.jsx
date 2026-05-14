@@ -40,7 +40,7 @@ describe('RegisterPage', () => {
     fireEvent.submit(container.querySelector('form'));
 
     await waitFor(() => {
-      expect(authApi.register).toHaveBeenCalledWith({ username: 'newuser', email: 'newuser@example.com', password: 'password123' });
+      expect(authApi.register).toHaveBeenCalledWith(expect.objectContaining({ username: 'newuser', email: 'newuser@example.com', password: 'password123' }));
       expect(mockNavigate).toHaveBeenCalledWith('/login', { state: { justRegistered: true } });
     });
   });

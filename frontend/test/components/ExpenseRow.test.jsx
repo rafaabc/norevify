@@ -56,9 +56,9 @@ describe('ExpenseRow', () => {
   test('should render category and amount for a fuel expense', () => {
     // Arrange + Act
     renderRow(fuelExpense);
-    // Assert
+    // Assert — amount is formatted via Intl.NumberFormat; match the numeric value
     expect(screen.getByText('Fuel')).toBeInTheDocument();
-    expect(screen.getByText('220.00')).toBeInTheDocument();
+    expect(screen.getByText(/220/)).toBeInTheDocument();
   });
 
   test('should call expensesApi.remove and onDeleted when delete is confirmed', async () => {

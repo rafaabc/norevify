@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import { expensesApi } from '../services/apiService.js';
+import { useAuth } from '../context/AuthContext.jsx';
 import CategorySelect from '../components/CategorySelect.jsx';
 import ErrorBanner from '../components/ErrorBanner.jsx';
 import Loading from '../components/Loading.jsx';
@@ -8,6 +9,7 @@ import CategoryDonut from '../components/charts/CategoryDonut.jsx';
 import { currentYear } from '../utils/formatDate.js';
 import { CATEGORIES } from '../utils/categories.js';
 import { aggregateByCategory } from '../utils/aggregations.js';
+import { formatCurrency } from '../utils/formatCurrency.js';
 import styles from './SummaryPage.module.css';
 
 const MONTHS = [
@@ -57,6 +59,7 @@ function buildBarData(expenses, visibleCategories) {
 }
 
 export default function SummaryPage() {
+  const { currency } = useAuth();
   const [filters, setFilters] = useState({ year: String(currentYear()), category: '' });
   const [expenses, setExpenses] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -149,7 +152,7 @@ export default function SummaryPage() {
             </div>
             <div className="card">
               <h3 className={styles.sectionTitle}>By category</h3>
-              <CategoryDonut data={donutData} />
+              <CategoryDonut data={donutData} currency={currency} />
             </div>
           </div>
 
@@ -178,10 +181,10 @@ export default function SummaryPage() {
                         <td>{name}</td>
                         {targetCategories.map((cat) => (
                           <td key={cat} className="num">
-                            {row[cat] > 0 ? row[cat].toFixed(2) : '—'}
+                            {row[cat] > 0 ? formatCurrency(row[cat], currency) : '—'}
                           </td>
                         ))}
-                        <td className="num">{hasRow ? total.toFixed(2) : '—'}</td>
+                        <td className="num">{hasRow ? formatCurrency(total, currency) : '—'}</td>
                       </tr>
                     );
                   })}
@@ -190,9 +193,9 @@ export default function SummaryPage() {
                   <tr className={styles.totalRow}>
                     <td><strong>Total {filters.year}</strong></td>
                     {targetCategories.map((cat) => (
-                      <td key={cat} className="num">{colTotal(monthly, cat).toFixed(2)}</td>
+                      <td key={cat} className="num">{formatCurrency(colTotal(monthly, cat), currency)}</td>
                     ))}
-                    <td className="num">{grandTotal.toFixed(2)}</td>
+                    <td className="num">{formatCurrency(grandTotal, currency)}</td>
                   </tr>
                 </tfoot>
               </table>
@@ -216,7 +219,7 @@ export default function SummaryPage() {
                       <div key={category} className={styles.catBarRow}>
                         <div className={styles.catBarMeta}>
                           <span className="badge" data-cat={category}>{category}</span>
-                          <span className={styles.catBarValue}>R$ {total.toFixed(2)}</span>
+                          <span className={styles.catBarValue}>{formatCurrency(total, currency)}</span>
                         </div>
                         <div className={styles.catBarTrack}>
                           <div
@@ -229,7 +232,7 @@ export default function SummaryPage() {
                   })}
                 <div className={styles.catBarTotal}>
                   <span>Total</span>
-                  <span className={styles.catBarValue}>R$ {grandTotal.toFixed(2)}</span>
+                  <span className={styles.catBarValue}>{formatCurrency(grandTotal, currency)}</span>
                 </div>
               </div>
             )}
