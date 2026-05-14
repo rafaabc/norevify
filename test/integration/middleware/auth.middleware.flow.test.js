@@ -42,7 +42,7 @@ describe('Auth middleware → service hand-off integration', () => {
 
   // TC-02-06
   it('should reject expired token and not call next', (_, done) => {
-    const token = jwt.sign({ id: 'fakeid', username: 'rafael' }, process.env.JWT_SECRET, { expiresIn: -1 });
+    const token = jwt.sign({ id: 'fakeid', username: 'testuser' }, process.env.JWT_SECRET, { expiresIn: -1 });
     const req = { headers: { authorization: `Bearer ${token}` } };
     const res = makeRes();
     let nextCalled = false;
@@ -56,8 +56,8 @@ describe('Auth middleware → service hand-off integration', () => {
   });
 
   it('should decode a valid token and hand off user id to the service layer', async () => {
-    const user = await authService.register({ username: 'rafael', password: 'password1' });
-    const { token } = await authService.login({ username: 'rafael', password: 'password1' });
+    const user = await authService.register({ username: 'testuser', password: 'password1', email: 'testuser@example.com' });
+    const { token } = await authService.login({ username: 'testuser', password: 'password1' });
     const req = { headers: { authorization: `Bearer ${token}` } };
     const res = makeRes();
 

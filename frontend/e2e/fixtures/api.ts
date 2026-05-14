@@ -8,7 +8,7 @@ export async function createAndLoginUser(
 ): Promise<{ username: string; token: string }> {
   const username = uniqueUsername(prefix);
   const regRes = await request.post('/api/auth/register', {
-    data: { username, password: DEFAULT_PASSWORD },
+    data: { username, password: DEFAULT_PASSWORD, email: `${username}@test.com` },
   });
   const { id } = await regRes.json();
   if (id) trackUserId(id);

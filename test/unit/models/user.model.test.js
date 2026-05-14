@@ -13,21 +13,21 @@ beforeEach(async () => await resetMongo());
 
 describe('userModel.create()', () => {
   it('should create a user with a unique _id', async () => {
-    const user = await userModel.create({ username: 'alice', password: 'hashed' });
+    const user = await userModel.create({ username: 'alice', password: 'hashed', email: 'alice@example.com' });
     assert.ok(user._id);
     assert.strictEqual(user.username, 'alice');
   });
 
   it('should assign distinct _ids to multiple users', async () => {
-    const first = await userModel.create({ username: 'alice', password: 'hashed' });
-    const second = await userModel.create({ username: 'bob', password: 'hashed' });
+    const first  = await userModel.create({ username: 'alice', password: 'hashed', email: 'alice@example.com' });
+    const second = await userModel.create({ username: 'bob',   password: 'hashed', email: 'bob@example.com' });
     assert.notStrictEqual(first._id.toString(), second._id.toString());
   });
 });
 
 describe('userModel.findByUsername()', () => {
   it('should return the user when the username matches', async () => {
-    await userModel.create({ username: 'alice', password: 'hashed' });
+    await userModel.create({ username: 'alice', password: 'hashed', email: 'alice@example.com' });
     const found = await userModel.findByUsername('alice');
     assert.ok(found);
     assert.strictEqual(found.username, 'alice');
@@ -39,9 +39,23 @@ describe('userModel.findByUsername()', () => {
   });
 });
 
+describe('userModel.findByEmail()', () => {
+  it('should return the user when the email matches', async () => {
+    await userModel.create({ username: 'alice', password: 'hashed', email: 'alice@example.com' });
+    const found = await userModel.findByEmail('alice@example.com');
+    assert.ok(found);
+    assert.strictEqual(found.email, 'alice@example.com');
+  });
+
+  it('should return null when the email does not exist', async () => {
+    const found = await userModel.findByEmail('nobody@example.com');
+    assert.strictEqual(found, null);
+  });
+});
+
 describe('userModel.findById()', () => {
   it('should return the user when id matches', async () => {
-    const created = await userModel.create({ username: 'alice', password: 'hashed' });
+    const created = await userModel.create({ username: 'alice', password: 'hashed', email: 'alice@example.com' });
     const found = await userModel.findById(created._id);
     assert.ok(found);
     assert.strictEqual(found.username, 'alice');
@@ -56,7 +70,7 @@ describe('userModel.findById()', () => {
 
 describe('userModel._reset()', () => {
   it('should clear all users from the collection', async () => {
-    await userModel.create({ username: 'alice', password: 'hashed' });
+    await userModel.create({ username: 'alice', password: 'hashed', email: 'alice@example.com' });
     await userModel._reset();
     const found = await userModel.findByUsername('alice');
     assert.strictEqual(found, null);
@@ -65,7 +79,7 @@ describe('userModel._reset()', () => {
 
 describe('userModel.updatePassword()', () => {
   it('should persist hashed password to the user document', async () => {
-    await userModel.create({ username: 'alice', password: 'original_hash' });
+    await userModel.create({ username: 'alice', password: 'original_hash', email: 'alice@example.com' });
     await userModel.updatePassword('alice', 'new_hash');
     const found = await userModel.findByUsername('alice');
     assert.strictEqual(found.password, 'new_hash');

@@ -30,6 +30,7 @@ Drive Ledger is a full-stack vehicle expense management application. The backend
 | jsonwebtoken | ^9.0.3 | JWT auth |
 | bcryptjs | ^3.0.3 | Password hashing |
 | mongoose | ^8.x | MongoDB ODM |
+| resend | ^4.x | Transactional email (password recovery) |
 | dotenv | ^17.4.2 | Environment variables |
 | swagger-ui-express | ^5.0.1 | API docs |
 
@@ -66,7 +67,10 @@ Fill in the values:
 | `JWT_SECRET` | JWT signing key |
 | `JWT_EXPIRES_IN` | Token expiry (e.g. `1h`) |
 | `BASE_URL` | Base URL for API tests (e.g. `http://localhost:3000`) |
+| `FRONTEND_URL` | Frontend origin used in password-reset email links (e.g. `http://localhost:5173`) |
 | `MONGODB_URI` | MongoDB Atlas connection string (see below) |
+| `RESEND_API_KEY` | [Resend](https://resend.com) API key for sending password-recovery emails |
+| `RESET_PASSWORD_EXPIRES_IN` | Reset token lifetime (default `15m`) |
 
 ### MongoDB Setup
 
@@ -133,7 +137,9 @@ The layout is fully responsive at **≤ 640 px** (CSS-only, no JS):
 |---|---|---|
 | POST | `/api/auth/register` | Register a new user |
 | POST | `/api/auth/login` | Login and receive a JWT |
-| PATCH | `/api/auth/password` | Change user password |
+| PATCH | `/api/auth/password` | Change password (requires current password) |
+| POST | `/api/auth/forgot-password` | Send a password-reset email (safe — never reveals account existence) |
+| POST | `/api/auth/reset-password` | Reset password via token from email |
 
 **Expenses** — `Authorization: Bearer <token>` required
 

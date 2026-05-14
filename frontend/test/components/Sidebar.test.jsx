@@ -24,13 +24,14 @@ function renderSidebar(initialPath = '/') {
 }
 
 describe('Sidebar', () => {
-  test('should render all three navigation links', () => {
+  test('should render all navigation links', () => {
     // Arrange + Act
     renderSidebar();
     // Assert
     expect(screen.getByRole('link', { name: /dashboard/i })).toBeInTheDocument();
     expect(screen.getByRole('link', { name: /expenses/i })).toBeInTheDocument();
     expect(screen.getByRole('link', { name: /summary/i })).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: /change password/i })).toBeInTheDocument();
   });
 
   test('should display the authenticated username', () => {

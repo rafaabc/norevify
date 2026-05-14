@@ -1,3 +1,5 @@
+'use strict';
+
 const authService = require('../services/auth.service');
 
 async function register(req, res) {
@@ -20,11 +22,32 @@ async function login(req, res) {
 
 async function changePassword(req, res) {
   try {
-    const result = await authService.changePassword(req.body);
+    const result = await authService.changePassword({
+      ...req.body,
+      username: req.user.username,
+    });
     res.status(200).json(result);
   } catch (err) {
     res.status(err.status || 500).json({ message: err.message });
   }
 }
 
-module.exports = { register, login, changePassword };
+async function forgotPassword(req, res) {
+  try {
+    const result = await authService.forgotPassword(req.body);
+    res.status(200).json(result);
+  } catch (err) {
+    res.status(err.status || 500).json({ message: err.message });
+  }
+}
+
+async function resetPassword(req, res) {
+  try {
+    const result = await authService.resetPassword(req.body);
+    res.status(200).json(result);
+  } catch (err) {
+    res.status(err.status || 500).json({ message: err.message });
+  }
+}
+
+module.exports = { register, login, changePassword, forgotPassword, resetPassword };
