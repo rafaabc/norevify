@@ -40,5 +40,5 @@ test('[TC-03-05] should allow two identical expenses and delete them independent
   await listPage.deleteFirstRow();
 
   await expect(listPage.tableRows).toHaveCount(1);
-  await expect(page.locator('[data-cat="Other"]')).toBeVisible();
+  await expect(page.locator('table [data-cat="Other"]')).toBeVisible();
 });
