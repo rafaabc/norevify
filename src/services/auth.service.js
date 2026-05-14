@@ -70,7 +70,7 @@ async function forgotPassword({ email }, _sendEmail = emailService.sendPasswordR
       process.env.JWT_SECRET,
       { expiresIn: process.env.RESET_PASSWORD_EXPIRES_IN || '15m' }
     );
-    const resetUrl = `${process.env.BASE_URL}/reset-password?token=${token}`;
+    const resetUrl = `${process.env.FRONTEND_URL || process.env.BASE_URL}/reset-password?token=${token}`;
     await _sendEmail({ to: email, resetUrl });
   }
 

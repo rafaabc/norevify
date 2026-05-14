@@ -22,54 +22,65 @@ describe('RegisterPage', () => {
     jest.clearAllMocks();
   });
 
-  test('should call authApi.register and navigate to /login on success', async () => {
-    // Arrange
+  test('should render username, email, password fields and submit button', () => {
+    const { container } = renderRegisterPage();
+    expect(container.querySelector('input[name="username"]')).toBeInTheDocument();
+    expect(container.querySelector('input[name="email"]')).toBeInTheDocument();
+    expect(container.querySelector('input[name="password"]')).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /create account/i })).toBeInTheDocument();
+  });
+
+  test('should call authApi.register with username, email and password and navigate to /login on success', async () => {
     authApi.register.mockResolvedValue({});
     const { container } = renderRegisterPage();
-    // Act
+
     fireEvent.change(container.querySelector('input[name="username"]'), { target: { value: 'newuser' } });
+    fireEvent.change(container.querySelector('input[name="email"]'), { target: { value: 'newuser@example.com' } });
     fireEvent.change(container.querySelector('input[name="password"]'), { target: { value: 'password123' } });
     fireEvent.submit(container.querySelector('form'));
-    // Assert
+
     await waitFor(() => {
-      expect(authApi.register).toHaveBeenCalledWith({ username: 'newuser', password: 'password123' });
+      expect(authApi.register).toHaveBeenCalledWith({ username: 'newuser', email: 'newuser@example.com', password: 'password123' });
       expect(mockNavigate).toHaveBeenCalledWith('/login', { state: { justRegistered: true } });
     });
   });
 
   test('should display error message when registration fails', async () => {
-    // Arrange
     authApi.register.mockRejectedValue(new Error('Username already taken'));
     const { container } = renderRegisterPage();
-    // Act
+
     fireEvent.change(container.querySelector('input[name="username"]'), { target: { value: 'existinguser' } });
+    fireEvent.change(container.querySelector('input[name="email"]'), { target: { value: 'existing@example.com' } });
     fireEvent.change(container.querySelector('input[name="password"]'), { target: { value: 'password123' } });
     fireEvent.submit(container.querySelector('form'));
-    // Assert
+
     await screen.findByText('Username already taken');
   });
 
   test('should show loading text on the submit button while request is in flight', async () => {
-    // Arrange
     let resolveRegister;
     authApi.register.mockReturnValue(new Promise((r) => { resolveRegister = r; }));
     const { container } = renderRegisterPage();
-    // Act
+
     fireEvent.change(container.querySelector('input[name="username"]'), { target: { value: 'user' } });
+    fireEvent.change(container.querySelector('input[name="email"]'), { target: { value: 'user@example.com' } });
     fireEvent.change(container.querySelector('input[name="password"]'), { target: { value: 'pass1234' } });
     fireEvent.submit(container.querySelector('form'));
-    // Assert
+
     expect(screen.getByRole('button', { name: /creating account/i })).toBeInTheDocument();
     resolveRegister({});
   });
 
   test('should have correct HTML5 validation attributes on username input', () => {
-    // Arrange + Act
     const { container } = renderRegisterPage();
     const usernameInput = container.querySelector('input[name="username"]');
-    // Assert
     expect(usernameInput).toHaveAttribute('minLength', '3');
     expect(usernameInput).toHaveAttribute('maxLength', '50');
     expect(usernameInput).toHaveAttribute('pattern', '[a-zA-Z0-9_]+');
+  });
+
+  test('should have type="email" on the email input', () => {
+    const { container } = renderRegisterPage();
+    expect(container.querySelector('input[name="email"]')).toHaveAttribute('type', 'email');
   });
 });
