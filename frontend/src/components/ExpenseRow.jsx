@@ -2,9 +2,10 @@ import { useNavigate } from 'react-router-dom';
 import { Pencil, Trash2 } from 'lucide-react';
 import { expensesApi } from '../services/apiService.js';
 import { formatDate } from '../utils/formatDate.js';
+import { formatCurrency } from '../utils/formatCurrency.js';
 import styles from './ExpenseRow.module.css';
 
-export default function ExpenseRow({ expense, onDeleted, onError }) {
+export default function ExpenseRow({ expense, onDeleted, onError, currency = 'BRL' }) {
   const navigate = useNavigate();
 
   async function handleDelete() {
@@ -25,7 +26,7 @@ export default function ExpenseRow({ expense, onDeleted, onError }) {
       <td>
         <span className="badge" data-cat={expense.category}>{expense.category}</span>
       </td>
-      <td className={`num ${styles.amountCell}`}>{expense.amount?.toFixed(2)}</td>
+      <td className={`num ${styles.amountCell}`}>{formatCurrency(expense.amount, currency)}</td>
       <td>
         <div className="actions">
           <button

@@ -1,6 +1,7 @@
 import { useState, useEffect, useMemo } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { expensesApi } from '../services/apiService.js';
+import { useAuth } from '../context/AuthContext.jsx';
 import KpiCard from '../components/KpiCard.jsx';
 import MonthlyTrendChart from '../components/charts/MonthlyTrendChart.jsx';
 import CategoryDonut from '../components/charts/CategoryDonut.jsx';
@@ -16,9 +17,11 @@ import {
   computePrevMonthTotal,
 } from '../utils/aggregations.js';
 import { formatDate } from '../utils/formatDate.js';
+import { formatCurrency } from '../utils/formatCurrency.js';
 import styles from './DashboardPage.module.css';
 
 export default function DashboardPage() {
+  const { currency } = useAuth();
   const location = useLocation();
   const [showWelcome, setShowWelcome] = useState(!!location.state?.justLoggedIn);
   const [expenses, setExpenses] = useState([]);
@@ -107,20 +110,20 @@ export default function DashboardPage() {
       <div className={styles.kpiRow}>
         <KpiCard
           label="This Month"
-          value={mtd.toFixed(2)}
+          value={formatCurrency(mtd, currency)}
           delta={mtdDelta}
           sparkData={last6Months}
           invertColors
         />
         <KpiCard
           label="This Year"
-          value={ytd.toFixed(2)}
+          value={formatCurrency(ytd, currency)}
           delta={null}
           sparkData={monthlyData}
         />
         <KpiCard
           label="Monthly Avg"
-          value={avgMonthly.toFixed(2)}
+          value={formatCurrency(avgMonthly, currency)}
           delta={null}
           sparkData={monthlyData}
         />
@@ -140,7 +143,7 @@ export default function DashboardPage() {
         </div>
         <div className={styles.chartCard}>
           <h2 className={styles.sectionTitle}>By Category</h2>
-          <CategoryDonut data={categoryData} />
+          <CategoryDonut data={categoryData} currency={currency} />
         </div>
       </div>
 
@@ -172,7 +175,7 @@ export default function DashboardPage() {
                     <td>
                       <span className="badge" data-cat={exp.category}>{exp.category}</span>
                     </td>
-                    <td className={`num ${styles.amountCell}`}>{exp.amount.toFixed(2)}</td>
+                    <td className={`num ${styles.amountCell}`}>{formatCurrency(exp.amount, currency)}</td>
                   </tr>
                 ))}
               </tbody>

@@ -7,6 +7,10 @@ jest.mock('../../src/services/apiService.js', () => ({
   expensesApi: { list: jest.fn() },
 }));
 
+jest.mock('../../src/context/AuthContext.jsx', () => ({
+  useAuth: () => ({ currency: 'BRL' }),
+}));
+
 const expenses = [
   { id: '1', date: '2026-01-15', category: 'Fuel', amount: 100.0, litres: 20, price_per_litre: 5 },
   { id: '2', date: '2026-01-20', category: 'Parking', amount: 10.0 },
@@ -58,14 +62,14 @@ describe('SummaryPage', () => {
     expensesApi.list.mockResolvedValue(expenses);
     // Act
     renderPage();
-    // Assert — Fuel column total is 150.00 (100 + 50); also appears in donut legend
-    expect((await screen.findAllByText('150.00')).length).toBeGreaterThanOrEqual(1);
-    // Parking column total is 10.00 (appears in row and footer)
-    expect(screen.getAllByText('10.00').length).toBeGreaterThanOrEqual(1);
-    // January row total is 110.00 (100 + 10)
-    expect(screen.getByText('110.00')).toBeInTheDocument();
-    // March row total is 50.00 (also appears in Fuel/March cell and footer)
-    expect(screen.getAllByText('50.00').length).toBeGreaterThanOrEqual(1);
+    // Assert — Fuel column total is 150 (100 + 50); formatted by Intl.NumberFormat
+    expect((await screen.findAllByText(/150/)).length).toBeGreaterThanOrEqual(1);
+    // Parking column total is 10 (appears in row and footer)
+    expect(screen.getAllByText(/\b10\b|\b10\.0/).length).toBeGreaterThanOrEqual(1);
+    // January row total is 110 (100 + 10)
+    expect(screen.getByText(/110/)).toBeInTheDocument();
+    // March row total is 50 (also appears in Fuel/March cell and footer)
+    expect(screen.getAllByText(/\b50\b|\b50\.0/).length).toBeGreaterThanOrEqual(1);
   });
 
   test('should not fetch when year has fewer than 4 digits', async () => {
@@ -85,7 +89,7 @@ describe('SummaryPage', () => {
     // Arrange
     expensesApi.list.mockResolvedValue(expenses);
     const { container } = renderPage();
-    expect((await screen.findAllByText('150.00')).length).toBeGreaterThanOrEqual(1);
+    expect((await screen.findAllByText(/150/)).length).toBeGreaterThanOrEqual(1);
     // Act — filter by Fuel only
     expensesApi.list.mockResolvedValue(
       expenses.filter((e) => e.category === 'Fuel')

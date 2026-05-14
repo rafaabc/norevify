@@ -3,11 +3,13 @@ import { Link, useNavigate } from 'react-router-dom';
 import { Gauge } from 'lucide-react';
 import { authApi } from '../services/apiService.js';
 import ErrorBanner from '../components/ErrorBanner.jsx';
+import { SUPPORTED_CURRENCIES } from '../constants/currencies.js';
+import { detectCurrency } from '../utils/detectCurrency.js';
 import styles from './RegisterPage.module.css';
 
 export default function RegisterPage() {
   const navigate = useNavigate();
-  const [form, setForm] = useState({ username: '', email: '', password: '' });
+  const [form, setForm] = useState({ username: '', email: '', password: '', currency: detectCurrency() });
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
@@ -62,6 +64,14 @@ export default function RegisterPage() {
               <label htmlFor="reg-password">Password</label>
               <input id="reg-password" type="password" name="password" value={form.password} onChange={handleChange} required
                 minLength={8} maxLength={20} />
+            </div>
+            <div className="form-group">
+              <label htmlFor="reg-currency">Preferred currency</label>
+              <select id="reg-currency" name="currency" value={form.currency} onChange={handleChange}>
+                {SUPPORTED_CURRENCIES.map(({ code, label }) => (
+                  <option key={code} value={code}>{label}</option>
+                ))}
+              </select>
             </div>
             <button type="submit" className="btn-primary" style={{ width: '100%' }} disabled={loading}>
               {loading ? 'Creating account…' : 'Create account'}
