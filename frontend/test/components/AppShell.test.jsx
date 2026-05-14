@@ -3,6 +3,8 @@ import { MemoryRouter, Routes, Route } from 'react-router-dom';
 import AppShell from '../../src/components/AppShell.jsx';
 
 jest.mock('../../src/components/Sidebar.jsx', () => () => <aside data-testid="sidebar" />);
+jest.mock('../../src/components/MobileTopBar.jsx', () => () => null);
+jest.mock('../../src/components/BottomTabs.jsx', () => () => null);
 
 describe('AppShell', () => {
   test('should render Sidebar and outlet content', () => {
