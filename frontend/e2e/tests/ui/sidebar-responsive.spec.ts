@@ -80,7 +80,6 @@ test.describe('Sidebar responsiveness', () => {
     expect(box).not.toBeNull();
     expect(box!.width).toBeGreaterThanOrEqual(220);
 
-    const sidebar = page.locator('aside');
     await expect(sidebar.getByText('Dashboard')).toBeVisible();
     await expect(sidebar.getByText('Expenses')).toBeVisible();
     await expect(sidebar.getByText('Summary')).toBeVisible();
