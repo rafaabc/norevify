@@ -31,10 +31,10 @@ function authHeader() {
 }
 
 // Registers a user, tracks their ID for cleanup, returns the full supertest response.
-async function registerAndTrack(username, password) {
+async function registerAndTrack(username, password, email) {
   const res = await request(BASE_URL)
     .post('/api/auth/register')
-    .send({ username, password });
+    .send({ username, password, email: email || `${username}@test.com` });
 
   if (res.status === 201 && res.body.id) {
     createdUserIds.push(res.body.id);
@@ -46,10 +46,11 @@ async function registerAndTrack(username, password) {
 async function createAndLoginUser(prefix) {
   const username = uniqueUsername(prefix);
   const password = 'Password1';
+  const email    = `${username}@test.com`;
 
   const regRes = await request(BASE_URL)
     .post('/api/auth/register')
-    .send({ username, password });
+    .send({ username, password, email });
 
   if (regRes.status === 201 && regRes.body.id) {
     createdUserIds.push(regRes.body.id);
@@ -68,10 +69,11 @@ before(async function () {
 
   const username = uniqueUsername('primary');
   const password = 'Password1';
+  const email    = `${username}@test.com`;
 
   const regRes = await request(BASE_URL)
     .post('/api/auth/register')
-    .send({ username, password })
+    .send({ username, password, email })
     .catch(() => null);
 
   if (!regRes) {

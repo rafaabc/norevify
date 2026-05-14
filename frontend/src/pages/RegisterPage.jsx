@@ -7,7 +7,7 @@ import styles from './RegisterPage.module.css';
 
 export default function RegisterPage() {
   const navigate = useNavigate();
-  const [form, setForm] = useState({ username: '', password: '' });
+  const [form, setForm] = useState({ username: '', email: '', password: '' });
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
@@ -53,6 +53,10 @@ export default function RegisterPage() {
               <input id="reg-username" name="username" value={form.username} onChange={handleChange} required autoFocus
                 minLength={3} maxLength={50} pattern="[a-zA-Z0-9_]+"
                 title="3–50 characters: letters, numbers, underscore" />
+            </div>
+            <div className="form-group">
+              <label htmlFor="reg-email">Email</label>
+              <input id="reg-email" type="email" name="email" value={form.email} onChange={handleChange} required />
             </div>
             <div className="form-group">
               <label htmlFor="reg-password">Password</label>

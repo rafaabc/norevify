@@ -10,14 +10,19 @@ export class RegisterPage extends BasePage {
     await this.page.goto('/register');
   }
 
-  async register(username: string, password: string) {
+  async register(username: string, password: string, email?: string) {
     await this.page.locator('[name="username"]').fill(username);
+    await this.page.locator('[name="email"]').fill(email ?? `${username}@test.com`);
     await this.page.locator('[name="password"]').fill(password);
     await this.page.getByRole('button', { name: 'Create account' }).click();
   }
 
   get usernameInput(): Locator {
     return this.page.locator('[name="username"]');
+  }
+
+  get emailInput(): Locator {
+    return this.page.locator('[name="email"]');
   }
 
   get passwordInput(): Locator {

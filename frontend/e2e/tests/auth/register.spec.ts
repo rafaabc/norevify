@@ -35,7 +35,7 @@ test.describe('US-01: User Registration', () => {
 
     // First registration succeeds — track the ID for teardown
     const regRes = await request.post('/api/auth/register', {
-      data: { username, password: DEFAULT_PASSWORD },
+      data: { username, password: DEFAULT_PASSWORD, email: `${username}@test.com` },
     });
     const { id } = await regRes.json();
     if (id) trackUserId(id);

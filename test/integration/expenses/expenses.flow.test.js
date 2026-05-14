@@ -26,7 +26,7 @@ const TODAY = new Date().toISOString().slice(0, 10);
 describe('Expenses CRUD flow integration', () => {
   // TC-03-01 + TC-03-02
   it('should persist a non-Fuel expense and make it retrievable via list and get', async () => {
-    const user = await authService.register({ username: 'rafael', password: 'password1' });
+    const user = await authService.register({ username: 'testuser', password: 'password1', email: 'testuser@example.com' });
     const created = await createExpense(user.id, { category: 'Parking', amount: 15, date: TODAY });
     const listed = await listExpenses(user.id, {});
     const fetched = await getExpense(user.id, created.id);
@@ -38,7 +38,7 @@ describe('Expenses CRUD flow integration', () => {
 
   // TC-03-01 (Fuel variant) + TC-03-02
   it('should persist a Fuel expense with computed amount and make it retrievable', async () => {
-    const user = await authService.register({ username: 'rafael', password: 'password1' });
+    const user = await authService.register({ username: 'testuser', password: 'password1', email: 'testuser@example.com' });
     const created = await createExpense(user.id, {
       category: 'Fuel',
       litres: 40,
@@ -53,7 +53,7 @@ describe('Expenses CRUD flow integration', () => {
 
   // TC-03-13
   it('should update an existing expense and reflect the change on subsequent read', async () => {
-    const user = await authService.register({ username: 'rafael', password: 'password1' });
+    const user = await authService.register({ username: 'testuser', password: 'password1', email: 'testuser@example.com' });
     const created = await createExpense(user.id, { category: 'Parking', amount: 10, date: TODAY });
     await updateExpense(user.id, created.id, { amount: 99 });
     const fetched = await getExpense(user.id, created.id);
@@ -62,7 +62,7 @@ describe('Expenses CRUD flow integration', () => {
 
   // TC-03-14
   it('should throw 404 when updating a non-existent expense', async () => {
-    const user = await authService.register({ username: 'rafael', password: 'password1' });
+    const user = await authService.register({ username: 'testuser', password: 'password1', email: 'testuser@example.com' });
     const fakeId = new mongoose.Types.ObjectId().toString();
     await assert.rejects(
       () => updateExpense(user.id, fakeId, { amount: 50 }),
@@ -75,7 +75,7 @@ describe('Expenses CRUD flow integration', () => {
 
   // TC-03-15
   it('should delete an existing expense so it is no longer retrievable', async () => {
-    const user = await authService.register({ username: 'rafael', password: 'password1' });
+    const user = await authService.register({ username: 'testuser', password: 'password1', email: 'testuser@example.com' });
     const created = await createExpense(user.id, { category: 'Toll', amount: 3, date: TODAY });
     await deleteExpense(user.id, created.id);
     await assert.rejects(
@@ -88,7 +88,7 @@ describe('Expenses CRUD flow integration', () => {
 
   // TC-03-16
   it('should throw 404 when deleting a non-existent expense', async () => {
-    const user = await authService.register({ username: 'rafael', password: 'password1' });
+    const user = await authService.register({ username: 'testuser', password: 'password1', email: 'testuser@example.com' });
     const fakeId = new mongoose.Types.ObjectId().toString();
     await assert.rejects(
       () => deleteExpense(user.id, fakeId),

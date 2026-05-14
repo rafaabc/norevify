@@ -102,6 +102,9 @@ export default function LoginPage() {
             Don&apos;t have an account? <Link to="/register">Register</Link>
           </p>
           <p className={styles.switchLink}>
+            <Link to="/forgot-password">Forgot your password?</Link>
+          </p>
+          <p className={styles.switchLink}>
             <Link to="/change-password">Change password</Link>
           </p>
         </div>
