@@ -1,10 +1,10 @@
 'use strict';
 
-const { request, expect, authHeader } = require('../base/api-base');
+const { request, expect, authHeader, BASE_URL } = require('../base/api-base');
 
 describe('PATCH /api/auth/language', () => {
   it('[TC-LG-01] should return 200 and new JWT when language is valid', async () => {
-    const res = await request.patch('/api/auth/language')
+    const res = await request(BASE_URL).patch('/api/auth/language')
       .set(authHeader())
       .send({ language: 'en' });
     expect(res.status).to.equal(200);
@@ -12,7 +12,7 @@ describe('PATCH /api/auth/language', () => {
   });
 
   it('[TC-LG-02] should return 400 when language is not supported', async () => {
-    const res = await request.patch('/api/auth/language')
+    const res = await request(BASE_URL).patch('/api/auth/language')
       .set(authHeader())
       .send({ language: 'fr' });
     expect(res.status).to.equal(400);
@@ -20,7 +20,7 @@ describe('PATCH /api/auth/language', () => {
   });
 
   it('[TC-LG-03] should return 401 when no token provided', async () => {
-    const res = await request.patch('/api/auth/language').send({ language: 'en' });
+    const res = await request(BASE_URL).patch('/api/auth/language').send({ language: 'en' });
     expect(res.status).to.equal(401);
   });
 });
