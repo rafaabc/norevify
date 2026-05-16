@@ -5,6 +5,18 @@ import SettingsPage from '../../src/pages/SettingsPage.jsx';
 const mockUpdateCurrency = jest.fn();
 const mockUpdateLanguage = jest.fn();
 
+jest.mock('../../src/services/apiService.js', () => ({
+  authApi: {
+    getProviders: jest.fn().mockResolvedValue({ authProviders: [], hasPassword: false }),
+    updateCurrency: jest.fn().mockResolvedValue({ token: 'tok' }),
+    updateLanguage: jest.fn().mockResolvedValue(undefined),
+  },
+}));
+
+jest.mock('react-i18next', () => ({
+  useTranslation: () => ({ t: (key) => key }),
+}));
+
 jest.mock('../../src/context/AuthContext.jsx', () => ({
   useAuth: jest.fn(),
 }));
@@ -33,7 +45,7 @@ describe('SettingsPage', () => {
 
   test('should render currency select pre-filled with current currency', () => {
     renderPage();
-    const select = screen.getByRole('combobox', { name: /preferred currency/i });
+    const select = screen.getByRole('combobox', { name: 'settings.currency.label' });
     expect(select).toBeInTheDocument();
     expect(select.value).toBe('BRL');
   });
@@ -52,17 +64,17 @@ describe('SettingsPage', () => {
 
   test('should disable currency Save button when selection matches current currency', () => {
     renderPage();
-    const currencySelect = screen.getByRole('combobox', { name: /preferred currency/i });
+    const currencySelect = screen.getByRole('combobox', { name: 'settings.currency.label' });
     const form = currencySelect.closest('form');
     expect(form.querySelector('button[type="submit"]')).toBeDisabled();
   });
 
   test('should enable currency Save button when a different currency is selected', () => {
     renderPage();
-    fireEvent.change(screen.getByRole('combobox', { name: /preferred currency/i }), {
+    fireEvent.change(screen.getByRole('combobox', { name: 'settings.currency.label' }), {
       target: { value: 'DKK' },
     });
-    const currencySelect = screen.getByRole('combobox', { name: /preferred currency/i });
+    const currencySelect = screen.getByRole('combobox', { name: 'settings.currency.label' });
     const form = currencySelect.closest('form');
     expect(form.querySelector('button[type="submit"]')).not.toBeDisabled();
   });
@@ -71,10 +83,10 @@ describe('SettingsPage', () => {
     mockUpdateCurrency.mockResolvedValue();
     renderPage();
 
-    fireEvent.change(screen.getByRole('combobox', { name: /preferred currency/i }), {
+    fireEvent.change(screen.getByRole('combobox', { name: 'settings.currency.label' }), {
       target: { value: 'USD' },
     });
-    const currencySelect = screen.getByRole('combobox', { name: /preferred currency/i });
+    const currencySelect = screen.getByRole('combobox', { name: 'settings.currency.label' });
     const form = currencySelect.closest('form');
     await act(async () => {
       fireEvent.click(form.querySelector('button[type="submit"]'));
@@ -82,7 +94,7 @@ describe('SettingsPage', () => {
 
     await waitFor(() => {
       expect(mockUpdateCurrency).toHaveBeenCalledWith('USD');
-      expect(screen.getByText(/currency updated successfully/i)).toBeInTheDocument();
+      expect(screen.getByText('settings.currency.success')).toBeInTheDocument();
     });
   });
 
@@ -90,10 +102,10 @@ describe('SettingsPage', () => {
     mockUpdateCurrency.mockRejectedValue(new Error('Network error'));
     renderPage();
 
-    fireEvent.change(screen.getByRole('combobox', { name: /preferred currency/i }), {
+    fireEvent.change(screen.getByRole('combobox', { name: 'settings.currency.label' }), {
       target: { value: 'EUR' },
     });
-    const currencySelect = screen.getByRole('combobox', { name: /preferred currency/i });
+    const currencySelect = screen.getByRole('combobox', { name: 'settings.currency.label' });
     const form = currencySelect.closest('form');
     await act(async () => {
       fireEvent.click(form.querySelector('button[type="submit"]'));
@@ -109,14 +121,14 @@ describe('SettingsPage', () => {
     mockUpdateCurrency.mockReturnValue(new Promise((r) => { resolve = r; }));
     renderPage();
 
-    fireEvent.change(screen.getByRole('combobox', { name: /preferred currency/i }), {
+    fireEvent.change(screen.getByRole('combobox', { name: 'settings.currency.label' }), {
       target: { value: 'GBP' },
     });
-    const currencySelect = screen.getByRole('combobox', { name: /preferred currency/i });
+    const currencySelect = screen.getByRole('combobox', { name: 'settings.currency.label' });
     const form = currencySelect.closest('form');
     fireEvent.click(form.querySelector('button[type="submit"]'));
 
-    expect(form.querySelector('button[type="submit"]').textContent).toMatch(/saving/i);
+    expect(form.querySelector('button[type="submit"]').textContent).toBe('common.saving');
     resolve();
   });
 
@@ -135,7 +147,7 @@ describe('SettingsPage', () => {
 
     await waitFor(() => {
       expect(mockUpdateLanguage).toHaveBeenCalledWith('pt-BR');
-      expect(screen.getByText(/language updated successfully/i)).toBeInTheDocument();
+      expect(screen.getByText('settings.language.success')).toBeInTheDocument();
     });
   });
 
@@ -174,6 +186,6 @@ describe('SettingsPage', () => {
 
   test('should render a Change password link', () => {
     renderPage();
-    expect(screen.getByRole('link', { name: /change password/i })).toHaveAttribute('href', '/change-password');
+    expect(screen.getByRole('link', { name: 'settings.changePassword' })).toHaveAttribute('href', '/change-password');
   });
 });
