@@ -47,6 +47,7 @@ export const authApi = {
   login:          (data) => request('/auth/login',           { method: 'POST',   body: data, auth: false }),
   changePassword: (data) => request('/auth/password',        { method: 'PATCH',  body: data, auth: true }),
   updateCurrency: (data) => request('/auth/currency',        { method: 'PATCH',  body: data, auth: true }),
+  updateLanguage: (data) => request('/auth/language',        { method: 'PATCH',  body: data, auth: true }),
   forgotPassword: (data) => request('/auth/forgot-password', { method: 'POST',   body: data, auth: false }),
   resetPassword:  (data) => request('/auth/reset-password',  { method: 'POST',   body: data, auth: false }),
   googleLogin:    (data) => request('/auth/google',          { method: 'POST',   body: data, auth: false }),
