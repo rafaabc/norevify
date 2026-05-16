@@ -163,7 +163,7 @@ export default function SettingsPage() {
             <GoogleSignInButton
               mode="link"
               onSuccess={() => {
-                setLinkSuccess('Google account connected.');
+                setLinkSuccess(t('settings.googleConnected'));
                 setProviders((p) => ({ ...p, authProviders: [...(p?.authProviders ?? []), 'google'] }));
               }}
               onError={setLinkError}

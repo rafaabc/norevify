@@ -157,6 +157,21 @@ describe('SettingsPage', () => {
     });
   });
 
+  test('should disable language select and save button while updateLanguage is pending', async () => {
+    mockUpdateLanguage.mockImplementation(() => new Promise(() => {}));
+    renderPage();
+
+    fireEvent.change(screen.getByRole('combobox', { name: /language/i }), {
+      target: { value: 'pt-BR' },
+    });
+    const langSelect = screen.getByRole('combobox', { name: /language/i });
+    const form = langSelect.closest('form');
+    fireEvent.click(form.querySelector('button[type="submit"]'));
+
+    expect(langSelect).toBeDisabled();
+    expect(form.querySelector('button[type="submit"]')).toBeDisabled();
+  });
+
   test('should render a Change password link', () => {
     renderPage();
     expect(screen.getByRole('link', { name: /change password/i })).toHaveAttribute('href', '/change-password');
