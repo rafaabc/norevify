@@ -5,7 +5,7 @@
 
 `https://drive-ledger-front.vercel.app/`
 
-> Full-stack vehicle expense manager — Node.js/Express REST API with a React PWA, JWT authentication, and spending summaries by period.
+> Full-stack vehicle expense manager — Node.js/Express REST API with a React PWA, JWT authentication, spending summaries by period, and PT-BR / English internationalisation.
 
 > https://github.com/user-attachments/assets/aa83e4c7-adfd-422d-8088-3656878346d4
 
@@ -13,7 +13,7 @@
 
 ## Description
 
-Drive Ledger is a full-stack vehicle expense management application. The backend is a Node.js/Express REST API that lets users log and analyze expenses by category (fuel, maintenance, insurance, tolls, and more), with JWT-based authentication and user isolation. The frontend is a React PWA (Vite) that consumes the API and can be installed on Android and iOS directly from the browser. Data is persisted in MongoDB Atlas — a free cluster is sufficient.
+Drive Ledger is a full-stack vehicle expense management application. The backend is a Node.js/Express REST API that lets users log and analyze expenses by category (fuel, maintenance, insurance, tolls, and more), with JWT-based authentication and user isolation. The frontend is a React PWA (Vite) that consumes the API, supports **PT-BR and English** via `react-i18next`, and can be installed on Android and iOS directly from the browser. Data is persisted in MongoDB Atlas — a free cluster is sufficient.
 
 ## Dependencies
 
@@ -40,6 +40,8 @@ Drive Ledger is a full-stack vehicle expense management application. The backend
 |---|---|---|
 | react | ^18.3.1 | UI framework |
 | react-router-dom | ^6.26.2 | Client-side routing |
+| react-i18next / i18next | ^15 / ^24 | Internationalisation (PT-BR + EN) |
+| i18next-browser-languagedetector | ^8 | Language detection from localStorage / navigator |
 | vite | ^5.4.8 | Dev server and bundler |
 | vite-plugin-pwa | ^1.3.0 | Service worker + web app manifest (PWA) |
 
@@ -111,6 +113,10 @@ npm run dev   # available at http://localhost:5173
 
 ## Features
 
+### Internationalisation
+
+The app ships in **PT-BR (default) and English**. Language is persisted in `localStorage` (`i18nextLng`) and also stored per-user in the database (JWT field `language`). Users can switch via **Settings → Language** — the preference is saved server-side so it follows them across devices when they log in.
+
 ### PWA — Install on mobile
 
 The app is a Progressive Web App. No app store required.
@@ -140,6 +146,16 @@ The layout is fully responsive at **≤ 640 px** (CSS-only, no JS):
 | PATCH | `/api/auth/password` | Change password (requires current password) |
 | POST | `/api/auth/forgot-password` | Send a password-reset email (safe — never reveals account existence) |
 | POST | `/api/auth/reset-password` | Reset password via token from email |
+
+**Auth** — `Authorization: Bearer <token>` required
+
+| Method | Path | Description |
+|---|---|---|
+| PATCH | `/api/auth/currency` | Update preferred currency; returns a new JWT |
+| PATCH | `/api/auth/language` | Update preferred language (`pt-BR` or `en`); returns a new JWT |
+| POST | `/api/auth/google/link` | Link a Google account to the current user |
+| DELETE | `/api/auth/google/link` | Unlink Google account |
+| GET | `/api/auth/providers` | Returns `{ authProviders, hasPassword }` |
 
 **Expenses** — `Authorization: Bearer <token>` required
 
