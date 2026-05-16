@@ -3,6 +3,7 @@ import { MemoryRouter } from 'react-router-dom';
 import SettingsPage from '../../src/pages/SettingsPage.jsx';
 
 const mockUpdateCurrency = jest.fn();
+const mockUpdateLanguage = jest.fn();
 
 jest.mock('../../src/context/AuthContext.jsx', () => ({
   useAuth: jest.fn(),
@@ -25,6 +26,8 @@ describe('SettingsPage', () => {
       username: 'testuser',
       currency: 'BRL',
       updateCurrency: mockUpdateCurrency,
+      language: 'en',
+      updateLanguage: mockUpdateLanguage,
     });
   });
 
@@ -35,22 +38,33 @@ describe('SettingsPage', () => {
     expect(select.value).toBe('BRL');
   });
 
+  test('should render language select pre-filled with current language', () => {
+    renderPage();
+    const select = screen.getByRole('combobox', { name: /language/i });
+    expect(select).toBeInTheDocument();
+    expect(select.value).toBe('en');
+  });
+
   test('should show the logged-in username', () => {
     renderPage();
     expect(screen.getByText(/testuser/)).toBeInTheDocument();
   });
 
-  test('should disable Save button when selection matches current currency', () => {
+  test('should disable currency Save button when selection matches current currency', () => {
     renderPage();
-    expect(screen.getByRole('button', { name: /save/i })).toBeDisabled();
+    const currencySelect = screen.getByRole('combobox', { name: /preferred currency/i });
+    const form = currencySelect.closest('form');
+    expect(form.querySelector('button[type="submit"]')).toBeDisabled();
   });
 
-  test('should enable Save button when a different currency is selected', () => {
+  test('should enable currency Save button when a different currency is selected', () => {
     renderPage();
     fireEvent.change(screen.getByRole('combobox', { name: /preferred currency/i }), {
       target: { value: 'DKK' },
     });
-    expect(screen.getByRole('button', { name: /save/i })).not.toBeDisabled();
+    const currencySelect = screen.getByRole('combobox', { name: /preferred currency/i });
+    const form = currencySelect.closest('form');
+    expect(form.querySelector('button[type="submit"]')).not.toBeDisabled();
   });
 
   test('should call updateCurrency and show success message on submit', async () => {
@@ -60,8 +74,10 @@ describe('SettingsPage', () => {
     fireEvent.change(screen.getByRole('combobox', { name: /preferred currency/i }), {
       target: { value: 'USD' },
     });
+    const currencySelect = screen.getByRole('combobox', { name: /preferred currency/i });
+    const form = currencySelect.closest('form');
     await act(async () => {
-      fireEvent.click(screen.getByRole('button', { name: /save/i }));
+      fireEvent.click(form.querySelector('button[type="submit"]'));
     });
 
     await waitFor(() => {
@@ -77,8 +93,10 @@ describe('SettingsPage', () => {
     fireEvent.change(screen.getByRole('combobox', { name: /preferred currency/i }), {
       target: { value: 'EUR' },
     });
+    const currencySelect = screen.getByRole('combobox', { name: /preferred currency/i });
+    const form = currencySelect.closest('form');
     await act(async () => {
-      fireEvent.click(screen.getByRole('button', { name: /save/i }));
+      fireEvent.click(form.querySelector('button[type="submit"]'));
     });
 
     await waitFor(() => {
@@ -86,7 +104,7 @@ describe('SettingsPage', () => {
     });
   });
 
-  test('should show loading text while request is in flight', async () => {
+  test('should show loading text on currency Save button while request is in flight', async () => {
     let resolve;
     mockUpdateCurrency.mockReturnValue(new Promise((r) => { resolve = r; }));
     renderPage();
@@ -94,10 +112,49 @@ describe('SettingsPage', () => {
     fireEvent.change(screen.getByRole('combobox', { name: /preferred currency/i }), {
       target: { value: 'GBP' },
     });
-    fireEvent.click(screen.getByRole('button', { name: /save/i }));
+    const currencySelect = screen.getByRole('combobox', { name: /preferred currency/i });
+    const form = currencySelect.closest('form');
+    fireEvent.click(form.querySelector('button[type="submit"]'));
 
-    expect(screen.getByRole('button', { name: /saving/i })).toBeInTheDocument();
+    expect(form.querySelector('button[type="submit"]').textContent).toMatch(/saving/i);
     resolve();
+  });
+
+  test('should call updateLanguage and show success message on submit', async () => {
+    mockUpdateLanguage.mockResolvedValue();
+    renderPage();
+
+    fireEvent.change(screen.getByRole('combobox', { name: /language/i }), {
+      target: { value: 'pt-BR' },
+    });
+    const langSelect = screen.getByRole('combobox', { name: /language/i });
+    const form = langSelect.closest('form');
+    await act(async () => {
+      fireEvent.click(form.querySelector('button[type="submit"]'));
+    });
+
+    await waitFor(() => {
+      expect(mockUpdateLanguage).toHaveBeenCalledWith('pt-BR');
+      expect(screen.getByText(/language updated successfully/i)).toBeInTheDocument();
+    });
+  });
+
+  test('should show error banner when updateLanguage rejects', async () => {
+    mockUpdateLanguage.mockRejectedValue(new Error('Lang error'));
+    renderPage();
+
+    fireEvent.change(screen.getByRole('combobox', { name: /language/i }), {
+      target: { value: 'pt-BR' },
+    });
+    const langSelect = screen.getByRole('combobox', { name: /language/i });
+    const form = langSelect.closest('form');
+    await act(async () => {
+      fireEvent.click(form.querySelector('button[type="submit"]'));
+    });
+
+    await waitFor(() => {
+      expect(screen.getByText('Lang error')).toBeInTheDocument();
+    });
   });
 
   test('should render a Change password link', () => {
