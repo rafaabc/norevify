@@ -1,7 +1,7 @@
 // NOTE: Real Google OAuth cannot be scripted — no E2E tests for actual Google sign-in.
 // This file tests the component's integration with authApi and AuthContext.
 
-import { render, screen, act } from '@testing-library/react';
+import { render, act } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 
 jest.mock('../../src/services/apiService.js', () => ({
@@ -60,7 +60,7 @@ describe('GoogleSignInButton', () => {
 
     // Manually invoke the credential handler by simulating window.google
     let capturedCallback;
-    window.google = {
+    globalThis.google = {
       accounts: {
         id: {
           initialize: jest.fn(({ callback }) => { capturedCallback = callback; }),
@@ -88,7 +88,7 @@ describe('GoogleSignInButton', () => {
     const onSuccess = jest.fn();
 
     let capturedCallback;
-    window.google = {
+    globalThis.google = {
       accounts: {
         id: {
           initialize: jest.fn(({ callback }) => { capturedCallback = callback; }),

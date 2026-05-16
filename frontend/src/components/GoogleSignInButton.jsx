@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { authApi } from '../services/apiService.js';
 import { useAuth } from '../context/AuthContext.jsx';
 
+/* eslint-disable react/prop-types */
 const CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID;
 
 let scriptInjected = false;
@@ -30,14 +31,14 @@ export default function GoogleSignInButton({ mode = 'login', onSuccess, onError 
     let interval;
 
     function init() {
-      if (!window.google?.accounts?.id || !containerRef.current) return;
+      if (!globalThis.google?.accounts?.id || !containerRef.current) return;
 
-      window.google.accounts.id.initialize({
+      globalThis.google.accounts.id.initialize({
         client_id: CLIENT_ID,
         callback: handleCredential,
       });
 
-      window.google.accounts.id.renderButton(containerRef.current, {
+      globalThis.google.accounts.id.renderButton(containerRef.current, {
         theme: 'outline',
         size: 'large',
         width: containerRef.current.offsetWidth || 360,
@@ -45,15 +46,15 @@ export default function GoogleSignInButton({ mode = 'login', onSuccess, onError 
       });
 
       if (mode === 'login' || mode === 'register') {
-        window.google.accounts.id.prompt();
+        globalThis.google.accounts.id.prompt();
       }
     }
 
-    if (window.google?.accounts?.id) {
+    if (globalThis.google?.accounts?.id) {
       init();
     } else {
       interval = setInterval(() => {
-        if (window.google?.accounts?.id) {
+        if (globalThis.google?.accounts?.id) {
           clearInterval(interval);
           init();
         }

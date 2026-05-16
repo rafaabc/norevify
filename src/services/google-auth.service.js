@@ -1,6 +1,6 @@
 'use strict';
 
-const crypto = require('crypto');
+const crypto = require('node:crypto');
 const { OAuth2Client } = require('google-auth-library');
 const userModel = require('../models/user.model');
 
@@ -26,7 +26,7 @@ async function verifyIdToken(idToken) {
 }
 
 async function generateUsernameFromEmail(email) {
-  const sanitized = email.split('@')[0].replace(/[^a-zA-Z0-9_]/g, '_');
+  const sanitized = email.split('@')[0].replace(/\W/g, '_');
   let trimmed = sanitized;
   let start = 0;
   while (start < trimmed.length && trimmed[start] === '_') start++;
