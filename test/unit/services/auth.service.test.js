@@ -358,6 +358,123 @@ describe('authService.changePassword()', () => {
 });
 
 // ---------------------------------------------------------------------------
+// Google Auth — googleLogin, linkGoogle, unlinkGoogle
+// ---------------------------------------------------------------------------
+
+const fakePayload = (overrides = {}) => ({
+  sub: 'google-sub-123',
+  email: 'guser@gmail.com',
+  emailVerified: true,
+  name: 'G User',
+  ...overrides,
+});
+
+describe('authService.googleLogin()', () => {
+  it('should create a new user and return a token for a first-time Google sign-in', async () => {
+    const fakeVerify = async () => fakePayload();
+    const result = await authService.googleLogin({ idToken: 'tok' }, fakeVerify);
+    assert.ok(result.token);
+  });
+
+  it('should derive a valid username from email local-part', async () => {
+    const fakeVerify = async () => fakePayload({ email: 'john.doe@gmail.com' });
+    const { token } = await authService.googleLogin({ idToken: 'tok' }, fakeVerify);
+    const decoded = jwt.decode(token);
+    assert.match(decoded.username, /^[a-zA-Z0-9_]{3,50}$/);
+  });
+
+  it('should append a suffix when derived username collides', async () => {
+    await authService.register({ username: 'guser', password: 'password1', email: 'other@example.com' });
+    const fakeVerify = async () => fakePayload();
+    const { token } = await authService.googleLogin({ idToken: 'tok' }, fakeVerify);
+    const decoded = jwt.decode(token);
+    assert.notStrictEqual(decoded.username, 'guser');
+    assert.match(decoded.username, /^[a-zA-Z0-9_]{3,50}$/);
+  });
+
+  it('should return the same token on a second Google login (existing googleId)', async () => {
+    const fakeVerify = async () => fakePayload();
+    const first = await authService.googleLogin({ idToken: 'tok' }, fakeVerify);
+    const second = await authService.googleLogin({ idToken: 'tok' }, fakeVerify);
+    const d1 = jwt.decode(first.token);
+    const d2 = jwt.decode(second.token);
+    assert.strictEqual(d1.id, d2.id);
+  });
+
+  it('should auto-link Google to an existing password user with the same email', async () => {
+    await authService.register({ username: 'alice', password: 'password1', email: 'guser@gmail.com' });
+    const fakeVerify = async () => fakePayload();
+    const { token } = await authService.googleLogin({ idToken: 'tok' }, fakeVerify);
+    const decoded = jwt.decode(token);
+    assert.strictEqual(decoded.username, 'alice');
+  });
+
+  it('should throw 400 when idToken is missing', async () => {
+    await assert.rejects(
+      () => authService.googleLogin({}),
+      (err) => { assert.strictEqual(err.status, 400); return true; }
+    );
+  });
+
+  it('should throw 401 when the verifier rejects the token', async () => {
+    const fakeVerify = async () => { const e = new Error('Invalid Google token'); e.status = 401; throw e; };
+    await assert.rejects(
+      () => authService.googleLogin({ idToken: 'bad' }, fakeVerify),
+      (err) => { assert.strictEqual(err.status, 401); return true; }
+    );
+  });
+});
+
+describe('authService.linkGoogle()', () => {
+  it('should link Google to an existing user', async () => {
+    const user = await authService.register({ username: 'alice', password: 'password1', email: 'guser@gmail.com' });
+    const fakeVerify = async () => fakePayload();
+    const result = await authService.linkGoogle({ userId: user.id, idToken: 'tok' }, fakeVerify);
+    assert.match(result.message, /linked/i);
+  });
+
+  it('should throw 400 when Google email does not match user email', async () => {
+    const user = await authService.register({ username: 'alice', password: 'password1', email: 'alice@example.com' });
+    const fakeVerify = async () => fakePayload({ email: 'other@gmail.com' });
+    await assert.rejects(
+      () => authService.linkGoogle({ userId: user.id, idToken: 'tok' }, fakeVerify),
+      (err) => { assert.strictEqual(err.status, 400); return true; }
+    );
+  });
+
+  it('should throw 409 when googleId is already linked to another user', async () => {
+    const fakeVerify = async () => fakePayload();
+    await authService.googleLogin({ idToken: 'tok' }, fakeVerify);
+    const alice = await authService.register({ username: 'alice', password: 'password1', email: 'alice@example.com' });
+    const fakeVerifyAlice = async () => fakePayload({ email: 'alice@example.com' });
+    await assert.rejects(
+      () => authService.linkGoogle({ userId: alice.id, idToken: 'tok' }, fakeVerifyAlice),
+      (err) => { assert.strictEqual(err.status, 409); return true; }
+    );
+  });
+});
+
+describe('authService.unlinkGoogle()', () => {
+  it('should unlink Google when user has a password', async () => {
+    const user = await authService.register({ username: 'bob', password: 'password1', email: 'bob@gmail.com' });
+    const fakeVerify = async () => fakePayload({ sub: 'sub-bob', email: 'bob@gmail.com' });
+    await authService.linkGoogle({ userId: user.id, idToken: 'tok' }, fakeVerify);
+    const result = await authService.unlinkGoogle({ userId: user.id });
+    assert.match(result.message, /unlinked/i);
+  });
+
+  it('should throw 400 when user has no password (Google-only)', async () => {
+    const fakeVerify = async () => fakePayload();
+    const { token } = await authService.googleLogin({ idToken: 'tok' }, fakeVerify);
+    const { id } = jwt.decode(token);
+    await assert.rejects(
+      () => authService.unlinkGoogle({ userId: id }),
+      (err) => { assert.strictEqual(err.status, 400); return true; }
+    );
+  });
+});
+
+// ---------------------------------------------------------------------------
 // US-04 — Forgot Password
 // ---------------------------------------------------------------------------
 describe('authService.forgotPassword()', () => {

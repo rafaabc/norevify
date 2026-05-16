@@ -37,12 +37,16 @@ async function request(path, { method = 'GET', body = null, auth = true, signal 
 }
 
 export const authApi = {
-  register:       (data) => request('/auth/register',        { method: 'POST',  body: data, auth: false }),
-  login:          (data) => request('/auth/login',           { method: 'POST',  body: data, auth: false }),
-  changePassword: (data) => request('/auth/password',        { method: 'PATCH', body: data, auth: true }),
-  updateCurrency: (data) => request('/auth/currency',        { method: 'PATCH', body: data, auth: true }),
-  forgotPassword: (data) => request('/auth/forgot-password', { method: 'POST',  body: data, auth: false }),
-  resetPassword:  (data) => request('/auth/reset-password',  { method: 'POST',  body: data, auth: false }),
+  register:       (data) => request('/auth/register',        { method: 'POST',   body: data, auth: false }),
+  login:          (data) => request('/auth/login',           { method: 'POST',   body: data, auth: false }),
+  changePassword: (data) => request('/auth/password',        { method: 'PATCH',  body: data, auth: true }),
+  updateCurrency: (data) => request('/auth/currency',        { method: 'PATCH',  body: data, auth: true }),
+  forgotPassword: (data) => request('/auth/forgot-password', { method: 'POST',   body: data, auth: false }),
+  resetPassword:  (data) => request('/auth/reset-password',  { method: 'POST',   body: data, auth: false }),
+  googleLogin:    (data) => request('/auth/google',          { method: 'POST',   body: data, auth: false }),
+  linkGoogle:     (data) => request('/auth/google/link',     { method: 'POST',   body: data, auth: true }),
+  unlinkGoogle:   ()     => request('/auth/google/link',     { method: 'DELETE',             auth: true }),
+  getProviders:   ()     => request('/auth/providers',       {                               auth: true }),
 };
 
 export const expensesApi = {

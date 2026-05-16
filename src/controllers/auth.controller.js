@@ -59,4 +59,40 @@ async function updateCurrency(req, res) {
   }
 }
 
-module.exports = { register, login, changePassword, forgotPassword, resetPassword, updateCurrency };
+async function googleLogin(req, res) {
+  try {
+    const result = await authService.googleLogin(req.body);
+    res.status(200).json(result);
+  } catch (err) {
+    res.status(err.status || 500).json({ message: err.message });
+  }
+}
+
+async function linkGoogle(req, res) {
+  try {
+    const result = await authService.linkGoogle({ userId: req.user.id, idToken: req.body.idToken });
+    res.status(200).json(result);
+  } catch (err) {
+    res.status(err.status || 500).json({ message: err.message });
+  }
+}
+
+async function unlinkGoogle(req, res) {
+  try {
+    const result = await authService.unlinkGoogle({ userId: req.user.id });
+    res.status(200).json(result);
+  } catch (err) {
+    res.status(err.status || 500).json({ message: err.message });
+  }
+}
+
+async function getProviders(req, res) {
+  try {
+    const result = await authService.getProviders({ userId: req.user.id });
+    res.status(200).json(result);
+  } catch (err) {
+    res.status(err.status || 500).json({ message: err.message });
+  }
+}
+
+module.exports = { register, login, changePassword, forgotPassword, resetPassword, updateCurrency, googleLogin, linkGoogle, unlinkGoogle, getProviders };

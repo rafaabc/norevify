@@ -2,22 +2,29 @@ const mongoose = require('mongoose');
 const { SUPPORTED_CURRENCIES, DEFAULT_CURRENCY } = require('../constants/currencies');
 
 const userSchema = new mongoose.Schema({
-  username: { type: String, required: true, unique: true },
-  password: { type: String, required: true },
-  email:    { type: String, required: true, unique: true },
-  currency: { type: String, enum: SUPPORTED_CURRENCIES, default: DEFAULT_CURRENCY },
+  username:      { type: String, required: true, unique: true },
+  password:      { type: String, required: false },
+  email:         { type: String, required: true, unique: true },
+  currency:      { type: String, enum: SUPPORTED_CURRENCIES, default: DEFAULT_CURRENCY },
+  googleId:      { type: String, unique: true, sparse: true },
+  authProviders: { type: [String], default: ['password'], enum: ['password', 'google'] },
 });
 
 const User = mongoose.model('User', userSchema);
 
 module.exports = {
-  findByUsername: (username) => User.findOne({ username }),
-  findByEmail:    (email)    => User.findOne({ email }),
-  findById:       (id)       => User.findById(id),
+  findByUsername:  (username) => User.findOne({ username }),
+  findByEmail:     (email)    => User.findOne({ email }),
+  findById:        (id)       => User.findById(id),
+  findByGoogleId:  (googleId) => User.findOne({ googleId }),
   create: (data) => User.create(data),
   updatePassword: (username, hashedPassword) =>
     User.updateOne({ username }, { $set: { password: hashedPassword } }),
   updateCurrency: (id, currency) =>
     User.updateOne({ _id: id }, { $set: { currency } }),
+  linkGoogleId: (userId, googleId) =>
+    User.updateOne({ _id: userId }, { $set: { googleId }, $addToSet: { authProviders: 'google' } }),
+  unlinkGoogleId: (userId) =>
+    User.updateOne({ _id: userId }, { $unset: { googleId: '' }, $pull: { authProviders: 'google' } }),
   _reset: () => User.deleteMany({}),
 };

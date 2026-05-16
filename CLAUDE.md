@@ -180,7 +180,8 @@ Swagger UI at `GET /api-docs` (served from `resources/swagger.json`). Also logge
 
 | Prefix | Auth required | Description |
 |---|---|---|
-| `/api/auth` | No | `POST /register`, `POST /login`, `PATCH /password`, `POST /forgot-password`, `POST /reset-password` |
+| `/api/auth` | No | `POST /register`, `POST /login`, `PATCH /password`, `POST /forgot-password`, `POST /reset-password`, `POST /google` |
+| `/api/auth` | Yes (Bearer JWT) | `PATCH /currency`, `POST /google/link`, `DELETE /google/link`, `GET /providers` |
 | `/api/expenses` | Yes (Bearer JWT) | CRUD + `GET /summary` |
 
 Auth: `Authorization: Bearer <token>` header. JWT decoded into `req.user` (`{ id, username }`). `id` is an ObjectId hex string.
@@ -246,6 +247,8 @@ To add a new endpoint: export a new function from `apiService.js` that calls the
 - `ProtectedRoute` (`src/routes/ProtectedRoute.jsx`) redirects to `/login` if `!isAuthed`.
 - 401/403 responses clear the token and dispatch a `window` `'auth:logout'` event; `AuthContext` listens and redirects to `/login` with a "Session expired" banner.
 - Register does not auto-login — on success, navigates to `/login` with `state.justRegistered`.
+- Google Sign-In uses the GIS ID token flow (`POST /api/auth/google`). `GoogleSignInButton` loads the GIS script once, renders the official button, and triggers One Tap on login/register pages. Supports `mode` prop: `login`, `register`, `link`. Backend requires `GOOGLE_CLIENT_ID` env; frontend requires `VITE_GOOGLE_CLIENT_ID`.
+- Accounts are auto-linked by email when `email_verified=true`. `GET /api/auth/providers` returns `{ authProviders, hasPassword }` — used by SettingsPage to show Connect/Disconnect Google.
 
 ### Display behavior
 
