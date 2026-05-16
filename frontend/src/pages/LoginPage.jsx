@@ -4,6 +4,7 @@ import { Gauge } from 'lucide-react';
 import { authApi } from '../services/apiService.js';
 import { useAuth } from '../context/AuthContext.jsx';
 import ErrorBanner from '../components/ErrorBanner.jsx';
+import GoogleSignInButton from '../components/GoogleSignInButton.jsx';
 import styles from './LoginPage.module.css';
 
 export default function LoginPage() {
@@ -83,6 +84,10 @@ export default function LoginPage() {
           {showRegistered && <ErrorBanner message="Account created — please log in." type="success" />}
           {showPasswordChanged && <ErrorBanner message="Password updated. Please log in." type="success" />}
           {error && <ErrorBanner message={error} />}
+
+          <GoogleSignInButton mode="login" onError={setError} />
+
+          <div className={styles.divider}><span>or</span></div>
 
           <form onSubmit={handleSubmit}>
             <div className="form-group">

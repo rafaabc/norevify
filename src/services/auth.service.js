@@ -4,6 +4,7 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const userModel = require('../models/user.model');
 const emailService = require('./email.service');
+const googleAuthService = require('./google-auth.service');
 const { SUPPORTED_CURRENCIES, DEFAULT_CURRENCY } = require('../constants/currencies');
 
 const USERNAME_REGEX = /^[a-zA-Z0-9_]{3,50}$/;
@@ -37,15 +38,11 @@ async function login({ username, password }) {
   if (!username || !password) throw makeError(400, 'username and password are required');
   const user = await userModel.findByUsername(username);
   if (!user) throw makeError(401, 'Invalid credentials');
+  if (!user.password) throw makeError(401, 'Invalid credentials');
   const match = await bcrypt.compare(password, user.password);
   if (!match) throw makeError(401, 'Invalid credentials');
 
-  const token = jwt.sign(
-    { id: user._id.toString(), username: user.username, currency: user.currency || DEFAULT_CURRENCY },
-    process.env.JWT_SECRET,
-    { expiresIn: process.env.JWT_EXPIRES_IN || '1h' }
-  );
-  return { token };
+  return { token: issueToken(user) };
 }
 
 async function changePassword({ username, currentPassword, newPassword }) {
@@ -99,6 +96,72 @@ async function resetPassword({ token, newPassword }) {
   return { message: 'Password updated successfully' };
 }
 
+function issueToken(user) {
+  return jwt.sign(
+    { id: user._id.toString(), username: user.username, currency: user.currency || DEFAULT_CURRENCY },
+    process.env.JWT_SECRET,
+    { expiresIn: process.env.JWT_EXPIRES_IN || '1h' }
+  );
+}
+
+async function googleLogin({ idToken }, _verifyIdToken = googleAuthService.verifyIdToken) {
+  if (!idToken) throw makeError(400, 'idToken is required');
+  const { sub: googleId, email, emailVerified } = await _verifyIdToken(idToken);
+
+  let user = await userModel.findByGoogleId(googleId);
+  if (user) return { token: issueToken(user) };
+
+  user = await userModel.findByEmail(email);
+  if (user) {
+    if (emailVerified) await userModel.linkGoogleId(user._id, googleId);
+    user = await userModel.findById(user._id);
+    return { token: issueToken(user) };
+  }
+
+  const username = await googleAuthService.generateUsernameFromEmail(email);
+  user = await userModel.create({
+    username,
+    email,
+    googleId,
+    authProviders: ['google'],
+  });
+  return { token: issueToken(user) };
+}
+
+async function linkGoogle({ userId, idToken }, _verifyIdToken = googleAuthService.verifyIdToken) {
+  if (!idToken) throw makeError(400, 'idToken is required');
+  const { sub: googleId, email } = await _verifyIdToken(idToken);
+
+  const user = await userModel.findById(userId);
+  if (!user) throw makeError(404, 'User not found');
+  if (user.email !== email) throw makeError(400, 'Google account email does not match your account email');
+
+  const existing = await userModel.findByGoogleId(googleId);
+  if (existing && existing._id.toString() !== userId)
+    throw makeError(409, 'Google account already linked to another user');
+
+  await userModel.linkGoogleId(userId, googleId);
+  return { message: 'Google account linked successfully' };
+}
+
+async function unlinkGoogle({ userId }) {
+  const user = await userModel.findById(userId);
+  if (!user) throw makeError(404, 'User not found');
+  if (!user.password) throw makeError(400, 'Cannot unlink Google: no password set. Set a password first.');
+
+  await userModel.unlinkGoogleId(userId);
+  return { message: 'Google account unlinked successfully' };
+}
+
+async function getProviders({ userId }) {
+  const user = await userModel.findById(userId);
+  if (!user) throw makeError(404, 'User not found');
+  return {
+    authProviders: user.authProviders || [],
+    hasPassword: !!user.password,
+  };
+}
+
 async function updateCurrency({ id, currency }) {
   if (!currency) throw makeError(400, 'currency is required');
   if (!SUPPORTED_CURRENCIES.includes(currency))
@@ -117,4 +180,4 @@ async function updateCurrency({ id, currency }) {
   return { token };
 }
 
-module.exports = { register, login, changePassword, forgotPassword, resetPassword, updateCurrency };
+module.exports = { register, login, changePassword, forgotPassword, resetPassword, updateCurrency, googleLogin, linkGoogle, unlinkGoogle, getProviders };

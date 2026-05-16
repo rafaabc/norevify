@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { Gauge } from 'lucide-react';
 import { authApi } from '../services/apiService.js';
 import ErrorBanner from '../components/ErrorBanner.jsx';
+import GoogleSignInButton from '../components/GoogleSignInButton.jsx';
 import { SUPPORTED_CURRENCIES } from '../constants/currencies.js';
 import { detectCurrency } from '../utils/detectCurrency.js';
 import styles from './RegisterPage.module.css';
@@ -48,6 +49,10 @@ export default function RegisterPage() {
           <h1 className={styles.formHeading}>Create account</h1>
 
           {error && <ErrorBanner message={error} />}
+
+          <GoogleSignInButton mode="register" onError={setError} />
+
+          <div className={styles.divider}><span>or</span></div>
 
           <form onSubmit={handleSubmit}>
             <div className="form-group">

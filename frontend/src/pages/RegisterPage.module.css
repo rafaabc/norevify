@@ -84,6 +84,23 @@
   color: var(--text-2);
 }
 
+.divider {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin: 1.25rem 0;
+  color: var(--muted);
+  font-size: 0.8125rem;
+}
+
+.divider::before,
+.divider::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--border);
+}
+
 /* ── Responsive: stack vertically on narrow viewports ────── */
 @media (max-width: 680px) {
   .screen {

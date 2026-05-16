@@ -10,5 +10,9 @@ router.patch('/password',       authMiddleware, authController.changePassword);
 router.patch('/currency',       authMiddleware, authController.updateCurrency);
 router.post('/forgot-password', authController.forgotPassword);
 router.post('/reset-password',  authController.resetPassword);
+router.post('/google',          authController.googleLogin);
+router.post('/google/link',     authMiddleware, authController.linkGoogle);
+router.delete('/google/link',   authMiddleware, authController.unlinkGoogle);
+router.get('/providers',        authMiddleware, authController.getProviders);
 
 module.exports = router;
