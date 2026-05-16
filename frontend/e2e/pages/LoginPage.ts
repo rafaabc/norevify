@@ -13,6 +13,6 @@ export class LoginPage extends BasePage {
   async login(username: string, password: string) {
     await this.page.locator('[name="username"]').fill(username);
     await this.page.locator('[name="password"]').fill(password);
-    await this.page.getByRole('button', { name: 'Sign in' }).click();
+    await this.page.locator('form [type="submit"]').click();
   }
 }
