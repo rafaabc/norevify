@@ -380,7 +380,7 @@ describe('authService.googleLogin()', () => {
     const fakeVerify = async () => fakePayload({ email: 'john.doe@gmail.com' });
     const { token } = await authService.googleLogin({ idToken: 'tok' }, fakeVerify);
     const decoded = jwt.decode(token);
-    assert.match(decoded.username, /^[a-zA-Z0-9_]{3,50}$/);
+    assert.match(decoded.username, /^\w{3,50}$/);
   });
 
   it('should append a suffix when derived username collides', async () => {
@@ -389,7 +389,7 @@ describe('authService.googleLogin()', () => {
     const { token } = await authService.googleLogin({ idToken: 'tok' }, fakeVerify);
     const decoded = jwt.decode(token);
     assert.notStrictEqual(decoded.username, 'guser');
-    assert.match(decoded.username, /^[a-zA-Z0-9_]{3,50}$/);
+    assert.match(decoded.username, /^\w{3,50}$/);
   });
 
   it('should return the same token on a second Google login (existing googleId)', async () => {
