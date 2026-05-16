@@ -1,7 +1,10 @@
+import { useTranslation } from 'react-i18next';
+
 export default function AmountField({ value, onChange }) {
+  const { t } = useTranslation();
   return (
     <div className="form-group">
-      <label htmlFor="field-amount">Amount</label>
+      <label htmlFor="field-amount">{t('expenses.fields.amount')}</label>
       <input
         id="field-amount"
         type="number"

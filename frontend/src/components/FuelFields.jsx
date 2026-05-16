@@ -1,4 +1,7 @@
+import { useTranslation } from 'react-i18next';
+
 export default function FuelFields({ litres, pricePerLitre, onChange }) {
+  const { t } = useTranslation();
   const computed = (parseFloat(litres) > 0 && parseFloat(pricePerLitre) > 0)
     ? (Math.round(parseFloat(litres) * parseFloat(pricePerLitre) * 100) / 100).toFixed(2)
     : null;
@@ -6,7 +9,7 @@ export default function FuelFields({ litres, pricePerLitre, onChange }) {
   return (
     <>
       <div className="form-group">
-        <label htmlFor="field-litres">Litres</label>
+        <label htmlFor="field-litres">{t('expenses.fields.litres')}</label>
         <input
           id="field-litres"
           type="number"
@@ -20,7 +23,7 @@ export default function FuelFields({ litres, pricePerLitre, onChange }) {
         />
       </div>
       <div className="form-group">
-        <label htmlFor="field-price-per-litre">Price per litre</label>
+        <label htmlFor="field-price-per-litre">{t('expenses.fields.pricePerLitre')}</label>
         <input
           id="field-price-per-litre"
           type="number"
@@ -35,7 +38,7 @@ export default function FuelFields({ litres, pricePerLitre, onChange }) {
       </div>
       {computed && (
         <div className="form-group">
-          <label>Computed amount</label>
+          <label>{t('expenses.fields.amount')}</label>
           <div style={{
             padding: '.5rem .8rem',
             background: 'var(--primary-dim)',

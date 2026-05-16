@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback, useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 import { expensesApi } from '../services/apiService.js';
 import { useAuth } from '../context/AuthContext.jsx';
 import CategorySelect from '../components/CategorySelect.jsx';
@@ -7,7 +8,7 @@ import Loading from '../components/Loading.jsx';
 import StackedMonthlyBar from '../components/charts/StackedMonthlyBar.jsx';
 import CategoryDonut from '../components/charts/CategoryDonut.jsx';
 import { currentYear } from '../utils/formatDate.js';
-import { CATEGORIES } from '../utils/categories.js';
+import { CATEGORIES, categoryLabel } from '../utils/categories.js';
 import { aggregateByCategory } from '../utils/aggregations.js';
 import { formatCurrency } from '../utils/formatCurrency.js';
 import styles from './SummaryPage.module.css';
@@ -59,6 +60,7 @@ function buildBarData(expenses, visibleCategories) {
 }
 
 export default function SummaryPage() {
+  const { t } = useTranslation();
   const { currency } = useAuth();
   const [filters, setFilters] = useState({ year: String(currentYear()), category: '' });
   const [expenses, setExpenses] = useState([]);
@@ -116,13 +118,13 @@ export default function SummaryPage() {
   return (
     <div className="page">
       <div className={styles.header}>
-        <h2 className="page-title">Expense Summary</h2>
+        <h2 className="page-title">{t('summary.heading')}</h2>
       </div>
 
       <div className={`card ${styles.filterCard}`}>
         <div className={styles.filterForm}>
           <div className={styles.filterField}>
-            <label htmlFor="summary-year">Year <span aria-hidden="true" style={{ color: 'var(--danger)' }}>*</span></label>
+            <label htmlFor="summary-year">{t('summary.year')} <span aria-hidden="true" style={{ color: 'var(--danger)' }}>*</span></label>
             <input
               id="summary-year"
               type="number"
@@ -134,7 +136,7 @@ export default function SummaryPage() {
             />
           </div>
           <div className={styles.filterField}>
-            <label htmlFor="summary-category">Category</label>
+            <label htmlFor="summary-category">{t('summary.category')}</label>
             <CategorySelect id="summary-category" value={filters.category} onChange={handleChange} includeAll />
           </div>
         </div>
@@ -147,11 +149,11 @@ export default function SummaryPage() {
         <>
           <div className={styles.chartsGrid}>
             <div className="card">
-              <h3 className={styles.sectionTitle}>Monthly spend</h3>
+              <h3 className={styles.sectionTitle}>{t('summary.byMonth')}</h3>
               <StackedMonthlyBar data={barData} categories={targetCategories} />
             </div>
             <div className="card">
-              <h3 className={styles.sectionTitle}>By category</h3>
+              <h3 className={styles.sectionTitle}>{t('summary.byCategory')}</h3>
               <CategoryDonut data={donutData} currency={currency} />
             </div>
           </div>
@@ -165,9 +167,9 @@ export default function SummaryPage() {
               <table>
                 <thead>
                   <tr>
-                    <th scope="col">Month</th>
-                    {targetCategories.map((cat) => <th key={cat} scope="col" className="num">{cat}</th>)}
-                    <th scope="col" className="num">Total</th>
+                    <th scope="col">{t('summary.month')}</th>
+                    {targetCategories.map((cat) => <th key={cat} scope="col" className="num">{categoryLabel(cat, t)}</th>)}
+                    <th scope="col" className="num">{t('summary.total')}</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -191,7 +193,7 @@ export default function SummaryPage() {
                 </tbody>
                 <tfoot>
                   <tr className={styles.totalRow}>
-                    <td><strong>Total {filters.year}</strong></td>
+                    <td><strong>{t('summary.total')} {filters.year}</strong></td>
                     {targetCategories.map((cat) => (
                       <td key={cat} className="num">{formatCurrency(colTotal(monthly, cat), currency)}</td>
                     ))}
@@ -204,9 +206,9 @@ export default function SummaryPage() {
 
           {/* Mobile category bars */}
           <div className={`card ${styles.pivotMobile}`}>
-            <h3 className={styles.sectionTitle}>{filters.year} by category</h3>
+            <h3 className={styles.sectionTitle}>{filters.year} {t('summary.byCategory')}</h3>
             {donutData.length === 0 ? (
-              <p className="text-muted">No data.</p>
+              <p className="text-muted">{t('summary.noData')}</p>
             ) : (
               <div className={styles.catBars}>
                 {donutData
@@ -218,7 +220,7 @@ export default function SummaryPage() {
                     return (
                       <div key={category} className={styles.catBarRow}>
                         <div className={styles.catBarMeta}>
-                          <span className="badge" data-cat={category}>{category}</span>
+                          <span className="badge" data-cat={category}>{categoryLabel(category, t)}</span>
                           <span className={styles.catBarValue}>{formatCurrency(total, currency)}</span>
                         </div>
                         <div className={styles.catBarTrack}>
@@ -231,7 +233,7 @@ export default function SummaryPage() {
                     );
                   })}
                 <div className={styles.catBarTotal}>
-                  <span>Total</span>
+                  <span>{t('summary.total')}</span>
                   <span className={styles.catBarValue}>{formatCurrency(grandTotal, currency)}</span>
                 </div>
               </div>
@@ -241,7 +243,7 @@ export default function SummaryPage() {
       )}
 
       {!loading && !hasData && !error && filters.year.length === 4 && (
-        <p className="text-muted text-center mt-2">No expenses found for {filters.year}.</p>
+        <p className="text-muted text-center mt-2">{t('summary.noData')}</p>
       )}
     </div>
   );
