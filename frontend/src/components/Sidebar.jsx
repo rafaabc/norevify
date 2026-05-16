@@ -1,18 +1,20 @@
 import { NavLink } from 'react-router-dom';
 import { LayoutDashboard, Receipt, BarChart3, LogOut, Gauge, KeyRound, Settings } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import { useAuth } from '../context/AuthContext.jsx';
 import styles from './Sidebar.module.css';
 
-const NAV_ITEMS = [
-  { to: '/', icon: LayoutDashboard, label: 'Dashboard', end: true },
-  { to: '/expenses', icon: Receipt, label: 'Expenses' },
-  { to: '/summary', icon: BarChart3, label: 'Summary' },
-  { to: '/change-password', icon: KeyRound, label: 'Change password' },
-  { to: '/settings', icon: Settings, label: 'Settings' },
-];
-
 export default function Sidebar() {
   const { username, logout } = useAuth();
+  const { t } = useTranslation();
+
+  const NAV_ITEMS = [
+    { to: '/', icon: LayoutDashboard, label: t('nav.dashboard'), end: true },
+    { to: '/expenses', icon: Receipt, label: t('nav.expenses') },
+    { to: '/summary', icon: BarChart3, label: t('nav.summary') },
+    { to: '/change-password', icon: KeyRound, label: t('nav.changePassword') },
+    { to: '/settings', icon: Settings, label: t('nav.settings') },
+  ];
 
   return (
     <aside className={styles.sidebar}>
@@ -44,7 +46,7 @@ export default function Sidebar() {
         <button
           className={styles.logoutBtn}
           onClick={logout}
-          aria-label="Log out"
+          aria-label={t('nav.logout')}
           type="button"
         >
           <LogOut size={16} />
