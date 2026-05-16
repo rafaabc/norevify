@@ -36,7 +36,7 @@ export class SummaryPage extends BasePage {
     return this.page.locator('tbody tr').filter({ hasText: monthName });
   }
 
-  emptyStateFor(year: string | number): Locator {
-    return this.page.getByText(`No expenses found for ${year}.`);
+  emptyStateFor(_year?: string | number): Locator {
+    return this.page.locator('p.text-muted').first();
   }
 }

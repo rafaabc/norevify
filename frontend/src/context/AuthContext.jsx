@@ -17,7 +17,9 @@ export function AuthProvider({ children }) {
     setToken(newToken);
     setExpiredBanner(false);
     const payload = decodeJwt(newToken);
-    if (payload?.language) i18n.changeLanguage(payload.language);
+    if (payload?.language && !localStorage.getItem('i18nextLng')) {
+      i18n.changeLanguage(payload.language);
+    }
   }, []);
 
   const logout = useCallback(() => {

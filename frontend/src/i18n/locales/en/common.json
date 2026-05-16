@@ -156,6 +156,7 @@
     "usernameTaken": "Username already taken.",
     "emailRegistered": "Email already registered.",
     "userNotFound": "User not found.",
+    "expenseNotFound": "Expense not found.",
     "invalidToken": "Invalid or expired token.",
     "sessionExpired": "Session expired. Please log in again.",
     "passwordMismatch": "Passwords do not match."

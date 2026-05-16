@@ -44,7 +44,7 @@ test.describe('US-01: User Registration', () => {
     await registerPage.register(username, DEFAULT_PASSWORD);
 
     await expect(page).toHaveURL('/register');
-    await expect(registerPage.errorBanner).toContainText('username already taken');
+    await expect(registerPage.errorBanner).toContainText('username already taken', { ignoreCase: true });
   });
 
 });

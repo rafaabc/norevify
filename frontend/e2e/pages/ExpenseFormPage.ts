@@ -31,19 +31,19 @@ export class ExpenseFormPage extends BasePage {
   }
 
   async submit() {
-    await this.page.getByRole('button', { name: /Create expense|Save changes/ }).click();
+    await this.page.locator('button[type="submit"]').click();
   }
 
   async cancel() {
-    await this.page.getByRole('button', { name: 'Cancel' }).click();
+    await this.page.locator('button.btn-secondary').click();
   }
 
   get submitButton(): Locator {
-    return this.page.getByRole('button', { name: /Create expense|Save changes/ });
+    return this.page.locator('button[type="submit"]');
   }
 
   get computedAmountDisplay(): Locator {
-    return this.page.locator('.form-group').filter({ hasText: 'Computed amount' }).locator('div');
+    return this.page.locator('.form-group div[style]');
   }
 
   get litresInput(): Locator {

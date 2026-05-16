@@ -156,6 +156,7 @@
     "usernameTaken": "Nome de usuário já em uso.",
     "emailRegistered": "E-mail já cadastrado.",
     "userNotFound": "Usuário não encontrado.",
+    "expenseNotFound": "Despesa não encontrada.",
     "invalidToken": "Token inválido ou expirado.",
     "sessionExpired": "Sessão expirada. Faça login novamente.",
     "passwordMismatch": "As senhas não coincidem."

@@ -17,6 +17,7 @@ test.describe('Sidebar responsiveness', () => {
 
   test.beforeEach(async ({ page }) => {
     loginPage = new LoginPage(page);
+    await page.addInitScript(() => localStorage.setItem('i18nextLng', 'en'));
   });
 
   async function loginAndGoTo(page: typeof loginPage['page'], path = '/') {
