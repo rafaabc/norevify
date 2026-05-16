@@ -80,7 +80,7 @@ describe('ExpensesListPage', () => {
     // Act
     renderPage();
     // Assert
-    await screen.findByText('No expenses yet');
+    await screen.findByText('expenses.noExpenses');
   });
 
   test('should show error banner when API rejects', async () => {
@@ -144,9 +144,9 @@ describe('ExpensesListPage', () => {
     // Arrange
     expensesApi.list.mockResolvedValue([]);
     renderPage();
-    await screen.findByText('No expenses yet');
+    await screen.findByText('expenses.noExpenses');
     // Act
-    fireEvent.click(screen.getByRole('button', { name: /new expense/i }));
+    fireEvent.click(screen.getAllByRole('button', { name: /common\.new/i })[0]);
     // Assert
     expect(mockNavigate).toHaveBeenCalledWith('/expenses/new');
   });

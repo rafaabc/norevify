@@ -109,7 +109,7 @@ describe('ExpenseFormPage', () => {
       fireEvent.submit(container.querySelector('form'));
       // Assert
       await screen.findByText('Server error');
-      expect(screen.getByRole('button', { name: /create expense/i })).not.toBeDisabled();
+      expect(screen.getByRole('button', { name: 'common.save' })).not.toBeDisabled();
     });
   });
 

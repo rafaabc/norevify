@@ -31,7 +31,7 @@ describe('App — PWA update mechanism', () => {
     // Arrange + Act
     renderApp();
     // Assert
-    expect(screen.queryByText('Nova versão disponível')).not.toBeInTheDocument();
+    expect(screen.queryByText('pwa.updateAvailable')).not.toBeInTheDocument();
   });
 
   test('should show UpdatePrompt when pwa:update-available event is dispatched', () => {
@@ -45,8 +45,8 @@ describe('App — PWA update mechanism', () => {
       );
     });
     // Assert
-    expect(screen.getByText('Nova versão disponível')).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: 'Recarregar' })).toBeInTheDocument();
+    expect(screen.getByText('pwa.updateAvailable')).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'pwa.reload' })).toBeInTheDocument();
   });
 
   test('should call updateSW(true) when the reload button is clicked', async () => {
@@ -59,7 +59,7 @@ describe('App — PWA update mechanism', () => {
       );
     });
     // Act
-    await userEvent.click(screen.getByRole('button', { name: 'Recarregar' }));
+    await userEvent.click(screen.getByRole('button', { name: 'pwa.reload' }));
     // Assert
     expect(mockUpdateSW).toHaveBeenCalledWith(true);
   });

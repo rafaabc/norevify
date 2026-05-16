@@ -18,14 +18,14 @@ describe('NotFoundPage', () => {
     render(<MemoryRouter future={{ v7_relativeSplatPath: true }}><NotFoundPage /></MemoryRouter>);
     // Assert
     expect(screen.getByText('404')).toBeInTheDocument();
-    expect(screen.getByText('Page not found.')).toBeInTheDocument();
+    expect(screen.getByText('notFound.heading')).toBeInTheDocument();
   });
 
   test('should navigate to / when "Go home" button is clicked', () => {
     // Arrange
     render(<MemoryRouter future={{ v7_relativeSplatPath: true }}><NotFoundPage /></MemoryRouter>);
     // Act
-    fireEvent.click(screen.getByRole('button', { name: /go home/i }));
+    fireEvent.click(screen.getByRole('button', { name: 'notFound.back' }));
     // Assert
     expect(mockNavigate).toHaveBeenCalledWith('/');
   });

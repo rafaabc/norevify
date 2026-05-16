@@ -31,7 +31,7 @@ describe('ResetPasswordPage', () => {
     const { container } = renderWithToken();
     expect(container.querySelector('input[name="newPassword"]')).toBeInTheDocument();
     expect(container.querySelector('input[name="confirmPassword"]')).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: /set new password/i })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'auth.resetPassword.submit' })).toBeInTheDocument();
   });
 
   test('should redirect to /forgot-password when no token is in URL', () => {
@@ -47,7 +47,7 @@ describe('ResetPasswordPage', () => {
     fireEvent.change(container.querySelector('input[name="confirmPassword"]'), { target: { value: 'different' } });
     fireEvent.submit(container.querySelector('form'));
 
-    await screen.findByText('Passwords do not match.');
+    await screen.findByText('errors.passwordMismatch');
     expect(authApi.resetPassword).not.toHaveBeenCalled();
   });
 
@@ -97,7 +97,7 @@ describe('ResetPasswordPage', () => {
     fireEvent.change(container.querySelector('input[name="confirmPassword"]'), { target: { value: 'newPass99' } });
     fireEvent.submit(container.querySelector('form'));
 
-    expect(screen.getByRole('button', { name: /updating/i })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'auth.resetPassword.submitting' })).toBeInTheDocument();
     resolve({});
   });
 });

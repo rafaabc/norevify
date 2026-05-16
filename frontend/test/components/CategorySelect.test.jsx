@@ -6,14 +6,14 @@ describe('CategorySelect', () => {
     // Arrange + Act
     render(<CategorySelect value="" onChange={jest.fn()} />);
     // Assert
-    expect(screen.getByRole('option', { name: 'Select category' })).toBeInTheDocument();
+    expect(screen.getByRole('option', { name: 'categories.select' })).toBeInTheDocument();
   });
 
   test('should render "All categories" placeholder when includeAll is true', () => {
     // Arrange + Act
     render(<CategorySelect value="" onChange={jest.fn()} includeAll />);
     // Assert
-    expect(screen.getByRole('option', { name: 'All categories' })).toBeInTheDocument();
+    expect(screen.getByRole('option', { name: 'categories.all' })).toBeInTheDocument();
   });
 
   test('should render all 7 expense categories', () => {
@@ -21,7 +21,7 @@ describe('CategorySelect', () => {
     render(<CategorySelect value="" onChange={jest.fn()} />);
     // Assert
     ['Fuel', 'Maintenance', 'Insurance', 'Parking', 'Toll', 'Tax', 'Other'].forEach((cat) => {
-      expect(screen.getByRole('option', { name: cat })).toBeInTheDocument();
+      expect(screen.getByRole('option', { name: `categories.${cat}` })).toBeInTheDocument();
     });
   });
 
