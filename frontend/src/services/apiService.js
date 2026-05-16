@@ -1,3 +1,6 @@
+import i18n from '../i18n/index.js';
+import { API_ERROR_MAP } from '../i18n/apiErrors.js';
+
 const BASE = import.meta.env.VITE_API_BASE_URL || '/api';
 
 function getToken() {
@@ -20,14 +23,17 @@ async function request(path, { method = 'GET', body = null, auth = true, signal 
   if ((res.status === 401 || res.status === 403) && auth) {
     localStorage.removeItem('token');
     window.dispatchEvent(new CustomEvent('auth:logout', { detail: { expired: true } }));
-    const err = new Error('Session expired. Please log in again.');
+    const err = new Error(i18n.t('errors.sessionExpired'));
     err.status = res.status;
     throw err;
   }
 
   if (!res.ok) {
     const data = await res.json().catch(() => ({}));
-    const err = new Error(data.message || `Request failed: ${res.status}`);
+    const rawMessage = data.message || `Request failed: ${res.status}`;
+    const i18nKey = API_ERROR_MAP[rawMessage];
+    const message = i18nKey ? i18n.t(i18nKey) : i18n.t('errors.generic');
+    const err = new Error(message);
     err.status = res.status;
     throw err;
   }
