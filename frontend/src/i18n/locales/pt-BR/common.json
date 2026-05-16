@@ -97,7 +97,8 @@
     "category": "Categoria",
     "amount": "Valor",
     "date": "Data",
-    "description": "Descrição"
+    "description": "Descrição",
+    "monthlySpend": "Gastos Mensais {{year}}"
   },
   "expenses": {
     "heading": "Despesas",
@@ -117,7 +118,12 @@
       "amount": "Valor",
       "litres": "Litros",
       "pricePerLitre": "Preço por litro"
-    }
+    },
+    "filters": "Filtros",
+    "clearFilters": "Limpar filtros",
+    "filterCategory": "Categoria",
+    "filterYear": "Ano",
+    "filterMonth": "Mês"
   },
   "summary": {
     "heading": "Resumo",
@@ -140,7 +146,8 @@
     "Toll": "Pedágio",
     "Tax": "Imposto",
     "Other": "Outro",
-    "all": "Todas as categorias"
+    "all": "Todas as categorias",
+    "select": "Selecione a categoria"
   },
   "errors": {
     "generic": "Algo deu errado. Tente novamente.",

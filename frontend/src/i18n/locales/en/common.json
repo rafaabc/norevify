@@ -97,7 +97,8 @@
     "category": "Category",
     "amount": "Amount",
     "date": "Date",
-    "description": "Description"
+    "description": "Description",
+    "monthlySpend": "Monthly Spend {{year}}"
   },
   "expenses": {
     "heading": "Expenses",
@@ -117,7 +118,12 @@
       "amount": "Amount",
       "litres": "Litres",
       "pricePerLitre": "Price per litre"
-    }
+    },
+    "filters": "Filters",
+    "clearFilters": "Clear filters",
+    "filterCategory": "Category",
+    "filterYear": "Year",
+    "filterMonth": "Month"
   },
   "summary": {
     "heading": "Summary",
@@ -140,7 +146,8 @@
     "Toll": "Toll",
     "Tax": "Tax",
     "Other": "Other",
-    "all": "All categories"
+    "all": "All categories",
+    "select": "Select category"
   },
   "errors": {
     "generic": "Something went wrong. Please try again.",

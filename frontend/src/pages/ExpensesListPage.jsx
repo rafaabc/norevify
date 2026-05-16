@@ -144,7 +144,7 @@ export default function ExpensesListPage() {
           aria-expanded={filtersOpen}
         >
           <Filter size={15} aria-hidden="true" />
-          Filters{hasActiveFilters ? ` (${[filters.category, filters.year !== DEFAULT_YEAR ? filters.year : '', filters.month].filter(Boolean).length})` : ''}
+          {t('expenses.filters')}{hasActiveFilters ? ` (${[filters.category, filters.year !== DEFAULT_YEAR ? filters.year : '', filters.month].filter(Boolean).length})` : ''}
           {filtersOpen ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
         </button>
 
@@ -158,9 +158,9 @@ export default function ExpensesListPage() {
             className={styles.toolbarSelect}
             aria-label="Filter by category"
           >
-            <option value="">Category</option>
+            <option value="">{t('expenses.filterCategory')}</option>
             {CATEGORIES.map((c) => (
-              <option key={c} value={c}>{c}</option>
+              <option key={c} value={c}>{categoryLabel(c, t)}</option>
             ))}
           </select>
 
@@ -171,7 +171,7 @@ export default function ExpensesListPage() {
             className={styles.toolbarSelect}
             aria-label="Filter by year"
           >
-            <option value="">Year</option>
+            <option value="">{t('expenses.filterYear')}</option>
             {buildYearOptions().map((y) => (
               <option key={y} value={String(y)}>{y}</option>
             ))}
@@ -184,7 +184,7 @@ export default function ExpensesListPage() {
             className={styles.toolbarSelect}
             aria-label="Filter by month"
           >
-            <option value="">Month</option>
+            <option value="">{t('expenses.filterMonth')}</option>
             {MONTHS.slice(1).map((m, i) => (
               <option key={i + 1} value={i + 1}>{m}</option>
             ))}
@@ -192,7 +192,7 @@ export default function ExpensesListPage() {
 
           {hasActiveFilters && (
             <button type="button" className={styles.clearBtn} onClick={clearFilters}>
-              Clear filters
+              {t('expenses.clearFilters')}
             </button>
           )}
         </div>

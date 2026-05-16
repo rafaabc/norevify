@@ -141,7 +141,7 @@ export default function DashboardPage() {
       {/* Charts row */}
       <div className={styles.chartsRow}>
         <div className={styles.chartCard}>
-          <h2 className={styles.sectionTitle}>Monthly Spend {currentYear}</h2>
+          <h2 className={styles.sectionTitle}>{t('dashboard.monthlySpend', { year: currentYear })}</h2>
           <MonthlyTrendChart data={monthlyData} />
         </div>
         <div className={styles.chartCard}>

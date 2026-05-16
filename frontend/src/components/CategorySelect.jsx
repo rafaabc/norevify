@@ -6,7 +6,7 @@ export default function CategorySelect({ value, onChange, includeAll = false, na
   return (
     <select name={name} value={value} onChange={onChange} id={id}>
       {includeAll && <option value="">{t('categories.all')}</option>}
-      {!includeAll && <option value="">{t('categories.all')}</option>}
+      {!includeAll && <option value="">{t('categories.select')}</option>}
       {CATEGORIES.map((c) => (
         <option key={c} value={c}>{categoryLabel(c, t)}</option>
       ))}
