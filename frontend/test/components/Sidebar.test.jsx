@@ -1,6 +1,22 @@
 import { render, screen, fireEvent } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 
+jest.mock('react-i18next', () => ({
+  useTranslation: () => ({
+    t: (key) => {
+      const translations = {
+        'nav.dashboard': 'Dashboard',
+        'nav.expenses': 'Expenses',
+        'nav.summary': 'Summary',
+        'nav.changePassword': 'Change password',
+        'nav.settings': 'Settings',
+        'nav.logout': 'Log out',
+      };
+      return translations[key] ?? key;
+    },
+  }),
+}));
+
 jest.mock('../../src/context/AuthContext.jsx', () => ({
   useAuth: jest.fn(),
 }));
