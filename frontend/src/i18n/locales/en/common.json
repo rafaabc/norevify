@@ -81,6 +81,7 @@
     },
     "linkedAccounts": "Linked accounts",
     "googleConnected": "Google account connected",
+    "googleDisconnected": "Google account disconnected.",
     "disconnectGoogle": "Disconnect Google",
     "disconnecting": "Disconnecting…",
     "setPasswordFirst": "Set a password before disconnecting Google.",

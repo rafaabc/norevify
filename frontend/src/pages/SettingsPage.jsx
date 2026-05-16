@@ -67,7 +67,7 @@ export default function SettingsPage() {
     setUnlinking(true);
     try {
       await authApi.unlinkGoogle();
-      setLinkSuccess('Google account disconnected.');
+      setLinkSuccess(t('settings.googleDisconnected'));
       setProviders((p) => ({
         ...p,
         authProviders: p.authProviders.filter((x) => x !== 'google'),
