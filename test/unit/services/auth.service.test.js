@@ -7,6 +7,7 @@ process.env.BASE_URL = process.env.BASE_URL || 'http://localhost:3000';
 const { describe, it, before, after, beforeEach } = require('node:test');
 const assert = require('node:assert/strict');
 const jwt = require('jsonwebtoken');
+const { SUPPORTED_LANGUAGES } = require('../../../src/constants/languages');
 
 const { startMongo, stopMongo, resetMongo } = require('../../helpers/mongo');
 const authService = require('../../../src/services/auth.service');
@@ -618,5 +619,40 @@ describe('authService.resetPassword()', () => {
         return true;
       }
     );
+  });
+});
+
+// ---------------------------------------------------------------------------
+// updateLanguage
+// ---------------------------------------------------------------------------
+describe('authService.updateLanguage()', () => {
+  it('should throw 400 when language is missing', async () => {
+    const user = await authService.register({ username: 'lng1', password: 'password1', email: 'lng1@x.com' });
+    await assert.rejects(
+      () => authService.updateLanguage({ id: user.id, language: undefined }),
+      (err) => { assert.strictEqual(err.status, 400); return true; }
+    );
+  });
+
+  it('should throw 400 when language is not supported', async () => {
+    const user = await authService.register({ username: 'lng2', password: 'password1', email: 'lng2@x.com' });
+    await assert.rejects(
+      () => authService.updateLanguage({ id: user.id, language: 'fr' }),
+      (err) => { assert.strictEqual(err.status, 400); assert.match(err.message, /must be one of/i); return true; }
+    );
+  });
+
+  it('should throw 404 when user does not exist', async () => {
+    await assert.rejects(
+      () => authService.updateLanguage({ id: '000000000000000000000001', language: 'en' }),
+      (err) => { assert.strictEqual(err.status, 404); return true; }
+    );
+  });
+
+  it('should return a new JWT containing the updated language', async () => {
+    const user = await authService.register({ username: 'lng3', password: 'password1', email: 'lng3@x.com' });
+    const { token } = await authService.updateLanguage({ id: user.id, language: 'en' });
+    const payload = jwt.verify(token, process.env.JWT_SECRET);
+    assert.strictEqual(payload.language, 'en');
   });
 });

@@ -6,6 +6,7 @@ const userModel = require('../models/user.model');
 const emailService = require('./email.service');
 const googleAuthService = require('./google-auth.service');
 const { SUPPORTED_CURRENCIES, DEFAULT_CURRENCY } = require('../constants/currencies');
+const { SUPPORTED_LANGUAGES, DEFAULT_LANGUAGE } = require('../constants/languages');
 
 const USERNAME_REGEX = /^[a-zA-Z0-9_]{3,50}$/;
 const EMAIL_REGEX    = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -98,7 +99,12 @@ async function resetPassword({ token, newPassword }) {
 
 function issueToken(user) {
   return jwt.sign(
-    { id: user._id.toString(), username: user.username, currency: user.currency || DEFAULT_CURRENCY },
+    {
+      id:       user._id.toString(),
+      username: user.username,
+      currency: user.currency || DEFAULT_CURRENCY,
+      language: user.language || DEFAULT_LANGUAGE,
+    },
     process.env.JWT_SECRET,
     { expiresIn: process.env.JWT_EXPIRES_IN || '1h' }
   );
@@ -171,13 +177,21 @@ async function updateCurrency({ id, currency }) {
   if (!user) throw makeError(404, 'User not found');
 
   await userModel.updateCurrency(id, currency);
-
-  const token = jwt.sign(
-    { id: user._id.toString(), username: user.username, currency },
-    process.env.JWT_SECRET,
-    { expiresIn: process.env.JWT_EXPIRES_IN || '1h' }
-  );
-  return { token };
+  const updated = await userModel.findById(id);
+  return { token: issueToken(updated) };
 }
 
-module.exports = { register, login, changePassword, forgotPassword, resetPassword, updateCurrency, googleLogin, linkGoogle, unlinkGoogle, getProviders };
+async function updateLanguage({ id, language }) {
+  if (!language) throw makeError(400, 'language is required');
+  if (!SUPPORTED_LANGUAGES.includes(language))
+    throw makeError(400, `language must be one of: ${SUPPORTED_LANGUAGES.join(', ')}`);
+
+  const user = await userModel.findById(id);
+  if (!user) throw makeError(404, 'User not found');
+
+  await userModel.updateLanguage(id, language);
+  const updated = await userModel.findById(id);
+  return { token: issueToken(updated) };
+}
+
+module.exports = { register, login, changePassword, forgotPassword, resetPassword, updateCurrency, updateLanguage, googleLogin, linkGoogle, unlinkGoogle, getProviders };
