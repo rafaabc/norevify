@@ -14,6 +14,8 @@ test.describe('Language switching (i18n)', () => {
 
   test.beforeEach(async ({ page }) => {
     loginPage = new LoginPage(page);
+    await page.goto('/');
+    await page.evaluate(() => localStorage.removeItem('i18nextLng'));
   });
 
   // TC-LG-E2E-01: Default language is PT-BR before login
@@ -74,12 +76,7 @@ test.describe('Language switching (i18n)', () => {
   test('[TC-LG-E2E-03] should keep English UI after page reload when EN was previously selected', async ({ page }) => {
     // Log in and pre-set language to EN via localStorage + reload
     await loginPage.navigate();
-    await page.locator('[name="username"]').fill(username);
-    // The page could be in any lang at this point — use the correct button text
-    await page.locator('[name="password"]').fill(DEFAULT_PASSWORD);
-
-    // Submit the form directly (works regardless of button label)
-    await page.locator('form').last().getByRole('button').click();
+    await loginPage.login(username, DEFAULT_PASSWORD);
     await page.waitForURL('/');
 
     // Force EN in localStorage and reload to simulate returning user with persisted preference
@@ -95,7 +92,7 @@ test.describe('Language switching (i18n)', () => {
   // TC-LG-E2E-04: Switch back to PT-BR → verify nav shows "Painel"
   test('[TC-LG-E2E-04] should revert sidebar to PT-BR labels when language is switched back to Português', async ({ page }) => {
     // Log in with EN already in localStorage
-    await page.goto('/login');
+    await loginPage.navigate();
     await page.evaluate(() => localStorage.setItem('i18nextLng', 'en'));
     await page.reload();
 
