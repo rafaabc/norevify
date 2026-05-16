@@ -244,6 +244,86 @@
         }
       }
     },
+    "/api/auth/currency": {
+      "patch": {
+        "summary": "Update preferred currency",
+        "tags": ["Auth"],
+        "security": [{ "bearerAuth": [] }],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["currency"],
+                "properties": {
+                  "currency": {
+                    "type": "string",
+                    "enum": ["BRL", "DKK", "USD", "EUR", "GBP", "JPY", "CHF", "SEK", "NOK", "CAD"],
+                    "example": "USD"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Currency updated — returns a fresh JWT",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": { "token": { "type": "string" } }
+                }
+              }
+            }
+          },
+          "400": { "description": "Unsupported currency" },
+          "401": { "description": "Unauthorized" }
+        }
+      }
+    },
+    "/api/auth/language": {
+      "patch": {
+        "summary": "Update preferred language",
+        "tags": ["Auth"],
+        "security": [{ "bearerAuth": [] }],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["language"],
+                "properties": {
+                  "language": {
+                    "type": "string",
+                    "enum": ["pt-BR", "en"],
+                    "example": "pt-BR"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Language updated — returns a fresh JWT",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": { "token": { "type": "string" } }
+                }
+              }
+            }
+          },
+          "400": { "description": "Unsupported language" },
+          "401": { "description": "Unauthorized" }
+        }
+      }
+    },
     "/api/expenses": {
       "get": {
         "tags": ["Expenses"],
