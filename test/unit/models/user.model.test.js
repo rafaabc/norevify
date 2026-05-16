@@ -3,6 +3,7 @@
 const mongoose = require('mongoose');
 const { describe, it, before, after, beforeEach } = require('node:test');
 const assert = require('node:assert/strict');
+const { SUPPORTED_LANGUAGES, DEFAULT_LANGUAGE } = require('../../../src/constants/languages');
 
 const { startMongo, stopMongo, resetMongo } = require('../../helpers/mongo');
 const userModel = require('../../../src/models/user.model');
@@ -83,5 +84,26 @@ describe('userModel.updatePassword()', () => {
     await userModel.updatePassword('alice', 'new_hash');
     const found = await userModel.findByUsername('alice');
     assert.strictEqual(found.password, 'new_hash');
+  });
+});
+
+describe('userModel language field', () => {
+  it('should default language to pt-BR', async () => {
+    const user = await userModel.create({ username: 'lang1', password: 'h', email: 'lang1@x.com' });
+    assert.strictEqual(user.language, 'pt-BR');
+  });
+
+  it('should reject an unsupported language value', async () => {
+    await assert.rejects(
+      () => userModel.create({ username: 'lang2', password: 'h', email: 'lang2@x.com', language: 'fr' }),
+      /language/i
+    );
+  });
+
+  it('should persist and retrieve updateLanguage', async () => {
+    const user = await userModel.create({ username: 'lang3', password: 'h', email: 'lang3@x.com' });
+    await userModel.updateLanguage(user._id, 'en');
+    const found = await userModel.findById(user._id);
+    assert.strictEqual(found.language, 'en');
   });
 });

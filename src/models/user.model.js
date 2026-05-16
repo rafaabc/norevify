@@ -1,11 +1,13 @@
 const mongoose = require('mongoose');
 const { SUPPORTED_CURRENCIES, DEFAULT_CURRENCY } = require('../constants/currencies');
+const { SUPPORTED_LANGUAGES, DEFAULT_LANGUAGE } = require('../constants/languages');
 
 const userSchema = new mongoose.Schema({
   username:      { type: String, required: true, unique: true },
   password:      { type: String, required: false },
   email:         { type: String, required: true, unique: true },
   currency:      { type: String, enum: SUPPORTED_CURRENCIES, default: DEFAULT_CURRENCY },
+  language:      { type: String, enum: SUPPORTED_LANGUAGES, default: DEFAULT_LANGUAGE },
   googleId:      { type: String, unique: true, sparse: true },
   authProviders: { type: [String], default: ['password'], enum: ['password', 'google'] },
 });
@@ -22,6 +24,8 @@ module.exports = {
     User.updateOne({ username }, { $set: { password: hashedPassword } }),
   updateCurrency: (id, currency) =>
     User.updateOne({ _id: id }, { $set: { currency } }),
+  updateLanguage: (id, language) =>
+    User.updateOne({ _id: id }, { $set: { language } }),
   linkGoogleId: (userId, googleId) =>
     User.updateOne({ _id: userId }, { $set: { googleId }, $addToSet: { authProviders: 'google' } }),
   unlinkGoogleId: (userId) =>
