@@ -173,11 +173,8 @@ async function updateCurrency({ id, currency }) {
   if (!SUPPORTED_CURRENCIES.includes(currency))
     throw makeError(400, `currency must be one of: ${SUPPORTED_CURRENCIES.join(', ')}`);
 
-  const user = await userModel.findById(id);
-  if (!user) throw makeError(404, 'User not found');
-
-  await userModel.updateCurrency(id, currency);
-  const updated = await userModel.findById(id);
+  const updated = await userModel.updateCurrencyAndReturn(id, currency);
+  if (!updated) throw makeError(404, 'User not found');
   return { token: issueToken(updated) };
 }
 
@@ -186,11 +183,8 @@ async function updateLanguage({ id, language }) {
   if (!SUPPORTED_LANGUAGES.includes(language))
     throw makeError(400, `language must be one of: ${SUPPORTED_LANGUAGES.join(', ')}`);
 
-  const user = await userModel.findById(id);
-  if (!user) throw makeError(404, 'User not found');
-
-  await userModel.updateLanguage(id, language);
-  const updated = await userModel.findById(id);
+  const updated = await userModel.updateLanguageAndReturn(id, language);
+  if (!updated) throw makeError(404, 'User not found');
   return { token: issueToken(updated) };
 }
 

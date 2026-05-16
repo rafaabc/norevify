@@ -26,6 +26,10 @@ module.exports = {
     User.updateOne({ _id: id }, { $set: { currency } }),
   updateLanguage: (id, language) =>
     User.updateOne({ _id: id }, { $set: { language } }),
+  updateCurrencyAndReturn: (id, currency) =>
+    User.findOneAndUpdate({ _id: id }, { $set: { currency } }, { returnDocument: 'after' }),
+  updateLanguageAndReturn: (id, language) =>
+    User.findOneAndUpdate({ _id: id }, { $set: { language } }, { returnDocument: 'after' }),
   linkGoogleId: (userId, googleId) =>
     User.updateOne({ _id: userId }, { $set: { googleId }, $addToSet: { authProviders: 'google' } }),
   unlinkGoogleId: (userId) =>

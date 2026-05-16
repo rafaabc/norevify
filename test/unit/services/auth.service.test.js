@@ -7,7 +7,6 @@ process.env.BASE_URL = process.env.BASE_URL || 'http://localhost:3000';
 const { describe, it, before, after, beforeEach } = require('node:test');
 const assert = require('node:assert/strict');
 const jwt = require('jsonwebtoken');
-const { SUPPORTED_LANGUAGES } = require('../../../src/constants/languages');
 
 const { startMongo, stopMongo, resetMongo } = require('../../helpers/mongo');
 const authService = require('../../../src/services/auth.service');
@@ -654,5 +653,42 @@ describe('authService.updateLanguage()', () => {
     const { token } = await authService.updateLanguage({ id: user.id, language: 'en' });
     const payload = jwt.verify(token, process.env.JWT_SECRET);
     assert.strictEqual(payload.language, 'en');
+    assert.ok(payload.currency, 'token should also carry currency');
+  });
+});
+
+// ---------------------------------------------------------------------------
+// updateCurrency
+// ---------------------------------------------------------------------------
+describe('authService.updateCurrency()', () => {
+  it('should throw 400 when currency is missing', async () => {
+    const user = await authService.register({ username: 'cur1', password: 'password1', email: 'cur1@x.com' });
+    await assert.rejects(
+      () => authService.updateCurrency({ id: user.id, currency: undefined }),
+      (err) => { assert.strictEqual(err.status, 400); return true; }
+    );
+  });
+
+  it('should throw 400 when currency is not supported', async () => {
+    const user = await authService.register({ username: 'cur2', password: 'password1', email: 'cur2@x.com' });
+    await assert.rejects(
+      () => authService.updateCurrency({ id: user.id, currency: 'XYZ' }),
+      (err) => { assert.strictEqual(err.status, 400); assert.match(err.message, /must be one of/i); return true; }
+    );
+  });
+
+  it('should throw 404 when user does not exist', async () => {
+    await assert.rejects(
+      () => authService.updateCurrency({ id: '000000000000000000000001', currency: 'USD' }),
+      (err) => { assert.strictEqual(err.status, 404); return true; }
+    );
+  });
+
+  it('should return a JWT containing both currency and language', async () => {
+    const user = await authService.register({ username: 'curr_lang', password: 'password1', email: 'currlang@x.com' });
+    const { token } = await authService.updateCurrency({ id: user.id, currency: 'USD' });
+    const payload = jwt.verify(token, process.env.JWT_SECRET);
+    assert.strictEqual(payload.currency, 'USD');
+    assert.ok(payload.language, 'token should also carry language');
   });
 });
