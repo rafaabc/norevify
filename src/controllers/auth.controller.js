@@ -59,6 +59,15 @@ async function updateCurrency(req, res) {
   }
 }
 
+async function updateLanguage(req, res) {
+  try {
+    const result = await authService.updateLanguage({ id: req.user.id, language: req.body.language });
+    res.status(200).json(result);
+  } catch (err) {
+    res.status(err.status || 500).json({ message: err.message });
+  }
+}
+
 async function googleLogin(req, res) {
   try {
     const result = await authService.googleLogin(req.body);
@@ -95,4 +104,4 @@ async function getProviders(req, res) {
   }
 }
 
-module.exports = { register, login, changePassword, forgotPassword, resetPassword, updateCurrency, googleLogin, linkGoogle, unlinkGoogle, getProviders };
+module.exports = { register, login, changePassword, forgotPassword, resetPassword, updateCurrency, updateLanguage, googleLogin, linkGoogle, unlinkGoogle, getProviders };
