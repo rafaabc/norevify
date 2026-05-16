@@ -1,5 +1,6 @@
 'use strict';
 
+const crypto = require('crypto');
 const { OAuth2Client } = require('google-auth-library');
 const userModel = require('../models/user.model');
 
@@ -25,12 +26,15 @@ async function verifyIdToken(idToken) {
 }
 
 async function generateUsernameFromEmail(email) {
-  const base = email
-    .split('@')[0]
-    .replace(/[^a-zA-Z0-9_]/g, '_')
-    .replace(/^_+|_+$/g, '')
-    .slice(0, 44)
-    .padEnd(3, '_');
+  const sanitized = email.split('@')[0].replace(/[^a-zA-Z0-9_]/g, '_');
+  let trimmed = sanitized;
+  let start = 0;
+  while (start < trimmed.length && trimmed[start] === '_') start++;
+  let end = trimmed.length - 1;
+  while (end > start && trimmed[end] === '_') end--;
+  trimmed = trimmed.slice(start, end + 1) || 'user';
+
+  const base = trimmed.slice(0, 44).padEnd(3, '_');
 
   for (let i = 0; i < 5; i++) {
     const candidate = i === 0 ? base : `${base}_${i}`;
@@ -38,7 +42,7 @@ async function generateUsernameFromEmail(email) {
     if (!existing) return candidate;
   }
 
-  const suffix = Math.floor(Math.random() * 0xFFFFFF).toString(16).padStart(6, '0');
+  const suffix = crypto.randomBytes(3).toString('hex');
   return `${base.slice(0, 43)}_${suffix}`;
 }
 
