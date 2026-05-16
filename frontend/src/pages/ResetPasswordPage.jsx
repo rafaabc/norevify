@@ -1,11 +1,13 @@
 import { useState, useEffect } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { Gauge } from 'lucide-react';
 import { authApi } from '../services/apiService.js';
 import ErrorBanner from '../components/ErrorBanner.jsx';
 import styles from './LoginPage.module.css';
 
 export default function ResetPasswordPage() {
+  const { t } = useTranslation();
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const token = searchParams.get('token');
@@ -52,13 +54,13 @@ export default function ResetPasswordPage() {
 
       <main className={styles.formPanel}>
         <div className={styles.formCard}>
-          <h1 className={styles.formHeading}>Set new password</h1>
+          <h1 className={styles.formHeading}>{t('auth.resetPassword.heading')}</h1>
 
           {error && <ErrorBanner message={error} />}
 
           <form onSubmit={handleSubmit}>
             <div className="form-group">
-              <label htmlFor="reset-password">New password</label>
+              <label htmlFor="reset-password">{t('auth.resetPassword.newPassword')}</label>
               <input
                 id="reset-password"
                 type="password"
@@ -85,7 +87,7 @@ export default function ResetPasswordPage() {
               />
             </div>
             <button type="submit" className="btn-primary" style={{ width: '100%' }} disabled={loading}>
-              {loading ? 'Updating…' : 'Set new password'}
+              {loading ? t('auth.resetPassword.submitting') : t('auth.resetPassword.submit')}
             </button>
           </form>
 
