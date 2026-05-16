@@ -52,6 +52,8 @@
     "resetPassword": {
       "heading": "Redefinir senha",
       "newPassword": "Nova senha",
+      "confirm": "Confirmar nova senha",
+      "requestNew": "Solicitar novo link",
       "submit": "Redefinir senha",
       "submitting": "Redefinindo…",
       "success": "Senha redefinida. Faça login."
@@ -60,6 +62,7 @@
       "heading": "Alterar senha",
       "current": "Senha atual",
       "new": "Nova senha",
+      "confirm": "Confirmar nova senha",
       "submit": "Salvar",
       "submitting": "Salvando…",
       "success": "Senha alterada com sucesso."
@@ -146,7 +149,8 @@
     "emailRegistered": "E-mail já cadastrado.",
     "userNotFound": "Usuário não encontrado.",
     "invalidToken": "Token inválido ou expirado.",
-    "sessionExpired": "Sessão expirada. Faça login novamente."
+    "sessionExpired": "Sessão expirada. Faça login novamente.",
+    "passwordMismatch": "As senhas não coincidem."
   },
   "pwa": {
     "updateAvailable": "Nova versão disponível.",

@@ -52,6 +52,8 @@
     "resetPassword": {
       "heading": "Reset password",
       "newPassword": "New password",
+      "confirm": "Confirm new password",
+      "requestNew": "Request a new link",
       "submit": "Reset password",
       "submitting": "Resetting…",
       "success": "Password reset successfully. Please log in."
@@ -60,6 +62,7 @@
       "heading": "Change password",
       "current": "Current password",
       "new": "New password",
+      "confirm": "Confirm new password",
       "submit": "Save",
       "submitting": "Saving…",
       "success": "Password changed successfully."
@@ -146,7 +149,8 @@
     "emailRegistered": "Email already registered.",
     "userNotFound": "User not found.",
     "invalidToken": "Invalid or expired token.",
-    "sessionExpired": "Session expired. Please log in again."
+    "sessionExpired": "Session expired. Please log in again.",
+    "passwordMismatch": "Passwords do not match."
   },
   "pwa": {
     "updateAvailable": "New version available.",

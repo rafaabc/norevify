@@ -19,7 +19,7 @@ export default function ChangePasswordPage() {
   async function handleSubmit(e) {
     e.preventDefault();
     if (form.newPassword !== form.confirmPassword) {
-      setError('Passwords do not match.');
+      setError(t('errors.passwordMismatch'));
       return;
     }
     setError('');
@@ -40,7 +40,7 @@ export default function ChangePasswordPage() {
     <div className="page">
       <h1 style={{ marginBottom: '1.5rem' }}>{t('auth.changePassword.heading')}</h1>
       <p style={{ marginBottom: '1.5rem', color: 'var(--muted)' }}>
-        Logged in as <strong style={{ color: 'var(--text)' }}>{username}</strong>
+        {t('settings.loggedInAs')} <strong style={{ color: 'var(--text)' }}>{username}</strong>
       </p>
 
       {success && <ErrorBanner message={t('auth.changePassword.success')} type="success" />}
@@ -56,7 +56,7 @@ export default function ChangePasswordPage() {
           <input id="cp-newPassword" type="password" name="newPassword" value={form.newPassword} onChange={handleChange} required minLength={8} maxLength={20} />
         </div>
         <div className="form-group">
-          <label htmlFor="cp-confirmPassword">Confirm new password</label>
+          <label htmlFor="cp-confirmPassword">{t('auth.changePassword.confirm')}</label>
           <input id="cp-confirmPassword" type="password" name="confirmPassword" value={form.confirmPassword} onChange={handleChange} required minLength={8} maxLength={20} />
         </div>
         <button type="submit" className="btn-primary" disabled={loading}>

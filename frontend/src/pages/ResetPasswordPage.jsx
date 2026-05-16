@@ -27,7 +27,7 @@ export default function ResetPasswordPage() {
   async function handleSubmit(e) {
     e.preventDefault();
     if (form.newPassword !== form.confirmPassword) {
-      setError('Passwords do not match.');
+      setError(t('errors.passwordMismatch'));
       return;
     }
     setError('');
@@ -74,7 +74,7 @@ export default function ResetPasswordPage() {
               />
             </div>
             <div className="form-group">
-              <label htmlFor="reset-confirm">Confirm new password</label>
+              <label htmlFor="reset-confirm">{t('auth.resetPassword.confirm')}</label>
               <input
                 id="reset-confirm"
                 type="password"
@@ -92,7 +92,7 @@ export default function ResetPasswordPage() {
           </form>
 
           <p className={styles.switchLink}>
-            <Link to="/forgot-password">Request a new link</Link>
+            <Link to="/forgot-password">{t('auth.resetPassword.requestNew')}</Link>
           </p>
         </div>
       </main>
