@@ -24,6 +24,13 @@ test.describe('Language switching (i18n)', () => {
     await page.evaluate(() => localStorage.removeItem('i18nextLng'));
   });
 
+  async function loginAs(page: Parameters<typeof setLanguage>[0], lang?: 'en' | 'pt-BR') {
+    await loginPage.navigate();
+    if (lang !== undefined) await setLanguage(page, lang);
+    await loginPage.login(username, DEFAULT_PASSWORD);
+    await page.waitForURL('/');
+  }
+
   // TC-LG-E2E-01: PT-BR strings visible when language is set to pt-BR
   test('[TC-LG-E2E-01] should show PT-BR strings by default when visiting the login page', async ({ page }) => {
     await page.goto('/login');
@@ -35,12 +42,7 @@ test.describe('Language switching (i18n)', () => {
 
   // TC-LG-E2E-02: Login → Settings → switch to EN → verify nav + localStorage
   test('[TC-LG-E2E-02] should switch UI to English and persist lang in localStorage when EN is selected', async ({ page }) => {
-    await loginPage.navigate();
-    await setLanguage(page, 'pt-BR');
-
-    await expect(page.getByRole('button', { name: 'Entrar' })).toBeVisible();
-    await loginPage.login(username, DEFAULT_PASSWORD);
-    await page.waitForURL('/');
+    await loginAs(page, 'pt-BR');
 
     await expect(page.getByRole('link', { name: 'Painel' })).toBeVisible();
 
@@ -55,9 +57,7 @@ test.describe('Language switching (i18n)', () => {
 
   // TC-LG-E2E-03: Reload preserves EN language
   test('[TC-LG-E2E-03] should keep English UI after page reload when EN was previously selected', async ({ page }) => {
-    await loginPage.navigate();
-    await loginPage.login(username, DEFAULT_PASSWORD);
-    await page.waitForURL('/');
+    await loginAs(page);
 
     await setLanguage(page, 'en');
     await expectEnglishNav(page);
@@ -65,12 +65,7 @@ test.describe('Language switching (i18n)', () => {
 
   // TC-LG-E2E-04: Switch back to PT-BR → verify nav shows "Painel"
   test('[TC-LG-E2E-04] should revert sidebar to PT-BR labels when language is switched back to Português', async ({ page }) => {
-    await loginPage.navigate();
-    await setLanguage(page, 'en');
-
-    await expect(page.getByRole('button', { name: 'Sign in' })).toBeVisible();
-    await loginPage.login(username, DEFAULT_PASSWORD);
-    await page.waitForURL('/');
+    await loginAs(page, 'en');
 
     await expect(page.getByRole('link', { name: 'Dashboard' })).toBeVisible();
 
