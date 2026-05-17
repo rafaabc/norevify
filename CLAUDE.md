@@ -168,12 +168,12 @@ Supported languages are defined in `src/constants/languages.js` (`SUPPORTED_LANG
 - `npm run test:e2e` — run all E2E tests (Chromium)
 
 ### Atlas cleanup — globalTeardown
-Every user created via `createAndLoginUser()` during a run is tracked in `e2e/.test-user-ids.json` (gitignored). After all tests finish, `e2e/global-teardown.ts` opens a direct Mongoose connection to Atlas, deletes those users and their expenses, then removes the file. IDs accumulate across crashed runs — the next successful teardown cleans everything.
+After all tests finish, `e2e/global-teardown.ts` opens a direct Mongoose connection to Atlas and deletes all users whose email matches `/@test\.com$/` (the pattern used by `createAndLoginUser`), plus their expenses. This pattern-based approach is crash-safe — it cleans up residual data from any previous run, including runs that were interrupted before teardown.
 
 ### Conventions
 - Pattern: Page Object Model — each page is a class in `e2e/pages/`
 - Test naming: `[TC-XX-YY] should <behavior> when <condition>`
-- `createAndLoginUser(request, prefix)` — registers + logs in a fresh user, tracks the ID for teardown, returns `{ username, token }`
+- `createAndLoginUser(request, prefix)` — registers + logs in a fresh user (email `${username}@test.com`, cleaned up by teardown pattern), returns `{ username, token }`
 - `createExpenseViaApi(request, token, data)` — creates an expense via API, returns the response body
 - **Language in tests**: all new users default to `pt-BR` (via JWT). Tests that log in through the UI get PT-BR applied by `AuthContext.login()`. Tests that inject a token via `addInitScript` get whatever the browser navigator reports. **Always set `i18nextLng` explicitly in `beforeEach` / `addInitScript`** for any test that makes text-based assertions — use `localStorage.setItem('i18nextLng', 'en')` or `'pt-BR'` depending on what the test validates. Tests that don't test i18n behaviour should use `'en'` for consistency.
 - **POMs must use language-agnostic selectors**: prefer `button[type="submit"]`, `button.btn-secondary`, CSS classes, `[name="..."]` attributes, and ARIA roles without text names. Never hard-code translated strings in POMs — put them in the spec when they are part of what the test is verifying.
