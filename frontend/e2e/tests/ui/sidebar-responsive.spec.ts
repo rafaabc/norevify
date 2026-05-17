@@ -2,6 +2,7 @@ import { test, expect } from '@playwright/test';
 import { createAndLoginUser } from '../../fixtures/api';
 import { LoginPage } from '../../pages/LoginPage';
 import { DEFAULT_PASSWORD } from '../../fixtures/test-data';
+import { expectEnglishNav } from '../../fixtures/i18n';
 
 const MOBILE_VIEWPORT  = { width: 390, height: 844 };
 const DESKTOP_VIEWPORT = { width: 1280, height: 800 };
@@ -41,10 +42,7 @@ test.describe('Sidebar responsiveness', () => {
   test('[TC-UI-02] should hide nav labels on mobile and show only icons', async ({ page }) => {
     await page.setViewportSize(MOBILE_VIEWPORT);
     await loginAndGoTo(page);
-
-    await expect(page.getByRole('link', { name: 'Dashboard' })).toBeVisible();
-    await expect(page.getByRole('link', { name: 'Expenses' })).toBeVisible();
-    await expect(page.getByRole('link', { name: 'Summary' })).toBeVisible();
+    await expectEnglishNav(page);
   });
 
   test('[TC-UI-03] should navigate correctly via icon links on mobile', async ({ page }) => {

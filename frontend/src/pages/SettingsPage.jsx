@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { KeyRound } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '../context/AuthContext.jsx';
+import { useAsyncAction } from '../hooks/useAsyncAction.js';
 import ErrorBanner from '../components/ErrorBanner.jsx';
 import GoogleSignInButton from '../components/GoogleSignInButton.jsx';
 import { authApi } from '../services/apiService.js';
@@ -13,14 +14,10 @@ export default function SettingsPage() {
   const { t } = useTranslation();
   const { username, currency, updateCurrency, language, updateLanguage } = useAuth();
   const [selected, setSelected] = useState(currency);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
-  const [success, setSuccess] = useState(false);
-
   const [selectedLang, setSelectedLang] = useState(language);
-  const [langLoading, setLangLoading] = useState(false);
-  const [langError, setLangError] = useState('');
-  const [langSuccess, setLangSuccess] = useState(false);
+
+  const currencyAction = useAsyncAction();
+  const langAction = useAsyncAction();
 
   const [providers, setProviders] = useState(null);
   const [linkError, setLinkError] = useState('');
@@ -33,32 +30,12 @@ export default function SettingsPage() {
 
   async function handleSubmit(e) {
     e.preventDefault();
-    setError('');
-    setSuccess(false);
-    setLoading(true);
-    try {
-      await updateCurrency(selected);
-      setSuccess(true);
-    } catch (err) {
-      setError(err.message);
-    } finally {
-      setLoading(false);
-    }
+    await currencyAction.run(() => updateCurrency(selected));
   }
 
   async function handleLangSubmit(e) {
     e.preventDefault();
-    setLangError('');
-    setLangSuccess(false);
-    setLangLoading(true);
-    try {
-      await updateLanguage(selectedLang);
-      setLangSuccess(true);
-    } catch (err) {
-      setLangError(err.message);
-    } finally {
-      setLangLoading(false);
-    }
+    await langAction.run(() => updateLanguage(selectedLang));
   }
 
   async function handleUnlink() {
@@ -88,8 +65,8 @@ export default function SettingsPage() {
         {t('settings.loggedInAs')} <strong style={{ color: 'var(--text)' }}>{username}</strong>
       </p>
 
-      {success && <ErrorBanner message={t('settings.currency.success')} type="success" />}
-      {error && <ErrorBanner message={error} />}
+      {currencyAction.success && <ErrorBanner message={t('settings.currency.success')} type="success" />}
+      {currencyAction.error && <ErrorBanner message={currencyAction.error} />}
 
       <form onSubmit={handleSubmit} style={{ maxWidth: '400px' }}>
         <div className="form-group">
@@ -97,22 +74,22 @@ export default function SettingsPage() {
           <select
             id="settings-currency"
             value={selected}
-            onChange={(e) => { setSelected(e.target.value); setSuccess(false); }}
+            onChange={(e) => { setSelected(e.target.value); currencyAction.setSuccess(false); }}
           >
             {SUPPORTED_CURRENCIES.map(({ code, label }) => (
               <option key={code} value={code}>{label}</option>
             ))}
           </select>
         </div>
-        <button type="submit" className="btn-primary" disabled={loading || selected === currency}>
-          {loading ? t('common.saving') : t('common.save')}
+        <button type="submit" className="btn-primary" disabled={currencyAction.loading || selected === currency}>
+          {currencyAction.loading ? t('common.saving') : t('common.save')}
         </button>
       </form>
 
       <hr style={{ margin: '2rem 0', borderColor: 'var(--border)' }} />
 
-      {langSuccess && <ErrorBanner message={t('settings.language.success')} type="success" />}
-      {langError && <ErrorBanner message={langError} />}
+      {langAction.success && <ErrorBanner message={t('settings.language.success')} type="success" />}
+      {langAction.error && <ErrorBanner message={langAction.error} />}
 
       <form onSubmit={handleLangSubmit} style={{ maxWidth: '400px' }}>
         <div className="form-group">
@@ -120,15 +97,15 @@ export default function SettingsPage() {
           <select
             id="settings-language"
             value={selectedLang}
-            onChange={(e) => { setSelectedLang(e.target.value); setLangSuccess(false); }}
-            disabled={langLoading}
+            onChange={(e) => { setSelectedLang(e.target.value); langAction.setSuccess(false); }}
+            disabled={langAction.loading}
           >
             <option value="en">English</option>
             <option value="pt-BR">Português (Brasil)</option>
           </select>
         </div>
-        <button type="submit" className="btn-primary" disabled={langLoading || selectedLang === language}>
-          {langLoading ? t('common.saving') : t('common.save')}
+        <button type="submit" className="btn-primary" disabled={langAction.loading || selectedLang === language}>
+          {langAction.loading ? t('common.saving') : t('common.save')}
         </button>
       </form>
 

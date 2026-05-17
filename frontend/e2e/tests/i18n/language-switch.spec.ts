@@ -1,31 +1,13 @@
-import { test, expect, Page } from '@playwright/test';
+import { test, expect } from '@playwright/test';
 import { createAndLoginUser } from '../../fixtures/api';
 import { LoginPage } from '../../pages/LoginPage';
 import { DEFAULT_PASSWORD } from '../../fixtures/test-data';
-
-async function setLanguage(page: Page, lang: string) {
-  await page.evaluate((l) => localStorage.setItem('i18nextLng', l), lang);
-  await page.reload();
-}
-
-async function switchToLanguage(page: Page, lang: string) {
-  await page.goto('/settings');
-  await page.locator('#settings-language').selectOption(lang);
-  const langForm = page.locator('form', { has: page.locator('#settings-language') });
-  await langForm.getByRole('button', { name: /Salvar|Save/i }).click();
-}
-
-async function expectEnglishNav(page: Page) {
-  await expect(page.getByRole('link', { name: 'Dashboard' })).toBeVisible();
-  await expect(page.getByRole('link', { name: 'Expenses' })).toBeVisible();
-  await expect(page.getByRole('link', { name: 'Summary' })).toBeVisible();
-}
-
-async function expectPtBrNav(page: Page) {
-  await expect(page.getByRole('link', { name: 'Painel' })).toBeVisible();
-  await expect(page.getByRole('link', { name: 'Despesas' })).toBeVisible();
-  await expect(page.getByRole('link', { name: 'Resumo' })).toBeVisible();
-}
+import {
+  setLanguage,
+  switchToLanguage,
+  expectEnglishNav,
+  expectPtBrNav,
+} from '../../fixtures/i18n';
 
 test.describe('Language switching (i18n)', () => {
   let username: string;

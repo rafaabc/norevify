@@ -3,15 +3,14 @@ import { useTranslation } from 'react-i18next';
 import { authApi } from '../services/apiService.js';
 import { useAuth } from '../context/AuthContext.jsx';
 import { bindField } from '../utils/form.js';
+import { useAsyncAction } from '../hooks/useAsyncAction.js';
 import ErrorBanner from '../components/ErrorBanner.jsx';
 
 export default function ChangePasswordPage() {
   const { t } = useTranslation();
   const { username } = useAuth();
   const [form, setForm] = useState({ currentPassword: '', newPassword: '', confirmPassword: '' });
-  const [error, setError] = useState('');
-  const [success, setSuccess] = useState(false);
-  const [loading, setLoading] = useState(false);
+  const { loading, error, success, setError, run } = useAsyncAction();
 
   const handleChange = bindField(setForm);
 
@@ -21,18 +20,10 @@ export default function ChangePasswordPage() {
       setError(t('errors.passwordMismatch'));
       return;
     }
-    setError('');
-    setSuccess(false);
-    setLoading(true);
-    try {
+    await run(async () => {
       await authApi.changePassword({ currentPassword: form.currentPassword, newPassword: form.newPassword });
-      setSuccess(true);
       setForm({ currentPassword: '', newPassword: '', confirmPassword: '' });
-    } catch (err) {
-      setError(err.message);
-    } finally {
-      setLoading(false);
-    }
+    });
   }
 
   return (
