@@ -1,9 +1,10 @@
 import { useState, useEffect } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { Gauge } from 'lucide-react';
 import { authApi } from '../services/apiService.js';
+import { bindField } from '../utils/form.js';
 import ErrorBanner from '../components/ErrorBanner.jsx';
+import AuthBrandPanel from '../components/AuthBrandPanel.jsx';
 import styles from './LoginPage.module.css';
 
 export default function ResetPasswordPage() {
@@ -20,9 +21,7 @@ export default function ResetPasswordPage() {
     if (!token) navigate('/forgot-password', { replace: true });
   }, [token, navigate]);
 
-  function handleChange(e) {
-    setForm((f) => ({ ...f, [e.target.name]: e.target.value }));
-  }
+  const handleChange = bindField(setForm);
 
   async function handleSubmit(e) {
     e.preventDefault();
@@ -44,13 +43,7 @@ export default function ResetPasswordPage() {
 
   return (
     <div className={styles.screen}>
-      <aside className={styles.brand}>
-        <div className={styles.brandContent}>
-          <Gauge size={64} strokeWidth={1.5} className={styles.brandIcon} />
-          <span className={styles.wordmark}>DRIVELEDGER</span>
-          <p className={styles.tagline}>Track every kilometer.</p>
-        </div>
-      </aside>
+      <AuthBrandPanel />
 
       <main className={styles.formPanel}>
         <div className={styles.formCard}>

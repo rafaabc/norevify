@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { authApi } from '../services/apiService.js';
 import { useAuth } from '../context/AuthContext.jsx';
+import { bindField } from '../utils/form.js';
 import ErrorBanner from '../components/ErrorBanner.jsx';
 
 export default function ChangePasswordPage() {
@@ -12,9 +13,7 @@ export default function ChangePasswordPage() {
   const [success, setSuccess] = useState(false);
   const [loading, setLoading] = useState(false);
 
-  function handleChange(e) {
-    setForm((f) => ({ ...f, [e.target.name]: e.target.value }));
-  }
+  const handleChange = bindField(setForm);
 
   async function handleSubmit(e) {
     e.preventDefault();

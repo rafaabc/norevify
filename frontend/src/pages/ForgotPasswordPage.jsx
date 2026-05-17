@@ -1,9 +1,9 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { Gauge } from 'lucide-react';
 import { authApi } from '../services/apiService.js';
 import ErrorBanner from '../components/ErrorBanner.jsx';
+import AuthBrandPanel from '../components/AuthBrandPanel.jsx';
 import styles from './LoginPage.module.css';
 
 export default function ForgotPasswordPage() {
@@ -29,13 +29,7 @@ export default function ForgotPasswordPage() {
 
   return (
     <div className={styles.screen}>
-      <aside className={styles.brand}>
-        <div className={styles.brandContent}>
-          <Gauge size={64} strokeWidth={1.5} className={styles.brandIcon} />
-          <span className={styles.wordmark}>DRIVELEDGER</span>
-          <p className={styles.tagline}>Track every kilometer.</p>
-        </div>
-      </aside>
+      <AuthBrandPanel />
 
       <main className={styles.formPanel}>
         <div className={styles.formCard}>
