@@ -30,7 +30,7 @@ describe('ChangePasswordPage', () => {
     expect(container.querySelector('input[name="currentPassword"]')).toBeInTheDocument();
     expect(container.querySelector('input[name="newPassword"]')).toBeInTheDocument();
     expect(container.querySelector('input[name="confirmPassword"]')).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: /change password/i })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'auth.changePassword.submit' })).toBeInTheDocument();
   });
 
   test('should display the logged-in username', () => {
@@ -47,7 +47,7 @@ describe('ChangePasswordPage', () => {
     fireEvent.change(container.querySelector('input[name="confirmPassword"]'), { target: { value: 'different' } });
     fireEvent.submit(container.querySelector('form'));
 
-    await screen.findByText('Passwords do not match.');
+    await screen.findByText('errors.passwordMismatch');
     expect(authApi.changePassword).not.toHaveBeenCalled();
   });
 
@@ -74,7 +74,7 @@ describe('ChangePasswordPage', () => {
     fireEvent.change(container.querySelector('input[name="confirmPassword"]'), { target: { value: 'newPass99' } });
     fireEvent.submit(container.querySelector('form'));
 
-    await screen.findByText('Password updated successfully.');
+    await screen.findByText('auth.changePassword.success');
     expect(container.querySelector('input[name="currentPassword"]').value).toBe('');
   });
 

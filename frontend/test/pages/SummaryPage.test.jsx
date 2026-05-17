@@ -54,7 +54,7 @@ describe('SummaryPage', () => {
     // Act
     renderPage();
     // Assert
-    await screen.findByText(/no expenses found for 2026/i);
+    await screen.findByText('summary.noData');
   });
 
   test('should render a pivot table with correct column and row totals', async () => {

@@ -1,12 +1,13 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { Filter, FileX2, ChevronDown, ChevronUp, Pencil, Trash2 } from 'lucide-react';
 import { expensesApi } from '../services/apiService.js';
 import { useAuth } from '../context/AuthContext.jsx';
 import ExpenseRow from '../components/ExpenseRow.jsx';
 import ErrorBanner from '../components/ErrorBanner.jsx';
 import Loading from '../components/Loading.jsx';
-import { CATEGORIES } from '../utils/categories.js';
+import { CATEGORIES, categoryLabel } from '../utils/categories.js';
 import { currentYear, formatDate } from '../utils/formatDate.js';
 import { formatCurrency } from '../utils/formatCurrency.js';
 import styles from './ExpensesListPage.module.css';
@@ -24,8 +25,10 @@ function buildYearOptions() {
 }
 
 function ExpenseCard({ expense, onDeleted, onError, navigate, currency }) {
+  const { t } = useTranslation();
+
   async function handleDelete() {
-    if (!window.confirm(`Delete this ${expense.category} expense?`)) return;
+    if (!window.confirm(t('expenses.confirmDelete'))) return;
     try {
       await expensesApi.remove(expense.id);
       onDeleted(expense.id);
@@ -38,7 +41,7 @@ function ExpenseCard({ expense, onDeleted, onError, navigate, currency }) {
     <div className={styles.expenseCard}>
       <div className={styles.cardTop}>
         <span className={styles.cardDate}>{formatDate(expense.date)}</span>
-        <span className="badge" data-cat={expense.category}>{expense.category}</span>
+        <span className="badge" data-cat={expense.category}>{categoryLabel(expense.category, t)}</span>
       </div>
       <div className={styles.cardBody}>
         <span className={styles.cardAmount}>{formatCurrency(expense.amount, currency)}</span>
@@ -52,7 +55,7 @@ function ExpenseCard({ expense, onDeleted, onError, navigate, currency }) {
         <button
           className={styles.iconBtn}
           onClick={() => navigate(`/expenses/${expense.id}/edit`)}
-          aria-label={`Edit ${expense.category} expense`}
+          aria-label={t('common.edit')}
           type="button"
         >
           <Pencil size={16} />
@@ -60,7 +63,7 @@ function ExpenseCard({ expense, onDeleted, onError, navigate, currency }) {
         <button
           className={`${styles.iconBtn} ${styles.iconBtnDanger}`}
           onClick={handleDelete}
-          aria-label={`Delete ${expense.category} expense`}
+          aria-label={t('common.delete')}
           type="button"
         >
           <Trash2 size={16} />
@@ -71,6 +74,7 @@ function ExpenseCard({ expense, onDeleted, onError, navigate, currency }) {
 }
 
 export default function ExpensesListPage() {
+  const { t } = useTranslation();
   const { currency } = useAuth();
   const navigate = useNavigate();
 
@@ -125,9 +129,9 @@ export default function ExpensesListPage() {
     <div className="page">
       {/* Header */}
       <div className={styles.header}>
-        <h2 className="page-title">Expenses</h2>
+        <h2 className="page-title">{t('expenses.heading')}</h2>
         <button className="btn-primary" onClick={() => navigate('/expenses/new')}>
-          + New expense
+          + {t('common.new')}
         </button>
       </div>
 
@@ -140,7 +144,7 @@ export default function ExpensesListPage() {
           aria-expanded={filtersOpen}
         >
           <Filter size={15} aria-hidden="true" />
-          Filters{hasActiveFilters ? ` (${[filters.category, filters.year !== DEFAULT_YEAR ? filters.year : '', filters.month].filter(Boolean).length})` : ''}
+          {t('expenses.filters')}{hasActiveFilters ? ` (${[filters.category, filters.year !== DEFAULT_YEAR ? filters.year : '', filters.month].filter(Boolean).length})` : ''}
           {filtersOpen ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
         </button>
 
@@ -154,9 +158,9 @@ export default function ExpensesListPage() {
             className={styles.toolbarSelect}
             aria-label="Filter by category"
           >
-            <option value="">Category</option>
+            <option value="">{t('expenses.filterCategory')}</option>
             {CATEGORIES.map((c) => (
-              <option key={c} value={c}>{c}</option>
+              <option key={c} value={c}>{categoryLabel(c, t)}</option>
             ))}
           </select>
 
@@ -167,7 +171,7 @@ export default function ExpensesListPage() {
             className={styles.toolbarSelect}
             aria-label="Filter by year"
           >
-            <option value="">Year</option>
+            <option value="">{t('expenses.filterYear')}</option>
             {buildYearOptions().map((y) => (
               <option key={y} value={String(y)}>{y}</option>
             ))}
@@ -180,7 +184,7 @@ export default function ExpensesListPage() {
             className={styles.toolbarSelect}
             aria-label="Filter by month"
           >
-            <option value="">Month</option>
+            <option value="">{t('expenses.filterMonth')}</option>
             {MONTHS.slice(1).map((m, i) => (
               <option key={i + 1} value={i + 1}>{m}</option>
             ))}
@@ -188,7 +192,7 @@ export default function ExpensesListPage() {
 
           {hasActiveFilters && (
             <button type="button" className={styles.clearBtn} onClick={clearFilters}>
-              Clear filters
+              {t('expenses.clearFilters')}
             </button>
           )}
         </div>
@@ -202,10 +206,10 @@ export default function ExpensesListPage() {
         <div className={styles.emptyState}>
           <FileX2 size={48} className={styles.emptyIcon} aria-hidden="true" />
           <p className={styles.emptyText}>
-            {hasActiveFilters ? 'No expenses match your filters' : 'No expenses yet'}
+            {t('expenses.noExpenses')}
           </p>
           <Link to="/expenses/new" className="btn-primary" style={{ textDecoration: 'none', display: 'inline-block' }}>
-            + New expense
+            + {t('common.new')}
           </Link>
         </div>
       ) : (
@@ -216,10 +220,10 @@ export default function ExpensesListPage() {
               <table className={styles.expenseTable}>
                 <thead>
                   <tr>
-                    <th scope="col" className={styles.thDate}>Date</th>
-                    <th scope="col" className={styles.thCategory}>Category</th>
-                    <th scope="col" className={`num ${styles.thAmount}`}>Amount</th>
-                    <th scope="col" className={styles.thActions}><span className="sr-only">Actions</span></th>
+                    <th scope="col" className={styles.thDate}>{t('expenses.date')}</th>
+                    <th scope="col" className={styles.thCategory}>{t('expenses.category')}</th>
+                    <th scope="col" className={`num ${styles.thAmount}`}>{t('expenses.amount')}</th>
+                    <th scope="col" className={styles.thActions}><span className="sr-only">{t('expenses.actions')}</span></th>
                   </tr>
                 </thead>
                 <tbody>

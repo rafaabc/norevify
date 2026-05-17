@@ -620,3 +620,75 @@ describe('authService.resetPassword()', () => {
     );
   });
 });
+
+// ---------------------------------------------------------------------------
+// updateLanguage
+// ---------------------------------------------------------------------------
+describe('authService.updateLanguage()', () => {
+  it('should throw 400 when language is missing', async () => {
+    const user = await authService.register({ username: 'lng1', password: 'password1', email: 'lng1@x.com' });
+    await assert.rejects(
+      () => authService.updateLanguage({ id: user.id, language: undefined }),
+      (err) => { assert.strictEqual(err.status, 400); return true; }
+    );
+  });
+
+  it('should throw 400 when language is not supported', async () => {
+    const user = await authService.register({ username: 'lng2', password: 'password1', email: 'lng2@x.com' });
+    await assert.rejects(
+      () => authService.updateLanguage({ id: user.id, language: 'fr' }),
+      (err) => { assert.strictEqual(err.status, 400); assert.match(err.message, /must be one of/i); return true; }
+    );
+  });
+
+  it('should throw 404 when user does not exist', async () => {
+    await assert.rejects(
+      () => authService.updateLanguage({ id: '000000000000000000000001', language: 'en' }),
+      (err) => { assert.strictEqual(err.status, 404); return true; }
+    );
+  });
+
+  it('should return a new JWT containing the updated language', async () => {
+    const user = await authService.register({ username: 'lng3', password: 'password1', email: 'lng3@x.com' });
+    const { token } = await authService.updateLanguage({ id: user.id, language: 'en' });
+    const payload = jwt.verify(token, process.env.JWT_SECRET);
+    assert.strictEqual(payload.language, 'en');
+    assert.ok(payload.currency, 'token should also carry currency');
+  });
+});
+
+// ---------------------------------------------------------------------------
+// updateCurrency
+// ---------------------------------------------------------------------------
+describe('authService.updateCurrency()', () => {
+  it('should throw 400 when currency is missing', async () => {
+    const user = await authService.register({ username: 'cur1', password: 'password1', email: 'cur1@x.com' });
+    await assert.rejects(
+      () => authService.updateCurrency({ id: user.id, currency: undefined }),
+      (err) => { assert.strictEqual(err.status, 400); return true; }
+    );
+  });
+
+  it('should throw 400 when currency is not supported', async () => {
+    const user = await authService.register({ username: 'cur2', password: 'password1', email: 'cur2@x.com' });
+    await assert.rejects(
+      () => authService.updateCurrency({ id: user.id, currency: 'XYZ' }),
+      (err) => { assert.strictEqual(err.status, 400); assert.match(err.message, /must be one of/i); return true; }
+    );
+  });
+
+  it('should throw 404 when user does not exist', async () => {
+    await assert.rejects(
+      () => authService.updateCurrency({ id: '000000000000000000000001', currency: 'USD' }),
+      (err) => { assert.strictEqual(err.status, 404); return true; }
+    );
+  });
+
+  it('should return a JWT containing both currency and language', async () => {
+    const user = await authService.register({ username: 'curr_lang', password: 'password1', email: 'currlang@x.com' });
+    const { token } = await authService.updateCurrency({ id: user.id, currency: 'USD' });
+    const payload = jwt.verify(token, process.env.JWT_SECRET);
+    assert.strictEqual(payload.currency, 'USD');
+    assert.ok(payload.language, 'token should also carry language');
+  });
+});

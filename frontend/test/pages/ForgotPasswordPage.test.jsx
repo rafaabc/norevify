@@ -23,7 +23,7 @@ describe('ForgotPasswordPage', () => {
   test('should render email input and submit button', () => {
     const { container } = renderPage();
     expect(container.querySelector('input[name="email"]')).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: /send reset link/i })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'auth.forgotPassword.submit' })).toBeInTheDocument();
   });
 
   test('should show success message after submit regardless of email existence', async () => {
@@ -33,7 +33,7 @@ describe('ForgotPasswordPage', () => {
     fireEvent.change(container.querySelector('input[name="email"]'), { target: { value: 'user@example.com' } });
     fireEvent.submit(container.querySelector('form'));
 
-    await screen.findByText(/registered.*link/i);
+    await screen.findByText('auth.forgotPassword.success');
     expect(authApi.forgotPassword).toHaveBeenCalledWith({ email: 'user@example.com' });
   });
 
@@ -47,7 +47,7 @@ describe('ForgotPasswordPage', () => {
     await waitFor(() => {
       expect(container.querySelector('form')).not.toBeInTheDocument();
     });
-    expect(screen.getByRole('link', { name: /back to sign in/i })).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: 'auth.forgotPassword.backToLogin' })).toBeInTheDocument();
   });
 
   test('should show error banner when API call fails', async () => {
@@ -68,7 +68,7 @@ describe('ForgotPasswordPage', () => {
     fireEvent.change(container.querySelector('input[name="email"]'), { target: { value: 'user@example.com' } });
     fireEvent.submit(container.querySelector('form'));
 
-    expect(screen.getByRole('button', { name: /sending/i })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'auth.forgotPassword.submitting' })).toBeInTheDocument();
     resolve({});
   });
 });

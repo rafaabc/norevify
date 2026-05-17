@@ -52,7 +52,9 @@ routes → controllers → services → models (Mongoose)
 
 Error convention: `makeError(status, message)` in each service creates an `Error` with a `.status` field. Controllers read `err.status || 500`.
 
-IDs are MongoDB `ObjectId` values, exposed as 24-character hex strings. JWT payload carries `{ id: string, username: string }`.
+IDs are MongoDB `ObjectId` values, exposed as 24-character hex strings. JWT payload carries `{ id, username, currency, language }`.
+
+Supported languages are defined in `src/constants/languages.js` (`SUPPORTED_LANGUAGES`, `DEFAULT_LANGUAGE = 'pt-BR'`). The same file is the single source of truth for the `PATCH /api/auth/language` validation and the user model enum.
 
 ## Unit Tests
 
@@ -166,13 +168,15 @@ IDs are MongoDB `ObjectId` values, exposed as 24-character hex strings. JWT payl
 - `npm run test:e2e` — run all E2E tests (Chromium)
 
 ### Atlas cleanup — globalTeardown
-Every user created via `createAndLoginUser()` during a run is tracked in `e2e/.test-user-ids.json` (gitignored). After all tests finish, `e2e/global-teardown.ts` opens a direct Mongoose connection to Atlas, deletes those users and their expenses, then removes the file. IDs accumulate across crashed runs — the next successful teardown cleans everything.
+After all tests finish, `e2e/global-teardown.ts` opens a direct Mongoose connection to Atlas and deletes all users whose email matches `/@test\.com$/` (the pattern used by `createAndLoginUser`), plus their expenses. This pattern-based approach is crash-safe — it cleans up residual data from any previous run, including runs that were interrupted before teardown.
 
 ### Conventions
 - Pattern: Page Object Model — each page is a class in `e2e/pages/`
 - Test naming: `[TC-XX-YY] should <behavior> when <condition>`
-- `createAndLoginUser(request, prefix)` — registers + logs in a fresh user, tracks the ID for teardown, returns `{ username, token }`
+- `createAndLoginUser(request, prefix)` — registers + logs in a fresh user (email `${username}@test.com`, cleaned up by teardown pattern), returns `{ username, token }`
 - `createExpenseViaApi(request, token, data)` — creates an expense via API, returns the response body
+- **Language in tests**: all new users default to `pt-BR` (via JWT). Tests that log in through the UI get PT-BR applied by `AuthContext.login()`. Tests that inject a token via `addInitScript` get whatever the browser navigator reports. **Always set `i18nextLng` explicitly in `beforeEach` / `addInitScript`** for any test that makes text-based assertions — use `localStorage.setItem('i18nextLng', 'en')` or `'pt-BR'` depending on what the test validates. Tests that don't test i18n behaviour should use `'en'` for consistency.
+- **POMs must use language-agnostic selectors**: prefer `button[type="submit"]`, `button.btn-secondary`, CSS classes, `[name="..."]` attributes, and ARIA roles without text names. Never hard-code translated strings in POMs — put them in the spec when they are part of what the test is verifying.
 
 ## API
 
@@ -181,7 +185,7 @@ Swagger UI at `GET /api-docs` (served from `resources/swagger.json`). Also logge
 | Prefix | Auth required | Description |
 |---|---|---|
 | `/api/auth` | No | `POST /register`, `POST /login`, `PATCH /password`, `POST /forgot-password`, `POST /reset-password`, `POST /google` |
-| `/api/auth` | Yes (Bearer JWT) | `PATCH /currency`, `POST /google/link`, `DELETE /google/link`, `GET /providers` |
+| `/api/auth` | Yes (Bearer JWT) | `PATCH /currency`, `PATCH /language`, `POST /google/link`, `DELETE /google/link`, `GET /providers` |
 | `/api/expenses` | Yes (Bearer JWT) | CRUD + `GET /summary` |
 
 Auth: `Authorization: Bearer <token>` header. JWT decoded into `req.user` (`{ id, username }`). `id` is an ObjectId hex string.
@@ -271,6 +275,17 @@ To add a new endpoint: export a new function from `apiService.js` that calls the
 - **Update flow**: SW dispatches `pwa:update-available` custom event → `App.jsx` shows `<UpdatePrompt>` toast → user clicks "Recarregar" → `updateSW(true)` skips waiting and reloads.
 - **Icons**: static PNGs in `frontend/public/icons/` (192, 512, 512-maskable, 180 apple-touch). Were generated via Playwright/Chromium from `favicon.svg`; regenerate with `node generate-icons.mjs` if the icon changes (script not committed — recreate from plan if needed).
 - **iOS**: `index.html` carries `apple-mobile-web-app-*` meta tags and `apple-touch-icon` link. No install banner on iOS — user must use Share → Add to Home Screen manually.
+
+### Internationalisation (i18n)
+
+- **Stack**: `i18next` + `react-i18next` + `i18next-browser-languagedetector`
+- **Supported languages**: `pt-BR` (default) and `en` — defined in `src/constants/languages.js` on the backend and mirrored in `frontend/src/i18n/index.js`
+- **Translation files**: `frontend/src/i18n/locales/{en,pt-BR}/common.json` — bundled at build time (no HTTP fetch)
+- **Language detection order**: `localStorage` (`i18nextLng`) → `navigator.language`; chosen language is cached back to `localStorage`
+- **Server-side preference**: the JWT payload carries `language`; `AuthContext.login()` applies it to i18next **only when no `i18nextLng` key exists in `localStorage`**, so an explicit client-side preference always wins
+- **Language change via UI**: `PATCH /api/auth/language` → returns a new JWT with the updated preference; `AuthContext.updateLanguage()` also calls `i18n.changeLanguage()` immediately
+- **Error message mapping**: `frontend/src/i18n/apiErrors.js` maps backend error strings to i18n keys; unmapped errors fall back to `errors.generic`. Add new mappings here whenever a new backend error message needs a translated string in the UI
+- **Namespace**: single namespace `common`; use `t('section.key')` — e.g. `t('nav.dashboard')`, `t('errors.expenseNotFound')`
 
 ### Naming conventions
 

@@ -1,22 +1,23 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Gauge } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import { authApi } from '../services/apiService.js';
+import { bindField } from '../utils/form.js';
 import ErrorBanner from '../components/ErrorBanner.jsx';
 import GoogleSignInButton from '../components/GoogleSignInButton.jsx';
+import AuthBrandPanel from '../components/AuthBrandPanel.jsx';
 import { SUPPORTED_CURRENCIES } from '../constants/currencies.js';
 import { detectCurrency } from '../utils/detectCurrency.js';
-import styles from './RegisterPage.module.css';
+import styles from './LoginPage.module.css';
 
 export default function RegisterPage() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const [form, setForm] = useState({ username: '', email: '', password: '', currency: detectCurrency() });
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
-  function handleChange(e) {
-    setForm((f) => ({ ...f, [e.target.name]: e.target.value }));
-  }
+  const handleChange = bindField(setForm);
 
   async function handleSubmit(e) {
     e.preventDefault();
@@ -34,44 +35,37 @@ export default function RegisterPage() {
 
   return (
     <div className={styles.screen}>
-      {/* Brand panel */}
-      <aside className={styles.brand}>
-        <div className={styles.brandContent}>
-          <Gauge size={64} strokeWidth={1.5} className={styles.brandIcon} />
-          <span className={styles.wordmark}>DRIVELEDGER</span>
-          <p className={styles.tagline}>Track every kilometer.</p>
-        </div>
-      </aside>
+      <AuthBrandPanel />
 
       {/* Form panel */}
       <main className={styles.formPanel}>
         <div className={styles.formCard}>
-          <h1 className={styles.formHeading}>Create account</h1>
+          <h1 className={styles.formHeading}>{t('auth.register.heading')}</h1>
 
           {error && <ErrorBanner message={error} />}
 
           <GoogleSignInButton mode="register" onError={setError} />
 
-          <div className={styles.divider}><span>or</span></div>
+          <div className={styles.divider}><span>{t('common.or')}</span></div>
 
           <form onSubmit={handleSubmit}>
             <div className="form-group">
-              <label htmlFor="reg-username">Username</label>
+              <label htmlFor="reg-username">{t('auth.register.username')}</label>
               <input id="reg-username" name="username" value={form.username} onChange={handleChange} required autoFocus
                 minLength={3} maxLength={50} pattern="[a-zA-Z0-9_]+"
                 title="3–50 characters: letters, numbers, underscore" />
             </div>
             <div className="form-group">
-              <label htmlFor="reg-email">Email</label>
+              <label htmlFor="reg-email">{t('auth.register.email')}</label>
               <input id="reg-email" type="email" name="email" value={form.email} onChange={handleChange} required />
             </div>
             <div className="form-group">
-              <label htmlFor="reg-password">Password</label>
+              <label htmlFor="reg-password">{t('auth.register.password')}</label>
               <input id="reg-password" type="password" name="password" value={form.password} onChange={handleChange} required
                 minLength={8} maxLength={20} />
             </div>
             <div className="form-group">
-              <label htmlFor="reg-currency">Preferred currency</label>
+              <label htmlFor="reg-currency">{t('auth.register.currency')}</label>
               <select id="reg-currency" name="currency" value={form.currency} onChange={handleChange}>
                 {SUPPORTED_CURRENCIES.map(({ code, label }) => (
                   <option key={code} value={code}>{label}</option>
@@ -79,12 +73,12 @@ export default function RegisterPage() {
               </select>
             </div>
             <button type="submit" className="btn-primary" style={{ width: '100%' }} disabled={loading}>
-              {loading ? 'Creating account…' : 'Create account'}
+              {loading ? t('auth.register.submitting') : t('auth.register.submit')}
             </button>
           </form>
 
           <p className={styles.switchLink}>
-            Already have an account? <Link to="/login">Sign in</Link>
+            {t('auth.register.hasAccount')} <Link to="/login">{t('auth.register.signIn')}</Link>
           </p>
         </div>
       </main>

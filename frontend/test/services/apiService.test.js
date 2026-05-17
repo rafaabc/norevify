@@ -84,27 +84,37 @@ describe('apiService', () => {
   });
 
   describe('request() — error responses', () => {
-    test('should throw with message from error JSON body', async () => {
-      // Arrange
-      fetch.mockResolvedValueOnce(mockError(400, { message: 'Bad request error' }));
-      // Act + Assert
-      await expect(authApi.register({ username: 'u', password: 'p' })).rejects.toMatchObject({
-        message: 'Bad request error',
-        status: 400,
-      });
+    test('should throw with i18n-mapped message for known errors', async () => {
+      // Arrange — 'Invalid credentials' is in API_ERROR_MAP → message comes from locale
+      fetch.mockResolvedValueOnce(mockError(400, { message: 'Invalid credentials' }));
+      // Act + Assert — status is the stable assertion; message is locale-dependent
+      const err = await authApi.register({ username: 'u', password: 'p' }).catch((e) => e);
+      expect(err.status).toBe(400);
+      expect(err.message).toBeTruthy();
+      expect(err.message).not.toBe('Invalid credentials'); // original string is replaced by i18n
     });
 
-    test('should use fallback message when error body is not valid JSON', async () => {
+    test('should use generic i18n fallback for unknown error bodies', async () => {
+      // Arrange — 'Bad request error' is not in API_ERROR_MAP → falls back to errors.generic
+      fetch.mockResolvedValueOnce(mockError(400, { message: 'Bad request error' }));
+      // Act + Assert — status is stable; message is the generic locale string
+      const err = await authApi.register({ username: 'u', password: 'p' }).catch((e) => e);
+      expect(err.status).toBe(400);
+      expect(err.message).toBeTruthy();
+      expect(err.message).not.toBe('Bad request error'); // original string is replaced by i18n
+    });
+
+    test('should use generic i18n fallback when error body is not valid JSON', async () => {
       // Arrange
       fetch.mockResolvedValueOnce({
         ok: false,
         status: 422,
         json: async () => { throw new Error('not json'); },
       });
-      // Act + Assert
-      await expect(authApi.register({ username: 'u', password: 'p' })).rejects.toMatchObject({
-        message: 'Request failed: 422',
-      });
+      // Act + Assert — status is stable; message is the generic locale string
+      const err = await authApi.register({ username: 'u', password: 'p' }).catch((e) => e);
+      expect(err.status).toBe(422);
+      expect(err.message).toBeTruthy();
     });
   });
 

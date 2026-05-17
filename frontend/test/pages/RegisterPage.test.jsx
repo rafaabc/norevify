@@ -27,7 +27,7 @@ describe('RegisterPage', () => {
     expect(container.querySelector('input[name="username"]')).toBeInTheDocument();
     expect(container.querySelector('input[name="email"]')).toBeInTheDocument();
     expect(container.querySelector('input[name="password"]')).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: /create account/i })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'auth.register.submit' })).toBeInTheDocument();
   });
 
   test('should call authApi.register with username, email and password and navigate to /login on success', async () => {
@@ -67,7 +67,7 @@ describe('RegisterPage', () => {
     fireEvent.change(container.querySelector('input[name="password"]'), { target: { value: 'pass1234' } });
     fireEvent.submit(container.querySelector('form'));
 
-    expect(screen.getByRole('button', { name: /creating account/i })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'auth.register.submitting' })).toBeInTheDocument();
     resolveRegister({});
   });
 

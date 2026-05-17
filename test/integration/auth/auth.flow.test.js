@@ -57,6 +57,18 @@ describe('Auth flow integration', () => {
     assert.ok(decoded.exp);
   });
 
+  it('should persist language preference and return it in the next JWT', async () => {
+    const { id } = await authService.register({ username: 'langflow', password: 'password1', email: 'langflow@x.com' });
+
+    const { token } = await authService.updateLanguage({ id, language: 'en' });
+    const payload = jwt.verify(token, process.env.JWT_SECRET);
+    assert.strictEqual(payload.language, 'en');
+
+    const { token: token2 } = await authService.login({ username: 'langflow', password: 'password1' });
+    const payload2 = jwt.verify(token2, process.env.JWT_SECRET);
+    assert.strictEqual(payload2.language, 'en');
+  });
+
   // TC-02-08
   it('should not lock account after multiple failed login attempts', async () => {
     await authService.register({ username: 'testuser', password: 'password1', email: 'testuser@example.com' });

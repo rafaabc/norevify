@@ -1,11 +1,14 @@
 import { useState, useEffect } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
-import { Gauge } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import { authApi } from '../services/apiService.js';
+import { bindField } from '../utils/form.js';
 import ErrorBanner from '../components/ErrorBanner.jsx';
+import AuthBrandPanel from '../components/AuthBrandPanel.jsx';
 import styles from './LoginPage.module.css';
 
 export default function ResetPasswordPage() {
+  const { t } = useTranslation();
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const token = searchParams.get('token');
@@ -18,14 +21,12 @@ export default function ResetPasswordPage() {
     if (!token) navigate('/forgot-password', { replace: true });
   }, [token, navigate]);
 
-  function handleChange(e) {
-    setForm((f) => ({ ...f, [e.target.name]: e.target.value }));
-  }
+  const handleChange = bindField(setForm);
 
   async function handleSubmit(e) {
     e.preventDefault();
     if (form.newPassword !== form.confirmPassword) {
-      setError('Passwords do not match.');
+      setError(t('errors.passwordMismatch'));
       return;
     }
     setError('');
@@ -42,23 +43,17 @@ export default function ResetPasswordPage() {
 
   return (
     <div className={styles.screen}>
-      <aside className={styles.brand}>
-        <div className={styles.brandContent}>
-          <Gauge size={64} strokeWidth={1.5} className={styles.brandIcon} />
-          <span className={styles.wordmark}>DRIVELEDGER</span>
-          <p className={styles.tagline}>Track every kilometer.</p>
-        </div>
-      </aside>
+      <AuthBrandPanel />
 
       <main className={styles.formPanel}>
         <div className={styles.formCard}>
-          <h1 className={styles.formHeading}>Set new password</h1>
+          <h1 className={styles.formHeading}>{t('auth.resetPassword.heading')}</h1>
 
           {error && <ErrorBanner message={error} />}
 
           <form onSubmit={handleSubmit}>
             <div className="form-group">
-              <label htmlFor="reset-password">New password</label>
+              <label htmlFor="reset-password">{t('auth.resetPassword.newPassword')}</label>
               <input
                 id="reset-password"
                 type="password"
@@ -72,7 +67,7 @@ export default function ResetPasswordPage() {
               />
             </div>
             <div className="form-group">
-              <label htmlFor="reset-confirm">Confirm new password</label>
+              <label htmlFor="reset-confirm">{t('auth.resetPassword.confirm')}</label>
               <input
                 id="reset-confirm"
                 type="password"
@@ -85,12 +80,12 @@ export default function ResetPasswordPage() {
               />
             </div>
             <button type="submit" className="btn-primary" style={{ width: '100%' }} disabled={loading}>
-              {loading ? 'Updating…' : 'Set new password'}
+              {loading ? t('auth.resetPassword.submitting') : t('auth.resetPassword.submit')}
             </button>
           </form>
 
           <p className={styles.switchLink}>
-            <Link to="/forgot-password">Request a new link</Link>
+            <Link to="/forgot-password">{t('auth.resetPassword.requestNew')}</Link>
           </p>
         </div>
       </main>

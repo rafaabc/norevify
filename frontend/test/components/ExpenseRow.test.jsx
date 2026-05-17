@@ -57,7 +57,7 @@ describe('ExpenseRow', () => {
     // Arrange + Act
     renderRow(fuelExpense);
     // Assert — amount is formatted via Intl.NumberFormat; match the numeric value
-    expect(screen.getByText('Fuel')).toBeInTheDocument();
+    expect(screen.getByText('categories.Fuel')).toBeInTheDocument();
     expect(screen.getByText(/220/)).toBeInTheDocument();
   });
 

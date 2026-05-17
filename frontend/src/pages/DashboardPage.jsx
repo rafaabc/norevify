@@ -1,5 +1,6 @@
 import { useState, useEffect, useMemo } from 'react';
 import { Link, useLocation } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { expensesApi } from '../services/apiService.js';
 import { useAuth } from '../context/AuthContext.jsx';
 import KpiCard from '../components/KpiCard.jsx';
@@ -18,9 +19,11 @@ import {
 } from '../utils/aggregations.js';
 import { formatDate } from '../utils/formatDate.js';
 import { formatCurrency } from '../utils/formatCurrency.js';
+import { categoryLabel } from '../utils/categories.js';
 import styles from './DashboardPage.module.css';
 
 export default function DashboardPage() {
+  const { t } = useTranslation();
   const { currency } = useAuth();
   const location = useLocation();
   const [showWelcome, setShowWelcome] = useState(!!location.state?.justLoggedIn);
@@ -102,33 +105,33 @@ export default function DashboardPage() {
 
   return (
     <div className={styles.page}>
-      <h1 className={styles.pageTitle}>Dashboard</h1>
+      <h1 className={styles.pageTitle}>{t('dashboard.heading')}</h1>
 
       {showWelcome && <ErrorBanner message="Logged in successfully. Welcome back!" type="success" />}
 
       {/* KPI row */}
       <div className={styles.kpiRow}>
         <KpiCard
-          label="This Month"
+          label={t('dashboard.thisMonth')}
           value={formatCurrency(mtd, currency)}
           delta={mtdDelta}
           sparkData={last6Months}
           invertColors
         />
         <KpiCard
-          label="This Year"
+          label={t('dashboard.totalSpent')}
           value={formatCurrency(ytd, currency)}
           delta={null}
           sparkData={monthlyData}
         />
         <KpiCard
-          label="Monthly Avg"
+          label={t('dashboard.lastMonth')}
           value={formatCurrency(avgMonthly, currency)}
           delta={null}
           sparkData={monthlyData}
         />
         <KpiCard
-          label="Fuel Share"
+          label={t('dashboard.byCategory')}
           value={`${fuelShare}%`}
           delta={null}
           sparkData={null}
@@ -138,11 +141,11 @@ export default function DashboardPage() {
       {/* Charts row */}
       <div className={styles.chartsRow}>
         <div className={styles.chartCard}>
-          <h2 className={styles.sectionTitle}>Monthly Spend {currentYear}</h2>
+          <h2 className={styles.sectionTitle}>{t('dashboard.monthlySpend', { year: currentYear })}</h2>
           <MonthlyTrendChart data={monthlyData} />
         </div>
         <div className={styles.chartCard}>
-          <h2 className={styles.sectionTitle}>By Category</h2>
+          <h2 className={styles.sectionTitle}>{t('dashboard.byCategory')}</h2>
           <CategoryDonut data={categoryData} currency={currency} />
         </div>
       </div>
@@ -150,22 +153,22 @@ export default function DashboardPage() {
       {/* Recent expenses */}
       <div className={styles.recentCard}>
         <div className={styles.recentHeader}>
-          <h2 className={styles.sectionTitle}>Recent Expenses</h2>
+          <h2 className={styles.sectionTitle}>{t('dashboard.recentExpenses')}</h2>
           <Link to="/expenses" className={styles.viewAll}>View all →</Link>
         </div>
 
         {recentExpenses.length === 0 ? (
           <p className="text-muted text-center" style={{ padding: '2rem 0' }}>
-            No expenses yet for {currentYear}.
+            {t('dashboard.noExpenses')}
           </p>
         ) : (
           <div style={{ overflowX: 'auto' }}>
             <table className={styles.recentTable}>
               <thead>
                 <tr>
-                  <th scope="col" className={styles.thDate}>Date</th>
-                  <th scope="col" className={styles.thCategory}>Category</th>
-                  <th scope="col" className={`num ${styles.thAmount}`}>Amount</th>
+                  <th scope="col" className={styles.thDate}>{t('dashboard.date')}</th>
+                  <th scope="col" className={styles.thCategory}>{t('dashboard.category')}</th>
+                  <th scope="col" className={`num ${styles.thAmount}`}>{t('dashboard.amount')}</th>
                 </tr>
               </thead>
               <tbody>
@@ -173,7 +176,7 @@ export default function DashboardPage() {
                   <tr key={exp.id}>
                     <td className={styles.dateCell}>{formatDate(exp.date)}</td>
                     <td>
-                      <span className="badge" data-cat={exp.category}>{exp.category}</span>
+                      <span className="badge" data-cat={exp.category}>{categoryLabel(exp.category, t)}</span>
                     </td>
                     <td className={`num ${styles.amountCell}`}>{formatCurrency(exp.amount, currency)}</td>
                   </tr>

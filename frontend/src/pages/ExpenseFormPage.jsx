@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { Check, X } from 'lucide-react';
 import { expensesApi } from '../services/apiService.js';
 import CategorySelect from '../components/CategorySelect.jsx';
@@ -14,6 +15,7 @@ import styles from './ExpenseFormPage.module.css';
 const EMPTY = { date: todayISO(), category: '', litres: '', price_per_litre: '', amount: '' };
 
 export default function ExpenseFormPage() {
+  const { t } = useTranslation();
   const { id } = useParams();
   const isEdit = Boolean(id);
   const navigate = useNavigate();
@@ -89,7 +91,7 @@ export default function ExpenseFormPage() {
   return (
     <div className="page">
       <div className={`card ${styles.formCard}`}>
-        <h2 className={`page-title ${styles.heading}`}>{isEdit ? 'Edit expense' : 'New expense'}</h2>
+        <h2 className={`page-title ${styles.heading}`}>{isEdit ? t('expenses.editExpense') : t('expenses.newExpense')}</h2>
 
         {error && <ErrorBanner message={error} />}
 
@@ -119,11 +121,11 @@ export default function ExpenseFormPage() {
           <div className={`actions ${styles.submitRow}`}>
             <button type="submit" className="btn-primary" disabled={saving || !form.category}>
               <Check size={15} aria-hidden="true" />
-              {saving ? 'Saving…' : isEdit ? 'Save changes' : 'Create expense'}
+              {saving ? t('common.saving') : t('common.save')}
             </button>
             <button type="button" className="btn-secondary" onClick={() => navigate(-1)}>
               <X size={15} aria-hidden="true" />
-              Cancel
+              {t('common.cancel')}
             </button>
           </div>
         </form>

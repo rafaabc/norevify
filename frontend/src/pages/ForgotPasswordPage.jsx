@@ -1,11 +1,13 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Gauge } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import { authApi } from '../services/apiService.js';
 import ErrorBanner from '../components/ErrorBanner.jsx';
+import AuthBrandPanel from '../components/AuthBrandPanel.jsx';
 import styles from './LoginPage.module.css';
 
 export default function ForgotPasswordPage() {
+  const { t } = useTranslation();
   const [email, setEmail] = useState('');
   const [submitted, setSubmitted] = useState(false);
   const [error, setError] = useState('');
@@ -27,35 +29,29 @@ export default function ForgotPasswordPage() {
 
   return (
     <div className={styles.screen}>
-      <aside className={styles.brand}>
-        <div className={styles.brandContent}>
-          <Gauge size={64} strokeWidth={1.5} className={styles.brandIcon} />
-          <span className={styles.wordmark}>DRIVELEDGER</span>
-          <p className={styles.tagline}>Track every kilometer.</p>
-        </div>
-      </aside>
+      <AuthBrandPanel />
 
       <main className={styles.formPanel}>
         <div className={styles.formCard}>
-          <h1 className={styles.formHeading}>Recover password</h1>
+          <h1 className={styles.formHeading}>{t('auth.forgotPassword.heading')}</h1>
 
           {error && <ErrorBanner message={error} />}
 
           {submitted ? (
             <>
               <ErrorBanner
-                message="If the email is registered, you will receive a reset link shortly."
+                message={t('auth.forgotPassword.success')}
                 type="success"
               />
               <p className={styles.switchLink}>
-                <Link to="/login">Back to Sign in</Link>
+                <Link to="/login">{t('auth.forgotPassword.backToLogin')}</Link>
               </p>
             </>
           ) : (
             <>
               <form onSubmit={handleSubmit}>
                 <div className="form-group">
-                  <label htmlFor="forgot-email">Email</label>
+                  <label htmlFor="forgot-email">{t('auth.forgotPassword.email')}</label>
                   <input
                     id="forgot-email"
                     type="email"
@@ -67,11 +63,11 @@ export default function ForgotPasswordPage() {
                   />
                 </div>
                 <button type="submit" className="btn-primary" style={{ width: '100%' }} disabled={loading}>
-                  {loading ? 'Sending…' : 'Send reset link'}
+                  {loading ? t('auth.forgotPassword.submitting') : t('auth.forgotPassword.submit')}
                 </button>
               </form>
               <p className={styles.switchLink}>
-                <Link to="/login">Back to Sign in</Link>
+                <Link to="/login">{t('auth.forgotPassword.backToLogin')}</Link>
               </p>
             </>
           )}

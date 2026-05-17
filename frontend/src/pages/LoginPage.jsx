@@ -1,13 +1,16 @@
 import { useState, useEffect } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
-import { Gauge } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import { authApi } from '../services/apiService.js';
 import { useAuth } from '../context/AuthContext.jsx';
+import { bindField } from '../utils/form.js';
 import ErrorBanner from '../components/ErrorBanner.jsx';
 import GoogleSignInButton from '../components/GoogleSignInButton.jsx';
+import AuthBrandPanel from '../components/AuthBrandPanel.jsx';
 import styles from './LoginPage.module.css';
 
 export default function LoginPage() {
+  const { t } = useTranslation();
   const { login, expiredBanner, clearExpiredBanner } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
@@ -43,9 +46,7 @@ export default function LoginPage() {
     return () => clearTimeout(t);
   }, [expiredBanner, clearExpiredBanner]);
 
-  function handleChange(e) {
-    setForm((f) => ({ ...f, [e.target.name]: e.target.value }));
-  }
+  const handleChange = bindField(setForm);
 
   async function handleSubmit(e) {
     e.preventDefault();
@@ -65,49 +66,42 @@ export default function LoginPage() {
 
   return (
     <div className={styles.screen}>
-      {/* Brand panel */}
-      <aside className={styles.brand}>
-        <div className={styles.brandContent}>
-          <Gauge size={64} strokeWidth={1.5} className={styles.brandIcon} />
-          <span className={styles.wordmark}>DRIVELEDGER</span>
-          <p className={styles.tagline}>Track every kilometer.</p>
-        </div>
-      </aside>
+      <AuthBrandPanel />
 
       {/* Form panel */}
       <main className={styles.formPanel}>
         <div className={styles.formCard}>
-          <h1 className={styles.formHeading}>Sign in</h1>
+          <h1 className={styles.formHeading}>{t('auth.login.heading')}</h1>
 
-          {expiredBanner && <ErrorBanner message="Your session expired. Please log in again." type="info" />}
-          {showLoggedOut && <ErrorBanner message="Logged out successfully." type="success" />}
-          {showRegistered && <ErrorBanner message="Account created — please log in." type="success" />}
-          {showPasswordChanged && <ErrorBanner message="Password updated. Please log in." type="success" />}
+          {expiredBanner && <ErrorBanner message={t('auth.login.sessionExpired')} type="info" />}
+          {showLoggedOut && <ErrorBanner message={t('auth.login.loggedOut')} type="success" />}
+          {showRegistered && <ErrorBanner message={t('auth.login.accountCreated')} type="success" />}
+          {showPasswordChanged && <ErrorBanner message={t('auth.login.passwordChanged')} type="success" />}
           {error && <ErrorBanner message={error} />}
 
           <GoogleSignInButton mode="login" onError={setError} />
 
-          <div className={styles.divider}><span>or</span></div>
+          <div className={styles.divider}><span>{t('common.or')}</span></div>
 
           <form onSubmit={handleSubmit}>
             <div className="form-group">
-              <label htmlFor="login-username">Username</label>
+              <label htmlFor="login-username">{t('auth.register.username')}</label>
               <input id="login-username" name="username" value={form.username} onChange={handleChange} required autoFocus />
             </div>
             <div className="form-group">
-              <label htmlFor="login-password">Password</label>
+              <label htmlFor="login-password">{t('auth.register.password')}</label>
               <input id="login-password" type="password" name="password" value={form.password} onChange={handleChange} required />
             </div>
             <button type="submit" className="btn-primary" style={{ width: '100%' }} disabled={loading}>
-              {loading ? 'Signing in…' : 'Sign in'}
+              {loading ? t('auth.login.submitting') : t('auth.login.submit')}
             </button>
           </form>
 
           <p className={styles.switchLink}>
-            Don&apos;t have an account? <Link to="/register">Register</Link>
+            {t('auth.login.noAccount')} <Link to="/register">{t('auth.login.register')}</Link>
           </p>
           <p className={styles.switchLink}>
-            <Link to="/forgot-password">Forgot your password?</Link>
+            <Link to="/forgot-password">{t('auth.login.forgotPassword')}</Link>
           </p>
         </div>
       </main>

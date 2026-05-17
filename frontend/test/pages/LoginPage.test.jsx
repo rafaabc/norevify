@@ -64,14 +64,14 @@ describe('LoginPage', () => {
     // Arrange + Act
     renderLoginPage({ expiredBanner: true });
     // Assert
-    expect(screen.getByText('Your session expired. Please log in again.')).toBeInTheDocument();
+    expect(screen.getByText('auth.login.sessionExpired')).toBeInTheDocument();
   });
 
   test('should show registration success banner when justRegistered state is set', () => {
     // Arrange + Act
     renderLoginPage({ locationState: { justRegistered: true } });
     // Assert
-    expect(screen.getByText('Account created — please log in.')).toBeInTheDocument();
+    expect(screen.getByText('auth.login.accountCreated')).toBeInTheDocument();
   });
 
   test('should show loading text on the submit button while request is in flight', async () => {
@@ -84,7 +84,7 @@ describe('LoginPage', () => {
     fireEvent.change(container.querySelector('input[name="password"]'), { target: { value: 'secret123' } });
     fireEvent.submit(container.querySelector('form'));
     // Assert
-    expect(screen.getByRole('button', { name: /signing in/i })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'auth.login.submitting' })).toBeInTheDocument();
     resolveLogin({ token: 'x.y.z' });
   });
 });
