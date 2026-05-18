@@ -37,6 +37,7 @@ export default function BottomTabs() {
           onClick={() => setSheetOpen(true)}
           type="button"
           aria-label={t('common.new')}
+          data-testid="bottom-tabs-add"
         >
           <Plus size={24} className={styles.icon} />
           <span className={styles.label}>{t('common.new')}</span>
