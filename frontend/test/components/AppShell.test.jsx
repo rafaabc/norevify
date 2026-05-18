@@ -2,9 +2,15 @@ import { render, screen } from '@testing-library/react';
 import { MemoryRouter, Routes, Route } from 'react-router-dom';
 import AppShell from '../../src/components/AppShell.jsx';
 
-jest.mock('../../src/components/Sidebar.jsx', () => () => <aside data-testid="sidebar" />);
+jest.mock('../../src/components/Sidebar.jsx', () => ({ badgeCount }) => <aside data-testid="sidebar" data-badge={badgeCount} />);
 jest.mock('../../src/components/MobileTopBar.jsx', () => () => null);
 jest.mock('../../src/components/BottomTabs.jsx', () => () => null);
+jest.mock('../../src/context/AuthContext.jsx', () => ({
+  useAuth: () => ({ isAuthed: false }),
+}));
+jest.mock('../../src/services/apiService.js', () => ({
+  remindersApi: { badgeCount: jest.fn().mockResolvedValue({ dueSoon: 0, overdue: 0 }) },
+}));
 
 describe('AppShell', () => {
   test('should render Sidebar and outlet content', () => {
