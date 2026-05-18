@@ -49,3 +49,91 @@ describe('remindersService.computeStatus()', () => {
     assert.strictEqual(s, 'upcoming');
   });
 });
+
+const USER_ID = () => new mongoose.Types.ObjectId().toString();
+
+describe('remindersService.createReminder()', () => {
+  it('creates with valid dueDate only', async () => {
+    const u = USER_ID();
+    const r = await remindersService.createReminder(u, { type: 'oilChange', dueDate: FUTURE_DATE(30) });
+    assert.strictEqual(r.type, 'oilChange');
+    assert.strictEqual(r.userId.toString(), u);
+  });
+
+  it('creates with valid dueKm only', async () => {
+    const u = USER_ID();
+    const r = await remindersService.createReminder(u, { type: 'oilChange', dueKm: 60000 });
+    assert.strictEqual(r.dueKm, 60000);
+  });
+
+  it('rejects when both dueDate and dueKm missing', async () => {
+    await assert.rejects(
+      () => remindersService.createReminder(USER_ID(), { type: 'oilChange' }),
+      (err) => err.status === 400 && /must provide dueDate or dueKm/i.test(err.message)
+    );
+  });
+
+  it('rejects past dueDate', async () => {
+    await assert.rejects(
+      () => remindersService.createReminder(USER_ID(), { type: 'oilChange', dueDate: PAST_DATE(1) }),
+      (err) => err.status === 400 && /dueDate cannot be in the past/i.test(err.message)
+    );
+  });
+
+  it('rejects invalid type', async () => {
+    await assert.rejects(
+      () => remindersService.createReminder(USER_ID(), { type: 'nope', dueKm: 100 }),
+      (err) => err.status === 400 && /type must be one of/i.test(err.message)
+    );
+  });
+
+  it('rejects intervalMonths without dueDate', async () => {
+    await assert.rejects(
+      () => remindersService.createReminder(USER_ID(), { type: 'oilChange', dueKm: 1000, intervalMonths: 12 }),
+      (err) => err.status === 400 && /intervalMonths requires dueDate/i.test(err.message)
+    );
+  });
+
+  it('rejects intervalKm without dueKm', async () => {
+    await assert.rejects(
+      () => remindersService.createReminder(USER_ID(), { type: 'oilChange', dueDate: FUTURE_DATE(30), intervalKm: 10000 }),
+      (err) => err.status === 400 && /intervalKm requires dueKm/i.test(err.message)
+    );
+  });
+});
+
+describe('remindersService.listReminders()', () => {
+  it('returns only this users reminders with computed status', async () => {
+    const me = USER_ID();
+    const other = USER_ID();
+    await userModel.create({ _id: me, username: 'a', password: 'x', email: 'a@test.com', currentKm: 0 });
+    await remindersService.createReminder(me, { type: 'oilChange', dueKm: 10000 });
+    await remindersService.createReminder(other, { type: 'inspection', dueKm: 5000 });
+
+    const list = await remindersService.listReminders(me, {});
+    assert.strictEqual(list.length, 1);
+    assert.ok(['upcoming', 'dueSoon', 'overdue'].includes(list[0].status));
+  });
+
+  it('filters by status=active hides done', async () => {
+    const me = USER_ID();
+    await userModel.create({ _id: me, username: 'b', password: 'x', email: 'b@test.com', currentKm: 0 });
+    const r = await remindersService.createReminder(me, { type: 'oilChange', dueKm: 10000 });
+    await reminderModel.update(r._id, { completedAt: new Date(), completedKm: 10000 });
+
+    const list = await remindersService.listReminders(me, { status: 'active' });
+    assert.strictEqual(list.length, 0);
+  });
+});
+
+describe('remindersService.getReminder()', () => {
+  it('returns 404 when reminder does not belong to user', async () => {
+    const me = USER_ID();
+    const other = USER_ID();
+    const r = await remindersService.createReminder(other, { type: 'oilChange', dueKm: 10000 });
+    await assert.rejects(
+      () => remindersService.getReminder(me, r._id.toString()),
+      (err) => err.status === 404
+    );
+  });
+});
