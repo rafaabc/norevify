@@ -81,8 +81,10 @@ export const expensesApi = {
 
 export const remindersApi = {
   list: ({ status } = {}, signal = null) => {
-    const qs = status ? `?status=${status}` : '';
-    return request(`/reminders${qs}`, { signal });
+    const params = new URLSearchParams();
+    if (status) params.set('status', status);
+    const qs = params.toString();
+    return request(`/reminders${qs ? `?${qs}` : ''}`, { signal });
   },
   get:        (id)       => request(`/reminders/${id}`),
   create:     (data)     => request('/reminders',                { method: 'POST',   body: data }),
