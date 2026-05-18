@@ -137,8 +137,63 @@ async function deleteReminder(userId, id) {
   await reminderModel.remove(id);
 }
 
+function addMonths(date, months) {
+  const d = new Date(date);
+  d.setMonth(d.getMonth() + months);
+  return d;
+}
+
+async function completeReminder(userId, id, body) {
+  assertValidObjectId(id);
+  if (body.completedKm === undefined || body.completedKm === null)
+    throw makeError(400, 'completedKm is required');
+  if (typeof body.completedKm !== 'number' || body.completedKm < 0)
+    throw makeError(400, 'completedKm must be a non-negative number');
+
+  const existing = await reminderModel.findById(id);
+  if (!existing || existing.userId.toString() !== userId)
+    throw makeError(404, 'Reminder not found');
+  if (existing.completedAt) throw makeError(400, 'reminder already completed');
+
+  const completed = await reminderModel.update(id, {
+    completedAt: new Date(),
+    completedKm: body.completedKm,
+  });
+
+  let next = null;
+  const hasMonthRule = existing.intervalMonths && existing.dueDate;
+  const hasKmRule    = existing.intervalKm && existing.dueKm !== undefined && existing.dueKm !== null;
+  if (hasMonthRule || hasKmRule) {
+    next = await reminderModel.create({
+      userId,
+      type: existing.type,
+      title: existing.title,
+      dueDate: hasMonthRule ? addMonths(new Date(), existing.intervalMonths) : undefined,
+      dueKm:   hasKmRule    ? body.completedKm + existing.intervalKm        : undefined,
+      intervalMonths: existing.intervalMonths,
+      intervalKm: existing.intervalKm,
+    });
+  }
+
+  return { completed, next };
+}
+
+async function getBadgeCount(userId) {
+  const user = await userModel.findById(userId);
+  const currentKm = user?.currentKm || 0;
+  const all = await reminderModel.findByUserId(userId);
+  let dueSoon = 0, overdue = 0;
+  for (const r of all) {
+    const s = computeStatus(r, currentKm);
+    if (s === 'dueSoon') dueSoon++;
+    else if (s === 'overdue') overdue++;
+  }
+  return { dueSoon, overdue };
+}
+
 module.exports = {
   computeStatus, LEAD_DAYS, LEAD_KM,
   createReminder, listReminders, getReminder,
   updateReminder, deleteReminder,
+  completeReminder, getBadgeCount,
 };

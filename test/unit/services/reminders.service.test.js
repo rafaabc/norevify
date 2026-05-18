@@ -185,3 +185,57 @@ describe('remindersService.deleteReminder()', () => {
     );
   });
 });
+
+describe('remindersService.completeReminder()', () => {
+  it('marks current as completed and creates next with both intervals', async () => {
+    const u = USER_ID();
+    const r = await remindersService.createReminder(u, {
+      type: 'oilChange', dueDate: FUTURE_DATE(30), dueKm: 10000,
+      intervalMonths: 12, intervalKm: 10000,
+    });
+    const result = await remindersService.completeReminder(u, r._id.toString(), { completedKm: 10500 });
+    assert.ok(result.completed.completedAt);
+    assert.strictEqual(result.completed.completedKm, 10500);
+    assert.ok(result.next);
+    assert.strictEqual(result.next.dueKm, 20500);
+  });
+
+  it('returns next=null when no intervals', async () => {
+    const u = USER_ID();
+    const r = await remindersService.createReminder(u, { type: 'oilChange', dueKm: 10000 });
+    const result = await remindersService.completeReminder(u, r._id.toString(), { completedKm: 10500 });
+    assert.strictEqual(result.next, null);
+  });
+
+  it('rejects when completedKm missing', async () => {
+    const u = USER_ID();
+    const r = await remindersService.createReminder(u, { type: 'oilChange', dueKm: 10000 });
+    await assert.rejects(
+      () => remindersService.completeReminder(u, r._id.toString(), {}),
+      (err) => err.status === 400 && /completedKm/i.test(err.message)
+    );
+  });
+
+  it('rejects double-complete', async () => {
+    const u = USER_ID();
+    const r = await remindersService.createReminder(u, { type: 'oilChange', dueKm: 10000 });
+    await remindersService.completeReminder(u, r._id.toString(), { completedKm: 10000 });
+    await assert.rejects(
+      () => remindersService.completeReminder(u, r._id.toString(), { completedKm: 10000 }),
+      (err) => err.status === 400 && /already completed/i.test(err.message)
+    );
+  });
+});
+
+describe('remindersService.getBadgeCount()', () => {
+  it('counts dueSoon and overdue separately', async () => {
+    const u = USER_ID();
+    await userModel.create({ _id: u, username: 'c', password: 'x', email: 'c@test.com', currentKm: 9700 });
+    await remindersService.createReminder(u, { type: 'oilChange', dueKm: 10000 }); // dueSoon
+    await remindersService.createReminder(u, { type: 'inspection', dueKm: 9000 }); // overdue (9700>=9000)
+
+    const counts = await remindersService.getBadgeCount(u);
+    assert.strictEqual(counts.dueSoon, 1);
+    assert.strictEqual(counts.overdue, 1);
+  });
+});
