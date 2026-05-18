@@ -136,6 +136,22 @@
         "properties": {
           "message": { "type": "string", "example": "Password updated successfully" }
         }
+      },
+      "Reminder": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string" },
+          "userId": { "type": "string" },
+          "type": { "type": "string", "enum": ["oilChange","tireRotation","inspection","insurance","license","other"] },
+          "title": { "type": "string" },
+          "dueDate": { "type": "string", "format": "date-time" },
+          "dueKm": { "type": "number" },
+          "intervalMonths": { "type": "number" },
+          "intervalKm": { "type": "number" },
+          "completedAt": { "type": "string", "format": "date-time", "nullable": true },
+          "completedKm": { "type": "number", "nullable": true },
+          "status": { "type": "string", "enum": ["upcoming","dueSoon","overdue","done"] }
+        }
       }
     }
   },
@@ -543,6 +559,215 @@
             "description": "Internal server error",
             "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } }
           }
+        }
+      }
+    },
+    "/api/reminders": {
+      "get": {
+        "tags": ["Reminders"],
+        "summary": "List reminders",
+        "description": "Returns active reminders by default. Use ?status=active|upcoming|dueSoon|overdue|done to filter.",
+        "security": [{ "bearerAuth": [] }],
+        "parameters": [
+          {
+            "name": "status",
+            "in": "query",
+            "schema": { "type": "string", "enum": ["active","upcoming","dueSoon","overdue","done"] }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Array of reminders with computed status",
+            "content": { "application/json": { "schema": { "type": "array", "items": { "$ref": "#/components/schemas/Reminder" } } } }
+          },
+          "401": { "description": "Unauthorized" }
+        }
+      },
+      "post": {
+        "tags": ["Reminders"],
+        "summary": "Create reminder",
+        "security": [{ "bearerAuth": [] }],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["type"],
+                "properties": {
+                  "type": { "type": "string", "enum": ["oilChange","tireRotation","inspection","insurance","license","other"] },
+                  "title": { "type": "string" },
+                  "dueDate": { "type": "string", "format": "date-time" },
+                  "dueKm": { "type": "number" },
+                  "intervalMonths": { "type": "number" },
+                  "intervalKm": { "type": "number" }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": { "description": "Created reminder", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Reminder" } } } },
+          "400": { "description": "Validation error" },
+          "401": { "description": "Unauthorized" }
+        }
+      }
+    },
+    "/api/reminders/badge-count": {
+      "get": {
+        "tags": ["Reminders"],
+        "summary": "Get badge counts",
+        "security": [{ "bearerAuth": [] }],
+        "responses": {
+          "200": {
+            "description": "Badge counts",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "dueSoon": { "type": "integer" },
+                    "overdue": { "type": "integer" }
+                  }
+                }
+              }
+            }
+          },
+          "401": { "description": "Unauthorized" }
+        }
+      }
+    },
+    "/api/reminders/{id}": {
+      "get": {
+        "tags": ["Reminders"],
+        "summary": "Get reminder by ID",
+        "security": [{ "bearerAuth": [] }],
+        "parameters": [{ "name": "id", "in": "path", "required": true, "schema": { "type": "string" } }],
+        "responses": {
+          "200": { "description": "Reminder", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Reminder" } } } },
+          "401": { "description": "Unauthorized" },
+          "404": { "description": "Not found" }
+        }
+      },
+      "put": {
+        "tags": ["Reminders"],
+        "summary": "Update reminder",
+        "security": [{ "bearerAuth": [] }],
+        "parameters": [{ "name": "id", "in": "path", "required": true, "schema": { "type": "string" } }],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "type": { "type": "string" },
+                  "title": { "type": "string" },
+                  "dueDate": { "type": "string", "format": "date-time" },
+                  "dueKm": { "type": "number" },
+                  "intervalMonths": { "type": "number" },
+                  "intervalKm": { "type": "number" }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": { "description": "Updated reminder" },
+          "400": { "description": "Validation error or completed reminder" },
+          "401": { "description": "Unauthorized" },
+          "404": { "description": "Not found" }
+        }
+      },
+      "delete": {
+        "tags": ["Reminders"],
+        "summary": "Delete reminder",
+        "security": [{ "bearerAuth": [] }],
+        "parameters": [{ "name": "id", "in": "path", "required": true, "schema": { "type": "string" } }],
+        "responses": {
+          "204": { "description": "Deleted" },
+          "401": { "description": "Unauthorized" },
+          "404": { "description": "Not found" }
+        }
+      }
+    },
+    "/api/reminders/{id}/complete": {
+      "post": {
+        "tags": ["Reminders"],
+        "summary": "Complete a reminder",
+        "security": [{ "bearerAuth": [] }],
+        "parameters": [{ "name": "id", "in": "path", "required": true, "schema": { "type": "string" } }],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["completedKm"],
+                "properties": {
+                  "completedKm": { "type": "number" }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Completion result with optional next reminder",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "completed": { "$ref": "#/components/schemas/Reminder" },
+                    "next": { "$ref": "#/components/schemas/Reminder", "nullable": true }
+                  }
+                }
+              }
+            }
+          },
+          "400": { "description": "Already completed or missing completedKm" },
+          "401": { "description": "Unauthorized" },
+          "404": { "description": "Not found" }
+        }
+      }
+    },
+    "/api/auth/odometer": {
+      "patch": {
+        "tags": ["Auth"],
+        "summary": "Update odometer reading",
+        "description": "Manually set current odometer. Only accepts values >= current reading (monotonic).",
+        "security": [{ "bearerAuth": [] }],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["currentKm"],
+                "properties": {
+                  "currentKm": { "type": "number", "minimum": 0 }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Updated token and currentKm",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "token": { "type": "string" },
+                    "currentKm": { "type": "number" }
+                  }
+                }
+              }
+            }
+          },
+          "400": { "description": "Odometer rewind or invalid value" },
+          "401": { "description": "Unauthorized" }
         }
       }
     }
