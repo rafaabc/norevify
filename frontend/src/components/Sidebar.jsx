@@ -1,16 +1,17 @@
 import { NavLink } from 'react-router-dom';
-import { LayoutDashboard, Receipt, BarChart3, LogOut, Gauge, KeyRound, Settings } from 'lucide-react';
+import { LayoutDashboard, Receipt, BarChart3, LogOut, Gauge, KeyRound, Settings, Bell } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '../context/AuthContext.jsx';
 import styles from './Sidebar.module.css';
 
-export default function Sidebar() {
+export default function Sidebar({ badgeCount = 0 }) {
   const { username, logout } = useAuth();
   const { t } = useTranslation();
 
   const NAV_ITEMS = [
     { to: '/', icon: LayoutDashboard, label: t('nav.dashboard'), end: true },
     { to: '/expenses', icon: Receipt, label: t('nav.expenses') },
+    { to: '/reminders', icon: Bell, label: t('nav.reminders'), badge: badgeCount },
     { to: '/summary', icon: BarChart3, label: t('nav.summary') },
     { to: '/change-password', icon: KeyRound, label: t('nav.changePassword') },
     { to: '/settings', icon: Settings, label: t('nav.settings') },
@@ -26,7 +27,7 @@ export default function Sidebar() {
       </div>
 
       <nav className={styles.nav}>
-        {NAV_ITEMS.map(({ to, icon: Icon, label, end }) => (
+        {NAV_ITEMS.map(({ to, icon: Icon, label, end, badge }) => (
           <NavLink
             key={to}
             to={to}
@@ -37,6 +38,7 @@ export default function Sidebar() {
           >
             <Icon size={16} className={styles.navIcon} />
             {label}
+            {badge > 0 && <span className={styles.navBadge}>{badge}</span>}
           </NavLink>
         ))}
       </nav>

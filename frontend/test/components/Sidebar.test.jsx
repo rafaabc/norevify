@@ -7,6 +7,7 @@ jest.mock('react-i18next', () => ({
       const translations = {
         'nav.dashboard': 'Dashboard',
         'nav.expenses': 'Expenses',
+        'nav.reminders': 'Reminders',
         'nav.summary': 'Summary',
         'nav.changePassword': 'Change password',
         'nav.settings': 'Settings',
