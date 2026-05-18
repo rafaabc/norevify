@@ -2,6 +2,7 @@ const { MongoMemoryServer } = require('mongodb-memory-server');
 const mongoose = require('mongoose');
 const userModel = require('../../src/models/user.model');
 const expenseModel = require('../../src/models/expense.model');
+const reminderModel = require('../../src/models/reminder.model');
 
 let mongod;
 
@@ -18,6 +19,7 @@ async function stopMongo() {
 async function resetMongo() {
   await userModel._reset();
   await expenseModel._reset();
+  await reminderModel._reset();
 }
 
 module.exports = { startMongo, stopMongo, resetMongo };
