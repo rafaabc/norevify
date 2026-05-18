@@ -18,6 +18,9 @@ export default function SettingsPage() {
 
   const currencyAction = useAsyncAction();
   const langAction = useAsyncAction();
+  const odoAction = useAsyncAction();
+
+  const [odoKm, setOdoKm] = useState('');
 
   const [providers, setProviders] = useState(null);
   const [linkError, setLinkError] = useState('');
@@ -36,6 +39,11 @@ export default function SettingsPage() {
   async function handleLangSubmit(e) {
     e.preventDefault();
     await langAction.run(() => updateLanguage(selectedLang));
+  }
+
+  async function handleOdoSubmit(e) {
+    e.preventDefault();
+    await odoAction.run(() => authApi.updateOdometer({ currentKm: Number(odoKm) }));
   }
 
   async function handleUnlink() {
@@ -106,6 +114,29 @@ export default function SettingsPage() {
         </div>
         <button type="submit" className="btn-primary" disabled={langAction.loading || selectedLang === language}>
           {langAction.loading ? t('common.saving') : t('common.save')}
+        </button>
+      </form>
+
+      <hr style={{ margin: '2rem 0', borderColor: 'var(--border)' }} />
+
+      <form onSubmit={handleOdoSubmit} style={{ maxWidth: '400px' }}>
+        <h2 style={{ fontSize: '1rem', fontWeight: 600, marginBottom: '1rem' }}>{t('vehicle.heading')}</h2>
+        {odoAction.success && <ErrorBanner type="success" message={t('vehicle.saveSuccess')} />}
+        {odoAction.error && <ErrorBanner message={odoAction.error} />}
+        <div className="form-group">
+          <label htmlFor="settings-odo">{t('vehicle.currentKm')}</label>
+          <input
+            id="settings-odo"
+            type="number"
+            min="0"
+            step="1"
+            value={odoKm}
+            onChange={(e) => setOdoKm(e.target.value)}
+          />
+          <small>{t('vehicle.currentKmHint')}</small>
+        </div>
+        <button type="submit" className="btn-primary" disabled={odoAction.loading || !odoKm}>
+          {odoAction.loading ? t('common.saving') : t('common.save')}
         </button>
       </form>
 
