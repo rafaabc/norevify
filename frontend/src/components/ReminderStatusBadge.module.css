@@ -1,0 +1,31 @@
+.badge {
+  display: inline-block;
+  padding: 0.2rem 0.55rem;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  border: 1px solid var(--border);
+  color: var(--muted);
+}
+
+.upcoming {
+  color: var(--muted);
+}
+
+.dueSoon {
+  color: #b58a00;
+  border-color: #b58a00;
+  background: rgba(181, 138, 0, 0.12);
+}
+
+.overdue {
+  color: #c0392b;
+  border-color: #c0392b;
+  background: rgba(192, 57, 43, 0.12);
+}
+
+.done {
+  color: var(--primary);
+  border-color: var(--primary);
+  background: var(--primary-dim, rgba(45, 212, 191, 0.12));
+}
