@@ -16,7 +16,7 @@ describe('Reminders API', function () {
     it('[TC-RE-01] should return 401 when token missing', async () => {
       const res = await request(process.env.BASE_URL || 'http://localhost:3000')
         .post('/api/reminders')
-        .send({ type: 'oilChange', dueKm: 10000 });
+        .send({ type: 'Maintenance', dueKm: 10000 });
       expect(res.status).to.equal(401);
     });
 
@@ -24,7 +24,7 @@ describe('Reminders API', function () {
       const res = await request(process.env.BASE_URL || 'http://localhost:3000')
         .post('/api/reminders')
         .set('Authorization', `Bearer ${token}`)
-        .send({ type: 'oilChange' });
+        .send({ type: 'Maintenance' });
       expect(res.status).to.equal(400);
       expect(res.body.message).to.match(/must provide dueDate or dueKm/i);
     });
@@ -33,7 +33,7 @@ describe('Reminders API', function () {
       const res = await request(process.env.BASE_URL || 'http://localhost:3000')
         .post('/api/reminders')
         .set('Authorization', `Bearer ${token}`)
-        .send({ type: 'oilChange', dueDate: future(30), dueKm: 10000, intervalMonths: 12, intervalKm: 10000 });
+        .send({ type: 'Maintenance', dueDate: future(30), dueKm: 10000, intervalMonths: 12, intervalKm: 10000 });
       expect(res.status).to.equal(201);
       expect(res.body).to.have.property('id');
     });
@@ -69,7 +69,7 @@ describe('Reminders API', function () {
       const created = await request(process.env.BASE_URL || 'http://localhost:3000')
         .post('/api/reminders')
         .set('Authorization', `Bearer ${token}`)
-        .send({ type: 'oilChange', dueDate: future(30), dueKm: 50000, intervalMonths: 12, intervalKm: 10000 });
+        .send({ type: 'Maintenance', dueDate: future(30), dueKm: 50000, intervalMonths: 12, intervalKm: 10000 });
       const res = await request(process.env.BASE_URL || 'http://localhost:3000')
         .post(`/api/reminders/${created.body.id}/complete`)
         .set('Authorization', `Bearer ${token}`)
@@ -83,7 +83,7 @@ describe('Reminders API', function () {
       const created = await request(process.env.BASE_URL || 'http://localhost:3000')
         .post('/api/reminders')
         .set('Authorization', `Bearer ${token}`)
-        .send({ type: 'oilChange', dueKm: 50000 });
+        .send({ type: 'Maintenance', dueKm: 50000 });
       await request(process.env.BASE_URL || 'http://localhost:3000')
         .post(`/api/reminders/${created.body.id}/complete`)
         .set('Authorization', `Bearer ${token}`)

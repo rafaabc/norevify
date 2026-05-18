@@ -142,7 +142,7 @@
         "properties": {
           "id": { "type": "string" },
           "userId": { "type": "string" },
-          "type": { "type": "string", "enum": ["oilChange","tireRotation","inspection","insurance","license","other"] },
+          "type": { "type": "string", "enum": ["Fuel","Maintenance","Insurance","Parking","Toll","Tax","Other"] },
           "title": { "type": "string" },
           "dueDate": { "type": "string", "format": "date-time" },
           "dueKm": { "type": "number" },
@@ -595,7 +595,7 @@
                 "type": "object",
                 "required": ["type"],
                 "properties": {
-                  "type": { "type": "string", "enum": ["oilChange","tireRotation","inspection","insurance","license","other"] },
+                  "type": { "type": "string", "enum": ["Fuel","Maintenance","Insurance","Parking","Toll","Tax","Other"] },
                   "title": { "type": "string" },
                   "dueDate": { "type": "string", "format": "date-time" },
                   "dueKm": { "type": "number" },

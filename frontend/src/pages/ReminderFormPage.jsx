@@ -7,7 +7,7 @@ import { remindersApi } from '../services/apiService.js';
 import { useAsyncAction } from '../hooks/useAsyncAction.js';
 import { todayISO } from '../utils/formatDate.js';
 
-const EMPTY = { type: 'oilChange', title: '', dueDate: '', dueKm: '', intervalMonths: '', intervalKm: '' };
+const EMPTY = { type: 'Maintenance', title: '', dueDate: '', dueKm: '', intervalMonths: '', intervalKm: '' };
 
 export default function ReminderFormPage() {
   const { t } = useTranslation();
@@ -78,7 +78,7 @@ export default function ReminderFormPage() {
             name="dueDate"
             value={form.dueDate}
             onChange={handleChange}
-            max={todayISO()}
+            min={todayISO()}
           />
         </div>
         <div className="form-group">

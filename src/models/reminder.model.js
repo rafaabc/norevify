@@ -1,6 +1,6 @@
 const mongoose = require('mongoose');
 
-const REMINDER_TYPES = ['oilChange', 'tireRotation', 'inspection', 'insurance', 'license', 'other'];
+const REMINDER_TYPES = ['Fuel', 'Maintenance', 'Insurance', 'Parking', 'Toll', 'Tax', 'Other'];
 
 const reminderSchema = new mongoose.Schema(
   {

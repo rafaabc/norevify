@@ -42,7 +42,7 @@ test('[TC-RE-E2E-01] should create reminder, flip status via odometer, complete 
   await expect(page).toHaveURL('/reminders/new');
 
   // ── Step 3: Fill and save the form ───────────────────────────────────────
-  await formPage.fill({ type: 'oilChange', dueKm: 10000, intervalKm: 10000 });
+  await formPage.fill({ type: 'Maintenance', dueKm: 10000, intervalKm: 10000 });
   await formPage.submit();
 
   // ── Step 4: Verify reminder appears with status "upcoming" ───────────────

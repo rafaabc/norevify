@@ -25,7 +25,7 @@ describe('Reminder full flow', () => {
     const uid = user._id.toString();
 
     const r = await remindersService.createReminder(uid, {
-      type: 'oilChange',
+      type: 'Maintenance',
       dueDate: future(30),
       dueKm: 10000,
       intervalMonths: 12,

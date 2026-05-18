@@ -17,9 +17,9 @@ describe('reminderModel', () => {
   it('should create a reminder with required type and at least one of dueDate/dueKm', async () => {
     const future = new Date(Date.now() + 30 * 86400000);
     const rem = await reminderModel.create({
-      userId: USER_ID, type: 'oilChange', dueDate: future, dueKm: 60000,
+      userId: USER_ID, type: 'Maintenance', dueDate: future, dueKm: 60000,
     });
-    assert.strictEqual(rem.type, 'oilChange');
+    assert.strictEqual(rem.type, 'Maintenance');
     assert.strictEqual(rem.dueKm, 60000);
     assert.strictEqual(rem.completedAt, null);
   });
