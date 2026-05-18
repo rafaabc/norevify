@@ -137,3 +137,51 @@ describe('remindersService.getReminder()', () => {
     );
   });
 });
+
+describe('remindersService.updateReminder()', () => {
+  it('updates allowed fields', async () => {
+    const u = USER_ID();
+    const r = await remindersService.createReminder(u, { type: 'oilChange', dueKm: 10000 });
+    const updated = await remindersService.updateReminder(u, r._id.toString(), { dueKm: 12000, title: 'oil' });
+    assert.strictEqual(updated.dueKm, 12000);
+    assert.strictEqual(updated.title, 'oil');
+  });
+
+  it('rejects edits to completedAt/completedKm in body', async () => {
+    const u = USER_ID();
+    const r = await remindersService.createReminder(u, { type: 'oilChange', dueKm: 10000 });
+    await assert.rejects(
+      () => remindersService.updateReminder(u, r._id.toString(), { completedAt: new Date() }),
+      (err) => err.status === 400
+    );
+  });
+
+  it('rejects edit on already-completed reminder', async () => {
+    const u = USER_ID();
+    const r = await remindersService.createReminder(u, { type: 'oilChange', dueKm: 10000 });
+    await reminderModel.update(r._id, { completedAt: new Date(), completedKm: 10000 });
+    await assert.rejects(
+      () => remindersService.updateReminder(u, r._id.toString(), { dueKm: 99999 }),
+      (err) => err.status === 400 && /cannot edit completed/i.test(err.message)
+    );
+  });
+});
+
+describe('remindersService.deleteReminder()', () => {
+  it('deletes any state', async () => {
+    const u = USER_ID();
+    const r = await remindersService.createReminder(u, { type: 'oilChange', dueKm: 10000 });
+    await remindersService.deleteReminder(u, r._id.toString());
+    assert.strictEqual(await reminderModel.findById(r._id), null);
+  });
+
+  it('returns 404 when not owned by user', async () => {
+    const me = USER_ID();
+    const other = USER_ID();
+    const r = await remindersService.createReminder(other, { type: 'oilChange', dueKm: 10000 });
+    await assert.rejects(
+      () => remindersService.deleteReminder(me, r._id.toString()),
+      (err) => err.status === 404
+    );
+  });
+});

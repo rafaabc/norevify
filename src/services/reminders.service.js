@@ -101,7 +101,44 @@ async function getReminder(userId, id) {
   return serialize(r, user?.currentKm || 0);
 }
 
+const FORBIDDEN_UPDATE_FIELDS = ['completedAt', 'completedKm', 'userId'];
+
+async function updateReminder(userId, id, body) {
+  assertValidObjectId(id);
+  const existing = await reminderModel.findById(id);
+  if (!existing || existing.userId.toString() !== userId)
+    throw makeError(404, 'Reminder not found');
+  if (existing.completedAt) throw makeError(400, 'cannot edit completed reminder');
+
+  for (const f of FORBIDDEN_UPDATE_FIELDS) {
+    if (body[f] !== undefined) throw makeError(400, `${f} cannot be updated directly`);
+  }
+
+  const merged = {
+    type: body.type !== undefined ? body.type : existing.type,
+    title: body.title !== undefined ? body.title : existing.title,
+    dueDate: body.dueDate !== undefined ? body.dueDate : existing.dueDate,
+    dueKm: body.dueKm !== undefined ? body.dueKm : existing.dueKm,
+    intervalMonths: body.intervalMonths !== undefined ? body.intervalMonths : existing.intervalMonths,
+    intervalKm: body.intervalKm !== undefined ? body.intervalKm : existing.intervalKm,
+  };
+  if (merged.dueDate === undefined && merged.dueKm === undefined)
+    throw makeError(400, 'must provide dueDate or dueKm');
+  if (!REMINDER_TYPES.includes(merged.type))
+    throw makeError(400, `type must be one of: ${REMINDER_TYPES.join(', ')}`);
+
+  return reminderModel.update(id, merged);
+}
+
+async function deleteReminder(userId, id) {
+  assertValidObjectId(id);
+  const r = await reminderModel.findById(id);
+  if (!r || r.userId.toString() !== userId) throw makeError(404, 'Reminder not found');
+  await reminderModel.remove(id);
+}
+
 module.exports = {
   computeStatus, LEAD_DAYS, LEAD_KM,
   createReminder, listReminders, getReminder,
+  updateReminder, deleteReminder,
 };
