@@ -16,6 +16,7 @@ import SettingsPage from './pages/SettingsPage.jsx';
 import ForgotPasswordPage from './pages/ForgotPasswordPage.jsx';
 import ResetPasswordPage from './pages/ResetPasswordPage.jsx';
 import ReminderFormPage from './pages/ReminderFormPage.jsx';
+import RemindersListPage from './pages/RemindersListPage.jsx';
 
 export default function App() {
   const [updateSW, setUpdateSW] = useState(null);
@@ -42,6 +43,7 @@ export default function App() {
           <Route path="/summary" element={<SummaryPage />} />
           <Route path="/change-password" element={<ChangePasswordPage />} />
           <Route path="/settings" element={<SettingsPage />} />
+          <Route path="/reminders" element={<RemindersListPage />} />
           <Route path="/reminders/new" element={<ReminderFormPage />} />
           <Route path="/reminders/:id/edit" element={<ReminderFormPage />} />
         </Route>
