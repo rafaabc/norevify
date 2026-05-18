@@ -1,6 +1,6 @@
 import { useTranslation } from 'react-i18next';
 
-export default function FuelFields({ litres, pricePerLitre, onChange }) {
+export default function FuelFields({ litres, pricePerLitre, odometer = '', onChange }) {
   const { t } = useTranslation();
   const computed = (parseFloat(litres) > 0 && parseFloat(pricePerLitre) > 0)
     ? (Math.round(parseFloat(litres) * parseFloat(pricePerLitre) * 100) / 100).toFixed(2)
@@ -34,6 +34,19 @@ export default function FuelFields({ litres, pricePerLitre, onChange }) {
           step="0.01"
           placeholder="e.g. 5.50"
           required
+        />
+      </div>
+      <div className="form-group">
+        <label htmlFor="field-odometer">{t('expenses.fields.odometer')}</label>
+        <input
+          id="field-odometer"
+          type="number"
+          name="odometer"
+          value={odometer}
+          onChange={onChange}
+          min="0"
+          step="1"
+          placeholder="e.g. 12500"
         />
       </div>
       {computed && (

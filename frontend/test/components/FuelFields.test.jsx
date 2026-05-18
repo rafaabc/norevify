@@ -57,4 +57,12 @@ describe('FuelFields', () => {
     // Assert
     expect(onChange).toHaveBeenCalled();
   });
+
+  test('renders optional odometer input', () => {
+    // Arrange + Act
+    render(<FuelFields litres="" pricePerLitre="" odometer="" onChange={() => {}} />);
+    // Assert: litres, price_per_litre, odometer = 3 spinbuttons
+    expect(screen.getAllByRole('spinbutton')).toHaveLength(3);
+    expect(document.querySelector('input[name="odometer"]')).toBeInTheDocument();
+  });
 });

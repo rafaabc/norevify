@@ -12,7 +12,7 @@ import Loading from '../components/Loading.jsx';
 import { todayISO } from '../utils/formatDate.js';
 import styles from './ExpenseFormPage.module.css';
 
-const EMPTY = { date: todayISO(), category: '', litres: '', price_per_litre: '', amount: '' };
+const EMPTY = { date: todayISO(), category: '', litres: '', price_per_litre: '', amount: '', odometer: '' };
 
 export default function ExpenseFormPage() {
   const { t } = useTranslation();
@@ -35,6 +35,7 @@ export default function ExpenseFormPage() {
           litres: exp.litres ?? '',
           price_per_litre: exp.price_per_litre ?? '',
           amount: exp.amount ?? '',
+          odometer: exp.odometer ?? '',
         });
       })
       .catch((err) => setError(err.message))
@@ -50,6 +51,7 @@ export default function ExpenseFormPage() {
         next.litres = '';
         next.price_per_litre = '';
         next.amount = '';
+        next.odometer = '';
       }
       return next;
     });
@@ -66,6 +68,7 @@ export default function ExpenseFormPage() {
     if (isFuel) {
       payload.litres = parseFloat(form.litres);
       payload.price_per_litre = parseFloat(form.price_per_litre);
+      if (form.odometer !== '') payload.odometer = Number(form.odometer);
     } else {
       payload.amount = parseFloat(form.amount);
     }
@@ -111,6 +114,7 @@ export default function ExpenseFormPage() {
               <FuelFields
                 litres={form.litres}
                 pricePerLitre={form.price_per_litre}
+                odometer={form.odometer}
                 onChange={handleChange}
               />
             ) : (
