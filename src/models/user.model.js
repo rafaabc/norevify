@@ -9,7 +9,9 @@ const userSchema = new mongoose.Schema({
   currency:      { type: String, enum: SUPPORTED_CURRENCIES, default: DEFAULT_CURRENCY },
   language:      { type: String, enum: SUPPORTED_LANGUAGES, default: DEFAULT_LANGUAGE },
   googleId:      { type: String, unique: true, sparse: true },
-  authProviders: { type: [String], default: ['password'], enum: ['password', 'google'] },
+  authProviders:       { type: [String], default: ['password'], enum: ['password', 'google'] },
+  currentKm:           { type: Number, default: 0, min: 0 },
+  currentKmUpdatedAt:  { type: Date },
 });
 
 const User = mongoose.model('User', userSchema);
@@ -34,5 +36,11 @@ module.exports = {
     User.updateOne({ _id: userId }, { $set: { googleId }, $addToSet: { authProviders: 'google' } }),
   unlinkGoogleId: (userId) =>
     User.updateOne({ _id: userId }, { $unset: { googleId: '' }, $pull: { authProviders: 'google' } }),
+  updateOdometerAndReturn: (id, currentKm) =>
+    User.findOneAndUpdate(
+      { _id: id },
+      { $set: { currentKm, currentKmUpdatedAt: new Date() } },
+      { returnDocument: 'after' }
+    ),
   _reset: () => User.deleteMany({}),
 };

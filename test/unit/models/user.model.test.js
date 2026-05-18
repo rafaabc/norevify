@@ -107,3 +107,22 @@ describe('userModel language field', () => {
     assert.strictEqual(found.language, 'en');
   });
 });
+
+describe('userModel — odometer', () => {
+  it('should default currentKm to 0 and currentKmUpdatedAt to undefined', async () => {
+    const user = await userModel.create({
+      username: 'odo1', password: 'x', email: 'odo1@test.com',
+    });
+    assert.strictEqual(user.currentKm, 0);
+    assert.strictEqual(user.currentKmUpdatedAt, undefined);
+  });
+
+  it('should update currentKm and currentKmUpdatedAt via updateOdometerAndReturn', async () => {
+    const user = await userModel.create({
+      username: 'odo2', password: 'x', email: 'odo2@test.com',
+    });
+    const updated = await userModel.updateOdometerAndReturn(user._id, 12345);
+    assert.strictEqual(updated.currentKm, 12345);
+    assert.ok(updated.currentKmUpdatedAt instanceof Date);
+  });
+});
