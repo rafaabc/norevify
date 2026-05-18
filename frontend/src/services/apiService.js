@@ -52,8 +52,9 @@ export const authApi = {
   resetPassword:  (data) => request('/auth/reset-password',  { method: 'POST',   body: data, auth: false }),
   googleLogin:    (data) => request('/auth/google',          { method: 'POST',   body: data, auth: false }),
   linkGoogle:     (data) => request('/auth/google/link',     { method: 'POST',   body: data, auth: true }),
-  unlinkGoogle:   ()     => request('/auth/google/link',     { method: 'DELETE',             auth: true }),
-  getProviders:   ()     => request('/auth/providers',       {                               auth: true }),
+  unlinkGoogle:    ()     => request('/auth/google/link',     { method: 'DELETE',             auth: true }),
+  getProviders:    ()     => request('/auth/providers',       {                               auth: true }),
+  updateOdometer:  (data) => request('/auth/odometer',        { method: 'PATCH',  body: data, auth: true }),
 };
 
 export const expensesApi = {
@@ -76,4 +77,17 @@ export const expensesApi = {
     if (category) params.set('category', category);
     return request(`/expenses/summary?${params.toString()}`);
   },
+};
+
+export const remindersApi = {
+  list: ({ status } = {}, signal = null) => {
+    const qs = status ? `?status=${status}` : '';
+    return request(`/reminders${qs}`, { signal });
+  },
+  get:        (id)       => request(`/reminders/${id}`),
+  create:     (data)     => request('/reminders',                { method: 'POST',   body: data }),
+  update:     (id, data) => request(`/reminders/${id}`,          { method: 'PUT',    body: data }),
+  remove:     (id)       => request(`/reminders/${id}`,          { method: 'DELETE' }),
+  complete:   (id, data) => request(`/reminders/${id}/complete`, { method: 'POST',   body: data }),
+  badgeCount: ()         => request('/reminders/badge-count'),
 };
