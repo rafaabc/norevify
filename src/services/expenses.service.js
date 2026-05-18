@@ -1,5 +1,6 @@
 const mongoose = require('mongoose');
 const expenseModel = require('../models/expense.model');
+const userModel = require('../models/user.model');
 
 const CATEGORIES = ['Fuel', 'Maintenance', 'Insurance', 'Parking', 'Toll', 'Tax', 'Other'];
 
@@ -15,7 +16,8 @@ function parseDate(dateStr) {
   return d;
 }
 
-function validateExpenseFields({ category, amount, litres, price_per_litre, date }) {
+function validateExpenseFields(body) {
+  const { category, amount, litres, price_per_litre, date, odometer } = body;
   if (!date) throw makeError(400, 'date is required');
   const d = parseDate(date);
   const today = new Date();
@@ -31,24 +33,39 @@ function validateExpenseFields({ category, amount, litres, price_per_litre, date
     if (price_per_litre === undefined || price_per_litre === null) throw makeError(400, 'price_per_litre is required for Fuel category');
     if (typeof litres !== 'number' || litres <= 0) throw makeError(400, 'litres must be a positive number');
     if (typeof price_per_litre !== 'number' || price_per_litre <= 0) throw makeError(400, 'price_per_litre must be a positive number');
+    if (odometer !== undefined && (typeof odometer !== 'number' || odometer <= 0))
+      throw makeError(400, 'odometer must be a positive number');
   } else {
     if (litres !== undefined || price_per_litre !== undefined)
       throw makeError(400, 'litres and price_per_litre are only valid for Fuel category');
+    if (odometer !== undefined)
+      throw makeError(400, 'odometer is only valid for Fuel category');
     if (amount === undefined || amount === null) throw makeError(400, 'amount is required');
     if (typeof amount !== 'number' || amount <= 0) throw makeError(400, 'amount must be a positive number');
   }
 }
 
-function buildExpenseData({ category, amount, litres, price_per_litre, date }) {
+function buildExpenseData(body) {
+  const { category, amount, litres, price_per_litre, date, odometer } = body;
   const base = { date, category };
   if (category === 'Fuel') {
     base.litres = litres;
     base.price_per_litre = price_per_litre;
     base.amount = Math.round(litres * price_per_litre * 100) / 100;
+    if (odometer !== undefined) base.odometer = odometer;
   } else {
     base.amount = amount;
   }
   return base;
+}
+
+async function maybeUpdateOdometer(userId, odometer) {
+  if (odometer === undefined) return;
+  const user = await userModel.findById(userId);
+  if (!user) return;
+  if (odometer > (user.currentKm || 0)) {
+    await userModel.updateOdometerAndReturn(userId, odometer);
+  }
 }
 
 function assertValidObjectId(id) {
@@ -58,7 +75,9 @@ function assertValidObjectId(id) {
 async function createExpense(userId, body) {
   validateExpenseFields(body);
   const data = buildExpenseData(body);
-  return expenseModel.create({ userId, ...data });
+  const expense = await expenseModel.create({ userId, ...data });
+  await maybeUpdateOdometer(userId, data.odometer);
+  return expense;
 }
 
 async function listExpenses(userId, query) {
@@ -87,6 +106,7 @@ async function updateExpense(userId, id, body) {
     category: resolvedCategory,
     litres: body.litres !== undefined ? body.litres : existing.litres,
     price_per_litre: body.price_per_litre !== undefined ? body.price_per_litre : existing.price_per_litre,
+    odometer: body.odometer !== undefined ? body.odometer : existing.odometer,
     ...(resolvedCategory !== 'Fuel' && {
       amount: body.amount !== undefined ? body.amount : existing.amount,
     }),
@@ -94,7 +114,9 @@ async function updateExpense(userId, id, body) {
 
   validateExpenseFields(merged);
   const data = buildExpenseData(merged);
-  return expenseModel.update(id, data);
+  const updated = await expenseModel.update(id, data);
+  await maybeUpdateOdometer(userId, data.odometer);
+  return updated;
 }
 
 async function deleteExpense(userId, id) {
