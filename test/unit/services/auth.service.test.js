@@ -10,6 +10,7 @@ const jwt = require('jsonwebtoken');
 
 const { startMongo, stopMongo, resetMongo } = require('../../helpers/mongo');
 const authService = require('../../../src/services/auth.service');
+const userModel = require('../../../src/models/user.model');
 
 before(async () => await startMongo());
 after(async () => await stopMongo());
@@ -654,6 +655,41 @@ describe('authService.updateLanguage()', () => {
     const payload = jwt.verify(token, process.env.JWT_SECRET);
     assert.strictEqual(payload.language, 'en');
     assert.ok(payload.currency, 'token should also carry currency');
+  });
+});
+
+// ---------------------------------------------------------------------------
+// updateOdometer
+// ---------------------------------------------------------------------------
+describe('authService.updateOdometer()', () => {
+  it('should update currentKm when value is greater than current', async () => {
+    const user = await userModel.create({
+      username: 'driver1', password: 'x', email: 'd1@test.com',
+    });
+    const result = await authService.updateOdometer({ id: user._id.toString(), currentKm: 1000 });
+    assert.ok(result.token);
+    const after = await userModel.findById(user._id);
+    assert.strictEqual(after.currentKm, 1000);
+  });
+
+  it('should throw 400 when currentKm is lower than existing', async () => {
+    const user = await userModel.create({
+      username: 'driver2', password: 'x', email: 'd2@test.com', currentKm: 500,
+    });
+    await assert.rejects(
+      () => authService.updateOdometer({ id: user._id.toString(), currentKm: 100 }),
+      (err) => err.status === 400 && /cannot be lower/i.test(err.message)
+    );
+  });
+
+  it('should throw 400 when currentKm is missing or invalid', async () => {
+    const user = await userModel.create({
+      username: 'driver3', password: 'x', email: 'd3@test.com',
+    });
+    await assert.rejects(
+      () => authService.updateOdometer({ id: user._id.toString(), currentKm: -1 }),
+      (err) => err.status === 400
+    );
   });
 });
 
