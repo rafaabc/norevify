@@ -27,9 +27,10 @@ export default async function globalTeardown(): Promise<void> {
 
     const ids = testUsers.map((u) => u._id);
     await db.collection('expenses').deleteMany({ userId: { $in: ids } });
+    await db.collection('reminders').deleteMany({ userId: { $in: ids } });
     await db.collection('users').deleteMany({ _id: { $in: ids } });
 
-    console.log(`[e2e teardown] Cleaned up ${testUsers.length} test user(s) and their expenses.`);
+    console.log(`[e2e teardown] Cleaned up ${testUsers.length} test user(s), their expenses and reminders.`);
   } catch (err) {
     console.warn('[e2e teardown] Cleanup warning:', (err as Error).message);
   } finally {
