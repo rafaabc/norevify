@@ -24,6 +24,17 @@
   text-transform: uppercase;
   color: var(--muted);
   line-height: 1.4;
+  display: block;
+}
+
+.subtitle {
+  font-family: var(--font-sans);
+  font-size: 10px;
+  font-weight: 500;
+  color: var(--muted);
+  opacity: 0.7;
+  display: block;
+  margin-top: 1px;
 }
 
 .value {

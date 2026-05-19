@@ -94,6 +94,8 @@
     "thisMonth": "This month",
     "lastMonth": "Last month",
     "byCategory": "By category",
+    "avgMonthly": "Avg. monthly",
+    "fuelShare": "Fuel share",
     "recentExpenses": "Recent expenses",
     "noExpenses": "No expenses yet.",
     "category": "Category",
@@ -139,7 +141,8 @@
     "noData": "No data for the selected period.",
     "total": "Total",
     "byCategory": "By category",
-    "byMonth": "By month"
+    "byMonth": "By month",
+    "breakdown": "breakdown"
   },
   "categories": {
     "Fuel": "Fuel",

@@ -94,6 +94,8 @@
     "thisMonth": "Este mês",
     "lastMonth": "Mês passado",
     "byCategory": "Por categoria",
+    "avgMonthly": "Média mensal",
+    "fuelShare": "Fatia de combustível",
     "recentExpenses": "Despesas recentes",
     "noExpenses": "Nenhuma despesa ainda.",
     "category": "Categoria",
@@ -139,7 +141,8 @@
     "noData": "Sem dados para o período selecionado.",
     "total": "Total",
     "byCategory": "Por categoria",
-    "byMonth": "Por mês"
+    "byMonth": "Por mês",
+    "breakdown": "detalhamento"
   },
   "categories": {
     "Fuel": "Combustível",
