@@ -33,6 +33,7 @@
   },
   "homepage": "https://github.com/rafaabc/drive-ledger#readme",
   "dependencies": {
+    "@ducanh2912/next-pwa": "^10.2.9",
     "bcryptjs": "^3.0.3",
     "dotenv": "^17.4.2",
     "google-auth-library": "^10.6.2",
