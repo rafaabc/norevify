@@ -1,53 +1,49 @@
-[![Backend CI](https://github.com/rafaabc/drive-ledger/actions/workflows/backend.yml/badge.svg)](https://github.com/rafaabc/drive-ledger/actions/workflows/backend.yml)
-[![Frontend CI](https://github.com/rafaabc/drive-ledger/actions/workflows/frontend.yml/badge.svg)](https://github.com/rafaabc/drive-ledger/actions/workflows/frontend.yml)
+[![CI](https://github.com/rafaabc/drive-ledger/actions/workflows/ci.yml/badge.svg)](https://github.com/rafaabc/drive-ledger/actions/workflows/ci.yml)
 
-## Live demo
-
-`https://drive-ledger-front.vercel.app/`
-
-> Full-stack vehicle expense manager — Node.js/Express REST API with a React PWA, JWT authentication, maintenance reminders with km/date triggers and recurrence, spending summaries by period, and PT-BR / English internationalisation.
+# Drive Ledger
 
 > https://github.com/user-attachments/assets/aa83e4c7-adfd-422d-8088-3656878346d4
 
- 
+**Live demo:** `https://drive-ledger-front.vercel.app/`
 
 ## Description
 
-Drive Ledger is a full-stack vehicle expense management application. The backend is a Node.js/Express REST API that lets users log and analyze expenses by category (fuel, maintenance, insurance, tolls, and more), with JWT-based authentication and user isolation. It also provides maintenance reminders triggered by date or odometer km, with optional recurrence. The frontend is a React PWA (Vite) that consumes the API, supports **PT-BR and English** via `react-i18next`, and can be installed on Android and iOS directly from the browser. Data is persisted in MongoDB Atlas — a free cluster is sufficient.
+Drive Ledger is a full-stack vehicle expense management application built on **Next.js 14 App Router** — a single repo serving both the React frontend and the REST API via Route Handlers. Users can log and analyse expenses by category (fuel, maintenance, insurance, tolls, and more), set maintenance reminders triggered by date or odometer km (with optional recurrence), and view spending summaries by period.
+
+Key features:
+
+- **Expense tracking** — log fuel, maintenance, insurance, parking, tolls, tax, and other costs; filter by category, year, and month
+- **Maintenance reminders** — status computed as `upcoming` → `dueSoon` (≤ 7 days or ≤ 500 km) → `overdue`; optional recurrence via `intervalMonths` / `intervalKm`
+- **Odometer tracking** — `Fuel` expenses with an `odometer` value update the user's current km; manual override in Settings
+- **Spending summaries** — totals by category and period with charts
+- **Authentication** — JWT stored in `localStorage`; Google Sign-In supported; password recovery via email
+- **Internationalisation** — PT-BR (default) and English; preference persisted in `localStorage` and server-side in the JWT
+- **PWA** — installable on Android (Chrome) and iOS (Safari); runs fullscreen offline-first; auto-update toast on new deploy
+- **Responsive layout** — fully responsive at ≤ 640 px (CSS-only); sidebar collapses to icon-only strip; tables scroll horizontally
 
 ## Dependencies
 
 - **Node.js** v18 or higher
-- **MongoDB Atlas** cluster (any free tier cluster)
+- **MongoDB Atlas** cluster (free tier is sufficient)
 
 ## Technologies Used
 
-**Backend**
-
-| Package | Version | Purpose |
-|---|---|---|
-| express | ^5.2.1 | HTTP framework |
-| jsonwebtoken | ^9.0.3 | JWT auth |
-| bcryptjs | ^3.0.3 | Password hashing |
-| mongoose | ^8.x | MongoDB ODM |
-| resend | ^4.x | Transactional email (password recovery) |
-| dotenv | ^17.4.2 | Environment variables |
-| swagger-ui-express | ^5.0.1 | API docs |
-
-**Frontend**
-
-| Package | Version | Purpose |
-|---|---|---|
-| react | ^18.3.1 | UI framework |
-| react-router-dom | ^6.26.2 | Client-side routing |
-| react-i18next / i18next | ^15 / ^24 | Internationalisation (PT-BR + EN) |
-| i18next-browser-languagedetector | ^8 | Language detection from localStorage / navigator |
-| vite | ^5.4.8 | Dev server and bundler |
-| vite-plugin-pwa | ^1.3.0 | Service worker + web app manifest (PWA) |
+| Package | Purpose |
+|---|---|
+| Next.js 14 | App Router — SSR + API Route Handlers |
+| React 18 | UI (`'use client'` components) |
+| Mongoose | MongoDB ODM |
+| jsonwebtoken / bcryptjs | JWT auth + password hashing |
+| Resend | Transactional email (password recovery) |
+| react-i18next / i18next | PT-BR + English i18n |
+| @ducanh2912/next-pwa | Service worker + web app manifest |
+| Playwright | E2E tests |
+| Mocha + Supertest | API contract tests |
+| Node.js test runner + c8 | Unit and integration tests + coverage |
 
 ## Installation and Setup
 
-1. Clone and install:
+### 1. Clone and install
 
 ```bash
 git clone https://github.com/rafaabc/drive-ledger.git
@@ -55,198 +51,96 @@ cd drive-ledger
 npm install
 ```
 
-2. Create the environment file:
+### 2. Configure environment variables
 
 ```bash
 cp .env.example .env
 ```
-
-Fill in the values:
 
 | Variable | Description |
 |---|---|
 | `PORT` | Server port (e.g. `3000`) |
 | `JWT_SECRET` | JWT signing key |
 | `JWT_EXPIRES_IN` | Token expiry (e.g. `1h`) |
-| `BASE_URL` | Base URL for API tests (e.g. `http://localhost:3000`) |
-| `FRONTEND_URL` | Frontend origin used in password-reset email links (e.g. `http://localhost:5173`) |
+| `BASE_URL` | Base URL (e.g. `http://localhost:3000`) |
+| `FRONTEND_URL` | Frontend origin for password-reset links — same as `BASE_URL` locally |
 | `MONGODB_URI` | MongoDB Atlas connection string (see below) |
-| `RESEND_API_KEY` | [Resend](https://resend.com) API key for sending password-recovery emails |
+| `RESEND_API_KEY` | [Resend](https://resend.com) API key for password-recovery emails |
 | `RESET_PASSWORD_EXPIRES_IN` | Reset token lifetime (default `15m`) |
+| `GOOGLE_CLIENT_ID` | Google OAuth client ID (server-side) |
+| `NEXT_PUBLIC_GOOGLE_CLIENT_ID` | Same Google client ID (exposed to browser) |
 
-### MongoDB Setup
+**MongoDB Atlas setup:**
 
-1. Go to [MongoDB Atlas](https://cloud.mongodb.com) → your cluster → **Connect** → **Drivers** → **Node.js**.
-2. Copy the connection string and add the database name before the query string:
+1. Go to [MongoDB Atlas](https://cloud.mongodb.com) → your cluster → **Connect** → **Drivers** → **Node.js**
+2. Copy the connection string and add the database name:
    ```
    mongodb+srv://<USER>:<PASS>@cluster0.xxxxx.mongodb.net/drive-ledger?retryWrites=true&w=majority&appName=Cluster0
    ```
-3. Paste it as `MONGODB_URI` in your `.env`.
-4. In Atlas → **Network Access**, add your current IP (or `0.0.0.0/0` for unrestricted access).
-5. In Atlas → **Database Access**, create a dedicated user with `readWrite` on the `drive-ledger` database.
+3. Paste as `MONGODB_URI` in `.env`
+4. **Network Access** → add your IP (or `0.0.0.0/0`)
+5. **Database Access** → create a user with `readWrite` on `drive-ledger`
 
-> The `drive-ledger` database is created automatically on the first write — no manual setup needed.
+> The database is created automatically on first write.
 
-3. Start the backend:
-
-```bash
-npm run dev   # development (hot reload)
-npm start     # production
-```
-
-Output on startup:
-```
-MongoDB connected
-Server running on port 3000
-Swagger UI: http://localhost:3000/api-docs
-```
-
-4. Install and start the frontend:
+### 3. Start the server
 
 ```bash
-cd frontend
-npm install
-npm run dev   # available at http://localhost:5173
+npm run dev      # development — http://localhost:3000
+npm run build    # production build
+npm start        # production server (requires build)
 ```
 
-> The backend must be running on port 3000 before starting the frontend. Vite proxies `/api/*` to port 3000 automatically.
+Swagger UI is available at `http://localhost:3000/api-docs`.
 
-## Features
+### 4. Run tests
 
-### Maintenance Reminders
+Unit and integration tests use `mongodb-memory-server` — no Atlas connection needed. API and E2E tests require a running server connected to Atlas.
 
-Track scheduled maintenance with date- and/or km-based triggers:
+| Command | Scope |
+|---|---|
+| `npm run test:unit` | Unit — services, models, middleware |
+| `npm run test:unit:coverage` | Unit + HTML coverage report |
+| `npm run test:integration` | Integration — cross-layer flows |
+| `npm run test:integration:coverage` | Integration + HTML coverage report |
+| `npm run test:backend` | Unit + integration |
+| `npm run test:api` | API contracts (server must be running) |
+| `npm run test:api:report` | API tests + HTML report in `reports/` |
+| `npm run test:e2e` | E2E (server must be running) |
 
-- **Status**: `upcoming` → `dueSoon` (≤ 7 days or ≤ 500 km away) → `overdue`. Status is recomputed on every request using the stored odometer reading.
-- **Recurrence**: set `intervalMonths` and/or `intervalKm` — completing a reminder automatically creates the next one.
-- **Odometer tracking**: logging a `Fuel` expense with an `odometer` value updates the user's current km. Manual override available in **Settings → Vehicle**.
-- **Sidebar badge**: the Reminders nav item shows a live count of due-soon + overdue items.
-- **Mobile action sheet**: the `+` FAB in the bottom bar lets users choose between New Expense and New Reminder.
+**CI pipeline** (`.github/workflows/ci.yml`):
 
-### Internationalisation
-
-The app ships in **PT-BR (default) and English**. Language is persisted in `localStorage` (`i18nextLng`) and also stored per-user in the database (JWT field `language`). Users can switch via **Settings → Language** — the preference is saved server-side so it follows them across devices when they log in.
-
-### PWA — Install on mobile
-
-The app is a Progressive Web App. No app store required.
-
-- **Android (Chrome)**: open the app → tap "Install app" banner (or browser menu → "Add to Home Screen").
-- **iOS (Safari)**: open the app → Share → "Add to Home Screen".
-
-Once installed, the app runs fullscreen (no browser chrome) and loads offline from cache. A "Nova versão disponível" toast appears automatically when a new version is deployed.
-
-### Mobile responsiveness
-
-The layout is fully responsive at **≤ 640 px** (CSS-only, no JS):
-
-- Sidebar collapses from 232 px to a 52 px icon-only strip.
-- Tables become horizontally scrollable; column widths are reduced to fit ~340 px of content.
-- KPI card values and page titles scale down for smaller viewports.
-- Summary page filter fields expand to full width.
-
-### API Endpoints
-
-**Auth** — no JWT required
-
-| Method | Path | Description |
-|---|---|---|
-| POST | `/api/auth/register` | Register a new user |
-| POST | `/api/auth/login` | Login and receive a JWT |
-| PATCH | `/api/auth/password` | Change password (requires current password) |
-| POST | `/api/auth/forgot-password` | Send a password-reset email (safe — never reveals account existence) |
-| POST | `/api/auth/reset-password` | Reset password via token from email |
-
-**Auth** — `Authorization: Bearer <token>` required
-
-| Method | Path | Description |
-|---|---|---|
-| PATCH | `/api/auth/currency` | Update preferred currency; returns a new JWT |
-| PATCH | `/api/auth/language` | Update preferred language (`pt-BR` or `en`); returns a new JWT |
-| POST | `/api/auth/google/link` | Link a Google account to the current user |
-| DELETE | `/api/auth/google/link` | Unlink Google account |
-| GET | `/api/auth/providers` | Returns `{ authProviders, hasPassword }` |
-
-**Expenses** — `Authorization: Bearer <token>` required
-
-| Method | Path | Description |
-|---|---|---|
-| GET | `/api/expenses` | List expenses (`?category`, `?year`, `?month`) |
-| POST | `/api/expenses` | Create an expense |
-| GET | `/api/expenses/:id` | Get an expense |
-| PUT | `/api/expenses/:id` | Update an expense |
-| DELETE | `/api/expenses/:id` | Delete an expense |
-| GET | `/api/expenses/summary` | Totals by category (`?year` required) |
-
-**Reminders** — `Authorization: Bearer <token>` required
-
-| Method | Path | Description |
-|---|---|---|
-| GET | `/api/reminders` | List reminders (`?status=active\|done`) |
-| POST | `/api/reminders` | Create a reminder |
-| GET | `/api/reminders/:id` | Get a reminder |
-| PUT | `/api/reminders/:id` | Update a reminder |
-| POST | `/api/reminders/:id/complete` | Complete a reminder (creates recurrence if configured) |
-| DELETE | `/api/reminders/:id` | Delete a reminder |
-| GET | `/api/reminders/badge-count` | Returns `{ dueSoon, overdue }` counts for the sidebar badge |
-
-Swagger UI available at `http://localhost:3000/api-docs`. For validation rules, see [Expense Domain Rules](https://github.com/rafaabc/drive-ledger/wiki/03-%E2%80%90-Expense-Domain-Rules) in the wiki.
-
-### Test Commands
-
-**Backend** (from project root)
-
-| Command | Scope | Runner |
-|---|---|---|
-| `npm run test:unit` | Unit — services, models, middleware | Node.js native |
-| `npm run test:unit:coverage` | Unit tests + HTML coverage report | Node.js native + c8 |
-| `npm run test:integration` | Integration — cross-layer flows | Node.js native |
-| `npm run test:integration:coverage` | Integration tests + HTML coverage report | Node.js native + c8 |
-| `npm run test:backend` | Unit + integration | Node.js native |
-| `npm run test:api` | API contracts (server must be running) | Mocha + Supertest |
-| `npm run test:api:report` | API tests + HTML report in `reports/` | Mochawesome |
-
-**Frontend** (from `frontend/`)
-
-| Command | Scope | Runner |
-|---|---|---|
-| `npm run test:front` | Frontend unit tests | Jest + Testing Library |
-| `npm run test:front:coverage` | Frontend unit tests + HTML coverage report | Jest + c8 |
-| `npm run test:e2e` | E2E (both servers must be running) | Playwright |
-
-### CI Pipelines
-
-| Workflow | Triggers on | Jobs |
-|---|---|---|
-| `backend.yml` | `src/**`, `test/**`, `package*.json` | test-unit → test-integration → test-api |
-| `frontend.yml` | `frontend/**` | test-unit → e2e |
-
-Unit and integration jobs use `mongodb-memory-server` — no Atlas connection needed. API and E2E jobs connect to Atlas via `MONGODB_URI` secret.
+```
+test-unit → test-integration → test-api → e2e
+```
 
 ## File Structure
 
 ```
 drive-ledger/
-├── frontend/
-│   ├── src/             # React app source
-│   ├── test/            # Frontend unit tests
-│   └── e2e/             # Playwright E2E tests
-├── src/
-│   ├── config/          # db.js — MongoDB connection
-│   ├── routes/          # HTTP route definitions
-│   ├── controllers/     # HTTP response mapping
+├── app/
+│   ├── (auth)/          # Public pages (login, register, forgot/reset password)
+│   ├── (app)/           # Protected pages (auth guard in layout.jsx)
+│   └── api/             # Route Handlers — replaces Express routes
+├── lib/
+│   ├── db.mjs           # Mongoose connection with globalThis cache
+│   ├── auth.mjs         # withAuth() HOF
+│   ├── models/          # Mongoose schemas
 │   ├── services/        # Business logic and validation
-│   ├── models/          # Mongoose schemas and models
-│   ├── middleware/       # JWT auth middleware
-│   ├── app.js           # Express app setup
-│   └── server.js        # Entry point
+│   └── constants/       # Shared enums (languages, categories)
+├── components/          # React components
+├── views/               # Page-level React components
+├── context/             # React context providers (AuthContext)
+├── hooks/               # Custom React hooks
+├── services/            # Client-side HTTP layer (apiService.js)
+├── i18n/                # i18next config + locale JSON files
+├── styles/              # CSS Modules + globals.css
+├── e2e/                 # Playwright E2E tests
 ├── test/
-│   ├── helpers/         # mongo.js — mongodb-memory-server helpers
+│   ├── helpers/         # mongodb-memory-server helpers
 │   ├── unit/            # Isolated function tests
 │   ├── integration/     # Cross-layer flow tests
 │   └── api/             # HTTP contract tests
-├── resources/
-│   └── swagger.json     # OpenAPI 3.0 spec
 └── .env.example
 ```
 

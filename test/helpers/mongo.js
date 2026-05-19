@@ -1,8 +1,8 @@
 const { MongoMemoryServer } = require('mongodb-memory-server');
 const mongoose = require('mongoose');
-const userModel = require('../../src/models/user.model');
-const expenseModel = require('../../src/models/expense.model');
-const reminderModel = require('../../src/models/reminder.model');
+const userModel = require('../../lib/models/user.model');
+const expenseModel = require('../../lib/models/expense.model');
+const reminderModel = require('../../lib/models/reminder.model');
 
 let mongod;
 

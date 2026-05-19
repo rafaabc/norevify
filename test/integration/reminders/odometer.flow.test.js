@@ -6,9 +6,9 @@ const { describe, it, before, after, beforeEach } = require('node:test');
 const assert = require('node:assert/strict');
 
 const { startMongo, stopMongo, resetMongo } = require('../../helpers/mongo');
-const authService = require('../../../src/services/auth.service');
-const expensesService = require('../../../src/services/expenses.service');
-const userModel = require('../../../src/models/user.model');
+const authService = require('../../../lib/services/auth.service');
+const expensesService = require('../../../lib/services/expenses.service');
+const userModel = require('../../../lib/models/user.model');
 
 before(async () => await startMongo());
 after(async () => await stopMongo());

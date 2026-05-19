@@ -8,8 +8,8 @@ const { describe, it, before, after, beforeEach } = require('node:test');
 const assert = require('node:assert/strict');
 
 const { startMongo, stopMongo, resetMongo } = require('../../helpers/mongo');
-const expensesService = require('../../../src/services/expenses.service');
-const userModel = require('../../../src/models/user.model');
+const expensesService = require('../../../lib/services/expenses.service');
+const userModel = require('../../../lib/models/user.model');
 
 before(async () => await startMongo());
 after(async () => await stopMongo());

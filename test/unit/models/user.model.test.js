@@ -3,10 +3,10 @@
 const mongoose = require('mongoose');
 const { describe, it, before, after, beforeEach } = require('node:test');
 const assert = require('node:assert/strict');
-const { SUPPORTED_LANGUAGES, DEFAULT_LANGUAGE } = require('../../../src/constants/languages');
+const { SUPPORTED_LANGUAGES, DEFAULT_LANGUAGE } = require('../../../lib/constants/languages');
 
 const { startMongo, stopMongo, resetMongo } = require('../../helpers/mongo');
-const userModel = require('../../../src/models/user.model');
+const userModel = require('../../../lib/models/user.model');
 
 before(async () => await startMongo());
 after(async () => await stopMongo());

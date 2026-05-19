@@ -5,8 +5,8 @@ const { expect } = require('chai');
 const mongoose = require('mongoose');
 
 // Register models with this mongoose instance (no connection needed at require time)
-require('../../../src/models/user.model.js');
-require('../../../src/models/expense.model.js');
+require('../../../lib/models/user.model.js');
+require('../../../lib/models/expense.model.js');
 
 const BASE_URL = process.env.BASE_URL || 'http://localhost:3000';
 

@@ -8,7 +8,7 @@ const MockResend = function () {
 };
 
 const resendPath      = require.resolve('resend');
-const emailSvcPath    = require.resolve('../../../src/services/email.service');
+const emailSvcPath    = require.resolve('../../../lib/services/email.service');
 
 require.cache[resendPath] = {
   id: resendPath, filename: resendPath, loaded: true,
@@ -24,8 +24,8 @@ const { describe, it, before, after, beforeEach } = require('node:test');
 const assert = require('node:assert/strict');
 
 const { startMongo, stopMongo, resetMongo } = require('../../helpers/mongo');
-const authService  = require('../../../src/services/auth.service');
-const emailService = require('../../../src/services/email.service');
+const authService  = require('../../../lib/services/auth.service');
+const emailService = require('../../../lib/services/email.service');
 
 before(async () => await startMongo());
 after(async () => await stopMongo());

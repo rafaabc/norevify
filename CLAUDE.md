@@ -5,11 +5,14 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ## Commands
 
 ```bash
-# Start production
-npm start
-
-# Start with hot reload
+# Dev server (Next.js, port 3000)
 npm run dev
+
+# Production build
+npm run build
+
+# Start production server (requires build first)
+npm start
 
 # Install dependencies
 npm install
@@ -24,50 +27,66 @@ PORT=3000
 JWT_SECRET=your-secret
 JWT_EXPIRES_IN=1h
 BASE_URL=http://localhost:3000
-FRONTEND_URL=http://localhost:5173
+FRONTEND_URL=http://localhost:3000
 MONGODB_URI=mongodb+srv://<USER>:<PASS>@cluster0.xxxxx.mongodb.net/drive-ledger?retryWrites=true&w=majority&appName=Cluster0
 RESEND_API_KEY=re_xxxxxxxxxxxx
 RESET_PASSWORD_EXPIRES_IN=15m
+GOOGLE_CLIENT_ID=your-google-client-id
+NEXT_PUBLIC_GOOGLE_CLIENT_ID=your-google-client-id
 ```
 
 `MONGODB_URI` points to the `drive-ledger` database on the shared Atlas `Cluster0`. The database is created automatically on first write.
 
-`FRONTEND_URL` is used to build the password-reset link included in recovery emails — set to the frontend origin. `RESEND_API_KEY` authenticates with the [Resend](https://resend.com) email API. `RESET_PASSWORD_EXPIRES_IN` controls reset-token lifetime (default `15m`).
+`FRONTEND_URL` is used to build the password-reset link in recovery emails — same as `BASE_URL` in production. `RESEND_API_KEY` authenticates with the [Resend](https://resend.com) email API. `RESET_PASSWORD_EXPIRES_IN` controls reset-token lifetime (default `15m`).
 
 ## Architecture
 
-Layered Express.js REST API backed by **MongoDB Atlas via Mongoose** (data persists across restarts).
+**Next.js 14 App Router** — single repo serving both frontend and API routes, deployed on Vercel Fluid Compute.
 
 ```
-routes → controllers → services → models (Mongoose)
-                                        ↕
-                                   MongoDB Atlas
+app/
+  (auth)/          → public pages (login, register, forgot-password, reset-password)
+  (app)/           → protected pages behind client-side auth guard
+  api/             → Route Handlers (replaces Express controllers/routes)
+lib/
+  db.mjs           → Mongoose connection with globalThis cache
+  auth.mjs         → withAuth() HOF — decodes JWT, passes user as 3rd arg
+  models/          → Mongoose schemas + compiled models
+  services/        → all business logic and validation
+  constants/       → shared enums (languages, categories)
+components/        → React components (PascalCase)
+views/             → page-level React components (renamed from pages/ to avoid Pages Router conflict)
+context/           → React context providers (AuthContext, etc.)
+hooks/             → custom React hooks
+services/          → client-side HTTP layer (apiService.js)
+i18n/              → i18next config + locale JSON files
+styles/            → CSS Modules + globals.css
+utils/             → shared utilities
 ```
 
-- **`src/config/db.js`**: `connectDB()` — called once at boot in `server.js` before `app.listen`
-- **routes**: wire HTTP verbs to controller functions; `expenses.routes.js` and `reminders.routes.js` apply `authMiddleware` globally
-- **controllers**: async try/catch wrappers that map service results to HTTP responses
-- **services**: all business logic and validation; throw errors with `.status` property (picked up by controllers)
-- **models**: Mongoose schemas + compiled models; export thin async wrappers (`findById`, `findByUserId`, `create`, `update`, `remove`, `_reset`, `updatePassword`) so services stay decoupled from the ODM API
+- **`lib/db.mjs`**: `connectDB()` — called at the top of every Route Handler before accessing models. Uses `globalThis._mongoose` cache for Fluid Compute instance reuse.
+- **Route Handlers** (`app/api/`): replace Express routes + controllers. `withAuth(handler)` decodes JWT and passes user as 3rd arg since `NextRequest` is immutable.
+- **Services** (`lib/services/`): all business logic. Throw errors with `.status` property; Route Handlers read `err.status || 500`.
+- **Models** (`lib/models/`): Mongoose schemas with `mongoose.models.X || mongoose.model('X', schema)` guard for hot-reload safety.
 
-Error convention: `makeError(status, message)` in each service creates an `Error` with a `.status` field. Controllers read `err.status || 500`.
+Error convention: `makeError(status, message)` in each service creates an `Error` with a `.status` field.
 
 IDs are MongoDB `ObjectId` values, exposed as 24-character hex strings. JWT payload carries `{ id, username, currency, language }`.
 
-Supported languages are defined in `src/constants/languages.js` (`SUPPORTED_LANGUAGES`, `DEFAULT_LANGUAGE = 'pt-BR'`). The same file is the single source of truth for the `PATCH /api/auth/language` validation and the user model enum.
+Supported languages are defined in `lib/constants/languages.js` (`SUPPORTED_LANGUAGES`, `DEFAULT_LANGUAGE = 'pt-BR'`).
 
 ## Unit Tests
 
 - Framework: Node.js native Test Runner (`node:test`) + `node:assert`
 - No external test libraries (no Mocha, Jest, Chai, Supertest)
-- Test files live in `test/unit/`, mirroring the source structure
+- Test files live in `test/unit/`, mirroring the `lib/` structure
 - Database isolation via `mongodb-memory-server` (no Atlas connection needed)
 
 ### Test layers covered
-- `services/` — business logic and validation
-- `models/` — Mongoose schema behaviour and CRUD
-- `middleware/` — JWT auth logic
-- `controllers/` — HTTP status code mapping and `err.status || 500` fallback
+- `lib/services/` — business logic and validation
+- `lib/models/` — Mongoose schema behaviour and CRUD
+- `lib/middleware/` — JWT auth logic
+- Route Handler wrappers — HTTP status code mapping and `err.status || 500` fallback
 
 ### Scripts
 - `npm run test:unit` — run all unit tests
@@ -113,7 +132,7 @@ Supported languages are defined in `src/constants/languages.js` (`SUPPORTED_LANG
 ## API Tests
 
 - Framework: Mocha + Chai + Supertest; HTML reports via Mochawesome
-- **Requires a running server connected to Atlas** — start with `npm run dev` before executing the suite
+- **Requires a running server connected to Atlas** — start with `npm run dev` or `npm start` before executing the suite
 - Test files live in `test/api/`, organized by feature (auth, expenses, summary)
 
 ### Structure
@@ -131,40 +150,15 @@ Supported languages are defined in `src/constants/languages.js` (`SUPPORTED_LANG
 - All tests run against a live server; `BASE_URL` read from `.env` (defaults to `http://localhost:3000`)
 - Root hook registers and logs in a primary user once before the suite; tests that need extra users call `createAndLoginUser(prefix)` from the base
 
-## Frontend Unit Tests
-
-- Framework: Jest + jsdom (`jest-environment-jsdom`), Babel transform for JSX/ESM
-- React testing: `@testing-library/react` + `@testing-library/jest-dom` + `@testing-library/user-event`
-- `import.meta.env` is shimmed to `process.env` via an inline Babel plugin in `babel.config.cjs`
-- CSS Modules stubbed via `identity-obj-proxy`; coverage via `c8`
-- Test files live in `frontend/test/`, mirroring `frontend/src/`
-
-### Scripts (run from `frontend/`)
-- `npm run test:front` — run all unit tests
-- `npm run test:front:watch` — watch mode
-- `npm run test:front:coverage` — c8 coverage (HTML report in `frontend/coverage/`)
-
-### Test files added (responsive + PWA coverage)
-- `test/components/UpdatePrompt.test.jsx` — render and click behaviour
-- `test/components/AppShell.test.jsx` — Sidebar + Outlet integration
-- `test/components/Sidebar.test.jsx` — nav links, logout, username, brand
-- `test/App.test.jsx` — `pwa:update-available` event wiring, `updateSW(true)` call, listener cleanup on unmount
-
-### Conventions
-- Pattern: AAA (Arrange, Act, Assert)
-- No real HTTP calls — `global.fetch` is mocked in service tests; `apiService` is mocked at module level in component/page tests
-- `localStorage` cleared in `beforeEach` via `jest.setup.js`
-- Fake timers (`jest.useFakeTimers`) used for date-sensitive tests
-- CSS Modules not testable in jsdom — responsive breakpoints are covered by E2E (`e2e/tests/ui/sidebar-responsive.spec.ts`)
-
 ## E2E Tests
 
 - Framework: Playwright (`@playwright/test` v1.47+)
-- **Requires both servers running** — backend on `:3000`, frontend dev server on `:5173`
-- Test files live in `frontend/e2e/tests/`, organised by feature
-- Page Objects in `frontend/e2e/pages/`; shared fixtures in `frontend/e2e/fixtures/`
+- **Requires Next.js server running** — `npm run dev` (dev) or `npm start` (production build)
+- Test files live in `e2e/tests/`, organised by feature
+- Page Objects in `e2e/pages/`; shared fixtures in `e2e/fixtures/`
+- Config: `playwright.config.ts` at root; `baseURL` defaults to `http://localhost:3000`
 
-### Scripts (run from `frontend/`)
+### Scripts
 - `npm run test:e2e` — run all E2E tests (Chromium)
 
 ### Atlas cleanup — globalTeardown
@@ -188,6 +182,7 @@ Swagger UI at `GET /api-docs` (served from `resources/swagger.json`). Also logge
 | `/api/auth` | Yes (Bearer JWT) | `PATCH /currency`, `PATCH /language`, `PATCH /odometer`, `POST /google/link`, `DELETE /google/link`, `GET /providers` |
 | `/api/expenses` | Yes (Bearer JWT) | CRUD + `GET /summary` |
 | `/api/reminders` | Yes (Bearer JWT) | `GET /`, `POST /`, `GET /:id`, `PUT /:id`, `POST /:id/complete`, `DELETE /:id`, `GET /badge-count` |
+| `/api/health` | No | `GET /` — health check |
 
 Auth: `Authorization: Bearer <token>` header. JWT decoded into `req.user` (`{ id, username }`). `id` is an ObjectId hex string.
 
@@ -197,7 +192,7 @@ Valid types: `Fuel`, `Maintenance`, `Insurance`, `Parking`, `Toll`, `Tax`, `Othe
 
 A reminder must have at least one of `dueDate` or `dueKm`. Both are optional individually but at least one is required.
 
-Status computation (`src/services/reminders.service.js`):
+Status computation (`lib/services/reminders.service.js`):
 - `overdue` — past `dueDate` OR `currentKm >= dueKm`
 - `dueSoon` — within `LEAD_DAYS = 7` days of `dueDate` OR within `LEAD_KM = 500` km of `dueKm`
 - `upcoming` — everything else
@@ -222,28 +217,18 @@ Valid categories: `Fuel`, `Maintenance`, `Insurance`, `Parking`, `Toll`, `Tax`, 
 
 ## Frontend
 
-Location: `frontend/` at the project root.
+Fully integrated into Next.js App Router at the project root (no separate `frontend/` directory).
 
 ### Stack
 
-- **React 18** + **Vite 5** — dev server on `:5173`, proxies `/api/*` to backend `:3000` (no CORS package needed)
-- **react-router-dom v6** — client-side routing with `<ProtectedRoute>`
-- **Plain CSS Modules** — scoped per component/page; global base in `src/styles/globals.css`
-- **vite-plugin-pwa** — generates `sw.js` + `manifest.webmanifest` at build time; SW disabled in dev mode by default
-
-### Commands
-
-```bash
-cd frontend
-npm install
-npm run dev      # dev server on :5173
-npm run build    # production build to dist/
-npm run preview  # preview production build
-```
+- **Next.js 14 App Router** — SSR/SSG + client components; dev server on `:3000`
+- **React 18** — all page/component files are `'use client'` (JWT in localStorage requires client-side auth)
+- **Plain CSS Modules** — scoped per component/page; global base in `styles/globals.css`
+- **`@ducanh2912/next-pwa`** — generates `public/sw.js` + `public/manifest.webmanifest` at build time; SW disabled in dev
 
 ### HTTP layer
 
-All HTTP calls go through `src/services/apiService.js` — never call `fetch()` directly in components.
+All HTTP calls go through `services/apiService.js` — never call `fetch()` directly in components.
 
 ```js
 // Auth
@@ -268,22 +253,30 @@ remindersApi.remove(id)
 remindersApi.badgeCount()                      // returns { dueSoon, overdue }
 ```
 
-To add a new endpoint: export a new function from `apiService.js` that calls the internal `request()` helper. Do not add `fetch()` calls elsewhere.
+To add a new endpoint: export a new function from `services/apiService.js` that calls the internal `request()` helper. Do not add `fetch()` calls elsewhere.
 
 ### Auth
 
 - JWT stored in `localStorage` key `'token'`.
-- `AuthContext` (`src/context/AuthContext.jsx`) exposes `{ token, isAuthed, username, login, logout }`.
+- `AuthContext` (`context/AuthContext.jsx`) exposes `{ token, isAuthed, username, login, logout }`.
 - `username` is decoded from the JWT payload client-side — avoids a separate `/me` endpoint.
-- `ProtectedRoute` (`src/routes/ProtectedRoute.jsx`) redirects to `/login` if `!isAuthed`.
+- Auth guard: `app/(app)/layout.jsx` — `useEffect` redirect to `/login` if `!isAuthed`.
 - 401/403 responses clear the token and dispatch a `window` `'auth:logout'` event; `AuthContext` listens and redirects to `/login` with a "Session expired" banner.
-- Register does not auto-login — on success, navigates to `/login` with `state.justRegistered`.
-- Google Sign-In uses the GIS ID token flow (`POST /api/auth/google`). `GoogleSignInButton` loads the GIS script once, renders the official button, and triggers One Tap on login/register pages. Supports `mode` prop: `login`, `register`, `link`. Backend requires `GOOGLE_CLIENT_ID` env; frontend requires `VITE_GOOGLE_CLIENT_ID`.
+- Register does not auto-login — on success, navigates to `/login?registered=1`.
+- Google Sign-In uses the GIS ID token flow (`POST /api/auth/google`). `GoogleSignInButton` loads the GIS script once, renders the official button, and triggers One Tap on login/register pages. Supports `mode` prop: `login`, `register`, `link`. Backend requires `GOOGLE_CLIENT_ID` env; frontend requires `NEXT_PUBLIC_GOOGLE_CLIENT_ID`.
 - Accounts are auto-linked by email when `email_verified=true`. `GET /api/auth/providers` returns `{ authProviders, hasPassword }` — used by SettingsPage to show Connect/Disconnect Google.
+
+### Navigation
+
+- **`next/link`** — replaces `react-router-dom` `<Link>`
+- **`next/navigation`** — `useRouter()`, `usePathname()`, `useSearchParams()` replace react-router hooks
+- **`components/NavLink.jsx`** — wraps `<Link>` with active-state detection via `usePathname()`
+- **Query params** replace router state: `?registered=1`, `?loggedOut=1`, `?passwordChanged=1`
+- **`useSearchParams` must be wrapped in `<Suspense>`** at the route level (login, reset-password pages)
 
 ### Modal / dialog pattern
 
-Modals use two global CSS classes from `globals.css`:
+Modals use two global CSS classes from `styles/globals.css`:
 - `.modal-backdrop` — `position: fixed; inset: 0` overlay with semi-transparent background; Playwright-visible (has explicit dimensions).
 - `.modal` — centered card inside the backdrop.
 
@@ -305,59 +298,64 @@ Modals use two global CSS classes from `globals.css`:
 
 - **Breakpoint**: `≤ 640px` — targets all mobile devices (iOS 14 Pro is 390px).
 - **Sidebar**: collapses from 232px → 52px, showing only icons; text labels hidden via CSS. Pure CSS — no JS state.
-- **Main content**: `margin-left` and `padding` adjust at the same breakpoint via `AppShell.module.css`.
-- **`.page` utility**: `padding` reduced to `0` and `margin` to `1rem auto` at `≤ 640px` (defined in `globals.css`).
+- **Main content**: `margin-left` and `padding` adjust at the same breakpoint via `components/AppShell.module.css`.
+- **`.page` utility**: `padding` reduced to `0` and `margin` to `1rem auto` at `≤ 640px` (defined in `styles/globals.css`).
 - **Tables** (`ExpensesListPage`, `DashboardPage`): wrapped in a `overflow-x: auto` div; column widths shrink at `≤ 640px` to fit ~340px.
 - **KpiCard**: value `font-size` scales down from `1.875rem` → `1.375rem` at `≤ 640px`.
 - **SummaryPage**: filter fields expand to `100%` width; charts grid was already collapsing to 1 column at `≤ 800px`.
 
 ### PWA
 
-- **Manifest**: configured in `vite.config.js` under `VitePWA({ manifest })` — name, icons, `standalone` display, dark theme/background color.
-- **Service worker**: `registerType: 'autoUpdate'`. `/api/*` routes use `NetworkFirst` (5s timeout, 200-only, 1-day cache). All app assets are precached.
-- **Update flow**: SW dispatches `pwa:update-available` custom event → `App.jsx` shows `<UpdatePrompt>` toast → user clicks "Recarregar" → `updateSW(true)` skips waiting and reloads.
-- **Icons**: static PNGs in `frontend/public/icons/` (192, 512, 512-maskable, 180 apple-touch). Were generated via Playwright/Chromium from `favicon.svg`; regenerate with `node generate-icons.mjs` if the icon changes (script not committed — recreate from plan if needed).
-- **iOS**: `index.html` carries `apple-mobile-web-app-*` meta tags and `apple-touch-icon` link. No install banner on iOS — user must use Share → Add to Home Screen manually.
+- **Config**: `next.config.mjs` — `withPWA` wrapper from `@ducanh2912/next-pwa`; `dest: 'public'`; SW disabled in dev.
+- **Manifest**: `public/manifest.webmanifest` — name, icons, `standalone` display, dark theme/background color.
+- **Service worker**: `/api/*` routes use `NetworkFirst` (5s timeout, 200-only, 1-day cache). All app assets are precached.
+- **Update flow**: `components/PWAUpdater.jsx` listens for a waiting SW via `navigator.serviceWorker.ready`; shows `UpdatePrompt` → user clicks "Recarregar" → `postMessage({ type: 'SKIP_WAITING' })` + reload.
+- **Icons**: static PNGs in `public/icons/` (192, 512, 512-maskable, 180 apple-touch).
+- **iOS**: `app/layout.jsx` carries `apple-mobile-web-app-*` meta tags and `apple-touch-icon` link. No install banner on iOS — user must use Share → Add to Home Screen manually.
 
 ### Internationalisation (i18n)
 
 - **Stack**: `i18next` + `react-i18next` + `i18next-browser-languagedetector`
-- **Supported languages**: `pt-BR` (default) and `en` — defined in `src/constants/languages.js` on the backend and mirrored in `frontend/src/i18n/index.js`
-- **Translation files**: `frontend/src/i18n/locales/{en,pt-BR}/common.json` — bundled at build time (no HTTP fetch)
+- **Supported languages**: `pt-BR` (default) and `en` — defined in `lib/constants/languages.js` and mirrored in `i18n/index.js`
+- **Translation files**: `i18n/locales/{en,pt-BR}/common.json` — bundled at build time (no HTTP fetch)
 - **Language detection order**: `localStorage` (`i18nextLng`) → `navigator.language`; chosen language is cached back to `localStorage`
 - **Server-side preference**: the JWT payload carries `language`; `AuthContext.login()` applies it to i18next **only when no `i18nextLng` key exists in `localStorage`**, so an explicit client-side preference always wins
 - **Language change via UI**: `PATCH /api/auth/language` → returns a new JWT with the updated preference; `AuthContext.updateLanguage()` also calls `i18n.changeLanguage()` immediately
-- **Error message mapping**: `frontend/src/i18n/apiErrors.js` maps backend error strings to i18n keys; unmapped errors fall back to `errors.generic`. Add new mappings here whenever a new backend error message needs a translated string in the UI
+- **Error message mapping**: `i18n/apiErrors.js` maps backend error strings to i18n keys; unmapped errors fall back to `errors.generic`. Add new mappings here whenever a new backend error message needs a translated string in the UI
 - **Namespace**: single namespace `common`; use `t('section.key')` — e.g. `t('nav.dashboard')`, `t('errors.expenseNotFound')`
-- **Date locale**: `formatDate()` and `monthLabel()` map `'en'` → `'en-US'` for `Intl.DateTimeFormat` to ensure mm/dd/yyyy. `App.jsx` syncs `document.documentElement.lang` on every language change. `<DateField>` sets `lang` on the native input (effective in Firefox; Chrome uses browser language).
+- **Date locale**: `formatDate()` and `monthLabel()` map `'en'` → `'en-US'` for `Intl.DateTimeFormat` to ensure mm/dd/yyyy. `app/layout.jsx` carries `lang="pt-BR"` on `<html>`; components update `document.documentElement.lang` on language change. `<DateField>` sets `lang` on the native input.
 - **Chart translations**: `CategoryDonut` uses `categoryLabel(entry.category, t)` for legend/tooltip. `StackedMonthlyBar` sets `name={categoryLabel(cat, t)}` on each `<Bar>`. `monthLabel()` uses `i18n.language` for axis labels. `SummaryPage` month names use `Intl.DateTimeFormat` via `getMonthName(m)` — not a hardcoded array.
 - **Dashboard KPIs**: the 4th card shows `fuelShare%` (annual fuel percentage) under key `dashboard.fuelShare`. Cards 2–4 carry a `subtitle` prop (current year) to clarify they are not monthly figures. `KpiCard` accepts an optional `subtitle` prop rendered below the label.
 
 ### Naming conventions
 
-- Pages: `*Page.jsx` in `src/pages/` (e.g. `LoginPage`, `RegisterPage`, `ChangePasswordPage`)
-- Components: PascalCase in `src/components/`
-- Services: `*Api` object exported from `src/services/apiService.js`
+- Pages: `*Page.jsx` in `views/` (e.g. `LoginPage`, `RegisterPage`, `ChangePasswordPage`)
+- Route files: `app/(group)/path/page.jsx` — thin wrappers that re-export from `views/`
+- Components: PascalCase in `components/`
+- Services: `*Api` object exported from `services/apiService.js`
 - CSS Modules: `*.module.css` co-located with the component/page
 
-## CI Pipelines
+## CI Pipeline
 
-Two separate workflow files under `.github/workflows/`:
+Single workflow file `.github/workflows/ci.yml` — triggers on push/PR to `main`:
 
-| Workflow | Triggers on | Chain |
+| Job | Needs | Description |
 |---|---|---|
-| `backend.yml` | `src/**`, `test/**`, `package*.json` | test-unit → test-integration → test-api |
-| `frontend.yml` | `frontend/**` | test-unit → e2e |
+| `test-unit` | — | Node.js native test runner + mongodb-memory-server |
+| `test-integration` | `test-unit` | Real service↔model flows, in-memory Mongo |
+| `test-api` | `test-integration` | Mocha/Supertest against `next build && next start` |
+| `e2e` | `test-api` | Playwright Chromium against `next build && next start` |
 
 - `test-unit` and `test-integration` use `mongodb-memory-server` — no secrets needed
-- `test-api` and `e2e` boot the real server and require `JWT_SECRET` + `MONGODB_URI` from GitHub Secrets
-- Both workflows support `workflow_dispatch` for manual runs
+- `test-api` and `e2e` build the Next.js app and boot `next start`; require `JWT_SECRET` + `MONGODB_URI` from GitHub Secrets
+- Health check endpoint: `GET /api/health`
+- Supports `workflow_dispatch` for manual runs
 
 ## Visual Identity
 
-- Primary accent: `#2DD4BF` (teal) — mapped to `--primary` in `globals.css`
+- Primary accent: `#2DD4BF` (teal) — mapped to `--primary` in `styles/globals.css`
 - Background: `#07101a` (`--bg`) / `#0f1b27` (`--surface`)
-- Wordmark: "DRIVE" in `var(--text)`, "LEDGER" in `var(--primary)`; rendered via JSX in `Sidebar.jsx`, `LoginPage.jsx`, `RegisterPage.jsx`
+- Wordmark: "DRIVE" in `var(--text)`, "LEDGER" in `var(--primary)`; rendered via JSX in `components/Sidebar.jsx`, `views/LoginPage.jsx`, `views/RegisterPage.jsx`
 - Icon: `lucide-react` `<Gauge>` component used as the logo mark throughout the app
 - Tagline: "Track every kilometer."
-- Favicon: `frontend/public/favicon.svg` — custom speedometer SVG, served at `/favicon.svg`
+- Favicon: `public/favicon.svg` — custom speedometer SVG, served at `/favicon.svg`

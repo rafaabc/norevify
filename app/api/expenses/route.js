@@ -1,0 +1,30 @@
+import { NextResponse } from 'next/server';
+import { connectDB } from '@/lib/db.mjs';
+import { withAuth } from '@/lib/auth.mjs';
+import expensesService from '@/lib/services/expenses.service';
+
+export const GET = withAuth(async (req, _ctx, user) => {
+  await connectDB();
+  const { searchParams } = new URL(req.url);
+  try {
+    const result = await expensesService.listExpenses(user.id, {
+      category: searchParams.get('category'),
+      year:     searchParams.get('year'),
+      month:    searchParams.get('month'),
+    });
+    return NextResponse.json(result);
+  } catch (err) {
+    return NextResponse.json({ message: err.message }, { status: err.status || 500 });
+  }
+});
+
+export const POST = withAuth(async (req, _ctx, user) => {
+  await connectDB();
+  try {
+    const body = await req.json();
+    const result = await expensesService.createExpense(user.id, body);
+    return NextResponse.json(result, { status: 201 });
+  } catch (err) {
+    return NextResponse.json({ message: err.message }, { status: err.status || 500 });
+  }
+});

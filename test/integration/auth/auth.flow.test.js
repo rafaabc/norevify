@@ -8,7 +8,7 @@ const assert = require('node:assert/strict');
 const jwt = require('jsonwebtoken');
 
 const { startMongo, stopMongo, resetMongo } = require('../../helpers/mongo');
-const authService = require('../../../src/services/auth.service');
+const authService = require('../../../lib/services/auth.service');
 
 before(async () => await startMongo());
 after(async () => await stopMongo());

@@ -1,5 +1,6 @@
 node_modules/
 .env
+.next/
 .claude/
 coverage/
 reports/
@@ -8,3 +9,5 @@ frontend/dist/
 frontend/playwright-report/
 frontend/test-results/
 .worktrees/
+.vercel
+.env*.local
