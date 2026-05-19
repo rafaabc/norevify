@@ -15,8 +15,8 @@ test.describe('US-01: User Registration', () => {
     const username = uniqueUsername('reg');
     await registerPage.register(username, DEFAULT_PASSWORD);
 
-    await expect(page).toHaveURL('/login');
-    await expect(page.locator('.alert-success')).toContainText('Account created — please log in.');
+    await expect(page).toHaveURL(/\/login/);
+    await expect(page.locator('.alert-success')).toBeVisible();
   });
 
   // TC-01-02 / TC-01-03

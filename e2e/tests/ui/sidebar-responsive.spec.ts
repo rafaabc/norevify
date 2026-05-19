@@ -24,7 +24,7 @@ test.describe('Sidebar responsiveness', () => {
   async function loginAndGoTo(page: typeof loginPage['page'], path = '/') {
     await loginPage.navigate();
     await loginPage.login(username, DEFAULT_PASSWORD);
-    await page.waitForURL('/');
+    await page.waitForURL('/dashboard');
     if (path !== '/') await page.goto(path);
   }
 
@@ -56,7 +56,7 @@ test.describe('Sidebar responsiveness', () => {
     await expect(page).toHaveURL('/summary');
 
     await page.getByRole('link', { name: 'Dashboard' }).click();
-    await expect(page).toHaveURL('/');
+    await expect(page).toHaveURL('/dashboard');
   });
 
   test('[TC-UI-04] should not overflow the viewport horizontally on mobile', async ({ page }) => {
