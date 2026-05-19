@@ -8,7 +8,10 @@ test.describe('Logout and Session Expiry', () => {
     // AuthContext treats the user as authenticated, but the backend rejects it
     const fakeToken = 'eyJhbGciOiJIUzI1NiJ9.eyJ1c2VybmFtZSI6InRlc3QiLCJpZCI6OTk5fQ.invalid_signature';
 
-    await page.addInitScript((t) => localStorage.setItem('token', t), fakeToken);
+    await page.addInitScript((t) => {
+      localStorage.setItem('token', t);
+      localStorage.setItem('i18nextLng', 'en');
+    }, fakeToken);
     await page.goto('/expenses');
 
     // API returns 403 → auth:logout event → AuthContext navigates to /login
@@ -20,7 +23,10 @@ test.describe('Logout and Session Expiry', () => {
   test('should clear session and show Login/Register links after logout', async ({ page, request }) => {
     const { token } = await createAndLoginUser(request, 'logout');
 
-    await page.addInitScript((t) => localStorage.setItem('token', t), token);
+    await page.addInitScript((t) => {
+      localStorage.setItem('token', t);
+      localStorage.setItem('i18nextLng', 'en');
+    }, token);
     await page.goto('/expenses');
     await expect(page).toHaveURL('/expenses');
 

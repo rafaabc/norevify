@@ -5,13 +5,14 @@ import { useAuth } from '@/context/AuthContext.jsx';
 import Loading from '@/components/Loading.jsx';
 
 export default function RootPage() {
-  const { isAuthed } = useAuth();
+  const { isAuthed, authLoading } = useAuth();
   const router = useRouter();
 
   useEffect(() => {
+    if (authLoading) return;
     if (isAuthed) router.replace('/dashboard');
     else router.replace('/login');
-  }, [isAuthed, router]);
+  }, [isAuthed, authLoading, router]);
 
   return <Loading />;
 }

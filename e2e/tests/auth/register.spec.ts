@@ -7,6 +7,7 @@ test.describe('US-01: User Registration', () => {
 
   test.beforeEach(async ({ page }) => {
     registerPage = new RegisterPage(page);
+    await page.addInitScript(() => localStorage.setItem('i18nextLng', 'en'));
     await registerPage.navigate();
   });
 

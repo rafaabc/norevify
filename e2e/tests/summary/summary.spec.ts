@@ -5,6 +5,10 @@ import { currentYear } from '../../fixtures/test-data';
 
 const YEAR = String(currentYear());
 
+test.beforeEach(async ({ page }) => {
+  await page.addInitScript(() => localStorage.setItem('i18nextLng', 'en'));
+});
+
 // TC-04-01 — summary by year shows per-category columns
 test('[TC-04-01] should display category columns for expenses in the given year', async ({
   page,

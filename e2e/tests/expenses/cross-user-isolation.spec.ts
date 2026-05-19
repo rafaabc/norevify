@@ -1,6 +1,10 @@
 import { test, expect } from '@playwright/test';
 import { createAndLoginUser, createExpenseViaApi } from '../../fixtures/api';
 
+test.beforeEach(async ({ page }) => {
+  await page.addInitScript(() => localStorage.setItem('i18nextLng', 'en'));
+});
+
 // TC-03-17
 test('[TC-03-17] should show error when User B navigates to an expense owned by User A', async ({
   page,

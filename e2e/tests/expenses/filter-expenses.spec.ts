@@ -13,7 +13,10 @@ test.beforeAll(async ({ request }) => {
 });
 
 test.beforeEach(async ({ page }) => {
-  await page.addInitScript((t) => localStorage.setItem('token', t), token);
+  await page.addInitScript((t) => {
+    localStorage.setItem('token', t);
+    localStorage.setItem('i18nextLng', 'en');
+  }, token);
 });
 
 test('should show only Fuel expenses when filtered by Fuel category', async ({ page }) => {

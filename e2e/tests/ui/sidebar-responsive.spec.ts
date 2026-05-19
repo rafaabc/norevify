@@ -25,6 +25,14 @@ test.describe('Sidebar responsiveness', () => {
     await loginPage.navigate();
     await loginPage.login(username, DEFAULT_PASSWORD);
     await page.waitForURL('/dashboard');
+    // Dismiss Next.js dev error overlay if present (dev-mode only)
+    try {
+      const hideBtn = page.getByRole('button', { name: 'Hide Errors' });
+      await hideBtn.waitFor({ state: 'visible', timeout: 2000 });
+      await hideBtn.click();
+    } catch {
+      // overlay not present — continue
+    }
     if (path !== '/') await page.goto(path);
   }
 
@@ -49,13 +57,15 @@ test.describe('Sidebar responsiveness', () => {
     await page.setViewportSize(MOBILE_VIEWPORT);
     await loginAndGoTo(page);
 
-    await page.getByRole('link', { name: 'Expenses' }).click();
+    const bottomNav = page.locator('nav[aria-label="Main navigation"]');
+
+    await bottomNav.getByRole('link', { name: 'Expenses' }).click();
     await expect(page).toHaveURL('/expenses');
 
-    await page.getByRole('link', { name: 'Summary' }).click();
+    await bottomNav.getByRole('link', { name: 'Summary' }).click();
     await expect(page).toHaveURL('/summary');
 
-    await page.getByRole('link', { name: 'Dashboard' }).click();
+    await bottomNav.getByRole('link', { name: 'Dashboard' }).click();
     await expect(page).toHaveURL('/dashboard');
   });
 

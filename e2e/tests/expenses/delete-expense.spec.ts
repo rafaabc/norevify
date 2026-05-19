@@ -9,7 +9,10 @@ test.beforeAll(async ({ request }) => {
 });
 
 test.beforeEach(async ({ page }) => {
-  await page.addInitScript((t) => localStorage.setItem('token', t), token);
+  await page.addInitScript((t) => {
+    localStorage.setItem('token', t);
+    localStorage.setItem('i18nextLng', 'en');
+  }, token);
 });
 
 // TC-03-15 — delete from list

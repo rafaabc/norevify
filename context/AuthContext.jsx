@@ -10,10 +10,12 @@ const AuthContext = createContext(null);
 
 export function AuthProvider({ children }) {
   const [token, setToken] = useState(null);
+  const [authLoading, setAuthLoading] = useState(true);
 
   useEffect(() => {
     const stored = localStorage.getItem('token');
     if (stored) setToken(stored);
+    setAuthLoading(false);
   }, []);
   const [expiredBanner, setExpiredBanner] = useState(false);
   const router = useRouter();
@@ -65,7 +67,7 @@ export function AuthProvider({ children }) {
   }, []);
 
   return (
-    <AuthContext.Provider value={{ token, isAuthed: !!token, username, currency, language, updateCurrency, updateLanguage, login, logout, expiredBanner, clearExpiredBanner: () => setExpiredBanner(false) }}>
+    <AuthContext.Provider value={{ token, isAuthed: !!token, authLoading, username, currency, language, updateCurrency, updateLanguage, login, logout, expiredBanner, clearExpiredBanner: () => setExpiredBanner(false) }}>
       {children}
     </AuthContext.Provider>
   );

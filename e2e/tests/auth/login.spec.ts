@@ -14,6 +14,7 @@ test.describe('US-02: User Login', () => {
 
   test.beforeEach(async ({ page }) => {
     loginPage = new LoginPage(page);
+    await page.addInitScript(() => localStorage.setItem('i18nextLng', 'en'));
     await loginPage.navigate();
   });
 

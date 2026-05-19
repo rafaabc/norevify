@@ -5,14 +5,14 @@ import { useAuth } from '@/context/AuthContext.jsx';
 import AppShell from '@/components/AppShell.jsx';
 
 export default function AppLayout({ children }) {
-  const { isAuthed } = useAuth();
+  const { isAuthed, authLoading } = useAuth();
   const router = useRouter();
 
   useEffect(() => {
-    if (!isAuthed) router.replace('/login');
-  }, [isAuthed, router]);
+    if (!authLoading && !isAuthed) router.replace('/login');
+  }, [isAuthed, authLoading, router]);
 
-  if (!isAuthed) return null;
+  if (authLoading || !isAuthed) return null;
 
   return <AppShell>{children}</AppShell>;
 }
