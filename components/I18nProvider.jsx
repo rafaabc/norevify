@@ -1,10 +1,13 @@
 'use client';
 import { useEffect } from 'react';
-import '@/i18n/index.js';
+import i18n from '@/i18n/index.js';
 
 export default function I18nProvider({ children }) {
   useEffect(() => {
-    // i18n initializes via side effect import above
+    const saved = localStorage.getItem('i18nextLng');
+    if (saved && saved !== i18n.language) {
+      i18n.changeLanguage(saved);
+    }
   }, []);
   return children;
 }

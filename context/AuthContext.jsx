@@ -9,7 +9,12 @@ import i18n from '@/i18n/index.js';
 const AuthContext = createContext(null);
 
 export function AuthProvider({ children }) {
-  const [token, setToken] = useState(() => typeof window !== 'undefined' ? localStorage.getItem('token') : null);
+  const [token, setToken] = useState(null);
+
+  useEffect(() => {
+    const stored = localStorage.getItem('token');
+    if (stored) setToken(stored);
+  }, []);
   const [expiredBanner, setExpiredBanner] = useState(false);
   const router = useRouter();
 
@@ -19,6 +24,7 @@ export function AuthProvider({ children }) {
     setExpiredBanner(false);
     const payload = decodeJwt(newToken);
     if (payload?.language && !localStorage.getItem('i18nextLng')) {
+      localStorage.setItem('i18nextLng', payload.language);
       i18n.changeLanguage(payload.language);
     }
   }, []);
@@ -54,6 +60,7 @@ export function AuthProvider({ children }) {
     const { token: newToken } = await authApi.updateLanguage({ language: newLanguage });
     localStorage.setItem('token', newToken);
     setToken(newToken);
+    localStorage.setItem('i18nextLng', newLanguage);
     i18n.changeLanguage(newLanguage);
   }, []);
 

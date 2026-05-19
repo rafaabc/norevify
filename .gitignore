@@ -9,3 +9,5 @@ frontend/dist/
 frontend/playwright-report/
 frontend/test-results/
 .worktrees/
+.vercel
+.env*.local
