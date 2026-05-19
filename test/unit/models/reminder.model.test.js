@@ -5,7 +5,7 @@ const { describe, it, before, after, beforeEach } = require('node:test');
 const assert = require('node:assert/strict');
 
 const { startMongo, stopMongo, resetMongo } = require('../../helpers/mongo');
-const reminderModel = require('../../../src/models/reminder.model');
+const reminderModel = require('../../../lib/models/reminder.model');
 
 before(async () => await startMongo());
 after(async () => await stopMongo());

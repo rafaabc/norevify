@@ -8,14 +8,14 @@ const assert = require('node:assert/strict');
 const mongoose = require('mongoose');
 
 const { startMongo, stopMongo, resetMongo } = require('../../helpers/mongo');
-const authService = require('../../../src/services/auth.service');
+const authService = require('../../../lib/services/auth.service');
 const {
   createExpense,
   getExpense,
   listExpenses,
   updateExpense,
   deleteExpense,
-} = require('../../../src/services/expenses.service');
+} = require('../../../lib/services/expenses.service');
 
 before(async () => await startMongo());
 after(async () => await stopMongo());

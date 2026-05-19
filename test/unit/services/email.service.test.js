@@ -20,7 +20,7 @@ require.cache[resendPath] = {
   exports: { Resend: MockResend },
 };
 
-const emailService = require('../../../src/services/email.service');
+const emailService = require('../../../lib/services/email.service');
 
 const { describe, it, beforeEach } = require('node:test');
 const assert = require('node:assert/strict');
