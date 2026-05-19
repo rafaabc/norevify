@@ -101,7 +101,7 @@ describe('Reminders API', function () {
       const created = await request(process.env.BASE_URL || 'http://localhost:3000')
         .post('/api/reminders')
         .set('Authorization', `Bearer ${token}`)
-        .send({ type: 'other', dueKm: 1000 });
+        .send({ type: 'Other', dueKm: 1000 });
       const res = await request(process.env.BASE_URL || 'http://localhost:3000')
         .delete(`/api/reminders/${created.body.id}`)
         .set('Authorization', `Bearer ${token}`);
