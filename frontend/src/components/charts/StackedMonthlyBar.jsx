@@ -8,10 +8,13 @@ import {
   Legend,
   ResponsiveContainer,
 } from 'recharts';
+import { useTranslation } from 'react-i18next';
 import { CATEGORY_COLORS, AXIS_STYLE, GRID_STYLE, TOOLTIP_STYLE } from './chartTheme.js';
 import { monthLabel } from '../../utils/aggregations.js';
+import { categoryLabel } from '../../utils/categories.js';
 
 export default function StackedMonthlyBar({ data = [], categories = [] }) {
+  const { t } = useTranslation();
   if (!data.length) return <div style={{ color: 'var(--muted)', textAlign: 'center', padding: '2rem' }}>No data</div>;
 
   const formatted = data.map((d) => ({ ...d, label: monthLabel(d.month) }));
@@ -48,6 +51,7 @@ export default function StackedMonthlyBar({ data = [], categories = [] }) {
           <Bar
             key={cat}
             dataKey={cat}
+            name={categoryLabel(cat, t)}
             stackId="a"
             fill={CATEGORY_COLORS[cat] ?? '#94a3b8'}
           />
