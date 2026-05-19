@@ -2,97 +2,67 @@
 
 process.env.JWT_SECRET = process.env.JWT_SECRET || 'test-secret';
 
-const { describe, it } = require('node:test');
+const { describe, it, before } = require('node:test');
 const assert = require('node:assert/strict');
 const jwt = require('jsonwebtoken');
 
-const authMiddleware = require('../../../src/middleware/auth.middleware');
-
 const SECRET = process.env.JWT_SECRET;
 
+let withAuth;
+before(async () => {
+  ({ withAuth } = await import('../../../lib/auth.mjs'));
+});
+
 function makeReq(authHeader) {
-  return { headers: { authorization: authHeader } };
+  return {
+    headers: { get: (name) => name === 'authorization' ? authHeader : null },
+  };
 }
 
-function makeRes() {
-  const res = { _status: null, _body: null };
-  res.status = (code) => { res._status = code; return res; };
-  res.json = (body) => { res._body = body; return res; };
-  return res;
+function makeHandler(captured = {}) {
+  return async (req, ctx, user) => {
+    captured.user = user;
+    captured.called = true;
+    return new Response(JSON.stringify({ ok: true }), { status: 200 });
+  };
 }
 
-describe('authMiddleware', () => {
-  it('should call next() and set req.user when token is valid', (_, done) => {
-    const payload = { id: 1, username: 'alice' };
+describe('withAuth', () => {
+  it('should call handler with decoded user when token is valid', async () => {
+    const payload = { id: 'abc123', username: 'alice' };
     const token = jwt.sign(payload, SECRET, { expiresIn: '1h' });
-    const req = makeReq(`Bearer ${token}`);
-    const res = makeRes();
-
-    authMiddleware(req, res, () => {
-      assert.ok(req.user);
-      assert.strictEqual(req.user.id, payload.id);
-      assert.strictEqual(req.user.username, payload.username);
-      done();
-    });
+    const captured = {};
+    const res = await withAuth(makeHandler(captured))(makeReq(`Bearer ${token}`), {});
+    assert.strictEqual(res.status, 200);
+    assert.ok(captured.called);
+    assert.strictEqual(captured.user.id, payload.id);
+    assert.strictEqual(captured.user.username, payload.username);
   });
 
-  it('should respond with 401 when Authorization header is missing', (_, done) => {
-    const req = makeReq(undefined);
-    const res = makeRes();
-
-    authMiddleware(req, res, () => {
-      assert.fail('next() should not have been called');
-    });
-
-    setImmediate(() => {
-      assert.strictEqual(res._status, 401);
-      assert.match(res._body.message, /not provided/i);
-      done();
-    });
+  it('should return 401 when Authorization header is missing', async () => {
+    const res = await withAuth(makeHandler())(makeReq(undefined), {});
+    assert.strictEqual(res.status, 401);
+    const body = await res.json();
+    assert.match(body.message, /not provided/i);
   });
 
-  it('should respond with 401 when Authorization header has no token after Bearer', (_, done) => {
-    const req = makeReq('Bearer ');
-    const res = makeRes();
-
-    authMiddleware(req, res, () => {
-      assert.fail('next() should not have been called');
-    });
-
-    setImmediate(() => {
-      assert.strictEqual(res._status, 401);
-      done();
-    });
+  it('should return 401 when token is empty after Bearer', async () => {
+    const res = await withAuth(makeHandler())(makeReq('Bearer '), {});
+    assert.strictEqual(res.status, 401);
   });
 
-  it('should respond with 403 when token is invalid', (_, done) => {
-    const req = makeReq('Bearer this.is.not.valid');
-    const res = makeRes();
-
-    authMiddleware(req, res, () => {
-      assert.fail('next() should not have been called');
-    });
-
-    setTimeout(() => {
-      assert.strictEqual(res._status, 403);
-      assert.match(res._body.message, /invalid or expired/i);
-      done();
-    }, 50);
+  it('should return 403 when token is invalid', async () => {
+    const res = await withAuth(makeHandler())(makeReq('Bearer this.is.not.valid'), {});
+    assert.strictEqual(res.status, 403);
+    const body = await res.json();
+    assert.match(body.message, /invalid or expired/i);
   });
 
-  it('should respond with 403 when token is expired', (_, done) => {
-    const token = jwt.sign({ id: 1 }, SECRET, { expiresIn: -1 });
-    const req = makeReq(`Bearer ${token}`);
-    const res = makeRes();
-
-    authMiddleware(req, res, () => {
-      assert.fail('next() should not have been called');
-    });
-
-    setTimeout(() => {
-      assert.strictEqual(res._status, 403);
-      assert.match(res._body.message, /invalid or expired/i);
-      done();
-    }, 50);
+  it('should return 403 when token is expired', async () => {
+    const token = jwt.sign({ id: '1' }, SECRET, { expiresIn: -1 });
+    const res = await withAuth(makeHandler())(makeReq(`Bearer ${token}`), {});
+    assert.strictEqual(res.status, 403);
+    const body = await res.json();
+    assert.match(body.message, /invalid or expired/i);
   });
 });
