@@ -45,7 +45,7 @@ routes → controllers → services → models (Mongoose)
 ```
 
 - **`src/config/db.js`**: `connectDB()` — called once at boot in `server.js` before `app.listen`
-- **routes**: wire HTTP verbs to controller functions; `expenses.routes.js` applies `authMiddleware` globally
+- **routes**: wire HTTP verbs to controller functions; `expenses.routes.js` and `reminders.routes.js` apply `authMiddleware` globally
 - **controllers**: async try/catch wrappers that map service results to HTTP responses
 - **services**: all business logic and validation; throw errors with `.status` property (picked up by controllers)
 - **models**: Mongoose schemas + compiled models; export thin async wrappers (`findById`, `findByUserId`, `create`, `update`, `remove`, `_reset`, `updatePassword`) so services stay decoupled from the ODM API
@@ -185,10 +185,28 @@ Swagger UI at `GET /api-docs` (served from `resources/swagger.json`). Also logge
 | Prefix | Auth required | Description |
 |---|---|---|
 | `/api/auth` | No | `POST /register`, `POST /login`, `PATCH /password`, `POST /forgot-password`, `POST /reset-password`, `POST /google` |
-| `/api/auth` | Yes (Bearer JWT) | `PATCH /currency`, `PATCH /language`, `POST /google/link`, `DELETE /google/link`, `GET /providers` |
+| `/api/auth` | Yes (Bearer JWT) | `PATCH /currency`, `PATCH /language`, `PATCH /odometer`, `POST /google/link`, `DELETE /google/link`, `GET /providers` |
 | `/api/expenses` | Yes (Bearer JWT) | CRUD + `GET /summary` |
+| `/api/reminders` | Yes (Bearer JWT) | `GET /`, `POST /`, `GET /:id`, `PUT /:id`, `POST /:id/complete`, `DELETE /:id`, `GET /badge-count` |
 
 Auth: `Authorization: Bearer <token>` header. JWT decoded into `req.user` (`{ id, username }`). `id` is an ObjectId hex string.
+
+## Reminder domain rules
+
+Valid types: `Fuel`, `Maintenance`, `Insurance`, `Parking`, `Toll`, `Tax`, `Other` (PascalCase — same set as expense categories).
+
+A reminder must have at least one of `dueDate` or `dueKm`. Both are optional individually but at least one is required.
+
+Status computation (`src/services/reminders.service.js`):
+- `overdue` — past `dueDate` OR `currentKm >= dueKm`
+- `dueSoon` — within `LEAD_DAYS = 7` days of `dueDate` OR within `LEAD_KM = 500` km of `dueKm`
+- `upcoming` — everything else
+
+`GET /badge-count` returns `{ dueSoon, overdue }` — frontend badge shows the sum.
+
+**Completion with recurrence**: `POST /:id/complete` accepts `{ completedKm }`. If `intervalMonths` or `intervalKm` are set, a new reminder is created automatically (`nextDueDate = completedDate + intervalMonths`, `nextDueKm = completedKm + intervalKm`).
+
+**Odometer tracking**: logging a `Fuel` expense with `odometer` field updates `user.currentKm`. `PATCH /api/auth/odometer` allows manual override. `currentKm` drives the km-based reminder status.
 
 ## Expense domain rules
 
@@ -239,6 +257,15 @@ expensesApi.create(data)
 expensesApi.update(id, data)
 expensesApi.remove(id)
 expensesApi.summary({ year, month, category })
+
+// Reminders
+remindersApi.list({ status })                  // status: 'active' | 'done'
+remindersApi.get(id)
+remindersApi.create(data)
+remindersApi.update(id, data)
+remindersApi.complete(id, { completedKm })
+remindersApi.remove(id)
+remindersApi.badgeCount()                      // returns { dueSoon, overdue }
 ```
 
 To add a new endpoint: export a new function from `apiService.js` that calls the internal `request()` helper. Do not add `fetch()` calls elsewhere.
@@ -253,6 +280,22 @@ To add a new endpoint: export a new function from `apiService.js` that calls the
 - Register does not auto-login — on success, navigates to `/login` with `state.justRegistered`.
 - Google Sign-In uses the GIS ID token flow (`POST /api/auth/google`). `GoogleSignInButton` loads the GIS script once, renders the official button, and triggers One Tap on login/register pages. Supports `mode` prop: `login`, `register`, `link`. Backend requires `GOOGLE_CLIENT_ID` env; frontend requires `VITE_GOOGLE_CLIENT_ID`.
 - Accounts are auto-linked by email when `email_verified=true`. `GET /api/auth/providers` returns `{ authProviders, hasPassword }` — used by SettingsPage to show Connect/Disconnect Google.
+
+### Modal / dialog pattern
+
+Modals use two global CSS classes from `globals.css`:
+- `.modal-backdrop` — `position: fixed; inset: 0` overlay with semi-transparent background; Playwright-visible (has explicit dimensions).
+- `.modal` — centered card inside the backdrop.
+
+`MobileNewActionSheet` uses `.modal-backdrop` + `.action-sheet` (fixed bottom sheet). `CompleteReminderDialog` and `DeleteConfirmDialog` use `.modal-backdrop` + `.modal`.
+
+### Reminders feature
+
+- **`RemindersListPage`** — two tabs: Active (upcoming/dueSoon/overdue) and History (done). Badge count polled on auth, route change, and window focus via `useReminderBadge` hook.
+- **`ReminderFormPage`** — create/edit; type must be PascalCase (`Fuel`, `Maintenance`, etc.).
+- **`ReminderStatusBadge`** — renders `data-testid="reminder-status-badge"` and `data-status={status}` on the **same** element. E2E selectors must use compound form: `[data-testid="reminder-status-badge"][data-status="upcoming"]` (no space).
+- **`MobileNewActionSheet`** — FAB `[data-testid="bottom-tabs-add"]` in `BottomTabs` opens an action sheet offering New Expense or New Reminder.
+- **Sidebar badge**: `AppShell` fetches `badgeCount`, passes to `<Sidebar>`. Badge = `dueSoon + overdue`.
 
 ### Display behavior
 
@@ -286,6 +329,9 @@ To add a new endpoint: export a new function from `apiService.js` that calls the
 - **Language change via UI**: `PATCH /api/auth/language` → returns a new JWT with the updated preference; `AuthContext.updateLanguage()` also calls `i18n.changeLanguage()` immediately
 - **Error message mapping**: `frontend/src/i18n/apiErrors.js` maps backend error strings to i18n keys; unmapped errors fall back to `errors.generic`. Add new mappings here whenever a new backend error message needs a translated string in the UI
 - **Namespace**: single namespace `common`; use `t('section.key')` — e.g. `t('nav.dashboard')`, `t('errors.expenseNotFound')`
+- **Date locale**: `formatDate()` and `monthLabel()` map `'en'` → `'en-US'` for `Intl.DateTimeFormat` to ensure mm/dd/yyyy. `App.jsx` syncs `document.documentElement.lang` on every language change. `<DateField>` sets `lang` on the native input (effective in Firefox; Chrome uses browser language).
+- **Chart translations**: `CategoryDonut` uses `categoryLabel(entry.category, t)` for legend/tooltip. `StackedMonthlyBar` sets `name={categoryLabel(cat, t)}` on each `<Bar>`. `monthLabel()` uses `i18n.language` for axis labels. `SummaryPage` month names use `Intl.DateTimeFormat` via `getMonthName(m)` — not a hardcoded array.
+- **Dashboard KPIs**: the 4th card shows `fuelShare%` (annual fuel percentage) under key `dashboard.fuelShare`. Cards 2–4 carry a `subtitle` prop (current year) to clarify they are not monthly figures. `KpiCard` accepts an optional `subtitle` prop rendered below the label.
 
 ### Naming conventions
 
