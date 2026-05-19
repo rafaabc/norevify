@@ -1,0 +1,229 @@
+{
+  "common": {
+    "save": "Salvar",
+    "saving": "Salvando…",
+    "loading": "Carregando…",
+    "cancel": "Cancelar",
+    "edit": "Editar",
+    "delete": "Excluir",
+    "or": "ou",
+    "new": "Novo"
+  },
+  "nav": {
+    "dashboard": "Painel",
+    "expenses": "Despesas",
+    "summary": "Resumo",
+    "reminders": "Lembretes",
+    "settings": "Configurações",
+    "changePassword": "Alterar senha",
+    "logout": "Sair"
+  },
+  "auth": {
+    "login": {
+      "heading": "Entrar",
+      "submit": "Entrar",
+      "submitting": "Entrando…",
+      "noAccount": "Não tem uma conta?",
+      "register": "Cadastre-se",
+      "forgotPassword": "Esqueceu a senha?",
+      "sessionExpired": "Sua sessão expirou. Faça login novamente.",
+      "loggedOut": "Logout realizado com sucesso.",
+      "accountCreated": "Conta criada — faça login.",
+      "passwordChanged": "Senha atualizada. Faça login."
+    },
+    "register": {
+      "heading": "Criar conta",
+      "username": "Usuário",
+      "email": "E-mail",
+      "password": "Senha",
+      "currency": "Moeda",
+      "submit": "Cadastrar",
+      "submitting": "Cadastrando…",
+      "hasAccount": "Já tem uma conta?",
+      "signIn": "Entrar"
+    },
+    "forgotPassword": {
+      "heading": "Esqueci a senha",
+      "email": "E-mail",
+      "submit": "Enviar link de recuperação",
+      "submitting": "Enviando…",
+      "backToLogin": "Voltar ao login",
+      "success": "Se o e-mail existir, um link de recuperação foi enviado."
+    },
+    "resetPassword": {
+      "heading": "Redefinir senha",
+      "newPassword": "Nova senha",
+      "confirm": "Confirmar nova senha",
+      "requestNew": "Solicitar novo link",
+      "submit": "Redefinir senha",
+      "submitting": "Redefinindo…",
+      "success": "Senha redefinida. Faça login."
+    },
+    "changePassword": {
+      "heading": "Alterar senha",
+      "current": "Senha atual",
+      "new": "Nova senha",
+      "confirm": "Confirmar nova senha",
+      "submit": "Salvar",
+      "submitting": "Salvando…",
+      "success": "Senha alterada com sucesso."
+    }
+  },
+  "settings": {
+    "heading": "Configurações",
+    "loggedInAs": "Conectado como",
+    "currency": {
+      "label": "Moeda preferida",
+      "success": "Moeda atualizada com sucesso."
+    },
+    "language": {
+      "label": "Idioma",
+      "success": "Idioma atualizado com sucesso."
+    },
+    "linkedAccounts": "Contas vinculadas",
+    "googleConnected": "Conta Google vinculada",
+    "googleDisconnected": "Conta Google desvinculada.",
+    "disconnectGoogle": "Desconectar Google",
+    "disconnecting": "Desconectando…",
+    "setPasswordFirst": "Defina uma senha antes de desconectar o Google.",
+    "changePassword": "Alterar senha"
+  },
+  "dashboard": {
+    "heading": "Painel",
+    "totalSpent": "Total gasto",
+    "thisMonth": "Este mês",
+    "lastMonth": "Mês passado",
+    "byCategory": "Por categoria",
+    "avgMonthly": "Média mensal",
+    "fuelShare": "Fatia de combustível",
+    "recentExpenses": "Despesas recentes",
+    "noExpenses": "Nenhuma despesa ainda.",
+    "category": "Categoria",
+    "amount": "Valor",
+    "date": "Data",
+    "description": "Descrição",
+    "monthlySpend": "Gastos Mensais {{year}}"
+  },
+  "expenses": {
+    "heading": "Despesas",
+    "noExpenses": "Nenhuma despesa encontrada.",
+    "date": "Data",
+    "category": "Categoria",
+    "description": "Descrição",
+    "amount": "Valor",
+    "actions": "Ações",
+    "newExpense": "Nova despesa",
+    "editExpense": "Editar despesa",
+    "confirmDelete": "Excluir esta despesa?",
+    "fields": {
+      "date": "Data",
+      "category": "Categoria",
+      "description": "Descrição",
+      "amount": "Valor",
+      "litres": "Litros",
+      "pricePerLitre": "Preço por litro",
+      "odometer": "Hodômetro (km)"
+    },
+    "filters": "Filtros",
+    "clearFilters": "Limpar filtros",
+    "filterCategory": "Categoria",
+    "filterYear": "Ano",
+    "filterMonth": "Mês"
+  },
+  "summary": {
+    "heading": "Resumo",
+    "year": "Ano",
+    "month": "Mês",
+    "category": "Categoria",
+    "allMonths": "Todos os meses",
+    "allCategories": "Todas as categorias",
+    "apply": "Aplicar",
+    "noData": "Sem dados para o período selecionado.",
+    "total": "Total",
+    "byCategory": "Por categoria",
+    "byMonth": "Por mês",
+    "breakdown": "detalhamento"
+  },
+  "categories": {
+    "Fuel": "Combustível",
+    "Maintenance": "Manutenção",
+    "Insurance": "Seguro",
+    "Parking": "Estacionamento",
+    "Toll": "Pedágio",
+    "Tax": "Imposto",
+    "Other": "Outro",
+    "all": "Todas as categorias",
+    "select": "Selecione a categoria"
+  },
+  "errors": {
+    "generic": "Algo deu errado. Tente novamente.",
+    "invalidCredentials": "Credenciais inválidas.",
+    "usernameTaken": "Nome de usuário já em uso.",
+    "emailRegistered": "E-mail já cadastrado.",
+    "userNotFound": "Usuário não encontrado.",
+    "expenseNotFound": "Despesa não encontrada.",
+    "invalidToken": "Token inválido ou expirado.",
+    "sessionExpired": "Sessão expirada. Faça login novamente.",
+    "passwordMismatch": "As senhas não coincidem.",
+    "reminderNotFound": "Lembrete não encontrado.",
+    "reminderAlreadyCompleted": "Lembrete já concluído.",
+    "reminderCannotEditCompleted": "Não é possível editar um lembrete concluído.",
+    "reminderMissingDue": "Informe uma data ou quilometragem.",
+    "odometerRewind": "Hodômetro não pode ser menor que o valor atual.",
+    "odometerNonFuel": "Hodômetro só é válido em abastecimento."
+  },
+  "pwa": {
+    "updateAvailable": "Nova versão disponível.",
+    "reload": "Recarregar"
+  },
+  "notFound": {
+    "heading": "Página não encontrada",
+    "back": "Ir para o painel"
+  },
+  "mobileTopBar": {
+    "title": "Drive Ledger"
+  },
+  "reminders": {
+    "heading": "Lembretes",
+    "newReminder": "Novo lembrete",
+    "editReminder": "Editar lembrete",
+    "noReminders": "Nenhum lembrete cadastrado.",
+    "tabs": { "active": "Ativos", "history": "Histórico" },
+    "fields": {
+      "type": "Tipo",
+      "title": "Título (opcional)",
+      "dueDate": "Data prevista",
+      "dueKm": "Quilometragem (km)",
+      "intervalMonths": "Repetir a cada (meses)",
+      "intervalKm": "Repetir a cada (km)"
+    },
+    "status": {
+      "upcoming": "Próximo",
+      "dueSoon": "Vencendo",
+      "overdue": "Atrasado",
+      "done": "Concluído"
+    },
+    "actions": {
+      "complete": "Marcar como feito",
+      "completedKm": "Odômetro na conclusão",
+      "completePreviewBoth": "Próximo lembrete será criado em {{nextDate}} aos {{nextKm}} km",
+      "completePreviewDate": "Próximo lembrete será criado em {{nextDate}}",
+      "completePreviewKm": "Próximo lembrete será criado aos {{nextKm}} km",
+      "deleteSuccess": "Lembrete excluído.",
+      "confirmDelete": "Excluir este lembrete?",
+      "confirmDeleteHistory": "Você vai excluir um registro de manutenção concluída. Continuar?",
+      "confirmDeleteHistory2": "Confirmar exclusão definitiva?"
+    }
+  },
+  "vehicle": {
+    "heading": "Veículo",
+    "currentKm": "Quilometragem atual (km)",
+    "currentKmHint": "Atualiza automaticamente quando você registra um abastecimento com hodômetro.",
+    "saveSuccess": "Hodômetro atualizado."
+  },
+  "mobile": {
+    "newAction": "O que deseja criar?",
+    "newExpense": "Novo gasto",
+    "newReminder": "Novo lembrete"
+  }
+}

@@ -2,16 +2,17 @@
 import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext.jsx';
-import Loading from '@/components/Loading.jsx';
+import AppShell from '@/components/AppShell.jsx';
 
-export default function RootPage() {
+export default function AppLayout({ children }) {
   const { isAuthed } = useAuth();
   const router = useRouter();
 
   useEffect(() => {
-    if (isAuthed) router.replace('/dashboard');
-    else router.replace('/login');
+    if (!isAuthed) router.replace('/login');
   }, [isAuthed, router]);
 
-  return <Loading />;
+  if (!isAuthed) return null;
+
+  return <AppShell>{children}</AppShell>;
 }
