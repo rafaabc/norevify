@@ -120,18 +120,21 @@ export default function DashboardPage() {
         />
         <KpiCard
           label={t('dashboard.totalSpent')}
+          subtitle={String(currentYear)}
           value={formatCurrency(ytd, currency)}
           delta={null}
           sparkData={monthlyData}
         />
         <KpiCard
-          label={t('dashboard.lastMonth')}
+          label={t('dashboard.avgMonthly')}
+          subtitle={String(currentYear)}
           value={formatCurrency(avgMonthly, currency)}
           delta={null}
           sparkData={monthlyData}
         />
         <KpiCard
-          label={t('dashboard.byCategory')}
+          label={t('dashboard.fuelShare')}
+          subtitle={String(currentYear)}
           value={`${fuelShare}%`}
           delta={null}
           sparkData={null}

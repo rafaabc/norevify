@@ -13,6 +13,7 @@
     "dashboard": "Painel",
     "expenses": "Despesas",
     "summary": "Resumo",
+    "reminders": "Lembretes",
     "settings": "Configurações",
     "changePassword": "Alterar senha",
     "logout": "Sair"
@@ -93,6 +94,8 @@
     "thisMonth": "Este mês",
     "lastMonth": "Mês passado",
     "byCategory": "Por categoria",
+    "avgMonthly": "Média mensal",
+    "fuelShare": "Fatia de combustível",
     "recentExpenses": "Despesas recentes",
     "noExpenses": "Nenhuma despesa ainda.",
     "category": "Categoria",
@@ -118,7 +121,8 @@
       "description": "Descrição",
       "amount": "Valor",
       "litres": "Litros",
-      "pricePerLitre": "Preço por litro"
+      "pricePerLitre": "Preço por litro",
+      "odometer": "Hodômetro (km)"
     },
     "filters": "Filtros",
     "clearFilters": "Limpar filtros",
@@ -137,7 +141,8 @@
     "noData": "Sem dados para o período selecionado.",
     "total": "Total",
     "byCategory": "Por categoria",
-    "byMonth": "Por mês"
+    "byMonth": "Por mês",
+    "breakdown": "detalhamento"
   },
   "categories": {
     "Fuel": "Combustível",
@@ -159,7 +164,13 @@
     "expenseNotFound": "Despesa não encontrada.",
     "invalidToken": "Token inválido ou expirado.",
     "sessionExpired": "Sessão expirada. Faça login novamente.",
-    "passwordMismatch": "As senhas não coincidem."
+    "passwordMismatch": "As senhas não coincidem.",
+    "reminderNotFound": "Lembrete não encontrado.",
+    "reminderAlreadyCompleted": "Lembrete já concluído.",
+    "reminderCannotEditCompleted": "Não é possível editar um lembrete concluído.",
+    "reminderMissingDue": "Informe uma data ou quilometragem.",
+    "odometerRewind": "Hodômetro não pode ser menor que o valor atual.",
+    "odometerNonFuel": "Hodômetro só é válido em abastecimento."
   },
   "pwa": {
     "updateAvailable": "Nova versão disponível.",
@@ -171,5 +182,48 @@
   },
   "mobileTopBar": {
     "title": "Drive Ledger"
+  },
+  "reminders": {
+    "heading": "Lembretes",
+    "newReminder": "Novo lembrete",
+    "editReminder": "Editar lembrete",
+    "noReminders": "Nenhum lembrete cadastrado.",
+    "tabs": { "active": "Ativos", "history": "Histórico" },
+    "fields": {
+      "type": "Tipo",
+      "title": "Título (opcional)",
+      "dueDate": "Data prevista",
+      "dueKm": "Quilometragem (km)",
+      "intervalMonths": "Repetir a cada (meses)",
+      "intervalKm": "Repetir a cada (km)"
+    },
+    "status": {
+      "upcoming": "Próximo",
+      "dueSoon": "Vencendo",
+      "overdue": "Atrasado",
+      "done": "Concluído"
+    },
+    "actions": {
+      "complete": "Marcar como feito",
+      "completedKm": "Odômetro na conclusão",
+      "completePreviewBoth": "Próximo lembrete será criado em {{nextDate}} aos {{nextKm}} km",
+      "completePreviewDate": "Próximo lembrete será criado em {{nextDate}}",
+      "completePreviewKm": "Próximo lembrete será criado aos {{nextKm}} km",
+      "deleteSuccess": "Lembrete excluído.",
+      "confirmDelete": "Excluir este lembrete?",
+      "confirmDeleteHistory": "Você vai excluir um registro de manutenção concluída. Continuar?",
+      "confirmDeleteHistory2": "Confirmar exclusão definitiva?"
+    }
+  },
+  "vehicle": {
+    "heading": "Veículo",
+    "currentKm": "Quilometragem atual (km)",
+    "currentKmHint": "Atualiza automaticamente quando você registra um abastecimento com hodômetro.",
+    "saveSuccess": "Hodômetro atualizado."
+  },
+  "mobile": {
+    "newAction": "O que deseja criar?",
+    "newExpense": "Novo gasto",
+    "newReminder": "Novo lembrete"
   }
 }

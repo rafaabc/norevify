@@ -85,6 +85,17 @@
   transition: color .15s;
 }
 .logoutBtn:hover { color: var(--danger); }
+.navBadge {
+  margin-left: auto;
+  background: #c0392b;
+  color: #fff;
+  border-radius: 999px;
+  font-size: 0.7rem;
+  font-weight: 700;
+  padding: 0.05rem 0.45rem;
+  min-width: 1.2rem;
+  text-align: center;
+}
 
 @media (max-width: 640px) {
   .sidebar { display: none; }

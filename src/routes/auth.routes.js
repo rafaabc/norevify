@@ -9,6 +9,7 @@ router.post('/login',           authController.login);
 router.patch('/password',       authMiddleware, authController.changePassword);
 router.patch('/currency',       authMiddleware, authController.updateCurrency);
 router.patch('/language',       authMiddleware, authController.updateLanguage);
+router.patch('/odometer',       authMiddleware, authController.updateOdometer);
 router.post('/forgot-password', authController.forgotPassword);
 router.post('/reset-password',  authController.resetPassword);
 router.post('/google',          authController.googleLogin);

@@ -7,7 +7,9 @@ export function todayISO() {
 export function formatDate(dateStr) {
   if (!dateStr) return '';
   const d = new Date(dateStr);
-  return new Intl.DateTimeFormat(i18n.language, {
+  const lang = i18n?.language;
+  const locale = !lang || lang === 'en' ? 'en-US' : lang;
+  return new Intl.DateTimeFormat(locale, {
     day: '2-digit',
     month: '2-digit',
     year: 'numeric',

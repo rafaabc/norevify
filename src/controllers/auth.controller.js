@@ -68,6 +68,15 @@ async function updateLanguage(req, res) {
   }
 }
 
+async function updateOdometer(req, res) {
+  try {
+    const result = await authService.updateOdometer({ id: req.user.id, currentKm: req.body.currentKm });
+    res.status(200).json(result);
+  } catch (err) {
+    res.status(err.status || 500).json({ message: err.message });
+  }
+}
+
 async function googleLogin(req, res) {
   try {
     const result = await authService.googleLogin(req.body);
@@ -104,4 +113,4 @@ async function getProviders(req, res) {
   }
 }
 
-module.exports = { register, login, changePassword, forgotPassword, resetPassword, updateCurrency, updateLanguage, googleLogin, linkGoogle, unlinkGoogle, getProviders };
+module.exports = { register, login, changePassword, forgotPassword, resetPassword, updateCurrency, updateLanguage, updateOdometer, googleLogin, linkGoogle, unlinkGoogle, getProviders };

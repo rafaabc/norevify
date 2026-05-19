@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Routes, Route } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { AuthProvider } from './context/AuthContext.jsx';
 import ProtectedRoute from './routes/ProtectedRoute.jsx';
 import AppShell from './components/AppShell.jsx';
@@ -15,9 +16,17 @@ import ChangePasswordPage from './pages/ChangePasswordPage.jsx';
 import SettingsPage from './pages/SettingsPage.jsx';
 import ForgotPasswordPage from './pages/ForgotPasswordPage.jsx';
 import ResetPasswordPage from './pages/ResetPasswordPage.jsx';
+import ReminderFormPage from './pages/ReminderFormPage.jsx';
+import RemindersListPage from './pages/RemindersListPage.jsx';
 
 export default function App() {
+  const { i18n } = useTranslation();
   const [updateSW, setUpdateSW] = useState(null);
+
+  useEffect(() => {
+    const lang = i18n.language === 'en' ? 'en-US' : i18n.language;
+    document.documentElement.lang = lang;
+  }, [i18n.language]);
 
   useEffect(() => {
     const handler = (e) => setUpdateSW(() => e.detail.updateSW);
@@ -41,6 +50,9 @@ export default function App() {
           <Route path="/summary" element={<SummaryPage />} />
           <Route path="/change-password" element={<ChangePasswordPage />} />
           <Route path="/settings" element={<SettingsPage />} />
+          <Route path="/reminders" element={<RemindersListPage />} />
+          <Route path="/reminders/new" element={<ReminderFormPage />} />
+          <Route path="/reminders/:id/edit" element={<ReminderFormPage />} />
         </Route>
         <Route path="*" element={<NotFoundPage />} />
       </Routes>

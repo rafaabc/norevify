@@ -3,6 +3,7 @@ const swaggerDocument = require('../resources/swagger.json');
 
 const authRoutes = require('./routes/auth.routes');
 const expensesRoutes = require('./routes/expenses.routes');
+const remindersRoutes = require('./routes/reminders.routes');
 
 const app = express();
 
@@ -52,5 +53,6 @@ app.get('/api-docs', (req, res) => {
 
 app.use('/api/auth', authRoutes);
 app.use('/api/expenses', expensesRoutes);
+app.use('/api/reminders', remindersRoutes);
 
 module.exports = app;

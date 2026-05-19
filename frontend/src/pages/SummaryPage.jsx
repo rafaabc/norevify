@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
+import i18n from '../i18n/index.js';
 import { expensesApi } from '../services/apiService.js';
 import { useAuth } from '../context/AuthContext.jsx';
 import CategorySelect from '../components/CategorySelect.jsx';
@@ -13,10 +14,12 @@ import { aggregateByCategory } from '../utils/aggregations.js';
 import { formatCurrency } from '../utils/formatCurrency.js';
 import styles from './SummaryPage.module.css';
 
-const MONTHS = [
-  '', 'January', 'February', 'March', 'April', 'May', 'June',
-  'July', 'August', 'September', 'October', 'November', 'December',
-];
+function getMonthName(monthIndex) {
+  const lang = i18n?.language;
+  const locale = !lang || lang === 'en' ? 'en-US' : lang;
+  return new Intl.DateTimeFormat(locale, { month: 'long', timeZone: 'UTC' })
+    .format(new Date(Date.UTC(2000, monthIndex - 1, 1)));
+}
 
 function buildPivot(expenses, visibleCategories) {
   const monthly = {};
@@ -161,7 +164,7 @@ export default function SummaryPage() {
           {/* Desktop pivot table */}
           <details className={`card ${styles.pivotSection} ${styles.pivotDesktop}`} open>
             <summary className={styles.pivotSummary}>
-              <span className={styles.period}>{filters.year} breakdown</span>
+              <span className={styles.period}>{filters.year} {t('summary.breakdown')}</span>
             </summary>
             <div style={{ overflowX: 'auto', marginTop: '1rem' }}>
               <table>
@@ -173,14 +176,13 @@ export default function SummaryPage() {
                   </tr>
                 </thead>
                 <tbody>
-                  {MONTHS.slice(1).map((name, i) => {
-                    const m = i + 1;
+                  {Array.from({ length: 12 }, (_, i) => i + 1).map((m) => {
                     const row = monthly[m];
                     const total = rowTotal(row);
                     const hasRow = total > 0;
                     return (
                       <tr key={m} style={hasRow ? {} : { color: 'var(--muted)' }}>
-                        <td>{name}</td>
+                        <td>{getMonthName(m)}</td>
                         {targetCategories.map((cat) => (
                           <td key={cat} className="num">
                             {row[cat] > 0 ? formatCurrency(row[cat], currency) : '—'}

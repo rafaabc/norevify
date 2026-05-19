@@ -1,3 +1,5 @@
+import i18n from '../i18n/index.js';
+
 /**
  * Pure helper functions that compute dashboard KPIs and chart data
  * from a flat array of expense objects.
@@ -125,9 +127,10 @@ export function computePrevMonthTotal(expenses, now = new Date()) {
  * Uses Intl.DateTimeFormat with UTC to avoid local-timezone month shifts.
  */
 export function monthLabel(isoMonth) {
-  // Append "-01" to make a valid date string for the first day of that month
   const date = new Date(`${isoMonth}-01T00:00:00Z`);
-  return new Intl.DateTimeFormat('en-US', {
+  const lang = i18n?.language;
+  const locale = !lang || lang === 'en' ? 'en-US' : lang;
+  return new Intl.DateTimeFormat(locale, {
     month: 'short',
     year: 'numeric',
     timeZone: 'UTC',

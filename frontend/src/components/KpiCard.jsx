@@ -1,7 +1,7 @@
 import Sparkline from './charts/Sparkline.jsx';
 import styles from './KpiCard.module.css';
 
-export default function KpiCard({ label, value, delta, sparkData, invertColors = false }) {
+export default function KpiCard({ label, subtitle, value, delta, sparkData, invertColors = false }) {
   const hasDelta = typeof delta === 'number' && delta !== 0;
   const hasSpark = Array.isArray(sparkData) && sparkData.length > 0;
 
@@ -11,7 +11,10 @@ export default function KpiCard({ label, value, delta, sparkData, invertColors =
   return (
     <div className={styles.card}>
       <div className={styles.header}>
-        <span className={styles.label}>{label}</span>
+        <div>
+          <span className={styles.label}>{label}</span>
+          {subtitle && <span className={styles.subtitle}>{subtitle}</span>}
+        </div>
         {hasDelta && (
           <span className={isPosGood ? styles.deltaPos : styles.deltaNeg}>
             {delta > 0 ? '▲' : '▼'} {Math.abs(delta).toFixed(1)}%

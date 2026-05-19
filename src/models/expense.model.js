@@ -10,6 +10,7 @@ const expenseSchema = new mongoose.Schema(
     amount: { type: Number, required: true },
     litres: { type: Number },
     price_per_litre: { type: Number },
+    odometer: { type: Number, min: 0 },
   },
   {
     toJSON: {

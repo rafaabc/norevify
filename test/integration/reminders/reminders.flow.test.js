@@ -1,0 +1,54 @@
+'use strict';
+
+process.env.JWT_SECRET = process.env.JWT_SECRET || 'test-secret';
+
+const { describe, it, before, after, beforeEach } = require('node:test');
+const assert = require('node:assert/strict');
+
+const { startMongo, stopMongo, resetMongo } = require('../../helpers/mongo');
+const authService = require('../../../src/services/auth.service');
+const expensesService = require('../../../src/services/expenses.service');
+const remindersService = require('../../../src/services/reminders.service');
+const userModel = require('../../../src/models/user.model');
+
+before(async () => await startMongo());
+after(async () => await stopMongo());
+beforeEach(async () => await resetMongo());
+
+const TODAY = new Date().toISOString().slice(0, 10);
+const future = (d) => new Date(Date.now() + d * 86400000);
+
+describe('Reminder full flow', () => {
+  it('create reminder → fuel updates currentKm → status flips → complete → next exists', async () => {
+    await authService.register({ username: 'flow1', password: 'pass1234', email: 'flow1@test.com' });
+    const user = await userModel.findByUsername('flow1');
+    const uid = user._id.toString();
+
+    const r = await remindersService.createReminder(uid, {
+      type: 'Maintenance',
+      dueDate: future(30),
+      dueKm: 10000,
+      intervalMonths: 12,
+      intervalKm: 10000,
+    });
+    let listed = await remindersService.listReminders(uid, { status: 'active' });
+    assert.strictEqual(listed[0].status, 'upcoming');
+
+    await expensesService.createExpense(uid, {
+      date: TODAY, category: 'Fuel', litres: 40, price_per_litre: 1.5, odometer: 9700,
+    });
+    listed = await remindersService.listReminders(uid, { status: 'active' });
+    assert.strictEqual(listed[0].status, 'dueSoon');
+
+    const result = await remindersService.completeReminder(uid, r._id.toString(), { completedKm: 10100 });
+    assert.ok(result.next);
+    assert.strictEqual(result.next.dueKm, 20100);
+
+    const active = await remindersService.listReminders(uid, { status: 'active' });
+    assert.strictEqual(active.length, 1);
+    assert.strictEqual(active[0]._id?.toString() ?? active[0].id, result.next._id.toString());
+
+    const done = await remindersService.listReminders(uid, { status: 'done' });
+    assert.strictEqual(done.length, 1);
+  });
+});

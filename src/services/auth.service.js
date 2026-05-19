@@ -188,4 +188,16 @@ async function updateLanguage({ id, language }) {
   return { token: issueToken(updated) };
 }
 
-module.exports = { register, login, changePassword, forgotPassword, resetPassword, updateCurrency, updateLanguage, googleLogin, linkGoogle, unlinkGoogle, getProviders };
+async function updateOdometer({ id, currentKm }) {
+  if (currentKm === undefined || currentKm === null)
+    throw makeError(400, 'currentKm is required');
+  if (typeof currentKm !== 'number' || currentKm < 0)
+    throw makeError(400, 'currentKm must be a non-negative number');
+
+  const user = await userModel.findById(id);
+  if (!user) throw makeError(404, 'User not found');
+  const updated = await userModel.updateOdometerAndReturn(id, currentKm);
+  return { token: issueToken(updated), currentKm: updated.currentKm };
+}
+
+module.exports = { register, login, changePassword, forgotPassword, resetPassword, updateCurrency, updateLanguage, updateOdometer, googleLogin, linkGoogle, unlinkGoogle, getProviders };

@@ -119,3 +119,18 @@ describe('expenseModel._reset()', () => {
     assert.deepStrictEqual(all, []);
   });
 });
+
+describe('expenseModel odometer field', () => {
+  it('should persist optional odometer field on Fuel expense', async () => {
+    const exp = await expenseModel.create({
+      userId: new mongoose.Types.ObjectId(),
+      date: new Date(),
+      category: 'Fuel',
+      amount: 60,
+      litres: 40,
+      price_per_litre: 1.5,
+      odometer: 12500,
+    });
+    assert.strictEqual(exp.odometer, 12500);
+  });
+});

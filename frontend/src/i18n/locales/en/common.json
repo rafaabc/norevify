@@ -13,6 +13,7 @@
     "dashboard": "Dashboard",
     "expenses": "Expenses",
     "summary": "Summary",
+    "reminders": "Reminders",
     "settings": "Settings",
     "changePassword": "Change password",
     "logout": "Log out"
@@ -93,6 +94,8 @@
     "thisMonth": "This month",
     "lastMonth": "Last month",
     "byCategory": "By category",
+    "avgMonthly": "Avg. monthly",
+    "fuelShare": "Fuel share",
     "recentExpenses": "Recent expenses",
     "noExpenses": "No expenses yet.",
     "category": "Category",
@@ -118,7 +121,8 @@
       "description": "Description",
       "amount": "Amount",
       "litres": "Litres",
-      "pricePerLitre": "Price per litre"
+      "pricePerLitre": "Price per litre",
+      "odometer": "Odometer (km)"
     },
     "filters": "Filters",
     "clearFilters": "Clear filters",
@@ -137,7 +141,8 @@
     "noData": "No data for the selected period.",
     "total": "Total",
     "byCategory": "By category",
-    "byMonth": "By month"
+    "byMonth": "By month",
+    "breakdown": "breakdown"
   },
   "categories": {
     "Fuel": "Fuel",
@@ -159,7 +164,13 @@
     "expenseNotFound": "Expense not found.",
     "invalidToken": "Invalid or expired token.",
     "sessionExpired": "Session expired. Please log in again.",
-    "passwordMismatch": "Passwords do not match."
+    "passwordMismatch": "Passwords do not match.",
+    "reminderNotFound": "Reminder not found.",
+    "reminderAlreadyCompleted": "Reminder already completed.",
+    "reminderCannotEditCompleted": "Cannot edit a completed reminder.",
+    "reminderMissingDue": "Provide a date or a km target.",
+    "odometerRewind": "Odometer cannot be lower than current reading.",
+    "odometerNonFuel": "Odometer is only valid for Fuel expenses."
   },
   "pwa": {
     "updateAvailable": "New version available.",
@@ -171,5 +182,48 @@
   },
   "mobileTopBar": {
     "title": "Drive Ledger"
+  },
+  "reminders": {
+    "heading": "Reminders",
+    "newReminder": "New reminder",
+    "editReminder": "Edit reminder",
+    "noReminders": "No reminders yet.",
+    "tabs": { "active": "Active", "history": "History" },
+    "fields": {
+      "type": "Type",
+      "title": "Title (optional)",
+      "dueDate": "Due date",
+      "dueKm": "Due at (km)",
+      "intervalMonths": "Repeat every (months)",
+      "intervalKm": "Repeat every (km)"
+    },
+    "status": {
+      "upcoming": "Upcoming",
+      "dueSoon": "Due soon",
+      "overdue": "Overdue",
+      "done": "Done"
+    },
+    "actions": {
+      "complete": "Complete",
+      "completedKm": "Odometer at completion",
+      "completePreviewBoth": "Next reminder will be created on {{nextDate}} at {{nextKm}} km",
+      "completePreviewDate": "Next reminder will be created on {{nextDate}}",
+      "completePreviewKm": "Next reminder will be created at {{nextKm}} km",
+      "deleteSuccess": "Reminder deleted.",
+      "confirmDelete": "Delete this reminder?",
+      "confirmDeleteHistory": "You are about to delete a completed maintenance record. Continue?",
+      "confirmDeleteHistory2": "Confirm permanent deletion?"
+    }
+  },
+  "vehicle": {
+    "heading": "Vehicle",
+    "currentKm": "Current odometer (km)",
+    "currentKmHint": "Updates automatically when you log Fuel with an odometer reading.",
+    "saveSuccess": "Odometer updated."
+  },
+  "mobile": {
+    "newAction": "What do you want to add?",
+    "newExpense": "New expense",
+    "newReminder": "New reminder"
   }
 }

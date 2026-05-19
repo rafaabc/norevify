@@ -7,4 +7,10 @@ export const API_ERROR_MAP = {
   'Expense not found':                     'errors.expenseNotFound',
   'Invalid or expired reset token':        'errors.invalidToken',
   'Session expired. Please log in again.': 'errors.sessionExpired',
+  'Reminder not found':                            'errors.reminderNotFound',
+  'reminder already completed':                    'errors.reminderAlreadyCompleted',
+  'cannot edit completed reminder':                'errors.reminderCannotEditCompleted',
+  'must provide dueDate or dueKm':                 'errors.reminderMissingDue',
+  'odometer cannot be lower than current reading': 'errors.odometerRewind',
+  'odometer is only valid for Fuel category':      'errors.odometerNonFuel',
 };

@@ -107,6 +107,20 @@ button {
   line-height: 1.4;
 }
 
+a[class*="btn-"] {
+  display: inline-block;
+  font-family: var(--font-sans);
+  font-size: .875rem;
+  border-radius: var(--radius-sm);
+  padding: .5rem 1.1rem;
+  font-weight: 500;
+  letter-spacing: .01em;
+  transition: background .15s, color .15s, border-color .15s, box-shadow .15s, opacity .15s, transform .1s;
+  white-space: nowrap;
+  line-height: 1.4;
+  text-decoration: none;
+}
+
 .btn-primary {
   background: var(--primary);
   color: #07101a;
@@ -328,4 +342,64 @@ tbody tr:hover td { background: var(--surface-2); }
 .badge[data-cat="Parking"]     { background: rgba(52,211,153,.12);  color: var(--cat-parking);     border-color: rgba(52,211,153,.22); }
 .badge[data-cat="Toll"]        { background: rgba(251,146,60,.12);  color: var(--cat-toll);        border-color: rgba(251,146,60,.22); }
 .badge[data-cat="Tax"]         { background: rgba(248,113,113,.12); color: var(--cat-tax);         border-color: rgba(248,113,113,.22); }
+
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 199;
+  background: rgba(0, 0, 0, 0.55);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+}
+
+.modal {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: var(--space-6);
+  width: 100%;
+  max-width: 420px;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.modal-actions {
+  display: flex;
+  gap: var(--space-3);
+  justify-content: flex-end;
+}
+
+.action-sheet {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: var(--surface);
+  border-top: 1px solid var(--border);
+  border-radius: 12px 12px 0 0;
+  padding: 1.5rem 1rem 2rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  z-index: 200;
+}
+
+.action-sheet-btn {
+  background: var(--surface-alt, var(--surface));
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 0.85rem 1rem;
+  text-align: left;
+  cursor: pointer;
+  color: var(--text);
+  font-size: 1rem;
+  transition: background 0.15s;
+}
+
+.action-sheet-btn:hover {
+  background: var(--hover, rgba(255, 255, 255, 0.05));
+}
 .badge[data-cat="Other"]       { background: rgba(148,163,184,.10); color: var(--cat-other);       border-color: rgba(148,163,184,.18); }

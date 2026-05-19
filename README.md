@@ -5,7 +5,7 @@
 
 `https://drive-ledger-front.vercel.app/`
 
-> Full-stack vehicle expense manager — Node.js/Express REST API with a React PWA, JWT authentication, spending summaries by period, and PT-BR / English internationalisation.
+> Full-stack vehicle expense manager — Node.js/Express REST API with a React PWA, JWT authentication, maintenance reminders with km/date triggers and recurrence, spending summaries by period, and PT-BR / English internationalisation.
 
 > https://github.com/user-attachments/assets/aa83e4c7-adfd-422d-8088-3656878346d4
 
@@ -13,7 +13,7 @@
 
 ## Description
 
-Drive Ledger is a full-stack vehicle expense management application. The backend is a Node.js/Express REST API that lets users log and analyze expenses by category (fuel, maintenance, insurance, tolls, and more), with JWT-based authentication and user isolation. The frontend is a React PWA (Vite) that consumes the API, supports **PT-BR and English** via `react-i18next`, and can be installed on Android and iOS directly from the browser. Data is persisted in MongoDB Atlas — a free cluster is sufficient.
+Drive Ledger is a full-stack vehicle expense management application. The backend is a Node.js/Express REST API that lets users log and analyze expenses by category (fuel, maintenance, insurance, tolls, and more), with JWT-based authentication and user isolation. It also provides maintenance reminders triggered by date or odometer km, with optional recurrence. The frontend is a React PWA (Vite) that consumes the API, supports **PT-BR and English** via `react-i18next`, and can be installed on Android and iOS directly from the browser. Data is persisted in MongoDB Atlas — a free cluster is sufficient.
 
 ## Dependencies
 
@@ -113,6 +113,16 @@ npm run dev   # available at http://localhost:5173
 
 ## Features
 
+### Maintenance Reminders
+
+Track scheduled maintenance with date- and/or km-based triggers:
+
+- **Status**: `upcoming` → `dueSoon` (≤ 7 days or ≤ 500 km away) → `overdue`. Status is recomputed on every request using the stored odometer reading.
+- **Recurrence**: set `intervalMonths` and/or `intervalKm` — completing a reminder automatically creates the next one.
+- **Odometer tracking**: logging a `Fuel` expense with an `odometer` value updates the user's current km. Manual override available in **Settings → Vehicle**.
+- **Sidebar badge**: the Reminders nav item shows a live count of due-soon + overdue items.
+- **Mobile action sheet**: the `+` FAB in the bottom bar lets users choose between New Expense and New Reminder.
+
 ### Internationalisation
 
 The app ships in **PT-BR (default) and English**. Language is persisted in `localStorage` (`i18nextLng`) and also stored per-user in the database (JWT field `language`). Users can switch via **Settings → Language** — the preference is saved server-side so it follows them across devices when they log in.
@@ -167,6 +177,18 @@ The layout is fully responsive at **≤ 640 px** (CSS-only, no JS):
 | PUT | `/api/expenses/:id` | Update an expense |
 | DELETE | `/api/expenses/:id` | Delete an expense |
 | GET | `/api/expenses/summary` | Totals by category (`?year` required) |
+
+**Reminders** — `Authorization: Bearer <token>` required
+
+| Method | Path | Description |
+|---|---|---|
+| GET | `/api/reminders` | List reminders (`?status=active\|done`) |
+| POST | `/api/reminders` | Create a reminder |
+| GET | `/api/reminders/:id` | Get a reminder |
+| PUT | `/api/reminders/:id` | Update a reminder |
+| POST | `/api/reminders/:id/complete` | Complete a reminder (creates recurrence if configured) |
+| DELETE | `/api/reminders/:id` | Delete a reminder |
+| GET | `/api/reminders/badge-count` | Returns `{ dueSoon, overdue }` counts for the sidebar badge |
 
 Swagger UI available at `http://localhost:3000/api-docs`. For validation rules, see [Expense Domain Rules](https://github.com/rafaabc/drive-ledger/wiki/03-%E2%80%90-Expense-Domain-Rules) in the wiki.
 
