@@ -1,6 +1,6 @@
 'use client';
 import { useState } from 'react';
-import { LayoutDashboard, Receipt, Plus, BarChart3, Settings, Bell } from 'lucide-react';
+import { LayoutDashboard, Receipt, Plus, BarChart3, Settings } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import NavLink from './NavLink.jsx';
 import styles from './BottomTabs.module.css';
@@ -11,11 +11,10 @@ export default function BottomTabs() {
   const [sheetOpen, setSheetOpen] = useState(false);
 
   const TABS = [
-    { to: '/',          icon: LayoutDashboard, label: t('nav.dashboard'),  end: true },
-    { to: '/expenses',  icon: Receipt,         label: t('nav.expenses') },
-    { to: '/reminders', icon: Bell,            label: t('nav.reminders') },
-    { to: '/summary',   icon: BarChart3,       label: t('nav.summary') },
-    { to: '/settings',  icon: Settings,        label: t('nav.settings') },
+    { to: '/',         icon: LayoutDashboard, label: t('nav.dashboard'), end: true },
+    { to: '/expenses', icon: Receipt,          label: t('nav.expenses') },
+    { to: '/summary',  icon: BarChart3,        label: t('nav.summary') },
+    { to: '/settings', icon: Settings,         label: t('nav.settings') },
   ];
 
   return (
