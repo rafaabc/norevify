@@ -90,7 +90,7 @@ describe('ReminderFormPage', () => {
       // Assert
       await waitFor(() => {
         expect(remindersApi.create).toHaveBeenCalledWith(
-          expect.objectContaining({ type: 'oilChange', dueKm: 10000 })
+          expect.objectContaining({ type: 'Maintenance', dueKm: 10000 })
         );
         expect(mockNavigate).toHaveBeenCalledWith('/reminders');
       });
@@ -108,7 +108,7 @@ describe('ReminderFormPage', () => {
       // Assert
       await waitFor(() => {
         expect(remindersApi.create).toHaveBeenCalledWith(
-          expect.objectContaining({ type: 'oilChange' })
+          expect.objectContaining({ type: 'Maintenance' })
         );
         expect(mockNavigate).toHaveBeenCalledWith('/reminders');
       });
@@ -140,7 +140,7 @@ describe('ReminderFormPage', () => {
       // Arrange
       remindersApi.get.mockResolvedValue({
         id: 'rem1',
-        type: 'tireRotation',
+        type: 'Fuel',
         title: 'Summer tires',
         dueDate: '2026-06-01T00:00:00.000Z',
         dueKm: 20000,
@@ -152,7 +152,7 @@ describe('ReminderFormPage', () => {
       // Assert
       await waitFor(() => {
         expect(remindersApi.get).toHaveBeenCalledWith('rem1');
-        expect(screen.getByLabelText('reminders.fields.type')).toHaveValue('tireRotation');
+        expect(screen.getByLabelText('reminders.fields.type')).toHaveValue('Fuel');
       });
     });
 
@@ -160,7 +160,7 @@ describe('ReminderFormPage', () => {
       // Arrange
       remindersApi.get.mockResolvedValue({
         id: 'rem1',
-        type: 'oilChange',
+        type: 'Maintenance',
         title: '',
         dueDate: null,
         dueKm: 10000,

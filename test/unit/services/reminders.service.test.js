@@ -108,7 +108,7 @@ describe('remindersService.listReminders()', () => {
     const other = USER_ID();
     await userModel.create({ _id: me, username: 'a', password: 'x', email: 'a@test.com', currentKm: 0 });
     await remindersService.createReminder(me, { type: 'Maintenance', dueKm: 10000 });
-    await remindersService.createReminder(other, { type: 'inspection', dueKm: 5000 });
+    await remindersService.createReminder(other, { type: 'Maintenance', dueKm: 5000 });
 
     const list = await remindersService.listReminders(me, {});
     assert.strictEqual(list.length, 1);
@@ -232,7 +232,7 @@ describe('remindersService.getBadgeCount()', () => {
     const u = USER_ID();
     await userModel.create({ _id: u, username: 'c', password: 'x', email: 'c@test.com', currentKm: 9700 });
     await remindersService.createReminder(u, { type: 'Maintenance', dueKm: 10000 }); // dueSoon
-    await remindersService.createReminder(u, { type: 'inspection', dueKm: 9000 }); // overdue (9700>=9000)
+    await remindersService.createReminder(u, { type: 'Fuel', dueKm: 9000 }); // overdue (9700>=9000)
 
     const counts = await remindersService.getBadgeCount(u);
     assert.strictEqual(counts.dueSoon, 1);

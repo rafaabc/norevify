@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { formatDate } from '../utils/formatDate.js';
 
 function addMonths(date, m) {
   const d = new Date(date);
@@ -8,7 +9,7 @@ function addMonths(date, m) {
 }
 
 export default function CompleteReminderDialog({ open, reminder, onSubmit, onCancel }) {
-  const { t, i18n } = useTranslation();
+  const { t } = useTranslation();
   const [km, setKm] = useState('');
 
   if (!open || !reminder) return null;
@@ -20,15 +21,27 @@ export default function CompleteReminderDialog({ open, reminder, onSubmit, onCan
   let previewNextDate = null;
   if (validKm && (reminder.intervalMonths || reminder.intervalKm)) {
     previewNextDate = reminder.intervalMonths
-      ? addMonths(new Date(), reminder.intervalMonths).toLocaleDateString(i18n.language)
+      ? formatDate(addMonths(new Date(), reminder.intervalMonths).toISOString())
       : null;
     previewNextKm = reminder.intervalKm ? parsed + reminder.intervalKm : null;
+  }
+
+  function previewText() {
+    if (previewNextDate && previewNextKm !== null)
+      return t('reminders.actions.completePreviewBoth', { nextDate: previewNextDate, nextKm: previewNextKm });
+    if (previewNextDate)
+      return t('reminders.actions.completePreviewDate', { nextDate: previewNextDate });
+    if (previewNextKm !== null)
+      return t('reminders.actions.completePreviewKm', { nextKm: previewNextKm });
+    return null;
   }
 
   function handleSubmit(e) {
     e.preventDefault();
     if (validKm) onSubmit(parsed);
   }
+
+  const preview = previewText();
 
   return (
     <div role="dialog" aria-modal="true" className="modal-backdrop">
@@ -46,13 +59,7 @@ export default function CompleteReminderDialog({ open, reminder, onSubmit, onCan
             required
           />
         </div>
-        {(previewNextKm !== null || previewNextDate !== null) && (
-          <p>
-            {t('reminders.actions.completePreview')}
-            {previewNextDate && ` ${previewNextDate}`}
-            {previewNextKm !== null && ` ${previewNextKm}`}
-          </p>
-        )}
+        {preview && <p>{preview}</p>}
         <div className="modal-actions">
           <button type="button" className="btn-secondary" onClick={onCancel}>
             {t('common.cancel')}

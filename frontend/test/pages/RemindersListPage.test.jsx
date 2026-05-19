@@ -8,6 +8,12 @@ jest.mock('react-i18next', () => ({
   useTranslation: () => ({ t: (k) => k, i18n: { language: 'en' } }),
 }));
 
+jest.mock('../../src/utils/formatDate.js', () => ({
+  todayISO: () => '2026-05-18',
+  formatDate: (d) => (d ? d.slice(0, 10) : ''),
+  currentYear: () => 2026,
+}));
+
 jest.mock('../../src/services/apiService.js', () => ({
   remindersApi: {
     list: jest.fn(),
@@ -49,20 +55,20 @@ describe('RemindersListPage', () => {
   test('should show reminder rows when API returns items', async () => {
     // Arrange
     remindersApi.list.mockResolvedValue([
-      { id: '1', type: 'oilChange', status: 'dueSoon', dueKm: 10000, title: '' },
-      { id: '2', type: 'inspection', status: 'active', dueKm: 15000, title: 'Annual' },
+      { id: '1', type: 'Maintenance', status: 'dueSoon', dueKm: 10000, title: '' },
+      { id: '2', type: 'Fuel', status: 'active', dueKm: 15000, title: 'Annual' },
     ]);
     // Act
     renderPage();
-    // Assert
-    expect(await screen.findByText('reminderTypes.oilChange')).toBeInTheDocument();
-    expect(screen.getByText('reminderTypes.inspection')).toBeInTheDocument();
+    // Assert — categoryLabel returns t('categories.Maintenance') = 'categories.Maintenance'
+    expect(await screen.findByText('categories.Maintenance')).toBeInTheDocument();
+    expect(screen.getByText('categories.Fuel')).toBeInTheDocument();
   });
 
   test('should open CompleteReminderDialog when Complete is clicked on an active item', async () => {
     // Arrange
     remindersApi.list.mockResolvedValue([
-      { id: '1', type: 'oilChange', status: 'dueSoon', dueKm: 10000, title: '' },
+      { id: '1', type: 'Maintenance', status: 'dueSoon', dueKm: 10000, title: '' },
     ]);
     renderPage();
     const completeBtn = await screen.findByRole('button', { name: 'reminders.actions.complete' });
@@ -77,7 +83,7 @@ describe('RemindersListPage', () => {
   test('should call remindersApi.remove when Delete is clicked', async () => {
     // Arrange
     remindersApi.list.mockResolvedValue([
-      { id: 'abc123', type: 'tireRotation', status: 'active', dueKm: 5000, title: '' },
+      { id: 'abc123', type: 'Fuel', status: 'active', dueKm: 5000, title: '' },
     ]);
     const { container } = renderPage();
     const deleteBtn = await screen.findByRole('button', { name: 'common.delete' });
@@ -108,7 +114,7 @@ describe('RemindersListPage', () => {
   test('should reload list after Delete is confirmed', async () => {
     // Arrange
     remindersApi.list.mockResolvedValue([
-      { id: 'del1', type: 'insurance', status: 'active', dueKm: null, title: '' },
+      { id: 'del1', type: 'Insurance', status: 'active', dueKm: null, title: '' },
     ]);
     renderPage();
     const deleteBtn = await screen.findByRole('button', { name: 'common.delete' });

@@ -2,6 +2,9 @@ import { useState, useEffect, useCallback } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { remindersApi } from '../services/apiService.js';
+import { categoryLabel } from '../utils/categories.js';
+import { formatDate } from '../utils/formatDate.js';
+import { useAutoClear } from '../hooks/useAutoClear.js';
 import ReminderStatusBadge from '../components/ReminderStatusBadge.jsx';
 import CompleteReminderDialog from '../components/CompleteReminderDialog.jsx';
 import DeleteConfirmDialog from '../components/DeleteConfirmDialog.jsx';
@@ -9,13 +12,16 @@ import ErrorBanner from '../components/ErrorBanner.jsx';
 import styles from './RemindersListPage.module.css';
 
 export default function RemindersListPage() {
-  const { t, i18n } = useTranslation();
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const [tab, setTab] = useState('active');
   const [items, setItems] = useState([]);
   const [error, setError] = useState('');
+  const [successMsg, setSuccessMsg] = useState('');
   const [completing, setCompleting] = useState(null);
   const [deleting, setDeleting] = useState(null);
+
+  useAutoClear(successMsg, setSuccessMsg);
 
   const load = useCallback(async () => {
     try {
@@ -40,6 +46,7 @@ export default function RemindersListPage() {
       await remindersApi.remove(deleting.id);
       setDeleting(null);
       load();
+      setSuccessMsg(t('reminders.actions.deleteSuccess'));
       window.dispatchEvent(new CustomEvent('reminders:changed'));
     } catch (e) { setError(e.message); }
   }
@@ -48,7 +55,7 @@ export default function RemindersListPage() {
     <div className="page">
       <div className={styles.header}>
         <h1>{t('reminders.heading')}</h1>
-        <Link to="/reminders/new" className="btn-primary">{t('reminders.newReminder')}</Link>
+        <Link to="/reminders/new" className="btn-primary">+ {t('common.new')}</Link>
       </div>
 
       <div className={styles.tabs}>
@@ -64,6 +71,7 @@ export default function RemindersListPage() {
         </button>
       </div>
 
+      {successMsg && <ErrorBanner type="success" message={successMsg} />}
       {error && <ErrorBanner message={error} />}
 
       {items.length === 0 ? (
@@ -73,10 +81,10 @@ export default function RemindersListPage() {
           {items.map((r) => (
             <li key={r.id} className={styles.row}>
               <div className={styles.info}>
-                <strong>{t(`reminderTypes.${r.type}`)}</strong>
+                <span className="badge" data-cat={r.type}>{categoryLabel(r.type, t)}</span>
                 {r.title && <span className={styles.subtitle}> — {r.title}</span>}
                 <div className={styles.meta}>
-                  {r.dueDate && <span>{new Date(r.dueDate).toLocaleDateString(i18n.language)}</span>}
+                  {r.dueDate && <span>{formatDate(r.dueDate)}</span>}
                   {r.dueKm != null && <span> · {r.dueKm} km</span>}
                 </div>
               </div>

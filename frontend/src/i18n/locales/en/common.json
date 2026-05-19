@@ -203,19 +203,14 @@
     "actions": {
       "complete": "Complete",
       "completedKm": "Odometer at completion",
-      "completePreview": "Next reminder will be created on {{nextDate}} at {{nextKm}} km",
+      "completePreviewBoth": "Next reminder will be created on {{nextDate}} at {{nextKm}} km",
+      "completePreviewDate": "Next reminder will be created on {{nextDate}}",
+      "completePreviewKm": "Next reminder will be created at {{nextKm}} km",
+      "deleteSuccess": "Reminder deleted.",
       "confirmDelete": "Delete this reminder?",
       "confirmDeleteHistory": "You are about to delete a completed maintenance record. Continue?",
       "confirmDeleteHistory2": "Confirm permanent deletion?"
     }
-  },
-  "reminderTypes": {
-    "oilChange": "Oil change",
-    "tireRotation": "Tire rotation",
-    "inspection": "Inspection",
-    "insurance": "Insurance",
-    "license": "License",
-    "other": "Other"
   },
   "vehicle": {
     "heading": "Vehicle",

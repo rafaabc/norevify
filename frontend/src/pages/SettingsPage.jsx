@@ -4,6 +4,7 @@ import { KeyRound } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '../context/AuthContext.jsx';
 import { useAsyncAction } from '../hooks/useAsyncAction.js';
+import { useAutoClear } from '../hooks/useAutoClear.js';
 import ErrorBanner from '../components/ErrorBanner.jsx';
 import GoogleSignInButton from '../components/GoogleSignInButton.jsx';
 import { authApi } from '../services/apiService.js';
@@ -19,6 +20,10 @@ export default function SettingsPage() {
   const currencyAction = useAsyncAction();
   const langAction = useAsyncAction();
   const odoAction = useAsyncAction();
+
+  useAutoClear(currencyAction.success, currencyAction.setSuccess);
+  useAutoClear(langAction.success, langAction.setSuccess);
+  useAutoClear(odoAction.success, odoAction.setSuccess);
 
   const [odoKm, setOdoKm] = useState('');
 

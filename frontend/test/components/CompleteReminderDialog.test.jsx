@@ -4,9 +4,24 @@ import CompleteReminderDialog from '../../src/components/CompleteReminderDialog.
 
 jest.mock('react-i18next', () => ({
   useTranslation: () => ({
-    t: (key) => key,
+    t: (key, opts) => {
+      const translations = {
+        'reminders.actions.completePreviewBoth': 'Next on {{nextDate}} at {{nextKm}} km',
+        'reminders.actions.completePreviewDate': 'Next on {{nextDate}}',
+        'reminders.actions.completePreviewKm': 'Next at {{nextKm}} km',
+      };
+      const template = translations[key] ?? key;
+      if (!opts) return template;
+      return Object.entries(opts).reduce((s, [k, v]) => s.replace(`{{${k}}}`, v), template);
+    },
     i18n: { language: 'en' },
   }),
+}));
+
+jest.mock('../../src/utils/formatDate.js', () => ({
+  todayISO: () => '2026-05-18',
+  formatDate: (d) => (d ? d.slice(0, 10) : ''),
+  currentYear: () => 2026,
 }));
 
 test('renders nothing when open=false', () => {

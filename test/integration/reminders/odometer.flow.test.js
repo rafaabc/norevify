@@ -35,15 +35,13 @@ describe('Odometer flow', () => {
     assert.strictEqual(u.currentKm, 1000);
   });
 
-  it('manual override rejects rewinds', async () => {
+  it('manual override allows setting a lower value', async () => {
     await authService.register({ username: 'od2', password: 'pass1234', email: 'od2@test.com' });
     const user = await userModel.findByUsername('od2');
     const uid = user._id.toString();
 
     await authService.updateOdometer({ id: uid, currentKm: 5000 });
-    await assert.rejects(
-      () => authService.updateOdometer({ id: uid, currentKm: 1000 }),
-      (err) => err.status === 400
-    );
+    const result = await authService.updateOdometer({ id: uid, currentKm: 1000 });
+    assert.strictEqual(result.currentKm, 1000);
   });
 });

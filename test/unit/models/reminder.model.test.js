@@ -32,7 +32,7 @@ describe('reminderModel', () => {
 
   it('should find by userId', async () => {
     const future = new Date(Date.now() + 30 * 86400000);
-    await reminderModel.create({ userId: USER_ID, type: 'inspection', dueDate: future });
+    await reminderModel.create({ userId: USER_ID, type: 'Maintenance', dueDate: future });
     const list = await reminderModel.findByUserId(USER_ID);
     assert.strictEqual(list.length, 1);
   });

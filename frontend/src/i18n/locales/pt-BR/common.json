@@ -203,19 +203,14 @@
     "actions": {
       "complete": "Marcar como feito",
       "completedKm": "Odômetro na conclusão",
-      "completePreview": "Próximo lembrete será criado em {{nextDate}} aos {{nextKm}} km",
+      "completePreviewBoth": "Próximo lembrete será criado em {{nextDate}} aos {{nextKm}} km",
+      "completePreviewDate": "Próximo lembrete será criado em {{nextDate}}",
+      "completePreviewKm": "Próximo lembrete será criado aos {{nextKm}} km",
+      "deleteSuccess": "Lembrete excluído.",
       "confirmDelete": "Excluir este lembrete?",
       "confirmDeleteHistory": "Você vai excluir um registro de manutenção concluída. Continuar?",
       "confirmDeleteHistory2": "Confirmar exclusão definitiva?"
     }
-  },
-  "reminderTypes": {
-    "oilChange": "Troca de óleo",
-    "tireRotation": "Rodízio de pneus",
-    "inspection": "Revisão",
-    "insurance": "Seguro",
-    "license": "Licenciamento",
-    "other": "Outro"
   },
   "vehicle": {
     "heading": "Veículo",

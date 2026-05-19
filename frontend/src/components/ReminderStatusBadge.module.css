@@ -9,7 +9,9 @@
 }
 
 .upcoming {
-  color: var(--muted);
+  color: var(--primary);
+  border-color: var(--primary);
+  background: var(--primary-dim, rgba(45, 212, 191, 0.12));
 }
 
 .dueSoon {

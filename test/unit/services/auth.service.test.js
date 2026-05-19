@@ -672,14 +672,12 @@ describe('authService.updateOdometer()', () => {
     assert.strictEqual(after.currentKm, 1000);
   });
 
-  it('should throw 400 when currentKm is lower than existing', async () => {
+  it('should allow setting currentKm lower than existing', async () => {
     const user = await userModel.create({
       username: 'driver2', password: 'x', email: 'd2@test.com', currentKm: 500,
     });
-    await assert.rejects(
-      () => authService.updateOdometer({ id: user._id.toString(), currentKm: 100 }),
-      (err) => err.status === 400 && /cannot be lower/i.test(err.message)
-    );
+    const result = await authService.updateOdometer({ id: user._id.toString(), currentKm: 100 });
+    assert.strictEqual(result.currentKm, 100);
   });
 
   it('should throw 400 when currentKm is missing or invalid', async () => {

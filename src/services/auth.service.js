@@ -196,9 +196,6 @@ async function updateOdometer({ id, currentKm }) {
 
   const user = await userModel.findById(id);
   if (!user) throw makeError(404, 'User not found');
-  if (currentKm < (user.currentKm || 0))
-    throw makeError(400, 'odometer cannot be lower than current reading');
-
   const updated = await userModel.updateOdometerAndReturn(id, currentKm);
   return { token: issueToken(updated), currentKm: updated.currentKm };
 }

@@ -121,7 +121,7 @@ describe('Reminders API', function () {
   });
 
   describe('PATCH /api/auth/odometer', () => {
-    it('[TC-RE-10] should reject rewind', async () => {
+    it('[TC-RE-10] should allow setting a lower odometer value', async () => {
       await request(process.env.BASE_URL || 'http://localhost:3000')
         .patch('/api/auth/odometer')
         .set('Authorization', `Bearer ${token}`)
@@ -130,7 +130,7 @@ describe('Reminders API', function () {
         .patch('/api/auth/odometer')
         .set('Authorization', `Bearer ${token}`)
         .send({ currentKm: 1000 });
-      expect(res.status).to.equal(400);
+      expect(res.status).to.equal(200);
     });
   });
 });
