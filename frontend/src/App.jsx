@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Routes, Route } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { AuthProvider } from './context/AuthContext.jsx';
 import ProtectedRoute from './routes/ProtectedRoute.jsx';
 import AppShell from './components/AppShell.jsx';
@@ -19,7 +20,13 @@ import ReminderFormPage from './pages/ReminderFormPage.jsx';
 import RemindersListPage from './pages/RemindersListPage.jsx';
 
 export default function App() {
+  const { i18n } = useTranslation();
   const [updateSW, setUpdateSW] = useState(null);
+
+  useEffect(() => {
+    const lang = i18n.language === 'en' ? 'en-US' : i18n.language;
+    document.documentElement.lang = lang;
+  }, [i18n.language]);
 
   useEffect(() => {
     const handler = (e) => setUpdateSW(() => e.detail.updateSW);
