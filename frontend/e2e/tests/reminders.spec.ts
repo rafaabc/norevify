@@ -51,7 +51,7 @@ test('[TC-RE-E2E-01] should create reminder, flip status via odometer, complete 
   await expect(
     remindersPage.remindersList
       .first()
-      .locator('[data-testid="reminder-status-badge"] [data-status="upcoming"]'),
+      .locator('[data-testid="reminder-status-badge"][data-status="upcoming"]'),
   ).toBeVisible();
 
   // ── Step 5: Push odometer above 9 500 km via API (dueSoon threshold) ────
@@ -67,7 +67,7 @@ test('[TC-RE-E2E-01] should create reminder, flip status via odometer, complete 
   await expect(
     remindersPage.remindersList
       .first()
-      .locator('[data-testid="reminder-status-badge"] [data-status="dueSoon"]'),
+      .locator('[data-testid="reminder-status-badge"][data-status="dueSoon"]'),
   ).toBeVisible();
 
   // ── Step 7: Complete the reminder ────────────────────────────────────────
@@ -84,7 +84,7 @@ test('[TC-RE-E2E-01] should create reminder, flip status via odometer, complete 
   // ── Step 9: Switch to History — original reminder visible with "done" ────
   await remindersPage.switchToHistory();
   await expect(
-    page.locator('[data-testid="reminder-status-badge"] [data-status="done"]').first(),
+    page.locator('[data-testid="reminder-status-badge"][data-status="done"]').first(),
   ).toBeVisible();
 
   // ── Step 10: Double-confirm delete ───────────────────────────────────────
@@ -93,7 +93,7 @@ test('[TC-RE-E2E-01] should create reminder, flip status via odometer, complete 
 
   // ── Step 11: Verify history is empty (or entry gone) ─────────────────────
   await expect(
-    page.locator('[data-testid="reminder-status-badge"] [data-status="done"]'),
+    page.locator('[data-testid="reminder-status-badge"][data-status="done"]'),
   ).toHaveCount(0);
 });
 

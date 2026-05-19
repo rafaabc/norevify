@@ -343,6 +343,35 @@ tbody tr:hover td { background: var(--surface-2); }
 .badge[data-cat="Toll"]        { background: rgba(251,146,60,.12);  color: var(--cat-toll);        border-color: rgba(251,146,60,.22); }
 .badge[data-cat="Tax"]         { background: rgba(248,113,113,.12); color: var(--cat-tax);         border-color: rgba(248,113,113,.22); }
 
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 199;
+  background: rgba(0, 0, 0, 0.55);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+}
+
+.modal {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: var(--space-6);
+  width: 100%;
+  max-width: 420px;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.modal-actions {
+  display: flex;
+  gap: var(--space-3);
+  justify-content: flex-end;
+}
+
 .action-sheet {
   position: fixed;
   bottom: 0;
