@@ -85,7 +85,7 @@ describe('RemindersListPage', () => {
     remindersApi.list.mockResolvedValue([
       { id: 'abc123', type: 'Fuel', status: 'active', dueKm: 5000, title: '' },
     ]);
-    const { container } = renderPage();
+    renderPage();
     const deleteBtn = await screen.findByRole('button', { name: 'common.delete' });
     // Act — open the dialog
     await act(async () => {
