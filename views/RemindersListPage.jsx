@@ -90,6 +90,7 @@ export default function RemindersListPage() {
                   {r.dueKm != null && <span> · {r.dueKm} km</span>}
                 </div>
               </div>
+              <div className={styles.footer}>
               <ReminderStatusBadge status={r.status} />
               <div className={styles.actions}>
                 {tab === 'active' && (
@@ -108,6 +109,7 @@ export default function RemindersListPage() {
                         onClick={() => setDeleting(r)}>
                   {t('common.delete')}
                 </button>
+              </div>
               </div>
             </li>
           ))}
