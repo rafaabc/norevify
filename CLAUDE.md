@@ -89,8 +89,8 @@ Supported languages are defined in `lib/constants/languages.js` (`SUPPORTED_LANG
 - Route Handler wrappers — HTTP status code mapping and `err.status || 500` fallback
 
 ### Scripts
-- `npm run test:unit` — run all unit tests
-- `npm run test:unit:coverage` — run tests with c8 code coverage (HTML report in `coverage/`)
+- `npm run test:unit` — run all unit tests (backend + frontend)
+- `npm run test:unit:coverage` — run tests with coverage reports
 
 ### Conventions
 - Pattern: AAA (Arrange, Act, Assert)
@@ -99,6 +99,80 @@ Supported languages are defined in `lib/constants/languages.js` (`SUPPORTED_LANG
   - `before(async () => startMongo())` / `after(async () => stopMongo())`
   - `beforeEach(async () => resetMongo())` — calls `deleteMany({})` on both collections
 - No HTTP/endpoint tests here — those belong to the API test layer
+
+## Frontend Unit Tests
+
+- Framework: **Vitest** + `@testing-library/react` + `jsdom`
+- Test files live in `test/frontend/`, mirroring the source directories (`components/`, `views/`, `hooks/`, `context/`, `services/`, `utils/`, `i18n/`)
+- Config: `vitest.config.ts` at root; `setupFiles: test/frontend/setup.tsx`
+
+### Scripts
+- `npm run test:unit:frontend` — run frontend unit tests
+- `npm run test:unit:frontend:coverage` — run with v8 coverage (HTML report in `coverage/`)
+
+### Coverage scope
+Coverage is measured only over: `components/`, `views/`, `hooks/`, `context/`, `services/`, `utils/`, `i18n/index.js`, `i18n/apiErrors.js`, `lib/constants/`.
+
+Excluded from coverage (browser-only / third-party-heavy, covered by E2E):
+- `components/charts/**`
+- `components/PWAUpdater.jsx`
+- `components/UpdatePrompt.jsx`
+- `components/GoogleSignInButton.jsx`
+
+### Mock conventions
+
+All patterns below are used consistently across the frontend test suite. Do not introduce `vi.hoisted` or MSW unless the need is clear.
+
+**Global mocks (applied to every test via `test/frontend/setup.tsx`):**
+- `next/navigation` — `useRouter`, `usePathname`, `useSearchParams` stubbed with `vi.fn()`
+- `next/link` — renders a plain `<a>` element
+
+**Per-file mocks (inline in each test file via `vi.mock(...)`):**
+
+```js
+// react-i18next
+vi.mock('react-i18next', () => ({ useTranslation: () => ({ t: (key) => key }) }));
+
+// i18n instance
+vi.mock('@/i18n/index.js', () => ({
+  default: { t: (k) => k, changeLanguage: vi.fn(), language: 'en' },
+}));
+
+// apiService — mock only the methods under test
+vi.mock('@/services/apiService.js', () => ({
+  authApi: { login: vi.fn(), register: vi.fn() },
+  expensesApi: { list: vi.fn(), remove: vi.fn() },
+  remindersApi: { badgeCount: vi.fn() },
+}));
+
+// AuthContext
+vi.mock('@/context/AuthContext.jsx', () => ({
+  useAuth: () => ({ login: mockLogin, isAuthed: true, token: '...', username: 'u' }),
+}));
+```
+
+**Service-layer tests** replace `global.fetch` directly:
+```js
+global.fetch = vi.fn().mockResolvedValue({ ok: true, status: 200, json: async () => ({}) });
+```
+Run `vi.clearAllMocks()` and `localStorage.clear()` in `beforeEach`.
+
+**JWT fixture** — build a fake token without signing:
+```js
+const makeToken = (payload) => `h.${btoa(JSON.stringify(payload))}.s`;
+```
+
+**`usePathname` per-test override:**
+```js
+let mockUsePathname = vi.fn().mockReturnValue('/current-path');
+vi.mock('next/navigation', () => ({ usePathname: () => mockUsePathname() }));
+```
+
+**`useRouter` per-test override (for view tests):**
+```js
+let mockPush;
+beforeEach(() => { mockPush = vi.fn(); mockUseRouter.mockReturnValue({ push: mockPush }); });
+```
 
 ## Integration Tests
 

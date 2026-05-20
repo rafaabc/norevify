@@ -9,6 +9,28 @@ export default defineConfig({
     setupFiles: ['./test/frontend/setup.tsx'],
     include: ['test/frontend/**/*.test.{js,jsx,ts,tsx}'],
     globals: true,
+    coverage: {
+      provider: 'v8',
+      reporter: ['text', 'html', 'lcov'],
+      include: [
+        'components/**/*.{js,jsx}',
+        'views/**/*.{js,jsx}',
+        'hooks/**/*.{js,jsx}',
+        'context/**/*.{js,jsx}',
+        'services/**/*.{js,jsx}',
+        'utils/**/*.{js,jsx}',
+        'i18n/index.js',
+        'i18n/apiErrors.js',
+        'lib/constants/**/*.{js,jsx}',
+      ],
+      exclude: [
+        'components/charts/**',
+        'components/PWAUpdater.jsx',
+        'components/UpdatePrompt.jsx',
+        'components/GoogleSignInButton.jsx',
+        '**/*.module.css',
+      ],
+    },
   },
   resolve: {
     alias: {
