@@ -10,6 +10,18 @@ vi.mock('next/navigation', () => ({
   useSearchParams: () => new URLSearchParams(),
 }));
 
+const activeClass = ({ isActive }) => (isActive ? 'active' : 'inactive');
+
+const renderExpensesLink = (pathname, props = {}) => {
+  mockUsePathname.mockReturnValue(pathname);
+  render(
+    <NavLink href="/expenses" className={activeClass} {...props}>
+      Expenses
+    </NavLink>,
+  );
+  return screen.getByRole('link');
+};
+
 describe('NavLink', () => {
   it('should render a link with the given href', () => {
     mockUsePathname.mockReturnValue('/');
@@ -18,42 +30,18 @@ describe('NavLink', () => {
   });
 
   it('should apply active class when pathname matches href', () => {
-    mockUsePathname.mockReturnValue('/expenses');
-    render(
-      <NavLink href="/expenses" className={({ isActive }) => (isActive ? 'active' : 'inactive')}>
-        Expenses
-      </NavLink>,
-    );
-    expect(screen.getByRole('link')).toHaveClass('active');
+    expect(renderExpensesLink('/expenses')).toHaveClass('active');
   });
 
   it('should apply inactive class when pathname does not match href', () => {
-    mockUsePathname.mockReturnValue('/');
-    render(
-      <NavLink href="/expenses" className={({ isActive }) => (isActive ? 'active' : 'inactive')}>
-        Expenses
-      </NavLink>,
-    );
-    expect(screen.getByRole('link')).toHaveClass('inactive');
+    expect(renderExpensesLink('/')).toHaveClass('inactive');
   });
 
   it('should match sub-paths when end is false', () => {
-    mockUsePathname.mockReturnValue('/expenses/123');
-    render(
-      <NavLink href="/expenses" className={({ isActive }) => (isActive ? 'active' : 'inactive')}>
-        Expenses
-      </NavLink>,
-    );
-    expect(screen.getByRole('link')).toHaveClass('active');
+    expect(renderExpensesLink('/expenses/123')).toHaveClass('active');
   });
 
   it('should not match sub-paths when end is true', () => {
-    mockUsePathname.mockReturnValue('/expenses/123');
-    render(
-      <NavLink href="/expenses" end className={({ isActive }) => (isActive ? 'active' : 'inactive')}>
-        Expenses
-      </NavLink>,
-    );
-    expect(screen.getByRole('link')).toHaveClass('inactive');
+    expect(renderExpensesLink('/expenses/123', { end: true })).toHaveClass('inactive');
   });
 });
