@@ -81,6 +81,15 @@ describe('createRateLimiter()', () => {
     }
   });
 
+  it('should bypass rate limit for loopback IPs (Next.js injects socket.remoteAddress)', () => {
+    const limiter = createRateLimiter({ max: 1, windowMs: 60_000 });
+    for (const loopback of ['127.0.0.1', '::1', '::ffff:127.0.0.1']) {
+      for (let i = 0; i < 5; i++) {
+        assert.strictEqual(limiter.consume(loopback).allowed, true, `should bypass for ${loopback}`);
+      }
+    }
+  });
+
   it('should isolate counters across different limiter instances (different keys)', () => {
     const loginLimiter = createRateLimiter({ max: 2, windowMs: 60_000, key: 'login' });
     const registerLimiter = createRateLimiter({ max: 2, windowMs: 60_000, key: 'register' });
@@ -111,13 +120,15 @@ describe('withRateLimitedHandler()', () => {
     assert.ok(res.headers.get('Retry-After'), 'should set Retry-After header');
   });
 
-  it('should bypass limit when ip is null', async () => {
+  it('should bypass limit when ip is null or loopback', async () => {
     const limiter = createRateLimiter({ max: 1, windowMs: 60_000 });
     const handler = async () => new Response('ok', { status: 200 });
     const wrapped = withRateLimitedHandler(limiter, handler);
-    for (let i = 0; i < 5; i++) {
-      const res = await wrapped(makeReq(null));
-      assert.strictEqual(res.status, 200);
+    for (const ip of [null, '127.0.0.1', '::1']) {
+      for (let i = 0; i < 3; i++) {
+        const res = await wrapped(makeReq(ip));
+        assert.strictEqual(res.status, 200, `should bypass for ${ip}`);
+      }
     }
   });
 });
