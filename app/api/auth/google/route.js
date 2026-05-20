@@ -1,13 +1,9 @@
 import { NextResponse } from 'next/server';
 import { connectDB } from '@/lib/db.mjs';
 import authService from '@/lib/services/auth.service';
-import { createRateLimiter } from '@/lib/middleware/rateLimit';
+import { createRateLimiter, clientIp } from '@/lib/middleware/rateLimit';
 
 const limiter = createRateLimiter({ max: 10, windowMs: 15 * 60_000, key: 'google' });
-
-function clientIp(req) {
-  return req.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || 'unknown';
-}
 
 export async function POST(req) {
   const rl = limiter.consume(clientIp(req));

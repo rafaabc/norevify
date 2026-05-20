@@ -4,12 +4,27 @@ const { describe, it, beforeEach } = require('node:test');
 const assert = require('node:assert/strict');
 
 let createRateLimiter;
+let clientIp;
 
 beforeEach(() => {
   // Clear module cache + global store between tests
   delete require.cache[require.resolve('../../../lib/middleware/rateLimit.js')];
   if (globalThis._rateLimit) globalThis._rateLimit = {};
-  ({ createRateLimiter } = require('../../../lib/middleware/rateLimit.js'));
+  ({ createRateLimiter, clientIp } = require('../../../lib/middleware/rateLimit.js'));
+});
+
+function makeReq(forwardedFor) {
+  return { headers: { get: (h) => (h === 'x-forwarded-for' ? forwardedFor : null) } };
+}
+
+describe('clientIp()', () => {
+  it('should return the first IP from x-forwarded-for', () => {
+    assert.strictEqual(clientIp(makeReq('1.2.3.4, 5.6.7.8')), '1.2.3.4');
+  });
+
+  it('should return null when x-forwarded-for is absent', () => {
+    assert.strictEqual(clientIp(makeReq(null)), null);
+  });
 });
 
 describe('createRateLimiter()', () => {
@@ -60,6 +75,13 @@ describe('createRateLimiter()', () => {
     const result = limiter.consume('5.5.5.5');
     assert.strictEqual(result.allowed, false);
     assert.ok(result.retryAfterMs > 0, 'retryAfterMs should be positive');
+  });
+
+  it('should allow all requests when ip is null (no x-forwarded-for)', () => {
+    const limiter = createRateLimiter({ max: 1, windowMs: 60_000 });
+    for (let i = 0; i < 5; i++) {
+      assert.strictEqual(limiter.consume(null).allowed, true);
+    }
   });
 
   it('should isolate counters across different limiter instances (different keys)', () => {
