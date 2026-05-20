@@ -1,18 +1,11 @@
 import { NextResponse } from 'next/server';
 import { connectDB } from '@/lib/db.mjs';
 import authService from '@/lib/services/auth.service';
-import { createRateLimiter, clientIp } from '@/lib/middleware/rateLimit';
+import { createRateLimiter, withRateLimitedHandler } from '@/lib/middleware/rateLimit';
 
 const limiter = createRateLimiter({ max: 5, windowMs: 60 * 60_000, key: 'register' });
 
-export async function POST(req) {
-  const rl = limiter.consume(clientIp(req));
-  if (!rl.allowed) {
-    return NextResponse.json({ message: 'Too many requests' }, {
-      status: 429,
-      headers: { 'Retry-After': String(Math.ceil(rl.retryAfterMs / 1000)) },
-    });
-  }
+export const POST = withRateLimitedHandler(limiter, async (req) => {
   await connectDB();
   try {
     const body = await req.json();
@@ -21,4 +14,4 @@ export async function POST(req) {
   } catch (err) {
     return NextResponse.json({ message: err.message }, { status: err.status || 500 });
   }
-}
+});
