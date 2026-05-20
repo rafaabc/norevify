@@ -19,10 +19,10 @@ test.describe('US-02: User Login', () => {
   });
 
   // TC-02-01
-  test('[TC-02-01] should redirect to / and show username in sidebar after valid login', async ({ page }) => {
+  test('[TC-02-01] should redirect to /dashboard and show username in sidebar after valid login', async ({ page }) => {
     await loginPage.login(registeredUsername, DEFAULT_PASSWORD);
 
-    await expect(page).toHaveURL('/');
+    await expect(page).toHaveURL('/dashboard');
     await expect(page.getByText(registeredUsername)).toBeVisible();
   });
 
