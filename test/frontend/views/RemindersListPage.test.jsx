@@ -47,6 +47,10 @@ const activeReminders = [
   { id: 'r2', type: 'Maintenance', title: '', dueDate: null, dueKm: 15000, status: 'dueSoon' },
 ];
 
+async function renderPage() {
+  await act(async () => { render(<RemindersListPage />); });
+}
+
 describe('RemindersListPage', () => {
   beforeEach(() => {
     vi.clearAllMocks();
@@ -57,38 +61,38 @@ describe('RemindersListPage', () => {
   });
 
   it('should render reminders heading and new link', async () => {
-    await act(async () => { render(<RemindersListPage />); });
+    await renderPage();
     expect(screen.getByText('reminders.heading')).toBeInTheDocument();
     expect(screen.getByRole('link', { name: /common\.new/i })).toHaveAttribute('href', '/reminders/new');
   });
 
   it('should render active reminders list after load', async () => {
-    await act(async () => { render(<RemindersListPage />); });
+    await renderPage();
     expect(screen.getByText('categories.Fuel')).toBeInTheDocument();
     expect(screen.getByText(/Tank up/)).toBeInTheDocument();
   });
 
   it('should show empty message when no reminders', async () => {
     mockList.mockResolvedValue([]);
-    await act(async () => { render(<RemindersListPage />); });
+    await renderPage();
     expect(screen.getByText('reminders.noReminders')).toBeInTheDocument();
   });
 
   it('should switch to history tab and reload', async () => {
-    await act(async () => { render(<RemindersListPage />); });
+    await renderPage();
     expect(mockList).toHaveBeenCalledTimes(1);
     await act(async () => { fireEvent.click(screen.getByText('reminders.tabs.history')); });
     expect(mockList).toHaveBeenCalledTimes(2);
   });
 
   it('should open complete dialog when complete button clicked', async () => {
-    await act(async () => { render(<RemindersListPage />); });
+    await renderPage();
     fireEvent.click(screen.getAllByText('reminders.actions.complete')[0]);
     expect(screen.getByTestId('complete-dialog')).toBeInTheDocument();
   });
 
   it('should call remindersApi.complete and reload on confirm complete', async () => {
-    await act(async () => { render(<RemindersListPage />); });
+    await renderPage();
     fireEvent.click(screen.getAllByText('reminders.actions.complete')[0]);
     await act(async () => { fireEvent.click(screen.getByText('confirm-complete')); });
     expect(mockComplete).toHaveBeenCalledOnce();
@@ -96,13 +100,13 @@ describe('RemindersListPage', () => {
   });
 
   it('should open delete dialog when delete button clicked', async () => {
-    await act(async () => { render(<RemindersListPage />); });
+    await renderPage();
     fireEvent.click(screen.getAllByText('common.delete')[0]);
     expect(screen.getByTestId('delete-dialog')).toBeInTheDocument();
   });
 
   it('should call remindersApi.remove and reload on confirm delete', async () => {
-    await act(async () => { render(<RemindersListPage />); });
+    await renderPage();
     fireEvent.click(screen.getAllByText('common.delete')[0]);
     await act(async () => { fireEvent.click(screen.getByText('confirm-delete')); });
     expect(mockRemove).toHaveBeenCalledOnce();
@@ -111,12 +115,12 @@ describe('RemindersListPage', () => {
 
   it('should show error banner when list fails', async () => {
     mockList.mockRejectedValue(new Error('network error'));
-    await act(async () => { render(<RemindersListPage />); });
+    await renderPage();
     expect(screen.getByRole('alert')).toHaveTextContent('network error');
   });
 
   it('should navigate to edit on edit button click', async () => {
-    await act(async () => { render(<RemindersListPage />); });
+    await renderPage();
     fireEvent.click(screen.getAllByText('common.edit')[0]);
     expect(mockPush).toHaveBeenCalledWith('/reminders/r1/edit');
   });

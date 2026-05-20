@@ -31,49 +31,19 @@ describe('detectCurrency', () => {
     });
   });
 
-  it('should return BRL for pt-BR locale', () => {
-    setLanguage('pt-BR');
-    expect(detectCurrency()).toBe('BRL');
-  });
-
-  it('should return USD for en-US locale', () => {
-    setLanguage('en-US');
-    expect(detectCurrency()).toBe('USD');
-  });
-
-  it('should return EUR for de locale (base match)', () => {
-    setLanguage('de');
-    expect(detectCurrency()).toBe('EUR');
-  });
-
-  it('should return EUR for fr-FR locale', () => {
-    setLanguage('fr-FR');
-    expect(detectCurrency()).toBe('EUR');
-  });
-
-  it('should return GBP for en-GB locale', () => {
-    setLanguage('en-GB');
-    expect(detectCurrency()).toBe('GBP');
-  });
-
-  it('should return JPY for ja-JP locale', () => {
-    setLanguage('ja-JP');
-    expect(detectCurrency()).toBe('JPY');
-  });
-
-  it('should return SEK for sv locale (base match)', () => {
-    setLanguage('sv');
-    expect(detectCurrency()).toBe('SEK');
-  });
-
-  it('should return CAD for en-CA locale', () => {
-    setLanguage('en-CA');
-    expect(detectCurrency()).toBe('CAD');
-  });
-
-  it('should return DEFAULT_CURRENCY for unknown locale', () => {
-    setLanguage('xx-XX');
-    expect(detectCurrency()).toBe('BRL');
+  it.each([
+    ['pt-BR', 'BRL'],
+    ['en-US', 'USD'],
+    ['de',    'EUR'],
+    ['fr-FR', 'EUR'],
+    ['en-GB', 'GBP'],
+    ['ja-JP', 'JPY'],
+    ['sv',    'SEK'],
+    ['en-CA', 'CAD'],
+    ['xx-XX', 'BRL'],
+  ])('should return %s for %s locale', (lang, expected) => {
+    setLanguage(lang);
+    expect(detectCurrency()).toBe(expected);
   });
 
   it('should return DEFAULT_CURRENCY when navigator is undefined', () => {
