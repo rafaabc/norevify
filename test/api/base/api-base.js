@@ -101,7 +101,7 @@ before(async function () {
 
 // Root-suite after() — deletes only the users (and their expenses) created by this suite.
 after(async function () {
-  this.timeout(15000);
+  this.timeout(30000);
   try {
     const UserM     = mongoose.model('User');
     const ExpenseM  = mongoose.model('Expense');
@@ -116,7 +116,10 @@ after(async function () {
   } catch (err) {
     console.warn('[api-base] Cleanup warning:', err.message);
   } finally {
-    await mongoose.disconnect();
+    await Promise.race([
+      mongoose.connection.close(true),
+      new Promise(resolve => setTimeout(resolve, 8000)),
+    ]);
   }
 });
 

@@ -30,7 +30,22 @@ export default async function globalTeardown(): Promise<void> {
     await db.collection('reminders').deleteMany({ userId: { $in: ids } });
     await db.collection('users').deleteMany({ _id: { $in: ids } });
 
+    // Remove orphaned reminders whose userId no longer exists in users collection
+    const allUserIds = await db
+      .collection('users')
+      .find({}, { projection: { _id: 1 } })
+      .toArray()
+      .then((docs) => docs.map((d) => d._id.toString()));
+
+    const orphanResult = await db.collection('reminders').deleteMany({
+      $expr: {
+        $not: { $in: [{ $toString: '$userId' }, allUserIds] },
+      },
+    });
+
+    const orphanCount = orphanResult.deletedCount ?? 0;
     console.log(`[e2e teardown] Cleaned up ${testUsers.length} test user(s), their expenses and reminders.`);
+    if (orphanCount > 0) console.log(`[e2e teardown] Removed ${orphanCount} orphaned reminder(s).`);
   } catch (err) {
     console.warn('[e2e teardown] Cleanup warning:', (err as Error).message);
   } finally {
