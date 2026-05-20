@@ -13,4 +13,8 @@ export const API_ERROR_MAP = {
   'must provide dueDate or dueKm':                 'errors.reminderMissingDue',
   'odometer cannot be lower than current reading': 'errors.odometerRewind',
   'odometer is only valid for Fuel category':      'errors.odometerNonFuel',
+  'Email not verified':                            'errors.emailNotVerified',
+  'Invalid or expired verification token':         'errors.invalidVerificationToken',
+  'Verification token has expired':                'errors.invalidVerificationToken',
+  'Email already verified':                        'errors.emailAlreadyVerified',
 };

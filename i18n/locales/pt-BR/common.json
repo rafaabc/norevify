@@ -31,6 +31,21 @@
       "accountCreated": "Conta criada — faça login.",
       "passwordChanged": "Senha atualizada. Faça login."
     },
+    "verifyEmail": {
+      "heading": "Verifique seu email",
+      "verifying": "Verificando…",
+      "success": "Email verificado! Agora você pode usar o Drive Ledger.",
+      "goToDashboard": "Ir para o painel",
+      "expired": "Este link de verificação expirou.",
+      "invalid": "Link de verificação inválido.",
+      "alreadyVerified": "Email já verificado.",
+      "requestNew": "Solicitar novo link",
+      "resend": "Reenviar email de verificação",
+      "resending": "Enviando…",
+      "resendSuccess": "Email de verificação enviado. Verifique sua caixa de entrada.",
+      "bannerText": "Verifique seu endereço de email.",
+      "bannerAction": "Reenviar email"
+    },
     "register": {
       "heading": "Criar conta",
       "username": "Usuário",
@@ -157,6 +172,9 @@
   },
   "errors": {
     "generic": "Algo deu errado. Tente novamente.",
+    "emailNotVerified": "Verifique seu email antes de continuar.",
+    "invalidVerificationToken": "Token de verificação inválido ou expirado.",
+    "emailAlreadyVerified": "Email já verificado.",
     "invalidCredentials": "Credenciais inválidas.",
     "usernameTaken": "Nome de usuário já em uso.",
     "emailRegistered": "E-mail já cadastrado.",

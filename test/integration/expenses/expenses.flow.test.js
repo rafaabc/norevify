@@ -8,6 +8,7 @@ const assert = require('node:assert/strict');
 const mongoose = require('mongoose');
 
 const { startMongo, stopMongo, resetMongo } = require('../../helpers/mongo');
+require('../../helpers/email-mock');
 const authService = require('../../../lib/services/auth.service');
 const {
   createExpense,

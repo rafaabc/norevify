@@ -14,17 +14,19 @@ import styles from './SettingsPage.module.css';
 
 export default function SettingsPage() {
   const { t } = useTranslation();
-  const { username, currency, updateCurrency, language, updateLanguage } = useAuth();
+  const { username, currency, updateCurrency, language, updateLanguage, emailVerified, login } = useAuth();
   const [selected, setSelected] = useState(currency);
   const [selectedLang, setSelectedLang] = useState(language);
 
   const currencyAction = useAsyncAction();
   const langAction = useAsyncAction();
   const odoAction = useAsyncAction();
+  const resendAction = useAsyncAction();
 
   useAutoClear(currencyAction.success, currencyAction.setSuccess);
   useAutoClear(langAction.success, langAction.setSuccess);
   useAutoClear(odoAction.success, odoAction.setSuccess);
+  useAutoClear(resendAction.success, resendAction.setSuccess);
 
   const [odoKm, setOdoKm] = useState('');
 
@@ -184,6 +186,24 @@ export default function SettingsPage() {
             />
           </div>
         )
+      )}
+
+      <hr style={{ margin: '2rem 0', borderColor: 'var(--border)' }} />
+
+      {emailVerified === false && (
+        <>
+          <hr style={{ margin: '2rem 0', borderColor: 'var(--border)' }} />
+          <h2 style={{ fontSize: '1rem', fontWeight: 600, marginBottom: '1rem' }}>{t('auth.verifyEmail.heading')}</h2>
+          {resendAction.success && <ErrorBanner message={t('auth.verifyEmail.resendSuccess')} type="success" />}
+          {resendAction.error && <ErrorBanner message={resendAction.error} />}
+          <button
+            className="btn-secondary"
+            onClick={() => resendAction.run(() => authApi.resendVerification())}
+            disabled={resendAction.loading}
+          >
+            {resendAction.loading ? t('auth.verifyEmail.resending') : t('auth.verifyEmail.resend')}
+          </button>
+        </>
       )}
 
       <hr style={{ margin: '2rem 0', borderColor: 'var(--border)' }} />
