@@ -175,20 +175,25 @@ describe('authService.register()', () => {
   });
 
   // TC-01-16
-  it('should throw 400 when password exceeds 20 characters', async () => {
+  it('should throw 400 when password exceeds 128 characters', async () => {
     await assert.rejects(
-      () => authService.register({ username: 'alice', password: 'a'.repeat(21), email: 'alice@example.com' }),
+      () => authService.register({ username: 'alice', password: 'a'.repeat(129), email: 'alice@example.com' }),
       (err) => {
         assert.strictEqual(err.status, 400);
-        assert.match(err.message, /at most 20/i);
+        assert.match(err.message, /at most 128/i);
         return true;
       }
     );
   });
 
   // TC-01-17
-  it('should succeed when password has exactly 20 characters', async () => {
-    const result = await authService.register({ username: 'alice', password: 'a'.repeat(20), email: 'alice@example.com' });
+  it('should succeed when password has exactly 128 characters', async () => {
+    const result = await authService.register({ username: 'alice', password: 'a'.repeat(128), email: 'alice@example.com' });
+    assert.ok(result.id);
+  });
+
+  it('should succeed when password has 100 characters', async () => {
+    const result = await authService.register({ username: 'alice', password: 'a'.repeat(100), email: 'alice@example.com' });
     assert.ok(result.id);
   });
 });
@@ -315,10 +320,10 @@ describe('authService.changePassword()', () => {
   it('should throw 400 when newPassword is too long', async () => {
     await authService.register({ username: 'alice', password: 'password1', email: 'alice@example.com' });
     await assert.rejects(
-      () => authService.changePassword({ username: 'alice', currentPassword: 'password1', newPassword: 'a'.repeat(21) }),
+      () => authService.changePassword({ username: 'alice', currentPassword: 'password1', newPassword: 'a'.repeat(129) }),
       (err) => {
         assert.strictEqual(err.status, 400);
-        assert.match(err.message, /at most 20/i);
+        assert.match(err.message, /at most 128/i);
         return true;
       }
     );
@@ -601,10 +606,10 @@ describe('authService.resetPassword()', () => {
 
   it('should throw 400 when newPassword is too long', async () => {
     await assert.rejects(
-      () => authService.resetPassword({ token: validToken, newPassword: 'a'.repeat(21) }),
+      () => authService.resetPassword({ token: validToken, newPassword: 'a'.repeat(129) }),
       (err) => {
         assert.strictEqual(err.status, 400);
-        assert.match(err.message, /at most 20/i);
+        assert.match(err.message, /at most 128/i);
         return true;
       }
     );

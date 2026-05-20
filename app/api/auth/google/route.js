@@ -1,8 +1,11 @@
 import { NextResponse } from 'next/server';
 import { connectDB } from '@/lib/db.mjs';
 import authService from '@/lib/services/auth.service';
+import { createRateLimiter, withRateLimitedHandler } from '@/lib/middleware/rateLimit';
 
-export async function POST(req) {
+const limiter = createRateLimiter({ max: 10, windowMs: 15 * 60_000, key: 'google' });
+
+export const POST = withRateLimitedHandler(limiter, async (req) => {
   await connectDB();
   try {
     const body = await req.json();
@@ -11,4 +14,4 @@ export async function POST(req) {
   } catch (err) {
     return NextResponse.json({ message: err.message }, { status: err.status || 500 });
   }
-}
+});

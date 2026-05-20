@@ -19,6 +19,12 @@ describe('userModel.create()', () => {
     assert.strictEqual(user.username, 'alice');
   });
 
+  it('should populate createdAt and updatedAt timestamps', async () => {
+    const user = await userModel.create({ username: 'ts_user', password: 'hashed', email: 'ts@example.com' });
+    assert.ok(user.createdAt instanceof Date, 'createdAt should be a Date');
+    assert.ok(user.updatedAt instanceof Date, 'updatedAt should be a Date');
+  });
+
   it('should assign distinct _ids to multiple users', async () => {
     const first  = await userModel.create({ username: 'alice', password: 'hashed', email: 'alice@example.com' });
     const second = await userModel.create({ username: 'bob',   password: 'hashed', email: 'bob@example.com' });

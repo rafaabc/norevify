@@ -24,6 +24,13 @@ describe('reminderModel', () => {
     assert.strictEqual(rem.completedAt, null);
   });
 
+  it('should populate createdAt and updatedAt timestamps', async () => {
+    const future = new Date(Date.now() + 30 * 86400000);
+    const rem = await reminderModel.create({ userId: USER_ID, type: 'Fuel', dueDate: future });
+    assert.ok(rem.createdAt instanceof Date, 'createdAt should be a Date');
+    assert.ok(rem.updatedAt instanceof Date, 'updatedAt should be a Date');
+  });
+
   it('should reject invalid type', async () => {
     await assert.rejects(
       () => reminderModel.create({ userId: USER_ID, type: 'invalidType', dueKm: 1000 })

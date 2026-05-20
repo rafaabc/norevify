@@ -29,6 +29,12 @@ describe('expenseModel.create()', () => {
     assert.strictEqual(expense.category, 'Parking');
   });
 
+  it('should populate createdAt and updatedAt timestamps', async () => {
+    const expense = await expenseModel.create(sample());
+    assert.ok(expense.createdAt instanceof Date, 'createdAt should be a Date');
+    assert.ok(expense.updatedAt instanceof Date, 'updatedAt should be a Date');
+  });
+
   it('should assign distinct _ids to multiple expenses', async () => {
     const first = await expenseModel.create(sample());
     const second = await expenseModel.create(sample({ category: 'Toll' }));
