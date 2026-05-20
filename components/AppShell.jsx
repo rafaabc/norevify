@@ -51,7 +51,7 @@ export default function AppShell({ children }) {
   return (
     <div className={styles.shell}>
       <Sidebar badgeCount={badgeCount} />
-      <MobileTopBar />
+      <MobileTopBar badgeCount={badgeCount} />
       <main className={styles.main}>
         {children}
       </main>

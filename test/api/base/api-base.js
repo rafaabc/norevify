@@ -7,6 +7,7 @@ const mongoose = require('mongoose');
 // Register models with this mongoose instance (no connection needed at require time)
 require('../../../lib/models/user.model.js');
 require('../../../lib/models/expense.model.js');
+require('../../../lib/models/reminder.model.js');
 
 const BASE_URL = process.env.BASE_URL || 'http://localhost:3000';
 
@@ -100,20 +101,25 @@ before(async function () {
 
 // Root-suite after() — deletes only the users (and their expenses) created by this suite.
 after(async function () {
-  this.timeout(15000);
+  this.timeout(30000);
   try {
-    const UserM    = mongoose.model('User');
-    const ExpenseM = mongoose.model('Expense');
+    const UserM     = mongoose.model('User');
+    const ExpenseM  = mongoose.model('Expense');
+    const ReminderM = mongoose.model('Reminder');
 
     for (const id of createdUserIds) {
       const oid = new mongoose.Types.ObjectId(id);
       await ExpenseM.deleteMany({ userId: oid });
+      await ReminderM.deleteMany({ userId: oid });
       await UserM.findByIdAndDelete(oid);
     }
   } catch (err) {
     console.warn('[api-base] Cleanup warning:', err.message);
   } finally {
-    await mongoose.disconnect();
+    await Promise.race([
+      mongoose.connection.close(true),
+      new Promise(resolve => setTimeout(resolve, 8000)),
+    ]);
   }
 });
 
