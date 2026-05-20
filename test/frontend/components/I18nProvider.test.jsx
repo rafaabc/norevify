@@ -1,10 +1,10 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, act } from '@testing-library/react';
+import i18n from '@/i18n/index.js';
 import I18nProvider from '@/components/I18nProvider';
 
-const mockChangeLanguage = vi.fn();
 vi.mock('@/i18n/index.js', () => ({
-  default: { language: 'pt-BR', changeLanguage: mockChangeLanguage },
+  default: { language: 'pt-BR', changeLanguage: vi.fn() },
 }));
 
 describe('I18nProvider', () => {
@@ -23,7 +23,7 @@ describe('I18nProvider', () => {
     await act(async () => {
       render(<I18nProvider><span>x</span></I18nProvider>);
     });
-    expect(mockChangeLanguage).toHaveBeenCalledWith('en');
+    expect(i18n.changeLanguage).toHaveBeenCalledWith('en');
   });
 
   it('should not call changeLanguage when localStorage matches i18n.language', async () => {
@@ -31,13 +31,13 @@ describe('I18nProvider', () => {
     await act(async () => {
       render(<I18nProvider><span>x</span></I18nProvider>);
     });
-    expect(mockChangeLanguage).not.toHaveBeenCalled();
+    expect(i18n.changeLanguage).not.toHaveBeenCalled();
   });
 
   it('should not call changeLanguage when localStorage is empty', async () => {
     await act(async () => {
       render(<I18nProvider><span>x</span></I18nProvider>);
     });
-    expect(mockChangeLanguage).not.toHaveBeenCalled();
+    expect(i18n.changeLanguage).not.toHaveBeenCalled();
   });
 });
