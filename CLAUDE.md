@@ -174,6 +174,43 @@ let mockPush;
 beforeEach(() => { mockPush = vi.fn(); mockUseRouter.mockReturnValue({ push: mockPush }); });
 ```
 
+**`useParams` mock (for form pages with edit/create modes):**
+```js
+const mockUseParams = vi.fn();
+vi.mock('next/navigation', () => ({ useRouter: () => mockUseRouter(), useParams: () => mockUseParams() }));
+// create mode: mockUseParams.mockReturnValue({})
+// edit mode:   mockUseParams.mockReturnValue({ id: 'some-id' })
+```
+
+**`useSearchParams` override per test (for ResetPasswordPage, etc.):**
+```js
+const mockUseSearchParams = vi.fn();
+vi.mock('next/navigation', () => ({ useRouter: () => mockUseRouter(), useSearchParams: () => mockUseSearchParams() }));
+// in test: mockUseSearchParams.mockReturnValue(new URLSearchParams('token=abc123'))
+```
+
+**`i18n` mock reference pattern** — when a component imports `@/i18n/index.js` and you need to assert on it (e.g. `changeLanguage` was called), import the mocked module directly rather than keeping a top-level `const` reference in the factory (which fails hoisting):
+```js
+vi.mock('@/i18n/index.js', () => ({ default: { language: 'pt-BR', changeLanguage: vi.fn() } }));
+import i18n from '@/i18n/index.js'; // gives you the mocked object
+// then in tests: expect(i18n.changeLanguage).toHaveBeenCalledWith('en')
+```
+
+**`useAutoClear` tests** — use `vi.useFakeTimers()` in `beforeEach` and `vi.useRealTimers()` in `afterEach`; advance with `act(() => { vi.advanceTimersByTime(ms); })`.
+
+**`useAsyncAction` tests** — wrap `run()` calls in `await act(async () => { await result.current.run(...); })` to flush state updates through the promise lifecycle.
+
+**`DashboardPage` / any page using `@/i18n/index.js` transitively** — add `vi.mock('@/i18n/index.js', ...)` to the test file even if the page doesn't import it directly; the real module calls `initReactI18next` which fails against a partial react-i18next mock.
+
+**Chart components are intentionally uncovered** — `SummaryPage`, `DashboardPage` tests mock `StackedMonthlyBar`, `MonthlyTrendChart`, `CategoryDonut` as no-op stubs and assert only on data plumbing + table/KPI rendering.
+
+**Module-level state for per-test mock overrides** — when `useAuth` returns different values per test, use a module-level `let` variable and close over it in the factory (not `vi.mocked`, which requires the factory value to be a `vi.fn()`):
+```js
+let mockIsAuthed = true;
+vi.mock('@/context/AuthContext.jsx', () => ({ useAuth: () => ({ isAuthed: mockIsAuthed }) }));
+beforeEach(() => { mockIsAuthed = true; }); // reset default
+```
+
 ## Integration Tests
 
 - Framework: Node.js native Test Runner (`node:test`) + `node:assert`
