@@ -144,6 +144,15 @@ drive-ledger/
 └── .env.example
 ```
 
+## Beta — how to join
+
+1. Go to [https://app.norevify.com](https://app.norevify.com).
+2. Create an account — you must accept the Privacy Policy and Terms of Service (checkbox required).
+3. Check your inbox for a verification email and click the link. The banner disappears once verified.
+4. You can now log expenses and set reminders.
+
+> Beta is free. No payment required.
+
 ## Author
 
 [rafaabc](https://github.com/rafaabc)
