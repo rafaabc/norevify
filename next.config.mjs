@@ -37,7 +37,7 @@ const securityHeaders = [
       "style-src 'self' 'unsafe-inline' fonts.googleapis.com",
       "font-src 'self' fonts.gstatic.com",
       "img-src 'self' data: blob:",
-      "connect-src 'self' accounts.google.com *.sentry.io",
+      "connect-src 'self' accounts.google.com *.sentry.io eu.i.posthog.com",
       "frame-src accounts.google.com",
     ].join('; '),
   },
