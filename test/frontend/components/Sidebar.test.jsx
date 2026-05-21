@@ -15,7 +15,7 @@ describe('Sidebar', () => {
 
   it('should render brand name', () => {
     render(<Sidebar />);
-    expect(screen.getByText('DRIVE')).toBeInTheDocument();
+    expect(screen.getByText('NORE')).toBeInTheDocument();
   });
 
   it('should render username', () => {

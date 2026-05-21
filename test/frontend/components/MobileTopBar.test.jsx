@@ -15,7 +15,7 @@ describe('MobileTopBar', () => {
 
   it('should render brand name', () => {
     render(<MobileTopBar />);
-    expect(screen.getByText('DRIVE')).toBeInTheDocument();
+    expect(screen.getByText('NORE')).toBeInTheDocument();
   });
 
   it('should render reminders link', () => {

@@ -7,7 +7,7 @@ export default function AuthBrandPanel() {
     <aside className={styles.brand}>
       <div className={styles.brandContent}>
         <Gauge size={64} strokeWidth={1.5} className={styles.brandIcon} />
-        <span className={styles.wordmark}>DRIVELEDGER</span>
+        <span className={styles.wordmark}>NOREVIFY</span>
         <p className={styles.tagline}>Track every kilometer.</p>
       </div>
     </aside>

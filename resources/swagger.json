@@ -1,7 +1,7 @@
 {
   "openapi": "3.0.0",
   "info": {
-    "title": "Drive Ledger API",
+    "title": "Norevify API",
     "version": "1.0.0",
     "description": "Vehicle expense tracking API with JWT authentication."
   },

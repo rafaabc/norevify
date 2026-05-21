@@ -12,7 +12,7 @@ export default function MobileTopBar({ badgeCount = 0 }) {
     <header className={styles.topbar}>
       <div className={styles.brand}>
         <Gauge size={18} className={styles.brandIcon} />
-        <span className={styles.brandName}>DRIVE<span>LEDGER</span></span>
+        <span className={styles.brandName}>NORE<span>VIFY</span></span>
       </div>
       <div className={styles.actions}>
         <Link href="/reminders" className={styles.bellBtn} aria-label={t('nav.reminders')}>

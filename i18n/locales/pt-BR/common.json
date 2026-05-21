@@ -35,7 +35,7 @@
     "verifyEmail": {
       "heading": "Verifique seu email",
       "verifying": "Verificando…",
-      "success": "Email verificado! Agora você pode usar o Drive Ledger.",
+      "success": "Email verificado! Agora você pode usar o Norevify.",
       "goToDashboard": "Ir para o painel",
       "expired": "Este link de verificação expirou.",
       "invalid": "Link de verificação inválido.",
@@ -219,7 +219,7 @@
     "back": "Ir para o painel"
   },
   "mobileTopBar": {
-    "title": "Drive Ledger"
+    "title": "Norevify"
   },
   "reminders": {
     "heading": "Lembretes",

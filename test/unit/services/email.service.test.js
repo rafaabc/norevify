@@ -42,7 +42,7 @@ describe('emailService.sendPasswordResetEmail()', () => {
     assert.strictEqual(sentPayloads.length, 1);
     const p = sentPayloads[0];
     assert.strictEqual(p.to, 'user@example.com');
-    assert.match(p.from, /Drive Ledger/i);
+    assert.match(p.from, /Norevify/i);
     assert.match(p.subject, /senha/i);
   });
 
