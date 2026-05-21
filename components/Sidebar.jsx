@@ -23,7 +23,7 @@ export default function Sidebar({ badgeCount = 0 }) {
       <div className={styles.brand}>
         <Gauge size={22} className={styles.brandIcon} />
         <span className={styles.brandName}>
-          DRIVE<span>LEDGER</span>
+          NORE<span>VIFY</span>
         </span>
       </div>
 

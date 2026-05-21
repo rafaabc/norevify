@@ -7,7 +7,7 @@ vi.mock('@/views/LoginPage.module.css', () => ({ default: {} }));
 describe('AuthBrandPanel', () => {
   it('should render wordmark text', () => {
     render(<AuthBrandPanel />);
-    expect(screen.getByText('DRIVELEDGER')).toBeInTheDocument();
+    expect(screen.getByText('NOREVIFY')).toBeInTheDocument();
   });
 
   it('should render tagline', () => {

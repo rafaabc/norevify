@@ -3,7 +3,7 @@ import { withAuth } from '@/lib/auth.mjs';
 
 export const GET = withAuth(async (_req, _ctx, _user) => {
   return NextResponse.json({
-    dataController: 'Drive Ledger',
+    dataController: 'Norevify',
     dpoContact: 'faelsabc21@gmail.com',
     dataTreated: ['name', 'email', 'expenses', 'reminders', 'odometer'],
     purposes: ['expense tracking', 'reminder notifications', 'usage analytics'],
