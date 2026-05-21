@@ -55,6 +55,7 @@ async function createAndLoginUser(prefix) {
 
   if (regRes.status === 201 && regRes.body.id) {
     createdUserIds.push(regRes.body.id);
+    await verifyUserInDb(regRes.body.id);
   }
 
   const loginRes = await request(BASE_URL)
@@ -64,9 +65,18 @@ async function createAndLoginUser(prefix) {
   return loginRes.body.token;
 }
 
+// Marks a user as email-verified directly in the DB (bypasses email flow in tests).
+async function verifyUserInDb(userId) {
+  const UserM = mongoose.model('User');
+  await UserM.findByIdAndUpdate(userId, { emailVerified: true });
+}
+
 // Root-suite before() — runs once before all test files.
 before(async function () {
   this.timeout(15000);
+
+  // Open DB connection first so we can mark users as verified after registration.
+  await mongoose.connect(process.env.MONGODB_URI);
 
   const username = uniqueUsername('primary');
   const password = 'Password1';
@@ -85,6 +95,9 @@ before(async function () {
 
   expect(regRes.status, 'primary user registration failed').to.equal(201);
 
+  createdUserIds.push(regRes.body.id);
+  await verifyUserInDb(regRes.body.id);
+
   const loginRes = await request(BASE_URL)
     .post('/api/auth/login')
     .send({ username, password });
@@ -93,10 +106,6 @@ before(async function () {
 
   authToken = loginRes.body.token;
   authUser = { username, password, id: regRes.body.id };
-  createdUserIds.push(regRes.body.id);
-
-  // Open a direct DB connection for teardown cleanup
-  await mongoose.connect(process.env.MONGODB_URI);
 });
 
 // Root-suite after() — deletes only the users (and their expenses) created by this suite.
@@ -134,4 +143,5 @@ module.exports = {
   authHeader,
   createAndLoginUser,
   registerAndTrack,
+  verifyUserInDb,
 };
