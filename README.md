@@ -1,14 +1,14 @@
-[![CI](https://github.com/rafaabc/drive-ledger/actions/workflows/ci.yml/badge.svg)](https://github.com/rafaabc/drive-ledger/actions/workflows/ci.yml)
+[![CI](https://github.com/rafaabc/norevify/actions/workflows/ci.yml/badge.svg)](https://github.com/rafaabc/norevify/actions/workflows/ci.yml)
 
-# Drive Ledger
+# Norevify
 
 > https://github.com/user-attachments/assets/aa83e4c7-adfd-422d-8088-3656878346d4
 
-**Live demo:** `https://drive-ledger-three.vercel.app/`
+**Live:** `https://app.norevify.com`
 
 ## Description
 
-Drive Ledger is a full-stack vehicle expense management application built on **Next.js 14 App Router** — a single repo serving both the React frontend and the REST API via Route Handlers. Users can log and analyse expenses by category (fuel, maintenance, insurance, tolls, and more), set maintenance reminders triggered by date or odometer km (with optional recurrence), and view spending summaries by period.
+Norevify is a full-stack vehicle expense management application built on **Next.js 14 App Router** — a single repo serving both the React frontend and the REST API via Route Handlers. Users can log and analyse expenses by category (fuel, maintenance, insurance, tolls, and more), set maintenance reminders triggered by date or odometer km (with optional recurrence), and view spending summaries by period.
 
 Key features:
 
@@ -46,8 +46,8 @@ Key features:
 ### 1. Clone and install
 
 ```bash
-git clone https://github.com/rafaabc/drive-ledger.git
-cd drive-ledger
+git clone https://github.com/rafaabc/norevify.git
+cd norevify
 npm install
 ```
 
@@ -75,11 +75,11 @@ cp .env.example .env
 1. Go to [MongoDB Atlas](https://cloud.mongodb.com) → your cluster → **Connect** → **Drivers** → **Node.js**
 2. Copy the connection string and add the database name:
    ```
-   mongodb+srv://<USER>:<PASS>@cluster0.xxxxx.mongodb.net/drive-ledger?retryWrites=true&w=majority&appName=Cluster0
+   mongodb+srv://<USER>:<PASS>@cluster0.xxxxx.mongodb.net/norevify?retryWrites=true&w=majority&appName=Cluster0
    ```
 3. Paste as `MONGODB_URI` in `.env`
 4. **Network Access** → add your IP (or `0.0.0.0/0`)
-5. **Database Access** → create a user with `readWrite` on `drive-ledger`
+5. **Database Access** → create a user with `readWrite` on `norevify`
 
 > The database is created automatically on first write.
 
@@ -117,7 +117,7 @@ test-unit → test-integration → test-api → e2e
 ## File Structure
 
 ```
-drive-ledger/
+norevify/
 ├── app/
 │   ├── (auth)/          # Public pages (login, register, forgot/reset password)
 │   ├── (app)/           # Protected pages (auth guard in layout.jsx)
