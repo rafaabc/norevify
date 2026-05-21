@@ -4,6 +4,20 @@ const { request, expect, BASE_URL, uniqueUsername, createAndLoginUser, verifyUse
 
 const VALID_CONSENT = { policyVersion: '2026-05-20', acceptedAt: new Date().toISOString() };
 
+async function registerAndLogin(prefix, password = 'Password1') {
+  const username = uniqueUsername(prefix);
+  const email = `${username}@test.com`;
+  const regRes = await request(BASE_URL)
+    .post('/api/auth/register')
+    .send({ username, password, email, consent: VALID_CONSENT });
+  expect(regRes.status).to.equal(201);
+  await verifyUserInDb(regRes.body.id);
+  const loginRes = await request(BASE_URL)
+    .post('/api/auth/login')
+    .send({ username, password });
+  return { username, password, token: loginRes.body.token };
+}
+
 describe('US-XX - Data Subject Rights', () => {
   describe('GET /api/auth/me/export', () => {
     it('[TC-DR-01] should return 200 with user data structure', async () => {
@@ -22,20 +36,7 @@ describe('US-XX - Data Subject Rights', () => {
 
   describe('DELETE /api/auth/me', () => {
     it('[TC-DR-02] should return 204 and delete account with correct password', async () => {
-      const username = uniqueUsername('del');
-      const password = 'Password1';
-      const email = `${username}@test.com`;
-
-      const regRes = await request(BASE_URL)
-        .post('/api/auth/register')
-        .send({ username, password, email, consent: VALID_CONSENT });
-      expect(regRes.status).to.equal(201);
-      await verifyUserInDb(regRes.body.id);
-
-      const loginRes = await request(BASE_URL)
-        .post('/api/auth/login')
-        .send({ username, password });
-      const token = loginRes.body.token;
+      const { password, token } = await registerAndLogin('del');
 
       const deleteRes = await request(BASE_URL)
         .delete('/api/auth/me')
@@ -47,25 +48,11 @@ describe('US-XX - Data Subject Rights', () => {
       const exportRes = await request(BASE_URL)
         .get('/api/auth/me/export')
         .set('Authorization', `Bearer ${token}`);
-      // Should fail — user no longer exists in DB (404 from service)
       expect(exportRes.status).to.be.oneOf([401, 403, 404, 500]);
     });
 
     it('[TC-DR-03] should return 401 with wrong password', async () => {
-      const username = uniqueUsername('delwrong');
-      const password = 'Password1';
-      const email = `${username}@test.com`;
-
-      const regRes = await request(BASE_URL)
-        .post('/api/auth/register')
-        .send({ username, password, email, consent: VALID_CONSENT });
-      expect(regRes.status).to.equal(201);
-      await verifyUserInDb(regRes.body.id);
-
-      const loginRes = await request(BASE_URL)
-        .post('/api/auth/login')
-        .send({ username, password });
-      const token = loginRes.body.token;
+      const { token } = await registerAndLogin('delwrong');
 
       const deleteRes = await request(BASE_URL)
         .delete('/api/auth/me')

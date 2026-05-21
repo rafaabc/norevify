@@ -8,10 +8,9 @@ const assert = require('node:assert/strict');
 const jwt = require('jsonwebtoken');
 
 const { startMongo, stopMongo, resetMongo } = require('../../helpers/mongo');
+const { VALID_CONSENT } = require('../../helpers/fixtures');
 require('../../helpers/email-mock');
 const authService = require('../../../lib/services/auth.service');
-
-const VALID_CONSENT = { policyVersion: '2026-05-20', acceptedAt: new Date().toISOString() };
 
 before(async () => await startMongo());
 after(async () => await stopMongo());

@@ -8,6 +8,7 @@ const { describe, it, before, after, beforeEach } = require('node:test');
 const assert = require('node:assert/strict');
 
 const { startMongo, stopMongo, resetMongo } = require('../helpers/mongo');
+const { VALID_CONSENT } = require('../helpers/fixtures');
 require('../helpers/email-mock');
 const authService = require('../../lib/services/auth.service');
 const userModel = require('../../lib/models/user.model');
@@ -16,8 +17,6 @@ const expensesService = require('../../lib/services/expenses.service');
 before(async () => await startMongo());
 after(async () => await stopMongo());
 beforeEach(async () => await resetMongo());
-
-const VALID_CONSENT = { policyVersion: '2026-05-20', acceptedAt: new Date().toISOString() };
 
 describe('data rights flow', () => {
   it('should reject registration without consent', async () => {
