@@ -37,9 +37,11 @@ jobs:
     env:
       PORT: '3000'
       BASE_URL: 'http://localhost:3000'
+      FRONTEND_URL: 'http://localhost:3000'
       JWT_EXPIRES_IN: '1h'
       JWT_SECRET: ${{ secrets.JWT_SECRET }}
       MONGODB_URI: ${{ secrets.MONGODB_URI }}
+      RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -78,10 +80,12 @@ jobs:
     runs-on: ubuntu-latest
     env:
       BASE_URL: 'http://localhost:3000'
+      FRONTEND_URL: 'http://localhost:3000'
       PORT: '3000'
       JWT_EXPIRES_IN: '1h'
       JWT_SECRET: ${{ secrets.JWT_SECRET }}
       MONGODB_URI: ${{ secrets.MONGODB_URI }}
+      RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
       NEXT_PUBLIC_GOOGLE_CLIENT_ID: ''
     steps:
       - uses: actions/checkout@v4
