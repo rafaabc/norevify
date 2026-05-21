@@ -17,8 +17,9 @@ require.cache[resendPath] = {
 // Force fresh load so it picks up the mocked Resend
 delete require.cache[emailSvcPath];
 
-process.env.JWT_SECRET = process.env.JWT_SECRET || 'test-secret';
-process.env.BASE_URL   = process.env.BASE_URL   || 'http://localhost:3000';
+process.env.JWT_SECRET      = process.env.JWT_SECRET      || 'test-secret';
+process.env.BASE_URL        = process.env.BASE_URL        || 'http://localhost:3000';
+process.env.RESEND_API_KEY  = process.env.RESEND_API_KEY  || 'test-key';
 
 const { describe, it, before, after, beforeEach } = require('node:test');
 const assert = require('node:assert/strict');
@@ -33,9 +34,19 @@ beforeEach(async () => { await resetMongo(); sentPayloads.splice(0); });
 
 const USER = { username: 'bob', password: 'Password1', email: 'bob@example.com' };
 
+describe('Email service integration — register sends verification email', () => {
+  it('should send a verification email on register', async () => {
+    await authService.register(USER);
+    assert.strictEqual(sentPayloads.length, 1);
+    assert.strictEqual(sentPayloads[0].to, USER.email);
+    assert.ok(sentPayloads[0].html.includes('verify-email?token='), 'html must contain verify URL');
+  });
+});
+
 describe('Email service integration — forgotPassword without injection', () => {
   it('should call sendPasswordResetEmail with a reset URL when email is registered', async () => {
     await authService.register(USER);
+    sentPayloads.splice(0); // clear verification email
 
     await authService.forgotPassword({ email: USER.email });
 

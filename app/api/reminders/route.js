@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { connectDB } from '@/lib/db.mjs';
-import { withAuth } from '@/lib/auth.mjs';
+import { withAuth, withVerifiedUser } from '@/lib/auth.mjs';
 import remindersService from '@/lib/services/reminders.service';
 
 export const GET = withAuth(async (req, _ctx, user) => {
@@ -16,7 +16,7 @@ export const GET = withAuth(async (req, _ctx, user) => {
   }
 });
 
-export const POST = withAuth(async (req, _ctx, user) => {
+export const POST = withVerifiedUser(async (req, _ctx, user) => {
   await connectDB();
   try {
     const body = await req.json();

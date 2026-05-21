@@ -11,6 +11,11 @@ const jwt = require('jsonwebtoken');
 const { startMongo, stopMongo, resetMongo } = require('../../helpers/mongo');
 const authService = require('../../../lib/services/auth.service');
 const userModel = require('../../../lib/models/user.model');
+const emailService = require('../../../lib/services/email.service');
+
+// Suppress real email sends in unit tests
+emailService.sendVerificationEmail = async () => {};
+emailService.sendPasswordResetEmail = async () => {};
 
 before(async () => await startMongo());
 after(async () => await stopMongo());
@@ -729,5 +734,102 @@ describe('authService.updateCurrency()', () => {
     const payload = jwt.verify(token, process.env.JWT_SECRET);
     assert.strictEqual(payload.currency, 'USD');
     assert.ok(payload.language, 'token should also carry language');
+  });
+});
+
+// ---------------------------------------------------------------------------
+// Email verification
+// ---------------------------------------------------------------------------
+describe('authService.register() — email verification', () => {
+  it('should create user with emailVerified=false and a verification token', async () => {
+    await authService.register({ username: 'evuser', password: 'password1', email: 'evuser@x.com' });
+    const user = await userModel.findByUsername('evuser');
+    assert.strictEqual(user.emailVerified, false);
+    assert.ok(user.emailVerificationToken, 'should have a verification token');
+    assert.ok(user.emailVerificationExpiresAt > new Date(), 'expiry should be in the future');
+  });
+
+  it('should include emailVerified=false in the JWT payload on login', async () => {
+    await authService.register({ username: 'evjwt', password: 'password1', email: 'evjwt@x.com' });
+    const { token } = await authService.login({ username: 'evjwt', password: 'password1' });
+    const payload = jwt.verify(token, process.env.JWT_SECRET);
+    assert.strictEqual(payload.emailVerified, false);
+  });
+});
+
+describe('authService.verifyEmail()', () => {
+  it('should set emailVerified=true and return a JWT with emailVerified=true', async () => {
+    await authService.register({ username: 'vf1', password: 'password1', email: 'vf1@x.com' });
+    const user = await userModel.findByUsername('vf1');
+    const { token } = await authService.verifyEmail({ token: user.emailVerificationToken });
+    const payload = jwt.verify(token, process.env.JWT_SECRET);
+    assert.strictEqual(payload.emailVerified, true);
+    const updated = await userModel.findByUsername('vf1');
+    assert.strictEqual(updated.emailVerified, true);
+    assert.ok(!updated.emailVerificationToken, 'token should be cleared');
+  });
+
+  it('should throw 400 when token is missing', async () => {
+    await assert.rejects(
+      () => authService.verifyEmail({}),
+      (err) => { assert.strictEqual(err.status, 400); return true; }
+    );
+  });
+
+  it('should throw 400 when token does not match any user', async () => {
+    await assert.rejects(
+      () => authService.verifyEmail({ token: 'nonexistenttoken' }),
+      (err) => { assert.strictEqual(err.status, 400); assert.match(err.message, /invalid or expired/i); return true; }
+    );
+  });
+
+  it('should throw 400 when token is expired', async () => {
+    await authService.register({ username: 'expired1', password: 'password1', email: 'expired1@x.com' });
+    const user = await userModel.findByUsername('expired1');
+    await userModel.setEmailVerificationToken(user._id, user.emailVerificationToken, new Date(Date.now() - 1000));
+    await assert.rejects(
+      () => authService.verifyEmail({ token: user.emailVerificationToken }),
+      (err) => { assert.strictEqual(err.status, 400); assert.match(err.message, /expired/i); return true; }
+    );
+  });
+
+  it('should throw 400 when email is already verified', async () => {
+    await authService.register({ username: 'vf2', password: 'password1', email: 'vf2@x.com' });
+    const user = await userModel.findByUsername('vf2');
+    await authService.verifyEmail({ token: user.emailVerificationToken });
+    const user2 = await userModel.findByUsername('vf2');
+    await assert.rejects(
+      () => authService.verifyEmail({ token: user2.emailVerificationToken || 'any' }),
+      (err) => { assert.strictEqual(err.status, 400); return true; }
+    );
+  });
+});
+
+describe('authService.resendVerification()', () => {
+  it('should generate a new token and update expiry', async () => {
+    await authService.register({ username: 'rsnd1', password: 'password1', email: 'rsnd1@x.com' });
+    const before = await userModel.findByUsername('rsnd1');
+    const oldToken = before.emailVerificationToken;
+    await authService.resendVerification({ userId: before._id.toString() });
+    const after = await userModel.findByUsername('rsnd1');
+    assert.notStrictEqual(after.emailVerificationToken, oldToken);
+    assert.ok(after.emailVerificationExpiresAt > new Date());
+  });
+
+  it('should throw 400 when email is already verified', async () => {
+    await authService.register({ username: 'rsnd2', password: 'password1', email: 'rsnd2@x.com' });
+    const user = await userModel.findByUsername('rsnd2');
+    await authService.verifyEmail({ token: user.emailVerificationToken });
+    await assert.rejects(
+      () => authService.resendVerification({ userId: user._id.toString() }),
+      (err) => { assert.strictEqual(err.status, 400); assert.match(err.message, /already verified/i); return true; }
+    );
+  });
+
+  it('should throw 404 when user not found', async () => {
+    await assert.rejects(
+      () => authService.resendVerification({ userId: '000000000000000000000001' }),
+      (err) => { assert.strictEqual(err.status, 404); return true; }
+    );
   });
 });

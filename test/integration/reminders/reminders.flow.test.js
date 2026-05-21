@@ -6,6 +6,7 @@ const { describe, it, before, after, beforeEach } = require('node:test');
 const assert = require('node:assert/strict');
 
 const { startMongo, stopMongo, resetMongo } = require('../../helpers/mongo');
+require('../../helpers/email-mock');
 const authService = require('../../../lib/services/auth.service');
 const expensesService = require('../../../lib/services/expenses.service');
 const remindersService = require('../../../lib/services/reminders.service');

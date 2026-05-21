@@ -1,14 +1,27 @@
 import { APIRequestContext } from '@playwright/test';
+import mongoose from 'mongoose';
 import { DEFAULT_PASSWORD, uniqueUsername, todayISO } from './test-data';
+
+async function markEmailVerified(userId: string): Promise<void> {
+  const uri = process.env.MONGODB_URI;
+  if (!uri) return;
+  if (mongoose.connection.readyState === 0) await mongoose.connect(uri);
+  await mongoose.connection.db!.collection('users').updateOne(
+    { _id: new mongoose.Types.ObjectId(userId) },
+    { $set: { emailVerified: true } }
+  );
+}
 
 export async function createAndLoginUser(
   request: APIRequestContext,
   prefix = 'user'
 ): Promise<{ username: string; token: string }> {
   const username = uniqueUsername(prefix);
-  await request.post('/api/auth/register', {
+  const regRes = await request.post('/api/auth/register', {
     data: { username, password: DEFAULT_PASSWORD, email: `${username}@test.com` },
   });
+  const { id } = await regRes.json();
+  if (id) await markEmailVerified(id);
 
   const res = await request.post('/api/auth/login', {
     data: { username, password: DEFAULT_PASSWORD },

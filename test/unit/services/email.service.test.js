@@ -22,10 +22,15 @@ require.cache[resendPath] = {
 
 const emailService = require('../../../lib/services/email.service');
 
-const { describe, it, beforeEach } = require('node:test');
+const { describe, it, beforeEach, afterEach } = require('node:test');
 const assert = require('node:assert/strict');
 
-beforeEach(() => sentPayloads.splice(0));
+beforeEach(() => {
+  sentPayloads.splice(0);
+  process.env.RESEND_API_KEY = 'test-key';
+});
+
+afterEach(() => { delete process.env.RESEND_API_KEY; });
 
 describe('emailService.sendPasswordResetEmail()', () => {
   it('should call Resend with correct from, to, and subject', async () => {

@@ -51,6 +51,7 @@ export function AuthProvider({ children }) {
   const username = decoded?.username ?? null;
   const currency = decoded?.currency ?? DEFAULT_CURRENCY;
   const language = decoded?.language ?? 'pt-BR';
+  const emailVerified = decoded?.emailVerified ?? null;
 
   const updateCurrency = useCallback(async (newCurrency) => {
     const { token: newToken } = await authApi.updateCurrency({ currency: newCurrency });
@@ -67,7 +68,7 @@ export function AuthProvider({ children }) {
   }, []);
 
   return (
-    <AuthContext.Provider value={{ token, isAuthed: !!token, authLoading, username, currency, language, updateCurrency, updateLanguage, login, logout, expiredBanner, clearExpiredBanner: () => setExpiredBanner(false) }}>
+    <AuthContext.Provider value={{ token, isAuthed: !!token, authLoading, username, currency, language, emailVerified, updateCurrency, updateLanguage, login, logout, expiredBanner, clearExpiredBanner: () => setExpiredBanner(false) }}>
       {children}
     </AuthContext.Provider>
   );

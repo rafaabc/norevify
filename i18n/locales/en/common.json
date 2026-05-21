@@ -31,6 +31,21 @@
       "accountCreated": "Account created — please log in.",
       "passwordChanged": "Password updated. Please log in."
     },
+    "verifyEmail": {
+      "heading": "Verify your email",
+      "verifying": "Verifying…",
+      "success": "Email verified! You can now use Drive Ledger.",
+      "goToDashboard": "Go to dashboard",
+      "expired": "This verification link has expired.",
+      "invalid": "Invalid verification link.",
+      "alreadyVerified": "Email already verified.",
+      "requestNew": "Request a new link",
+      "resend": "Resend verification email",
+      "resending": "Sending…",
+      "resendSuccess": "Verification email sent. Check your inbox.",
+      "bannerText": "Please verify your email address.",
+      "bannerAction": "Resend email"
+    },
     "register": {
       "heading": "Create account",
       "username": "Username",
@@ -157,6 +172,9 @@
   },
   "errors": {
     "generic": "Something went wrong. Please try again.",
+    "emailNotVerified": "Please verify your email before continuing.",
+    "invalidVerificationToken": "Invalid or expired verification token.",
+    "emailAlreadyVerified": "Email already verified.",
     "invalidCredentials": "Invalid credentials.",
     "usernameTaken": "Username already taken.",
     "emailRegistered": "Email already registered.",
