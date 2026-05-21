@@ -25,7 +25,12 @@ test.describe('US-01: User Registration', () => {
     const username = uniqueUsername('dup');
 
     await request.post('/api/auth/register', {
-      data: { username, password: DEFAULT_PASSWORD, email: `${username}@test.com` },
+      data: {
+        username,
+        password: DEFAULT_PASSWORD,
+        email: `${username}@test.com`,
+        consent: { policyVersion: '2026-05-20', acceptedAt: new Date().toISOString() },
+      },
     });
 
     await registerPage.register(username, DEFAULT_PASSWORD);

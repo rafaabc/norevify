@@ -29,7 +29,8 @@
       "sessionExpired": "Your session expired. Please log in again.",
       "loggedOut": "Logged out successfully.",
       "accountCreated": "Account created — please log in.",
-      "passwordChanged": "Password updated. Please log in."
+      "passwordChanged": "Password updated. Please log in.",
+      "accountDeleted": "Account deleted successfully."
     },
     "verifyEmail": {
       "heading": "Verify your email",
@@ -55,7 +56,11 @@
       "submit": "Register",
       "submitting": "Registering…",
       "hasAccount": "Already have an account?",
-      "signIn": "Sign in"
+      "signIn": "Sign in",
+      "consentLabel": "I have read and accept the",
+      "privacyPolicy": "Privacy Policy",
+      "consentAnd": "and",
+      "termsOfService": "Terms of Service"
     },
     "forgotPassword": {
       "heading": "Forgot password",
@@ -101,7 +106,20 @@
     "disconnectGoogle": "Disconnect Google",
     "disconnecting": "Disconnecting…",
     "setPasswordFirst": "Set a password before disconnecting Google.",
-    "changePassword": "Change password"
+    "changePassword": "Change password",
+    "myData": {
+      "heading": "My data",
+      "description": "Download a copy of your data or permanently delete your account.",
+      "export": "Export data",
+      "deleteAccount": "Delete my account"
+    },
+    "deleteAccount": {
+      "heading": "Delete account",
+      "warning": "This action is permanent and cannot be undone. All your expenses and reminders will be deleted.",
+      "passwordLabel": "Confirm your password",
+      "confirm": "Delete account",
+      "deleting": "Deleting…"
+    }
   },
   "dashboard": {
     "heading": "Dashboard",
@@ -188,7 +206,9 @@
     "reminderCannotEditCompleted": "Cannot edit a completed reminder.",
     "reminderMissingDue": "Provide a date or a km target.",
     "odometerRewind": "Odometer cannot be lower than current reading.",
-    "odometerNonFuel": "Odometer is only valid for Fuel expenses."
+    "odometerNonFuel": "Odometer is only valid for Fuel expenses.",
+    "accountDeleted": "Account not found.",
+    "consentRequired": "You must accept the privacy policy and terms to register."
   },
   "pwa": {
     "updateAvailable": "New version available.",
@@ -243,5 +263,9 @@
     "newAction": "What do you want to add?",
     "newExpense": "New expense",
     "newReminder": "New reminder"
+  },
+  "legal": {
+    "privacy": "Privacy",
+    "terms": "Terms"
   }
 }

@@ -4,6 +4,8 @@ const jwt = require('jsonwebtoken');
 const { request, expect, BASE_URL, getToken, getUser, uniqueUsername, registerAndTrack } = require('../base/api-base');
 const fixtures = require('../fixtures/auth.json');
 
+const VALID_CONSENT = { policyVersion: '2026-05-20', acceptedAt: new Date().toISOString() };
+
 function exactUsername(len) {
   // Put random digits first so short slices (len=3) get high-entropy chars,
   // not the stable leading digits of the timestamp.
@@ -33,7 +35,7 @@ describe('US-01 - User Registration', () => {
 
       const res = await request(BASE_URL)
         .post('/api/auth/register')
-        .send({ username, password: 'Password1', email: `${username}_dup@test.com` });
+        .send({ username, password: 'Password1', email: `${username}_dup@test.com`, consent: VALID_CONSENT });
 
       expect(res.status).to.equal(409);
     });
@@ -44,7 +46,7 @@ describe('US-01 - User Registration', () => {
 
       const res = await request(BASE_URL)
         .post('/api/auth/register')
-        .send({ username, password: 'Password1', email: `${username}_dup@test.com` });
+        .send({ username, password: 'Password1', email: `${username}_dup@test.com`, consent: VALID_CONSENT });
 
       expect(res.body).to.have.property('message').that.is.a('string');
     });

@@ -63,4 +63,24 @@ describe('RegisterPage', () => {
     render(<RegisterPage />);
     expect(screen.getByRole('link', { name: 'auth.register.signIn' })).toBeInTheDocument();
   });
+
+  it('should render consent checkbox unchecked', () => {
+    render(<RegisterPage />);
+    const checkbox = screen.getByRole('checkbox');
+    expect(checkbox).not.toBeChecked();
+  });
+
+  it('should disable submit button when consent not checked', () => {
+    render(<RegisterPage />);
+    const submit = screen.getByRole('button', { name: 'auth.register.submit' });
+    expect(submit).toBeDisabled();
+  });
+
+  it('should enable submit button after consent checked', () => {
+    render(<RegisterPage />);
+    const checkbox = screen.getByRole('checkbox');
+    fireEvent.click(checkbox);
+    const submit = screen.getByRole('button', { name: 'auth.register.submit' });
+    expect(submit).not.toBeDisabled();
+  });
 });

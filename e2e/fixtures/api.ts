@@ -18,7 +18,12 @@ export async function createAndLoginUser(
 ): Promise<{ username: string; token: string }> {
   const username = uniqueUsername(prefix);
   const regRes = await request.post('/api/auth/register', {
-    data: { username, password: DEFAULT_PASSWORD, email: `${username}@test.com` },
+    data: {
+      username,
+      password: DEFAULT_PASSWORD,
+      email: `${username}@test.com`,
+      consent: { policyVersion: '2026-05-20', acceptedAt: new Date().toISOString() },
+    },
   });
   const { id } = await regRes.json();
   if (id) await markEmailVerified(id);

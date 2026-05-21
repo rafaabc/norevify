@@ -10,6 +10,8 @@ const mongoose = require('mongoose');
 const { startMongo, stopMongo, resetMongo } = require('../../helpers/mongo');
 require('../../helpers/email-mock');
 const authService = require('../../../lib/services/auth.service');
+
+const VALID_CONSENT = { policyVersion: '2026-05-20', acceptedAt: new Date().toISOString() };
 const {
   createExpense,
   getExpense,
@@ -27,7 +29,7 @@ const TODAY = new Date().toISOString().slice(0, 10);
 describe('Expenses CRUD flow integration', () => {
   // TC-03-01 + TC-03-02
   it('should persist a non-Fuel expense and make it retrievable via list and get', async () => {
-    const user = await authService.register({ username: 'testuser', password: 'password1', email: 'testuser@example.com' });
+    const user = await authService.register({ username: 'testuser', password: 'password1', email: 'testuser@example.com', consent: VALID_CONSENT });
     const created = await createExpense(user.id, { category: 'Parking', amount: 15, date: TODAY });
     const listed = await listExpenses(user.id, {});
     const fetched = await getExpense(user.id, created.id);
@@ -39,7 +41,7 @@ describe('Expenses CRUD flow integration', () => {
 
   // TC-03-01 (Fuel variant) + TC-03-02
   it('should persist a Fuel expense with computed amount and make it retrievable', async () => {
-    const user = await authService.register({ username: 'testuser', password: 'password1', email: 'testuser@example.com' });
+    const user = await authService.register({ username: 'testuser', password: 'password1', email: 'testuser@example.com', consent: VALID_CONSENT });
     const created = await createExpense(user.id, {
       category: 'Fuel',
       litres: 40,
@@ -54,7 +56,7 @@ describe('Expenses CRUD flow integration', () => {
 
   // TC-03-13
   it('should update an existing expense and reflect the change on subsequent read', async () => {
-    const user = await authService.register({ username: 'testuser', password: 'password1', email: 'testuser@example.com' });
+    const user = await authService.register({ username: 'testuser', password: 'password1', email: 'testuser@example.com', consent: VALID_CONSENT });
     const created = await createExpense(user.id, { category: 'Parking', amount: 10, date: TODAY });
     await updateExpense(user.id, created.id, { amount: 99 });
     const fetched = await getExpense(user.id, created.id);
@@ -63,7 +65,7 @@ describe('Expenses CRUD flow integration', () => {
 
   // TC-03-14
   it('should throw 404 when updating a non-existent expense', async () => {
-    const user = await authService.register({ username: 'testuser', password: 'password1', email: 'testuser@example.com' });
+    const user = await authService.register({ username: 'testuser', password: 'password1', email: 'testuser@example.com', consent: VALID_CONSENT });
     const fakeId = new mongoose.Types.ObjectId().toString();
     await assert.rejects(
       () => updateExpense(user.id, fakeId, { amount: 50 }),
@@ -76,7 +78,7 @@ describe('Expenses CRUD flow integration', () => {
 
   // TC-03-15
   it('should delete an existing expense so it is no longer retrievable', async () => {
-    const user = await authService.register({ username: 'testuser', password: 'password1', email: 'testuser@example.com' });
+    const user = await authService.register({ username: 'testuser', password: 'password1', email: 'testuser@example.com', consent: VALID_CONSENT });
     const created = await createExpense(user.id, { category: 'Toll', amount: 3, date: TODAY });
     await deleteExpense(user.id, created.id);
     await assert.rejects(
@@ -89,7 +91,7 @@ describe('Expenses CRUD flow integration', () => {
 
   // TC-03-16
   it('should throw 404 when deleting a non-existent expense', async () => {
-    const user = await authService.register({ username: 'testuser', password: 'password1', email: 'testuser@example.com' });
+    const user = await authService.register({ username: 'testuser', password: 'password1', email: 'testuser@example.com', consent: VALID_CONSENT });
     const fakeId = new mongoose.Types.ObjectId().toString();
     await assert.rejects(
       () => deleteExpense(user.id, fakeId),

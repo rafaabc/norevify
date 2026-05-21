@@ -29,7 +29,8 @@
       "sessionExpired": "Sua sessão expirou. Faça login novamente.",
       "loggedOut": "Logout realizado com sucesso.",
       "accountCreated": "Conta criada — faça login.",
-      "passwordChanged": "Senha atualizada. Faça login."
+      "passwordChanged": "Senha atualizada. Faça login.",
+      "accountDeleted": "Conta excluída com sucesso."
     },
     "verifyEmail": {
       "heading": "Verifique seu email",
@@ -55,7 +56,11 @@
       "submit": "Cadastrar",
       "submitting": "Cadastrando…",
       "hasAccount": "Já tem uma conta?",
-      "signIn": "Entrar"
+      "signIn": "Entrar",
+      "consentLabel": "Li e aceito a",
+      "privacyPolicy": "Política de Privacidade",
+      "consentAnd": "e os",
+      "termsOfService": "Termos de Serviço"
     },
     "forgotPassword": {
       "heading": "Esqueci a senha",
@@ -101,7 +106,20 @@
     "disconnectGoogle": "Desconectar Google",
     "disconnecting": "Desconectando…",
     "setPasswordFirst": "Defina uma senha antes de desconectar o Google.",
-    "changePassword": "Alterar senha"
+    "changePassword": "Alterar senha",
+    "myData": {
+      "heading": "Meus dados",
+      "description": "Baixe uma cópia dos seus dados ou exclua permanentemente sua conta.",
+      "export": "Exportar dados",
+      "deleteAccount": "Excluir minha conta"
+    },
+    "deleteAccount": {
+      "heading": "Excluir conta",
+      "warning": "Esta ação é permanente e não pode ser desfeita. Todas as suas despesas e lembretes serão excluídos.",
+      "passwordLabel": "Confirme sua senha",
+      "confirm": "Excluir conta",
+      "deleting": "Excluindo…"
+    }
   },
   "dashboard": {
     "heading": "Painel",
@@ -188,7 +206,9 @@
     "reminderCannotEditCompleted": "Não é possível editar um lembrete concluído.",
     "reminderMissingDue": "Informe uma data ou quilometragem.",
     "odometerRewind": "Hodômetro não pode ser menor que o valor atual.",
-    "odometerNonFuel": "Hodômetro só é válido em abastecimento."
+    "odometerNonFuel": "Hodômetro só é válido em abastecimento.",
+    "accountDeleted": "Conta não encontrada.",
+    "consentRequired": "Você deve aceitar a política de privacidade e os termos para se cadastrar."
   },
   "pwa": {
     "updateAvailable": "Nova versão disponível.",
@@ -243,5 +263,9 @@
     "newAction": "O que deseja criar?",
     "newExpense": "Novo gasto",
     "newReminder": "Novo lembrete"
+  },
+  "legal": {
+    "privacy": "Privacidade",
+    "terms": "Termos"
   }
 }

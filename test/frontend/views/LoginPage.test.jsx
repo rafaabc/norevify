@@ -3,11 +3,12 @@ import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import LoginPage from '@/views/LoginPage.jsx';
 
 let mockPush;
+const mockUseSearchParams = vi.fn();
 
 vi.mock('next/navigation', () => ({
   useRouter: () => ({ push: mockPush }),
   usePathname: () => '/login',
-  useSearchParams: () => new URLSearchParams(),
+  useSearchParams: () => mockUseSearchParams(),
 }));
 
 vi.mock('react-i18next', () => ({
@@ -45,6 +46,7 @@ import { authApi } from '@/services/apiService.js';
 beforeEach(() => {
   mockPush = vi.fn();
   vi.clearAllMocks();
+  mockUseSearchParams.mockReturnValue(new URLSearchParams());
 });
 
 describe('LoginPage', () => {
@@ -83,5 +85,11 @@ describe('LoginPage', () => {
     fireEvent.submit(document.querySelector('form'));
     await waitFor(() => expect(mockLogin).toHaveBeenCalledWith('tok'));
     expect(mockPush).toHaveBeenCalledWith('/');
+  });
+
+  it('should show deleted banner when deleted=1 query param is present', () => {
+    mockUseSearchParams.mockReturnValue(new URLSearchParams('deleted=1'));
+    render(<LoginPage />);
+    expect(screen.getByTestId('error-banner')).toHaveTextContent('auth.login.accountDeleted');
   });
 });

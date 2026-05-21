@@ -239,3 +239,26 @@ describe('remindersService.getBadgeCount()', () => {
     assert.strictEqual(counts.overdue, 1);
   });
 });
+
+// ---------------------------------------------------------------------------
+// deleteAllByUser
+// ---------------------------------------------------------------------------
+describe('remindersService.deleteAllByUser()', () => {
+  it('should delete all reminders for the given userId', async () => {
+    const u = USER_ID();
+    const other = USER_ID();
+    await userModel.create({ _id: u, username: 'del1', password: 'x', email: 'del1@test.com' });
+    await userModel.create({ _id: other, username: 'del2', password: 'x', email: 'del2@test.com' });
+    await remindersService.createReminder(u, { type: 'Fuel', dueKm: 5000 });
+    await remindersService.createReminder(u, { type: 'Tax', dueKm: 6000 });
+    await remindersService.createReminder(other, { type: 'Parking', dueKm: 7000 });
+
+    await remindersService.deleteAllByUser(u);
+
+    const userRemaining = await remindersService.listReminders(u, {});
+    assert.strictEqual(userRemaining.length, 0);
+
+    const otherRemaining = await remindersService.listReminders(other, {});
+    assert.strictEqual(otherRemaining.length, 1);
+  });
+});

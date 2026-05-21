@@ -8,6 +8,8 @@ const assert = require('node:assert/strict');
 const { startMongo, stopMongo, resetMongo } = require('../../helpers/mongo');
 require('../../helpers/email-mock');
 const authService = require('../../../lib/services/auth.service');
+
+const VALID_CONSENT = { policyVersion: '2026-05-20', acceptedAt: new Date().toISOString() };
 const expensesService = require('../../../lib/services/expenses.service');
 const remindersService = require('../../../lib/services/reminders.service');
 const userModel = require('../../../lib/models/user.model');
@@ -21,7 +23,7 @@ const future = (d) => new Date(Date.now() + d * 86400000);
 
 describe('Reminder full flow', () => {
   it('create reminder → fuel updates currentKm → status flips → complete → next exists', async () => {
-    await authService.register({ username: 'flow1', password: 'pass1234', email: 'flow1@test.com' });
+    await authService.register({ username: 'flow1', password: 'pass1234', email: 'flow1@test.com', consent: VALID_CONSENT });
     const user = await userModel.findByUsername('flow1');
     const uid = user._id.toString();
 

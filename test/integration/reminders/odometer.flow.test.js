@@ -8,6 +8,8 @@ const assert = require('node:assert/strict');
 const { startMongo, stopMongo, resetMongo } = require('../../helpers/mongo');
 require('../../helpers/email-mock');
 const authService = require('../../../lib/services/auth.service');
+
+const VALID_CONSENT = { policyVersion: '2026-05-20', acceptedAt: new Date().toISOString() };
 const expensesService = require('../../../lib/services/expenses.service');
 const userModel = require('../../../lib/models/user.model');
 
@@ -19,7 +21,7 @@ const TODAY = new Date().toISOString().slice(0, 10);
 
 describe('Odometer flow', () => {
   it('fuel odometer raises user.currentKm; older reading does not lower it', async () => {
-    await authService.register({ username: 'od1', password: 'pass1234', email: 'od1@test.com' });
+    await authService.register({ username: 'od1', password: 'pass1234', email: 'od1@test.com', consent: VALID_CONSENT });
     const user = await userModel.findByUsername('od1');
     const uid = user._id.toString();
 
@@ -37,7 +39,7 @@ describe('Odometer flow', () => {
   });
 
   it('manual override allows setting a lower value', async () => {
-    await authService.register({ username: 'od2', password: 'pass1234', email: 'od2@test.com' });
+    await authService.register({ username: 'od2', password: 'pass1234', email: 'od2@test.com', consent: VALID_CONSENT });
     const user = await userModel.findByUsername('od2');
     const uid = user._id.toString();
 

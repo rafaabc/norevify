@@ -19,6 +19,7 @@ export default function LoginPage() {
   const [showRegistered, setShowRegistered] = useState(searchParams.get('registered') === '1');
   const [showLoggedOut, setShowLoggedOut] = useState(searchParams.get('loggedOut') === '1');
   const [showPasswordChanged, setShowPasswordChanged] = useState(searchParams.get('passwordChanged') === '1');
+  const [showDeleted, setShowDeleted] = useState(searchParams.get('deleted') === '1');
 
   const [form, setForm] = useState({ username: '', password: '' });
   const [error, setError] = useState('');
@@ -41,6 +42,12 @@ export default function LoginPage() {
     const timer = setTimeout(() => setShowPasswordChanged(false), 3000);
     return () => clearTimeout(timer);
   }, [showPasswordChanged]);
+
+  useEffect(() => {
+    if (!showDeleted) return;
+    const timer = setTimeout(() => setShowDeleted(false), 3000);
+    return () => clearTimeout(timer);
+  }, [showDeleted]);
 
   useEffect(() => {
     if (!expiredBanner) return;
@@ -78,6 +85,7 @@ export default function LoginPage() {
           {showLoggedOut && <ErrorBanner message={t('auth.login.loggedOut')} type="success" />}
           {showRegistered && <ErrorBanner message={t('auth.login.accountCreated')} type="success" />}
           {showPasswordChanged && <ErrorBanner message={t('auth.login.passwordChanged')} type="success" />}
+          {showDeleted && <ErrorBanner message={t('auth.login.accountDeleted')} type="success" />}
           {error && <ErrorBanner message={error} />}
 
           <GoogleSignInButton mode="login" onError={setError} />
