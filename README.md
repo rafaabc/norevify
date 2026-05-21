@@ -2,8 +2,6 @@
 
 # Norevify
 
-> https://github.com/user-attachments/assets/aa83e4c7-adfd-422d-8088-3656878346d4
-
 **Live:** `https://app.norevify.com`
 
 ## Description
