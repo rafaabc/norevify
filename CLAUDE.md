@@ -33,11 +33,21 @@ RESEND_API_KEY=re_xxxxxxxxxxxx
 RESET_PASSWORD_EXPIRES_IN=15m
 GOOGLE_CLIENT_ID=your-google-client-id
 NEXT_PUBLIC_GOOGLE_CLIENT_ID=your-google-client-id
+SENTRY_DSN=
+NEXT_PUBLIC_SENTRY_DSN=
+SENTRY_AUTH_TOKEN=
+LOG_LEVEL=info
+NEXT_PUBLIC_POSTHOG_KEY=
+NEXT_PUBLIC_POSTHOG_HOST=https://eu.i.posthog.com
 ```
 
 `MONGODB_URI` points to the `drive-ledger` database on the shared Atlas `Cluster0`. The database is created automatically on first write.
 
 `FRONTEND_URL` is used to build the password-reset link in recovery emails — same as `BASE_URL` in production. `RESEND_API_KEY` authenticates with the [Resend](https://resend.com) email API. `RESET_PASSWORD_EXPIRES_IN` controls reset-token lifetime (default `15m`).
+
+`SENTRY_DSN` / `NEXT_PUBLIC_SENTRY_DSN` — Sentry project DSN; captures 5xx errors server- and client-side. `SENTRY_AUTH_TOKEN` used by `@sentry/nextjs` to upload source maps. `LOG_LEVEL` controls pino log verbosity (default `info`).
+
+`NEXT_PUBLIC_POSTHOG_KEY` — PostHog project API key (EU region). `NEXT_PUBLIC_POSTHOG_HOST` — defaults to `https://eu.i.posthog.com` (LGPD-friendly). PostHog initialized in `components/PostHogProvider.jsx`, wrapped at root in `app/layout.jsx`. `AuthContext` calls `posthog.identify(userId, { username })` on login and `posthog.reset()` on logout. All inputs masked in session recordings.
 
 ## Architecture
 

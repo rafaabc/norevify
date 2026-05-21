@@ -5,6 +5,7 @@ import { decodeJwt } from '@/utils/decodeJwt.js';
 import { authApi } from '@/services/apiService.js';
 import { DEFAULT_CURRENCY } from '@/constants/currencies.js';
 import i18n from '@/i18n/index.js';
+import posthog from 'posthog-js';
 
 const AuthContext = createContext(null);
 
@@ -29,11 +30,13 @@ export function AuthProvider({ children }) {
       localStorage.setItem('i18nextLng', payload.language);
       i18n.changeLanguage(payload.language);
     }
+    if (payload?.id) posthog.identify(payload.id, { username: payload.username });
   }, []);
 
   const logout = useCallback(() => {
     localStorage.removeItem('token');
     setToken(null);
+    posthog.reset();
     router.push('/login?loggedOut=1');
   }, [router]);
 
