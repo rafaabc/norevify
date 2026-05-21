@@ -272,8 +272,20 @@ export default function SettingsPage() {
       </div>
 
       {showDeleteModal && (
-        <div className="modal-backdrop" onClick={() => setShowDeleteModal(false)}>
-          <div className="modal" onClick={(e) => e.stopPropagation()}>
+        <div
+          className="modal-backdrop"
+          onClick={() => setShowDeleteModal(false)}
+          onKeyDown={(e) => e.key === 'Escape' && setShowDeleteModal(false)}
+          role="button"
+          tabIndex={-1}
+        >
+          <div
+            className="modal"
+            onClick={(e) => e.stopPropagation()}
+            onKeyDown={(e) => e.stopPropagation()}
+            role="dialog"
+            aria-modal="true"
+          >
             <h3 style={{ marginBottom: '1rem' }}>{t('settings.deleteAccount.heading')}</h3>
             <p style={{ color: 'var(--muted)', fontSize: '0.875rem', marginBottom: '1rem' }}>
               {t('settings.deleteAccount.warning')}
