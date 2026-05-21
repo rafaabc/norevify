@@ -540,3 +540,24 @@ describe('expensesService — Fuel odometer side effect', () => {
     assert.strictEqual(exp.odometer, undefined);
   });
 });
+
+// ---------------------------------------------------------------------------
+// deleteAllByUser
+// ---------------------------------------------------------------------------
+describe('expensesService.deleteAllByUser()', () => {
+  it('should delete all expenses for the given userId', async () => {
+    await expensesService.createExpense(USER_ID, validOther());
+    await expensesService.createExpense(USER_ID, validOther());
+    await expensesService.deleteAllByUser(USER_ID);
+    const remaining = await expensesService.listExpenses(USER_ID, {});
+    assert.strictEqual(remaining.length, 0);
+  });
+
+  it('should not delete expenses belonging to another user', async () => {
+    await expensesService.createExpense(USER_ID, validOther());
+    await expensesService.createExpense(OTHER_USER_ID, validOther());
+    await expensesService.deleteAllByUser(USER_ID);
+    const otherRemaining = await expensesService.listExpenses(OTHER_USER_ID, {});
+    assert.strictEqual(otherRemaining.length, 1);
+  });
+});
