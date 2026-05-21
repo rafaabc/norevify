@@ -17,8 +17,9 @@ require.cache[resendPath] = {
 // Force fresh load so it picks up the mocked Resend
 delete require.cache[emailSvcPath];
 
-process.env.JWT_SECRET = process.env.JWT_SECRET || 'test-secret';
-process.env.BASE_URL   = process.env.BASE_URL   || 'http://localhost:3000';
+process.env.JWT_SECRET      = process.env.JWT_SECRET      || 'test-secret';
+process.env.BASE_URL        = process.env.BASE_URL        || 'http://localhost:3000';
+process.env.RESEND_API_KEY  = process.env.RESEND_API_KEY  || 'test-key';
 
 const { describe, it, before, after, beforeEach } = require('node:test');
 const assert = require('node:assert/strict');
