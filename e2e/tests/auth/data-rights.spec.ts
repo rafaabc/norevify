@@ -54,7 +54,7 @@ test.describe('Data Subject Rights', () => {
     const download = await downloadPromise;
 
     if (download) {
-      expect(download.suggestedFilename()).toContain('drive-ledger');
+      expect(download.suggestedFilename()).toContain('norevify');
     }
   });
 
