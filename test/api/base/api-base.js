@@ -13,6 +13,8 @@ const BASE_URL = process.env.BASE_URL || 'http://localhost:3000';
 
 const CATEGORIES = ['Fuel', 'Maintenance', 'Insurance', 'Parking', 'Toll', 'Tax', 'Other'];
 
+const VALID_CONSENT = { policyVersion: '2026-05-20', acceptedAt: new Date().toISOString() };
+
 let authToken = null;
 let authUser = null;
 let counter = 0;
@@ -35,7 +37,7 @@ function authHeader() {
 async function registerAndTrack(username, password, email) {
   const res = await request(BASE_URL)
     .post('/api/auth/register')
-    .send({ username, password, email: email || `${username}@test.com` });
+    .send({ username, password, email: email || `${username}@test.com`, consent: VALID_CONSENT });
 
   if (res.status === 201 && res.body.id) {
     createdUserIds.push(res.body.id);
@@ -51,7 +53,7 @@ async function createAndLoginUser(prefix) {
 
   const regRes = await request(BASE_URL)
     .post('/api/auth/register')
-    .send({ username, password, email });
+    .send({ username, password, email, consent: VALID_CONSENT });
 
   if (regRes.status === 201 && regRes.body.id) {
     createdUserIds.push(regRes.body.id);
@@ -84,7 +86,7 @@ before(async function () {
 
   const regRes = await request(BASE_URL)
     .post('/api/auth/register')
-    .send({ username, password, email })
+    .send({ username, password, email, consent: VALID_CONSENT })
     .catch(() => null);
 
   if (!regRes) {

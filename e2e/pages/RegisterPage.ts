@@ -14,6 +14,7 @@ export class RegisterPage extends BasePage {
     await this.page.locator('[name="username"]').fill(username);
     await this.page.locator('[name="email"]').fill(email ?? `${username}@test.com`);
     await this.page.locator('[name="password"]').fill(password);
+    await this.page.locator('#reg-consent').check();
     await this.page.locator('button[type="submit"]').click();
   }
 

@@ -11,6 +11,8 @@ const { startMongo, stopMongo, resetMongo } = require('../../helpers/mongo');
 require('../../helpers/email-mock');
 const authService = require('../../../lib/services/auth.service');
 
+const VALID_CONSENT = { policyVersion: '2026-05-20', acceptedAt: new Date().toISOString() };
+
 before(async () => await startMongo());
 after(async () => await stopMongo());
 beforeEach(async () => await resetMongo());
@@ -18,16 +20,16 @@ beforeEach(async () => await resetMongo());
 describe('Auth flow integration', () => {
   // TC-01-01
   it('should persist registered user so a subsequent login succeeds', async () => {
-    await authService.register({ username: 'testuser', password: 'password1', email: 'testuser@example.com' });
+    await authService.register({ username: 'testuser', password: 'password1', email: 'testuser@example.com', consent: VALID_CONSENT });
     const { token } = await authService.login({ username: 'testuser', password: 'password1' });
     assert.ok(token, 'login must return a token for the just-registered user');
   });
 
   // TC-01-03
   it('should reject duplicate username registration with "already taken" message', async () => {
-    await authService.register({ username: 'testuser', password: 'password1', email: 'testuser@example.com' });
+    await authService.register({ username: 'testuser', password: 'password1', email: 'testuser@example.com', consent: VALID_CONSENT });
     await assert.rejects(
-      () => authService.register({ username: 'testuser', password: 'other_pass1', email: 'testuser2@example.com' }),
+      () => authService.register({ username: 'testuser', password: 'other_pass1', email: 'testuser2@example.com', consent: VALID_CONSENT }),
       (err) => {
         assert.strictEqual(err.status, 409);
         assert.match(err.message, /already taken/i);
@@ -38,7 +40,7 @@ describe('Auth flow integration', () => {
 
   // TC-02-01
   it('should return an access token when valid credentials are provided', async () => {
-    await authService.register({ username: 'testuser', password: 'password1', email: 'testuser@example.com' });
+    await authService.register({ username: 'testuser', password: 'password1', email: 'testuser@example.com', consent: VALID_CONSENT });
     const result = await authService.login({ username: 'testuser', password: 'password1' });
     assert.ok(result.token);
     assert.strictEqual(typeof result.token, 'string');
@@ -47,7 +49,7 @@ describe('Auth flow integration', () => {
 
   // TC-02-04
   it('should return a well-formed JWT with user identity claims', async () => {
-    const user = await authService.register({ username: 'testuser', password: 'password1', email: 'testuser@example.com' });
+    const user = await authService.register({ username: 'testuser', password: 'password1', email: 'testuser@example.com', consent: VALID_CONSENT });
     const { token } = await authService.login({ username: 'testuser', password: 'password1' });
     const segments = token.split('.');
     const decoded = jwt.decode(token);
@@ -59,7 +61,7 @@ describe('Auth flow integration', () => {
   });
 
   it('should persist language preference and return it in the next JWT', async () => {
-    const { id } = await authService.register({ username: 'langflow', password: 'password1', email: 'langflow@x.com' });
+    const { id } = await authService.register({ username: 'langflow', password: 'password1', email: 'langflow@x.com', consent: VALID_CONSENT });
 
     const { token } = await authService.updateLanguage({ id, language: 'en' });
     const payload = jwt.verify(token, process.env.JWT_SECRET);
@@ -72,7 +74,7 @@ describe('Auth flow integration', () => {
 
   // TC-02-08
   it('should not lock account after multiple failed login attempts', async () => {
-    await authService.register({ username: 'testuser', password: 'password1', email: 'testuser@example.com' });
+    await authService.register({ username: 'testuser', password: 'password1', email: 'testuser@example.com', consent: VALID_CONSENT });
     for (let i = 0; i < 5; i++) {
       await assert.rejects(
         () => authService.login({ username: 'testuser', password: 'wrongpass' }),

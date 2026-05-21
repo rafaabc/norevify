@@ -10,20 +10,22 @@ const { startMongo, stopMongo, resetMongo } = require('../../helpers/mongo');
 require('../../helpers/email-mock');
 const authService = require('../../../lib/services/auth.service');
 
+const VALID_CONSENT = { policyVersion: '2026-05-20', acceptedAt: new Date().toISOString() };
+
 before(async () => await startMongo());
 after(async () => await stopMongo());
 beforeEach(async () => await resetMongo());
 
 describe('Change-password flow integration', () => {
   it('should allow login with new password after change', async () => {
-    await authService.register({ username: 'testuser', password: 'password1', email: 'testuser@example.com' });
+    await authService.register({ username: 'testuser', password: 'password1', email: 'testuser@example.com', consent: VALID_CONSENT });
     await authService.changePassword({ username: 'testuser', currentPassword: 'password1', newPassword: 'newPass99' });
     const { token } = await authService.login({ username: 'testuser', password: 'newPass99' });
     assert.ok(token, 'login with new password must return a token');
   });
 
   it('should reject login with old password after change', async () => {
-    await authService.register({ username: 'testuser', password: 'password1', email: 'testuser@example.com' });
+    await authService.register({ username: 'testuser', password: 'password1', email: 'testuser@example.com', consent: VALID_CONSENT });
     await authService.changePassword({ username: 'testuser', currentPassword: 'password1', newPassword: 'newPass99' });
     await assert.rejects(
       () => authService.login({ username: 'testuser', password: 'password1' }),

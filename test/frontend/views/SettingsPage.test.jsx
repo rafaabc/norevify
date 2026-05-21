@@ -6,22 +6,36 @@ vi.mock('react-i18next', () => ({ useTranslation: () => ({ t: (k) => k }) }));
 vi.mock('@/views/SettingsPage.module.css', () => ({ default: {} }));
 vi.mock('@/components/GoogleSignInButton.jsx', () => ({ default: ({ onSuccess }) => <button onClick={onSuccess}>google-link</button> }));
 
+const mockPush = vi.fn();
+vi.mock('next/navigation', () => ({ useRouter: () => ({ push: mockPush }) }));
+
 const mockUpdateCurrency = vi.fn();
 const mockUpdateLanguage = vi.fn();
 let mockAuthState = { username: 'alice', currency: 'BRL', language: 'en', updateCurrency: null, updateLanguage: null };
 
 vi.mock('@/context/AuthContext.jsx', () => ({
-  useAuth: () => ({ ...mockAuthState, updateCurrency: mockUpdateCurrency, updateLanguage: mockUpdateLanguage }),
+  useAuth: () => ({
+    ...mockAuthState,
+    updateCurrency: mockUpdateCurrency,
+    updateLanguage: mockUpdateLanguage,
+    logout: vi.fn(),
+    login: vi.fn(),
+    emailVerified: true,
+  }),
 }));
 
 const mockGetProviders = vi.fn();
 const mockUnlinkGoogle = vi.fn();
 const mockUpdateOdometer = vi.fn();
+const mockExportData = vi.fn();
+const mockDeleteAccount = vi.fn();
 vi.mock('@/services/apiService.js', () => ({
   authApi: {
     getProviders: () => mockGetProviders(),
     unlinkGoogle: () => mockUnlinkGoogle(),
     updateOdometer: () => mockUpdateOdometer(),
+    exportData: () => mockExportData(),
+    deleteAccount: (...args) => mockDeleteAccount(...args),
   },
 }));
 
@@ -33,6 +47,8 @@ describe('SettingsPage', () => {
     mockUnlinkGoogle.mockResolvedValue({});
     mockUpdateOdometer.mockResolvedValue({});
     mockGetProviders.mockResolvedValue({ authProviders: ['google'], hasPassword: true });
+    mockExportData.mockResolvedValue({ user: {}, expenses: [] });
+    mockDeleteAccount.mockResolvedValue({});
   });
 
   it('should render heading and username', async () => {
@@ -93,5 +109,22 @@ describe('SettingsPage', () => {
   it('should render change-password link', async () => {
     await act(async () => { render(<SettingsPage />); });
     expect(screen.getByRole('link', { name: /settings\.changePassword/ })).toHaveAttribute('href', '/change-password');
+  });
+
+  it('should render export data button', async () => {
+    await act(async () => { render(<SettingsPage />); });
+    expect(screen.getByRole('button', { name: 'settings.myData.export' })).toBeInTheDocument();
+  });
+
+  it('should render delete account button', async () => {
+    await act(async () => { render(<SettingsPage />); });
+    expect(screen.getByRole('button', { name: 'settings.myData.deleteAccount' })).toBeInTheDocument();
+  });
+
+  it('should show delete modal when delete account button is clicked', async () => {
+    await act(async () => { render(<SettingsPage />); });
+    const deleteBtn = screen.getByRole('button', { name: 'settings.myData.deleteAccount' });
+    await act(async () => { fireEvent.click(deleteBtn); });
+    expect(screen.getByText('settings.deleteAccount.heading')).toBeInTheDocument();
   });
 });

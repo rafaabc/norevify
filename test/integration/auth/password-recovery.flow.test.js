@@ -15,7 +15,8 @@ before(async () => await startMongo());
 after(async () => await stopMongo());
 beforeEach(async () => await resetMongo());
 
-const USER = { username: 'alice', password: 'OldPass99', email: 'alice@example.com' };
+const VALID_CONSENT = { policyVersion: '2026-05-20', acceptedAt: new Date().toISOString() };
+const USER = { username: 'alice', password: 'OldPass99', email: 'alice@example.com', consent: VALID_CONSENT };
 
 async function registerAlice() {
   await authService.register(USER);

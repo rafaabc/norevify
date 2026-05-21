@@ -9,6 +9,8 @@ const assert = require('node:assert/strict');
 const { startMongo, stopMongo, resetMongo } = require('../../helpers/mongo');
 require('../../helpers/email-mock');
 const authService = require('../../../lib/services/auth.service');
+
+const VALID_CONSENT = { policyVersion: '2026-05-20', acceptedAt: new Date().toISOString() };
 const { createExpense, getSummary } = require('../../../lib/services/expenses.service');
 
 before(async () => await startMongo());
@@ -22,7 +24,7 @@ const PAST_YEAR = new Date().getFullYear() - 1;
 //   March    — Parking           = 20.00
 //   March    — Fuel  20L × 2.00 = 40.00
 async function seedUser() {
-  const user = await authService.register({ username: 'testuser', password: 'password1', email: 'testuser@example.com' });
+  const user = await authService.register({ username: 'testuser', password: 'password1', email: 'testuser@example.com', consent: VALID_CONSENT });
   await createExpense(user.id, { category: 'Fuel', litres: 40, price_per_litre: 1.5, date: `${PAST_YEAR}-01-15` });
   await createExpense(user.id, { category: 'Parking', amount: 20, date: `${PAST_YEAR}-03-10` });
   await createExpense(user.id, { category: 'Fuel', litres: 20, price_per_litre: 2.0, date: `${PAST_YEAR}-03-20` });

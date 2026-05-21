@@ -32,7 +32,8 @@ before(async () => await startMongo());
 after(async () => await stopMongo());
 beforeEach(async () => { await resetMongo(); sentPayloads.splice(0); });
 
-const USER = { username: 'bob', password: 'Password1', email: 'bob@example.com' };
+const VALID_CONSENT = { policyVersion: '2026-05-20', acceptedAt: new Date().toISOString() };
+const USER = { username: 'bob', password: 'Password1', email: 'bob@example.com', consent: VALID_CONSENT };
 
 describe('Email service integration — register sends verification email', () => {
   it('should send a verification email on register', async () => {
