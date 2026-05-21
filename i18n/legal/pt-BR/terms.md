@@ -6,13 +6,13 @@
 
 ## 1. Descrição do serviço
 
-**Drive Ledger** é uma plataforma de controle de despesas automotivas para motoristas individuais, disponível em **app.norevify.com**. O serviço permite registrar despesas com combustível, manutenção, seguro e outros custos relacionados a veículos, além de configurar lembretes de manutenção e acompanhar o odômetro.
+**Norevify** é uma plataforma de controle de despesas automotivas para motoristas individuais, disponível em **app.norevify.com**. O serviço permite registrar despesas com combustível, manutenção, seguro e outros custos relacionados a veículos, além de configurar lembretes de manutenção e acompanhar o odômetro.
 
 ---
 
 ## 2. Quem pode usar o serviço
 
-Para criar uma conta e utilizar o Drive Ledger, você deve:
+Para criar uma conta e utilizar o Norevify, você deve:
 
 - Ser uma **pessoa física** (uso individual).
 - Ter **18 (dezoito) anos de idade ou mais**.
@@ -31,13 +31,13 @@ Você é responsável por:
 - **Todas as ações realizadas com sua conta**: atividades executadas com seu token de acesso são de sua responsabilidade.
 - **Notificar-nos imediatamente** em caso de acesso não autorizado à sua conta, pelo e-mail **faelsabc21@gmail.com**.
 
-Recomendamos o uso de uma senha forte e exclusiva para o Drive Ledger.
+Recomendamos o uso de uma senha forte e exclusiva para o Norevify.
 
 ---
 
 ## 4. Uso aceitável
 
-Ao utilizar o Drive Ledger, você concorda em **não**:
+Ao utilizar o Norevify, você concorda em **não**:
 
 - Acessar a plataforma por meios automatizados (bots, scrapers, crawlers) sem autorização prévia por escrito.
 - Tentar burlar mecanismos de autenticação ou segurança.
@@ -51,7 +51,7 @@ O uso indevido pode resultar na suspensão imediata da conta.
 
 ## 5. Propriedade intelectual
 
-O software, o design, os logotipos, os textos e todos os demais elementos do Drive Ledger são de propriedade exclusiva de seus desenvolvedores e estão protegidos pelas leis de propriedade intelectual aplicáveis.
+O software, o design, os logotipos, os textos e todos os demais elementos do Norevify são de propriedade exclusiva de seus desenvolvedores e estão protegidos pelas leis de propriedade intelectual aplicáveis.
 
 Estes Termos **não** transferem ao usuário nenhum direito sobre a propriedade intelectual do serviço. Você recebe apenas uma licença limitada, não exclusiva, intransferível e revogável para usar o serviço de acordo com estes Termos.
 
@@ -61,7 +61,7 @@ Os dados que você inserir na plataforma (despesas, lembretes, etc.) permanecem 
 
 ## 6. Limitação de responsabilidade
 
-O Drive Ledger é fornecido **"no estado em que se encontra"** (*as-is*), sem garantias expressas ou implícitas de disponibilidade ininterrupta, ausência de erros ou adequação a uma finalidade específica.
+O Norevify é fornecido **"no estado em que se encontra"** (*as-is*), sem garantias expressas ou implícitas de disponibilidade ininterrupta, ausência de erros ou adequação a uma finalidade específica.
 
 Em nenhuma hipótese seremos responsáveis por:
 
@@ -75,7 +75,7 @@ Nossa responsabilidade total, em qualquer hipótese, está limitada ao valor pag
 
 ## 7. Encerramento da conta
 
-**Pelo usuário**: você pode encerrar sua conta e solicitar a exclusão de todos os seus dados a qualquer momento, diretamente no painel de configurações (`DELETE /api/auth/me`). Após a exclusão, todos os seus dados são removidos permanentemente de nossos servidores.
+**Pelo usuário**: você pode encerrar sua conta e solicitar a exclusão de todos os seus dados a qualquer momento, diretamente no painel de configurações. Após a exclusão, todos os seus dados são removidos permanentemente de nossos servidores.
 
 **Por nós**: podemos suspender ou encerrar sua conta, com ou sem aviso prévio, nos seguintes casos:
 
