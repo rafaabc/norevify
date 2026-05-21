@@ -41,6 +41,7 @@ export default function SettingsPage() {
   const [deletePassword, setDeletePassword] = useState('');
   const [deleteLoading, setDeleteLoading] = useState(false);
   const [deleteError, setDeleteError] = useState('');
+  const [exportError, setExportError] = useState('');
 
   useEffect(() => {
     authApi.getProviders().then(setProviders).catch(() => {});
@@ -82,6 +83,7 @@ export default function SettingsPage() {
   const googleLinked = providers?.authProviders?.includes('google');
 
   async function handleExport() {
+    setExportError('');
     try {
       const data = await authApi.exportData();
       const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
@@ -89,10 +91,12 @@ export default function SettingsPage() {
       const a = document.createElement('a');
       a.href = url;
       a.download = 'drive-ledger-data.json';
+      document.body.appendChild(a);
       a.click();
-      URL.revokeObjectURL(url);
+      document.body.removeChild(a);
+      setTimeout(() => URL.revokeObjectURL(url), 100);
     } catch (err) {
-      // best-effort — show nothing
+      setExportError(err.message);
     }
   }
 
@@ -253,6 +257,7 @@ export default function SettingsPage() {
       <p style={{ color: 'var(--muted)', fontSize: '0.875rem', marginBottom: '1rem' }}>
         {t('settings.myData.description')}
       </p>
+      {exportError && <ErrorBanner message={exportError} />}
       <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
         <button className="btn-secondary" onClick={handleExport}>
           {t('settings.myData.export')}
