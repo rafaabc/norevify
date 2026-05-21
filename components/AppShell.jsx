@@ -1,6 +1,7 @@
 'use client';
 import { useEffect, useState } from 'react';
 import { usePathname } from 'next/navigation';
+import Link from 'next/link';
 import { useTranslation } from 'react-i18next';
 import Sidebar from './Sidebar.jsx';
 import MobileTopBar from './MobileTopBar.jsx';
@@ -100,6 +101,7 @@ function EmailVerificationBanner({ emailVerified }) {
 }
 
 export default function AppShell({ children }) {
+  const { t } = useTranslation();
   const { isAuthed, emailVerified } = useAuth();
   const badgeCount = useReminderBadge(isAuthed);
 
@@ -110,6 +112,17 @@ export default function AppShell({ children }) {
       <main className={styles.main}>
         <EmailVerificationBanner emailVerified={emailVerified} />
         {children}
+        <footer style={{
+          padding: '1.5rem 1rem',
+          textAlign: 'center',
+          fontSize: '0.75rem',
+          color: 'var(--muted)',
+          borderTop: '1px solid var(--border)',
+        }}>
+          <Link href="/privacy" style={{ color: 'var(--muted)' }}>{t('legal.privacy')}</Link>
+          {' · '}
+          <Link href="/terms" style={{ color: 'var(--muted)' }}>{t('legal.terms')}</Link>
+        </footer>
       </main>
       <BottomTabs />
     </div>

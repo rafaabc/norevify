@@ -16,5 +16,7 @@ export const API_ERROR_MAP = {
   'Email not verified':                            'errors.emailNotVerified',
   'Invalid or expired verification token':         'errors.invalidVerificationToken',
   'Verification token has expired':                'errors.invalidVerificationToken',
-  'Email already verified':                        'errors.emailAlreadyVerified',
+  'Email already verified':                                          'errors.emailAlreadyVerified',
+  'consent with policyVersion and acceptedAt is required':           'errors.consentRequired',
+  'consent policyVersion does not match current policy':             'errors.consentRequired',
 };

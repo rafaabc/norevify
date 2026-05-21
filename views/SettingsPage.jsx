@@ -1,6 +1,7 @@
 'use client';
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { KeyRound } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '@/context/AuthContext.jsx';
@@ -14,7 +15,8 @@ import styles from './SettingsPage.module.css';
 
 export default function SettingsPage() {
   const { t } = useTranslation();
-  const { username, currency, updateCurrency, language, updateLanguage, emailVerified, login } = useAuth();
+  const router = useRouter();
+  const { username, currency, updateCurrency, language, updateLanguage, emailVerified, login, logout } = useAuth();
   const [selected, setSelected] = useState(currency);
   const [selectedLang, setSelectedLang] = useState(language);
 
@@ -34,6 +36,11 @@ export default function SettingsPage() {
   const [linkError, setLinkError] = useState('');
   const [linkSuccess, setLinkSuccess] = useState('');
   const [unlinking, setUnlinking] = useState(false);
+
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [deletePassword, setDeletePassword] = useState('');
+  const [deleteLoading, setDeleteLoading] = useState(false);
+  const [deleteError, setDeleteError] = useState('');
 
   useEffect(() => {
     authApi.getProviders().then(setProviders).catch(() => {});
@@ -73,6 +80,34 @@ export default function SettingsPage() {
   }
 
   const googleLinked = providers?.authProviders?.includes('google');
+
+  async function handleExport() {
+    try {
+      const data = await authApi.exportData();
+      const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'drive-ledger-data.json';
+      a.click();
+      URL.revokeObjectURL(url);
+    } catch (err) {
+      // best-effort — show nothing
+    }
+  }
+
+  async function handleDeleteAccount() {
+    setDeleteLoading(true);
+    setDeleteError('');
+    try {
+      await authApi.deleteAccount(providers?.hasPassword ? { password: deletePassword } : undefined);
+      logout();
+      router.push('/login?deleted=1');
+    } catch (err) {
+      setDeleteError(err.message);
+      setDeleteLoading(false);
+    }
+  }
 
   return (
     <div className="page">
@@ -212,6 +247,60 @@ export default function SettingsPage() {
         <KeyRound size={16} />
         {t('settings.changePassword')}
       </Link>
+
+      <hr style={{ margin: '2rem 0', borderColor: 'var(--border)' }} />
+      <h2 style={{ fontSize: '1rem', fontWeight: 600, marginBottom: '1rem' }}>{t('settings.myData.heading')}</h2>
+      <p style={{ color: 'var(--muted)', fontSize: '0.875rem', marginBottom: '1rem' }}>
+        {t('settings.myData.description')}
+      </p>
+      <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
+        <button className="btn-secondary" onClick={handleExport}>
+          {t('settings.myData.export')}
+        </button>
+        <button
+          className="btn-secondary"
+          style={{ color: 'var(--danger, #ef4444)', borderColor: 'var(--danger, #ef4444)' }}
+          onClick={() => setShowDeleteModal(true)}
+        >
+          {t('settings.myData.deleteAccount')}
+        </button>
+      </div>
+
+      {showDeleteModal && (
+        <div className="modal-backdrop" onClick={() => setShowDeleteModal(false)}>
+          <div className="modal" onClick={(e) => e.stopPropagation()}>
+            <h3 style={{ marginBottom: '1rem' }}>{t('settings.deleteAccount.heading')}</h3>
+            <p style={{ color: 'var(--muted)', fontSize: '0.875rem', marginBottom: '1rem' }}>
+              {t('settings.deleteAccount.warning')}
+            </p>
+            {providers?.hasPassword && (
+              <div className="form-group">
+                <label htmlFor="delete-password">{t('settings.deleteAccount.passwordLabel')}</label>
+                <input
+                  id="delete-password"
+                  type="password"
+                  value={deletePassword}
+                  onChange={(e) => setDeletePassword(e.target.value)}
+                />
+              </div>
+            )}
+            {deleteError && <p style={{ color: 'var(--danger, #ef4444)', fontSize: '0.875rem', marginBottom: '1rem' }}>{deleteError}</p>}
+            <div style={{ display: 'flex', gap: '1rem', justifyContent: 'flex-end' }}>
+              <button className="btn-secondary" onClick={() => setShowDeleteModal(false)}>
+                {t('common.cancel')}
+              </button>
+              <button
+                className="btn-primary"
+                style={{ background: 'var(--danger, #ef4444)', borderColor: 'var(--danger, #ef4444)' }}
+                onClick={handleDeleteAccount}
+                disabled={deleteLoading || (providers?.hasPassword && !deletePassword)}
+              >
+                {deleteLoading ? t('settings.deleteAccount.deleting') : t('settings.deleteAccount.confirm')}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

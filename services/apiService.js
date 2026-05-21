@@ -57,6 +57,9 @@ export const authApi = {
   updateOdometer:      (data) => request('/auth/odometer',              { method: 'PATCH', body: data, auth: true }),
   verifyEmail:         (data) => request('/auth/verify-email',          { method: 'POST',  body: data, auth: false }),
   resendVerification:   ()    => request('/auth/resend-verification',   { method: 'POST',             auth: true }),
+  exportData:           ()    => request('/auth/me/export',             {                             auth: true }),
+  deleteAccount:       (data) => request('/auth/me',                    { method: 'DELETE', body: data, auth: true }),
+  getAccessInfo:        ()    => request('/auth/me/access',             {                             auth: true }),
 };
 
 export const expensesApi = {

@@ -16,6 +16,7 @@ export default function RegisterPage() {
   const { t } = useTranslation();
   const router = useRouter();
   const [form, setForm] = useState({ username: '', email: '', password: '', currency: detectCurrency() });
+  const [consented, setConsented] = useState(false);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
@@ -26,7 +27,10 @@ export default function RegisterPage() {
     setError('');
     setLoading(true);
     try {
-      await authApi.register(form);
+      await authApi.register({
+        ...form,
+        consent: { policyVersion: '2026-05-20', acceptedAt: new Date().toISOString() },
+      });
       router.push('/login?registered=1');
     } catch (err) {
       setError(err.message);
@@ -63,7 +67,7 @@ export default function RegisterPage() {
             <div className="form-group">
               <label htmlFor="reg-password">{t('auth.register.password')}</label>
               <input id="reg-password" type="password" name="password" value={form.password} onChange={handleChange} required
-                minLength={8} maxLength={20} />
+                minLength={8} maxLength={128} />
             </div>
             <div className="form-group">
               <label htmlFor="reg-currency">{t('auth.register.currency')}</label>
@@ -73,7 +77,22 @@ export default function RegisterPage() {
                 ))}
               </select>
             </div>
-            <button type="submit" className="btn-primary" style={{ width: '100%' }} disabled={loading}>
+            <div className="form-group" style={{ display: 'flex', alignItems: 'flex-start', gap: '0.5rem' }}>
+              <input
+                id="reg-consent"
+                type="checkbox"
+                checked={consented}
+                onChange={(e) => setConsented(e.target.checked)}
+                style={{ marginTop: '0.25rem', flexShrink: 0 }}
+              />
+              <label htmlFor="reg-consent" style={{ cursor: 'pointer', fontSize: '0.875rem', lineHeight: 1.4 }}>
+                {t('auth.register.consentLabel')} {' '}
+                <Link href="/privacy" style={{ color: 'var(--primary)' }}>{t('auth.register.privacyPolicy')}</Link>
+                {' '}{t('auth.register.consentAnd')}{' '}
+                <Link href="/terms" style={{ color: 'var(--primary)' }}>{t('auth.register.termsOfService')}</Link>.
+              </label>
+            </div>
+            <button type="submit" className="btn-primary" style={{ width: '100%' }} disabled={loading || !consented}>
               {loading ? t('auth.register.submitting') : t('auth.register.submit')}
             </button>
           </form>
