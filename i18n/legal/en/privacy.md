@@ -6,7 +6,7 @@
 
 ## 1. Who we are
 
-**Drive Ledger** is an automotive expense tracking service for individual drivers, available at **app.norevify.com**, developed and operated by Rafael ABC ("we", "our", "us").
+**Norevify** is an automotive expense tracking service for individual drivers, available at **app.norevify.com**, developed and operated by Rafael ABC ("we", "our", "us").
 
 For privacy-related questions, please contact our Data Protection Officer (DPO) at **faelsabc21@gmail.com**.
 
@@ -44,7 +44,7 @@ We do not use your data for advertising, sale to third parties, or any purpose o
 
 ## 4. Legal basis
 
-The processing of personal data in Drive Ledger is carried out on the basis of:
+The processing of personal data in Norevify is carried out on the basis of:
 
 - **LGPD (Brazil)** — Art. 7, V: performance of a contract or preliminary procedures related to a contract of which the data subject is a party, at the request of the data subject.
 - **GDPR (EU/UK)** — Art. 6(1)(b): processing is necessary for the performance of a contract to which the data subject is party.
@@ -79,8 +79,8 @@ You may exercise your rights directly through the platform or by email:
 
 | Right | How to exercise |
 |---|---|
-| Export my data (portability / access) | `GET /api/auth/me/export` — available in the settings panel |
-| Delete my account and all data | `DELETE /api/auth/me` — available in the settings panel |
+| Export my data (portability / access) | Settings panel — "Export data" button |
+| Delete my account and all data | Settings panel — "Delete account" button |
 | Other requests or questions | Email: **faelsabc21@gmail.com** |
 
 We will respond to requests within **15 business days** (LGPD) or **30 calendar days** (GDPR), as required by applicable law.
@@ -116,7 +116,7 @@ We implement technical and organizational measures to protect your data, includi
 
 ## 9. Cookies and local storage
 
-Drive Ledger does not use tracking cookies. We exclusively use the browser's `localStorage` to store the JWT authentication token and the user's language preference. No data is sent to advertising networks.
+Norevify does not use tracking cookies. We exclusively use the browser's `localStorage` to store the JWT authentication token and the user's language preference. No data is sent to advertising networks.
 
 ---
 

@@ -6,7 +6,7 @@
 
 ## 1. Quem somos
 
-**Drive Ledger** é um serviço de controle de despesas automotivas para motoristas individuais, disponível em **app.norevify.com**, desenvolvido e operado por Rafael ABC ("nós", "nosso").
+**Norevify** é um serviço de controle de despesas automotivas para motoristas individuais, disponível em **app.norevify.com**, desenvolvido e operado por Rafael ABC ("nós", "nosso").
 
 Para questões relacionadas à privacidade, entre em contato com nosso Encarregado de Proteção de Dados (DPO) pelo e-mail **faelsabc21@gmail.com**.
 
@@ -44,7 +44,7 @@ Não utilizamos os dados para publicidade, venda a terceiros ou qualquer finalid
 
 ## 4. Base legal (LGPD)
 
-O tratamento de dados pessoais no Drive Ledger é realizado com base no **Art. 7º, inciso V, da Lei Geral de Proteção de Dados (Lei nº 13.709/2018)** — execução de contrato ou de procedimentos preliminares relacionados a contrato do qual seja parte o titular, a pedido do titular dos dados.
+O tratamento de dados pessoais no Norevify é realizado com base no **Art. 7º, inciso V, da Lei Geral de Proteção de Dados (Lei nº 13.709/2018)** — execução de contrato ou de procedimentos preliminares relacionados a contrato do qual seja parte o titular, a pedido do titular dos dados.
 
 Em casos específicos de segurança e prevenção a fraudes, aplicamos também o **Art. 7º, inciso IX** — legítimo interesse do controlador.
 
@@ -75,8 +75,8 @@ Você pode exercer seus direitos diretamente pela plataforma ou por e-mail:
 
 | Direito | Como exercer |
 |---|---|
-| Exportar meus dados (portabilidade / acesso) | `GET /api/auth/me/export` — disponível no painel de configurações |
-| Excluir minha conta e todos os dados | `DELETE /api/auth/me` — disponível no painel de configurações |
+| Exportar meus dados (portabilidade / acesso) | Painel de configurações — botão "Exportar dados" |
+| Excluir minha conta e todos os dados | Painel de configurações — botão "Excluir conta" |
 | Demais solicitações ou dúvidas | E-mail: **faelsabc21@gmail.com** |
 
 Responderemos às solicitações em até **15 dias úteis**, conforme previsto na LGPD.
@@ -112,7 +112,7 @@ Adotamos medidas técnicas e organizacionais para proteger seus dados, incluindo
 
 ## 9. Cookies e armazenamento local
 
-O Drive Ledger não utiliza cookies de rastreamento. Utilizamos exclusivamente o `localStorage` do navegador para armazenar o token JWT de autenticação e as preferências de idioma do usuário. Nenhum dado é enviado a redes de publicidade.
+O Norevify não utiliza cookies de rastreamento. Utilizamos exclusivamente o `localStorage` do navegador para armazenar o token JWT de autenticação e as preferências de idioma do usuário. Nenhum dado é enviado a redes de publicidade.
 
 ---
 

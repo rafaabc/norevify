@@ -6,13 +6,13 @@
 
 ## 1. Service description
 
-**Drive Ledger** is an automotive expense tracking platform for individual drivers, available at **app.norevify.com**. The service allows you to record expenses for fuel, maintenance, insurance, and other vehicle-related costs, set maintenance reminders, and track odometer readings.
+**Norevify** is an automotive expense tracking platform for individual drivers, available at **app.norevify.com**. The service allows you to record expenses for fuel, maintenance, insurance, and other vehicle-related costs, set maintenance reminders, and track odometer readings.
 
 ---
 
 ## 2. Who can use the service
 
-To create an account and use Drive Ledger, you must:
+To create an account and use Norevify, you must:
 
 - Be an **individual** (personal use only).
 - Be **18 (eighteen) years of age or older**.
@@ -31,13 +31,13 @@ You are responsible for:
 - **All actions performed with your account**: activities carried out using your access token are your responsibility.
 - **Notifying us immediately** of any unauthorized access to your account by emailing **faelsabc21@gmail.com**.
 
-We recommend using a strong password unique to Drive Ledger.
+We recommend using a strong password unique to Norevify.
 
 ---
 
 ## 4. Acceptable use
 
-By using Drive Ledger, you agree **not** to:
+By using Norevify, you agree **not** to:
 
 - Access the platform through automated means (bots, scrapers, crawlers) without prior written authorization.
 - Attempt to circumvent authentication or security mechanisms.
@@ -51,7 +51,7 @@ Misuse may result in immediate account suspension.
 
 ## 5. Intellectual property
 
-The software, design, logos, text, and all other elements of Drive Ledger are the exclusive property of their developers and are protected by applicable intellectual property laws.
+The software, design, logos, text, and all other elements of Norevify are the exclusive property of their developers and are protected by applicable intellectual property laws.
 
 These Terms do **not** transfer any intellectual property rights in the service to you. You receive only a limited, non-exclusive, non-transferable, revocable license to use the service in accordance with these Terms.
 
@@ -61,7 +61,7 @@ Data you enter into the platform (expenses, reminders, etc.) remains your proper
 
 ## 6. Limitation of liability
 
-Drive Ledger is provided **"as-is"**, without express or implied warranties of uninterrupted availability, freedom from errors, or fitness for a particular purpose.
+Norevify is provided **"as-is"**, without express or implied warranties of uninterrupted availability, freedom from errors, or fitness for a particular purpose.
 
 In no event shall we be liable for:
 
@@ -75,7 +75,7 @@ Our total liability, in any case, is limited to the amount paid by the user for 
 
 ## 7. Account termination
 
-**By you**: you may close your account and request deletion of all your data at any time, directly from the settings panel (`DELETE /api/auth/me`). After deletion, all your data is permanently removed from our servers.
+**By you**: you may close your account and request deletion of all your data at any time, directly from the settings panel. After deletion, all your data is permanently removed from our servers.
 
 **By us**: we may suspend or terminate your account, with or without notice, in the following circumstances:
 
