@@ -1,5 +1,10 @@
+import * as Sentry from '@sentry/nextjs';
+import { NextResponse } from 'next/server';
+
 export const dynamic = 'force-dynamic';
 
 export async function GET() {
-  throw new Error('Sentry test error — delete this route after first event');
+  Sentry.captureException(new Error('Sentry connectivity test — delete route after event appears'));
+  await Sentry.flush(3000);
+  return NextResponse.json({ sent: true });
 }
