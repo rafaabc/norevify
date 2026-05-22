@@ -1,18 +1,13 @@
+import * as Sentry from '@sentry/nextjs';
+
 export async function register() {
-  const Sentry = await import('@sentry/nextjs');
-  const dsn =
-    process.env.NEXT_RUNTIME === 'edge'
-      ? process.env.NEXT_PUBLIC_SENTRY_DSN || process.env.SENTRY_DSN
-      : process.env.SENTRY_DSN;
+  if (process.env.NEXT_RUNTIME === 'nodejs') {
+    await import('./sentry.server.config');
+  }
 
-  Sentry.init({
-    dsn,
-    tracesSampleRate: 0,
-    enabled: process.env.NODE_ENV === 'production' && !!dsn,
-  });
+  if (process.env.NEXT_RUNTIME === 'edge') {
+    await import('./sentry.edge.config');
+  }
 }
 
-export async function onRequestError(err, request, context) {
-  const { captureRequestError } = await import('@sentry/nextjs');
-  captureRequestError(err, request, context);
-}
+export const onRequestError = Sentry.captureRequestError;
