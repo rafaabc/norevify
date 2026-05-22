@@ -5,10 +5,10 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ## Commands
 
 ```bash
-# Dev server (Next.js, port 3000)
+# Dev server (Next.js, port 3000) — Turbopack
 npm run dev
 
-# Production build
+# Production build — Webpack (Turbopack prod build not yet stable)
 npm run build
 
 # Start production server (requires build first)
@@ -45,13 +45,15 @@ NEXT_PUBLIC_POSTHOG_HOST=https://eu.i.posthog.com
 
 `FRONTEND_URL` is used to build the password-reset link in recovery emails — same as `BASE_URL` in production. `RESEND_API_KEY` authenticates with the [Resend](https://resend.com) email API. `RESET_PASSWORD_EXPIRES_IN` controls reset-token lifetime (default `15m`).
 
-`SENTRY_DSN` / `NEXT_PUBLIC_SENTRY_DSN` — Sentry project DSN; captures 5xx errors server- and client-side. `SENTRY_AUTH_TOKEN` used by `@sentry/nextjs` to upload source maps. `LOG_LEVEL` controls pino log verbosity (default `info`).
+`SENTRY_DSN` / `NEXT_PUBLIC_SENTRY_DSN` — Sentry project DSN; captures 5xx errors server- and client-side. `SENTRY_AUTH_TOKEN` used by `@sentry/nextjs` to upload source maps at build time. `LOG_LEVEL` controls pino log verbosity (default `info`).
+
+`SENTRY_DSN` is only used server-side (source maps); `NEXT_PUBLIC_SENTRY_DSN` is read by both `instrumentation-client.js` (client init) and the server configs. Both must be set in Vercel env vars.
 
 `NEXT_PUBLIC_POSTHOG_KEY` — PostHog project API key (EU region). `NEXT_PUBLIC_POSTHOG_HOST` — defaults to `https://eu.i.posthog.com` (LGPD-friendly). PostHog initialized in `components/PostHogProvider.jsx`, wrapped at root in `app/layout.jsx`. `AuthContext` calls `posthog.identify(userId, { username })` on login and `posthog.reset()` on logout. All inputs masked in session recordings.
 
 ## Architecture
 
-**Next.js 14 App Router** — single repo serving both frontend and API routes, deployed on Vercel Fluid Compute.
+**Next.js 16 App Router** — single repo serving both frontend and API routes, deployed on Vercel Fluid Compute.
 
 ```
 app/
@@ -80,6 +82,19 @@ utils/             → shared utilities
 - **Models** (`lib/models/`): Mongoose schemas with `mongoose.models.X || mongoose.model('X', schema)` guard for hot-reload safety.
 
 Error convention: `makeError(status, message)` in each service creates an `Error` with a `.status` field.
+
+### Sentry
+
+Error monitoring via `@sentry/nextjs`. Captures unhandled exceptions in Route Handlers automatically via `onRequestError` hook (requires Next.js 15+).
+
+Key files:
+- `instrumentation.js` — registers `onRequestError: Sentry.captureRequestError`; imports `sentry.server.config.mjs` / `sentry.edge.config.mjs` by runtime
+- `instrumentation-client.js` — client-side init with Session Replay; reads `NEXT_PUBLIC_SENTRY_DSN`
+- `sentry.server.config.mjs` / `sentry.edge.config.mjs` — server/edge init
+- `app/global-error.jsx` — React render error boundary wired to Sentry
+- `next.config.mjs` — `tunnelRoute: "/monitoring"` proxies Sentry requests through Next.js to bypass ad-blockers; webpack ESM rule required for `instrumentation*.js` and `sentry.*.config.mjs` files
+
+Both `instrumentation.js` and `instrumentation-client.js` use CJS (`require`/`module.exports`) due to an ESM/CJS conflict with Turbopack. The webpack ESM rule in `next.config.mjs` handles the production build side.
 
 IDs are MongoDB `ObjectId` values, exposed as 24-character hex strings. JWT payload carries `{ id, username, currency, language }`.
 
@@ -262,7 +277,7 @@ beforeEach(() => { mockIsAuthed = true; }); // reset default
 - `test/api/fixtures/` — JSON test data per feature (data-driven testing)
 
 ### Scripts
-- `npm run test:api` — run all API tests (spec reporter)
+- `npm run test:api` — run all API tests (spec reporter); sets `NODE_OPTIONS=--use-system-ca` for Atlas TLS on Windows
 - `npm run test:api:report` — run tests and generate HTML report in `reports/`
 
 ### Conventions
@@ -280,7 +295,7 @@ beforeEach(() => { mockIsAuthed = true; }); // reset default
 - Config: `playwright.config.ts` at root; `baseURL` defaults to `http://localhost:3000`
 
 ### Scripts
-- `npm run test:e2e` — run all E2E tests (Chromium)
+- `npm run test:e2e` — run all E2E tests (Chromium); sets `NODE_OPTIONS=--use-system-ca` for Atlas TLS on Windows
 
 ### Atlas cleanup — globalTeardown
 After all tests finish, `e2e/global-teardown.ts` opens a direct Mongoose connection to Atlas and deletes all users whose email matches `/@test\.com$/` (the pattern used by `createAndLoginUser`), plus their expenses. This pattern-based approach is crash-safe — it cleans up residual data from any previous run, including runs that were interrupted before teardown.
@@ -342,8 +357,8 @@ Fully integrated into Next.js App Router at the project root (no separate `front
 
 ### Stack
 
-- **Next.js 14 App Router** — SSR/SSG + client components; dev server on `:3000`
-- **React 18** — all page/component files are `'use client'` (JWT in localStorage requires client-side auth)
+- **Next.js 16 App Router** — SSR/SSG + client components; dev server on `:3000`
+- **React 19** — all page/component files are `'use client'` (JWT in localStorage requires client-side auth)
 - **Plain CSS Modules** — scoped per component/page; global base in `styles/globals.css`
 - **`@ducanh2912/next-pwa`** — generates `public/sw.js` + `public/manifest.webmanifest` at build time; SW disabled in dev
 
@@ -427,7 +442,7 @@ Modals use two global CSS classes from `styles/globals.css`:
 
 ### PWA
 
-- **Config**: `next.config.mjs` — `withPWA` wrapper from `@ducanh2912/next-pwa`; `dest: 'public'`; SW disabled in dev.
+- **Config**: `next.config.mjs` — `withPWA` wrapper from `@ducanh2912/next-pwa`; `dest: 'public'`; SW disabled in dev. Dev uses Turbopack (`next dev --turbo`); prod build uses Webpack (`next build --webpack`) since Turbopack prod build is not yet stable. PWA assets (`public/sw.js`, `public/workbox-*.js`, `public/swe-worker-*.js`) are generated at webpack build time and committed; their `.map` files are gitignored.
 - **Manifest**: `public/manifest.webmanifest` — name, icons, `standalone` display, dark theme/background color.
 - **Service worker**: `/api/*` routes use `NetworkFirst` (5s timeout, 200-only, 1-day cache). All app assets are precached.
 - **Update flow**: `components/PWAUpdater.jsx` listens for a waiting SW via `navigator.serviceWorker.ready`; shows `UpdatePrompt` → user clicks "Recarregar" → `postMessage({ type: 'SKIP_WAITING' })` + reload.
