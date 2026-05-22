@@ -2,7 +2,7 @@
 const Sentry = require('@sentry/nextjs');
 
 Sentry.init({
-  dsn: 'https://24961339ff620c9f9e4ed393a4ec2a75@o4511398942081024.ingest.de.sentry.io/4511428024598608',
+  dsn: process.env.NEXT_PUBLIC_SENTRY_DSN,
   integrations: [Sentry.replayIntegration()],
   tracesSampleRate: 1,
   enableLogs: true,
