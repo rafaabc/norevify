@@ -1,4 +1,5 @@
 import withPWA from '@ducanh2912/next-pwa';
+import { withSentryConfig } from '@sentry/nextjs';
 
 const withPWAConfig = withPWA({
   dest: 'public',
@@ -44,7 +45,10 @@ const securityHeaders = [
 ];
 
 const nextConfig = {
-  experimental: { instrumentationHook: true },
+  experimental: {
+    instrumentationHook: true,
+    serverComponentsExternalPackages: ['@sentry/nextjs', 'require-in-the-middle'],
+  },
   async headers() {
     return [{ source: '/(.*)', headers: securityHeaders }];
   },
@@ -53,8 +57,18 @@ const nextConfig = {
       test: /\.md$/,
       type: 'asset/source',
     });
+    config.module.rules.unshift({
+      test: /[\\/](instrumentation|sentry\.(client|server|edge)\.config)\.js$/,
+      type: 'javascript/esm',
+    });
     return config;
   },
 };
 
-export default withPWAConfig(nextConfig);
+export default withSentryConfig(withPWAConfig(nextConfig), {
+  org: 'norevify',
+  project: 'norevify',
+  silent: !process.env.CI,
+  disableLogger: true,
+  sourcemaps: { disable: true },
+});
