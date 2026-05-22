@@ -9,10 +9,6 @@ export async function register() {
     dsn,
     tracesSampleRate: 0,
     enabled: process.env.NODE_ENV === 'production' && !!dsn,
-    beforeSend(event) {
-      if (event.level !== 'error') return null;
-      return event;
-    },
   });
 }
 

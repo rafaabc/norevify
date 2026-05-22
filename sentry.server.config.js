@@ -4,8 +4,4 @@ Sentry.init({
   dsn: process.env.SENTRY_DSN,
   tracesSampleRate: 0,
   enabled: process.env.NODE_ENV === 'production' && !!process.env.SENTRY_DSN,
-  beforeSend(event) {
-    if (event.level !== 'error') return null;
-    return event;
-  },
 });
