@@ -25,14 +25,12 @@ test.describe('Sidebar responsiveness', () => {
     await loginPage.navigate();
     await loginPage.login(username, DEFAULT_PASSWORD);
     await page.waitForURL('/dashboard');
-    // Dismiss Next.js dev error overlay if present (dev-mode only)
-    try {
-      const hideBtn = page.getByRole('button', { name: 'Hide Errors' });
-      await hideBtn.waitFor({ state: 'visible', timeout: 2000 });
-      await hideBtn.click();
-    } catch {
-      // overlay not present — continue
-    }
+    // Hide Next.js dev portal if present (Turbopack dev-mode overlay)
+    await page.evaluate(() => {
+      document.querySelectorAll('nextjs-portal').forEach((el) => {
+        (el as HTMLElement).style.display = 'none';
+      });
+    });
     if (path !== '/') await page.goto(path);
   }
 

@@ -70,7 +70,7 @@ test('[TC-RE-E2E-01] should create reminder, flip status via odometer, complete 
 
   // ── Step 7: Complete the reminder ────────────────────────────────────────
   await remindersPage.clickCompleteOnReminder(0);
-  await expect(page.locator('[role="dialog"]')).toBeVisible();
+  await expect(page.locator('.modal')).toBeVisible();
   await remindersPage.fillCompletedKm(10100);
 
   // ── Step 8: Verify new reminder with dueKm=20100 in active list ──────────
@@ -119,7 +119,7 @@ test('[TC-RE-E2E-02] should open mobile action sheet and navigate to /reminders/
   await page.locator('[data-testid="bottom-tabs-add"]').click();
 
   // ── Action sheet (dialog) should be visible ───────────────────────────────
-  await expect(page.locator('[role="dialog"]')).toBeVisible();
+  await expect(page.locator('.action-sheet')).toBeVisible();
 
   // ── Two action buttons should be present ─────────────────────────────────
   // Use attribute/class selectors, not translated text

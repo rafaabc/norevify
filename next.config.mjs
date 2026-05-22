@@ -45,10 +45,8 @@ const securityHeaders = [
 ];
 
 const nextConfig = {
-  experimental: {
-    instrumentationHook: true,
-    serverComponentsExternalPackages: ['@sentry/nextjs', 'require-in-the-middle'],
-  },
+  devIndicators: false,
+  serverExternalPackages: ['@sentry/nextjs', 'require-in-the-middle'],
   async headers() {
     return [{ source: '/(.*)', headers: securityHeaders }];
   },
@@ -58,7 +56,7 @@ const nextConfig = {
       type: 'asset/source',
     });
     config.module.rules.unshift({
-      test: /[\\/](instrumentation(-client)?|sentry\.(client|server|edge)\.config)\.js$/,
+      test: /[\\/](instrumentation(-client)?|sentry\.(client|server|edge)\.config)\.mjs$/,
       type: 'javascript/esm',
     });
     return config;
