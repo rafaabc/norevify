@@ -43,7 +43,7 @@ const securityHeaders = [
   },
 ];
 
-export default withPWAConfig({
+const nextConfig = {
   async headers() {
     return [{ source: '/(.*)', headers: securityHeaders }];
   },
@@ -54,4 +54,6 @@ export default withPWAConfig({
     });
     return config;
   },
-});
+};
+
+export default withPWAConfig(nextConfig);
