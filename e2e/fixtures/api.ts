@@ -1,6 +1,10 @@
+import * as path from 'path';
 import { APIRequestContext } from '@playwright/test';
+import dotenv from 'dotenv';
 import mongoose from 'mongoose';
 import { DEFAULT_PASSWORD, uniqueUsername, todayISO } from './test-data';
+
+dotenv.config({ path: path.resolve(process.cwd(), '.env') });
 
 async function markEmailVerified(userId: string): Promise<void> {
   const uri = process.env.MONGODB_URI;
