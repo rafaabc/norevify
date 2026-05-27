@@ -80,19 +80,22 @@ describe('Reminders API', function () {
     });
 
     it('[TC-RE-07] should 400 on double-complete', async () => {
+      const tok07 = await createAndLoginUser('rem07');
       const created = await request(process.env.BASE_URL || 'http://localhost:3000')
         .post('/api/reminders')
-        .set('Authorization', `Bearer ${token}`)
+        .set('Authorization', `Bearer ${tok07}`)
         .send({ type: 'Maintenance', dueKm: 50000 });
-      await request(process.env.BASE_URL || 'http://localhost:3000')
+      expect(created.status, JSON.stringify(created.body)).to.equal(201);
+      const first = await request(process.env.BASE_URL || 'http://localhost:3000')
         .post(`/api/reminders/${created.body.id}/complete`)
-        .set('Authorization', `Bearer ${token}`)
+        .set('Authorization', `Bearer ${tok07}`)
         .send({ completedKm: 50000 });
+      expect(first.status, JSON.stringify(first.body)).to.equal(200);
       const res = await request(process.env.BASE_URL || 'http://localhost:3000')
         .post(`/api/reminders/${created.body.id}/complete`)
-        .set('Authorization', `Bearer ${token}`)
+        .set('Authorization', `Bearer ${tok07}`)
         .send({ completedKm: 50000 });
-      expect(res.status).to.equal(400);
+      expect(res.status, JSON.stringify(res.body)).to.equal(400);
     });
   });
 
@@ -122,15 +125,17 @@ describe('Reminders API', function () {
 
   describe('PATCH /api/auth/odometer', () => {
     it('[TC-RE-10] should allow setting a lower odometer value', async () => {
-      await request(process.env.BASE_URL || 'http://localhost:3000')
+      const tok10 = await createAndLoginUser('rem10');
+      const first = await request(process.env.BASE_URL || 'http://localhost:3000')
         .patch('/api/auth/odometer')
-        .set('Authorization', `Bearer ${token}`)
+        .set('Authorization', `Bearer ${tok10}`)
         .send({ currentKm: 5000 });
+      expect(first.status, JSON.stringify(first.body)).to.equal(200);
       const res = await request(process.env.BASE_URL || 'http://localhost:3000')
         .patch('/api/auth/odometer')
-        .set('Authorization', `Bearer ${token}`)
+        .set('Authorization', `Bearer ${tok10}`)
         .send({ currentKm: 1000 });
-      expect(res.status).to.equal(200);
+      expect(res.status, JSON.stringify(res.body)).to.equal(200);
     });
   });
 });
