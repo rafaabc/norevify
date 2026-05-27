@@ -148,7 +148,7 @@ describe('AuthProvider', () => {
     await act(async () => { render(<AuthProvider><BannerConsumer /></AuthProvider>); });
     expect(screen.getByTestId('authed').textContent).toBe('true');
     await act(async () => {
-      window.dispatchEvent(new Event('auth:logout'));
+      globalThis.dispatchEvent(new Event('auth:logout'));
     });
     expect(screen.getByTestId('authed').textContent).toBe('false');
     expect(screen.getByTestId('banner').textContent).toBe('true');

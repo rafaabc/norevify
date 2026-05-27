@@ -148,8 +148,8 @@ describe('SettingsPage', () => {
   });
 
   it('should trigger file download on export data', async () => {
-    global.URL.createObjectURL = vi.fn().mockReturnValue('blob:mock');
-    global.URL.revokeObjectURL = vi.fn();
+    globalThis.URL.createObjectURL = vi.fn().mockReturnValue('blob:mock');
+    globalThis.URL.revokeObjectURL = vi.fn();
 
     await renderPage();
     await act(async () => {
@@ -157,7 +157,7 @@ describe('SettingsPage', () => {
     });
 
     expect(mockExportData).toHaveBeenCalled();
-    expect(global.URL.createObjectURL).toHaveBeenCalled();
+    expect(globalThis.URL.createObjectURL).toHaveBeenCalled();
   });
 
   it('should show export error when exportData fails', async () => {

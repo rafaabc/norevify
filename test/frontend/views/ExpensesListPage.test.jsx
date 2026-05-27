@@ -43,7 +43,7 @@ describe('ExpensesListPage', () => {
     mockUseRouter.mockReturnValue({ push: mockPush });
     mockList.mockResolvedValue(expenses);
     mockRemove.mockResolvedValue(null);
-    global.confirm = vi.fn().mockReturnValue(true);
+    globalThis.confirm = vi.fn().mockReturnValue(true);
   });
 
   it('should render expenses heading', async () => {
@@ -126,7 +126,7 @@ describe('ExpensesListPage', () => {
   });
 
   it('should not delete when user cancels confirm dialog', async () => {
-    global.confirm = vi.fn().mockReturnValue(false);
+    globalThis.confirm = vi.fn().mockReturnValue(false);
     await act(async () => { render(<ExpensesListPage />); });
     const deleteButtons = screen.getAllByRole('button', { name: 'common.delete' });
     await act(async () => { fireEvent.click(deleteButtons[0]); });
