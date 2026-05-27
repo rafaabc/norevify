@@ -27,8 +27,9 @@ vi.mock('@/context/AuthContext.jsx', () => ({
 }));
 
 const mockList = vi.fn();
+const mockRemove = vi.fn();
 vi.mock('@/services/apiService.js', () => ({
-  expensesApi: { list: () => mockList(), remove: vi.fn() },
+  expensesApi: { list: () => mockList(), remove: (...args) => mockRemove(...args) },
 }));
 
 const expenses = [
@@ -41,6 +42,8 @@ describe('ExpensesListPage', () => {
     vi.clearAllMocks();
     mockUseRouter.mockReturnValue({ push: mockPush });
     mockList.mockResolvedValue(expenses);
+    mockRemove.mockResolvedValue(null);
+    globalThis.confirm = vi.fn().mockReturnValue(true);
   });
 
   it('should render expenses heading', async () => {
@@ -89,5 +92,52 @@ describe('ExpensesListPage', () => {
     const filterBtn = screen.getByRole('button', { name: /expenses\.filters/ });
     fireEvent.click(filterBtn);
     expect(filterBtn).toHaveAttribute('aria-expanded', 'true');
+  });
+
+  it('should update filters when category select changes', async () => {
+    await act(async () => { render(<ExpensesListPage />); });
+    fireEvent.click(screen.getByRole('button', { name: /expenses\.filters/ }));
+    const categorySelect = screen.getByLabelText('Filter by category');
+    mockList.mockResolvedValue([expenses[0]]);
+    await act(async () => { fireEvent.change(categorySelect, { target: { name: 'category', value: 'Fuel' } }); });
+    expect(mockList).toHaveBeenCalled();
+  });
+
+  it('should show and trigger clearFilters button when filters are active', async () => {
+    await act(async () => { render(<ExpensesListPage />); });
+    fireEvent.click(screen.getByRole('button', { name: /expenses\.filters/ }));
+    const yearSelect = screen.getByLabelText('Filter by year');
+    mockList.mockResolvedValue(expenses);
+    await act(async () => { fireEvent.change(yearSelect, { target: { name: 'year', value: '2025' } }); });
+    expect(screen.getByRole('button', { name: 'expenses.clearFilters' })).toBeInTheDocument();
+    mockList.mockResolvedValue(expenses);
+    await act(async () => {
+      fireEvent.click(screen.getByRole('button', { name: 'expenses.clearFilters' }));
+    });
+    expect(screen.queryByRole('button', { name: 'expenses.clearFilters' })).not.toBeInTheDocument();
+  });
+
+  it('should delete expense card and remove it from card list on confirm', async () => {
+    await act(async () => { render(<ExpensesListPage />); });
+    const deleteButtons = screen.getAllByRole('button', { name: 'common.delete' });
+    expect(deleteButtons.length).toBeGreaterThan(0);
+    await act(async () => { fireEvent.click(deleteButtons[0]); });
+    expect(mockRemove).toHaveBeenCalledWith('e1');
+  });
+
+  it('should not delete when user cancels confirm dialog', async () => {
+    globalThis.confirm = vi.fn().mockReturnValue(false);
+    await act(async () => { render(<ExpensesListPage />); });
+    const deleteButtons = screen.getAllByRole('button', { name: 'common.delete' });
+    await act(async () => { fireEvent.click(deleteButtons[0]); });
+    expect(mockRemove).not.toHaveBeenCalled();
+  });
+
+  it('should show error when card delete fails', async () => {
+    mockRemove.mockRejectedValue(new Error('delete failed'));
+    await act(async () => { render(<ExpensesListPage />); });
+    const deleteButtons = screen.getAllByRole('button', { name: 'common.delete' });
+    await act(async () => { fireEvent.click(deleteButtons[0]); });
+    expect(screen.getByRole('alert')).toHaveTextContent('delete failed');
   });
 });

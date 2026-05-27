@@ -24,6 +24,8 @@ const withPWAConfig = withPWA({
   },
 });
 
+const isDev = process.env.NODE_ENV === 'development';
+
 const securityHeaders = [
   { key: 'Strict-Transport-Security', value: 'max-age=63072000; includeSubDomains; preload' },
   { key: 'X-Content-Type-Options', value: 'nosniff' },
@@ -34,7 +36,7 @@ const securityHeaders = [
     key: 'Content-Security-Policy',
     value: [
       "default-src 'self'",
-      "script-src 'self' 'unsafe-inline' accounts.google.com",
+      `script-src 'self' 'unsafe-inline' ${isDev ? "'unsafe-eval' " : ''}accounts.google.com`,
       "style-src 'self' 'unsafe-inline' fonts.googleapis.com",
       "font-src 'self' fonts.gstatic.com",
       "img-src 'self' data: blob:",
@@ -51,10 +53,6 @@ const nextConfig = {
     return [{ source: '/(.*)', headers: securityHeaders }];
   },
   webpack(config) {
-    config.module.rules.push({
-      test: /\.md$/,
-      type: 'asset/source',
-    });
     config.module.rules.unshift({
       test: /[\\/](instrumentation(-client)?|sentry\.(client|server|edge)\.config)\.mjs$/,
       type: 'javascript/esm',

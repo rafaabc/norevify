@@ -20,12 +20,14 @@ vi.mock('@/services/apiService.js', () => ({
 }));
 
 const mockLogin = vi.fn();
+const mockClearExpiredBanner = vi.fn();
+let mockExpiredBanner = false;
 
 vi.mock('@/context/AuthContext.jsx', () => ({
   useAuth: () => ({
     login: mockLogin,
-    expiredBanner: false,
-    clearExpiredBanner: vi.fn(),
+    expiredBanner: mockExpiredBanner,
+    clearExpiredBanner: mockClearExpiredBanner,
   }),
 }));
 
@@ -45,6 +47,7 @@ import { authApi } from '@/services/apiService.js';
 
 beforeEach(() => {
   mockPush = vi.fn();
+  mockExpiredBanner = false;
   vi.clearAllMocks();
   mockUseSearchParams.mockReturnValue(new URLSearchParams());
 });
@@ -87,9 +90,20 @@ describe('LoginPage', () => {
     expect(mockPush).toHaveBeenCalledWith('/');
   });
 
-  it('should show deleted banner when deleted=1 query param is present', () => {
-    mockUseSearchParams.mockReturnValue(new URLSearchParams('deleted=1'));
+  it.each([
+    ['deleted=1', 'auth.login.accountDeleted'],
+    ['registered=1', 'auth.login.accountCreated'],
+    ['loggedOut=1', 'auth.login.loggedOut'],
+    ['passwordChanged=1', 'auth.login.passwordChanged'],
+  ])('should show banner for query param %s', (param, expectedKey) => {
+    mockUseSearchParams.mockReturnValue(new URLSearchParams(param));
     render(<LoginPage />);
-    expect(screen.getByTestId('error-banner')).toHaveTextContent('auth.login.accountDeleted');
+    expect(screen.getByTestId('error-banner')).toHaveTextContent(expectedKey);
+  });
+
+  it('should show session expired banner when expiredBanner is true', () => {
+    mockExpiredBanner = true;
+    render(<LoginPage />);
+    expect(screen.getByTestId('error-banner')).toHaveTextContent('auth.login.sessionExpired');
   });
 });

@@ -8,10 +8,10 @@ vi.mock('@/i18n/apiErrors.js', () => ({
   API_ERROR_MAP: { 'Invalid credentials': 'errors.invalidCredentials' },
 }));
 
-import { authApi, expensesApi } from '@/services/apiService.js';
+import { authApi, expensesApi, remindersApi } from '@/services/apiService.js';
 
 function mockFetch(status, body) {
-  global.fetch = vi.fn().mockResolvedValue({
+  globalThis.fetch = vi.fn().mockResolvedValue({
     ok: status >= 200 && status < 300,
     status,
     json: () => Promise.resolve(body),
@@ -29,7 +29,7 @@ describe('authApi.login', () => {
     const result = await authApi.login({ username: 'u', password: 'p' });
 
     expect(result).toEqual({ token: 'tok123' });
-    const [url, opts] = global.fetch.mock.calls[0];
+    const [url, opts] = globalThis.fetch.mock.calls[0];
     expect(url).toBe('/api/auth/login');
     expect(opts.method).toBe('POST');
     expect(opts.headers['Authorization']).toBeUndefined();
@@ -37,7 +37,7 @@ describe('authApi.login', () => {
   });
 
   it('should throw with mapped i18n message when backend returns 401', async () => {
-    global.fetch = vi.fn().mockResolvedValue({
+    globalThis.fetch = vi.fn().mockResolvedValue({
       ok: false,
       status: 401,
       json: () => Promise.resolve({ message: 'Invalid credentials' }),
@@ -51,7 +51,7 @@ describe('authApi.register', () => {
   it('should POST /api/auth/register without auth header', async () => {
     mockFetch(201, { id: 'uid1' });
     await authApi.register({ username: 'u', password: 'p', email: 'u@test.com' });
-    const [url, opts] = global.fetch.mock.calls[0];
+    const [url, opts] = globalThis.fetch.mock.calls[0];
     expect(url).toBe('/api/auth/register');
     expect(opts.headers['Authorization']).toBeUndefined();
   });
@@ -62,7 +62,7 @@ describe('expensesApi.list', () => {
     localStorage.setItem('token', 'mytoken');
     mockFetch(200, []);
     await expensesApi.list();
-    const [url, opts] = global.fetch.mock.calls[0];
+    const [url, opts] = globalThis.fetch.mock.calls[0];
     expect(url).toBe('/api/expenses');
     expect(opts.headers['Authorization']).toBe('Bearer mytoken');
   });
@@ -70,13 +70,101 @@ describe('expensesApi.list', () => {
   it('should append category query param when provided', async () => {
     mockFetch(200, []);
     await expensesApi.list({ category: 'Fuel' });
-    const [url] = global.fetch.mock.calls[0];
+    const [url] = globalThis.fetch.mock.calls[0];
     expect(url).toBe('/api/expenses?category=Fuel');
   });
 
   it('should return null for 204 responses', async () => {
-    global.fetch = vi.fn().mockResolvedValue({ ok: true, status: 204, json: vi.fn() });
+    globalThis.fetch = vi.fn().mockResolvedValue({ ok: true, status: 204, json: vi.fn() });
     const result = await expensesApi.remove('123');
     expect(result).toBeNull();
+  });
+});
+
+describe('request 401/403 auth handling', () => {
+  it('should dispatch auth:logout event and throw when authenticated request gets 401', async () => {
+    localStorage.setItem('token', 'validtoken');
+    globalThis.fetch = vi.fn().mockResolvedValue({
+      ok: false,
+      status: 401,
+      json: () => Promise.resolve({ message: 'Unauthorized' }),
+    });
+    const eventSpy = vi.fn();
+    globalThis.addEventListener('auth:logout', eventSpy);
+    await expect(authApi.changePassword({ password: 'new' })).rejects.toThrow();
+    expect(localStorage.getItem('token')).toBeNull();
+    expect(eventSpy).toHaveBeenCalledOnce();
+    globalThis.removeEventListener('auth:logout', eventSpy);
+  });
+
+  it('should dispatch auth:logout event on 403', async () => {
+    localStorage.setItem('token', 'validtoken');
+    globalThis.fetch = vi.fn().mockResolvedValue({
+      ok: false,
+      status: 403,
+      json: () => Promise.resolve({ message: 'Forbidden' }),
+    });
+    const eventSpy = vi.fn();
+    globalThis.addEventListener('auth:logout', eventSpy);
+    await expect(authApi.getProviders()).rejects.toThrow();
+    expect(eventSpy).toHaveBeenCalledOnce();
+    globalThis.removeEventListener('auth:logout', eventSpy);
+  });
+
+  it('should not dispatch auth:logout for 401 on unauthenticated requests', async () => {
+    globalThis.fetch = vi.fn().mockResolvedValue({
+      ok: false,
+      status: 401,
+      json: () => Promise.resolve({ message: 'Invalid credentials' }),
+    });
+    const eventSpy = vi.fn();
+    globalThis.addEventListener('auth:logout', eventSpy);
+    await expect(authApi.login({ username: 'u', password: 'bad' })).rejects.toThrow();
+    expect(eventSpy).not.toHaveBeenCalled();
+    globalThis.removeEventListener('auth:logout', eventSpy);
+  });
+});
+
+describe('expensesApi.summary', () => {
+  it('should GET /api/expenses/summary with year, month and category params', async () => {
+    mockFetch(200, {});
+    await expensesApi.summary({ year: '2026', month: '3', category: 'Fuel' });
+    const [url] = globalThis.fetch.mock.calls[0];
+    expect(url).toContain('/api/expenses/summary');
+    expect(url).toContain('year=2026');
+    expect(url).toContain('month=3');
+    expect(url).toContain('category=Fuel');
+  });
+
+  it('should GET /api/expenses/summary with no params when called with empty object', async () => {
+    mockFetch(200, {});
+    await expensesApi.summary({});
+    const [url] = globalThis.fetch.mock.calls[0];
+    expect(url).toBe('/api/expenses/summary?');
+  });
+});
+
+describe('remindersApi', () => {
+  it('should GET /api/reminders/badge-count', async () => {
+    localStorage.setItem('token', 'tok');
+    mockFetch(200, { dueSoon: 1, overdue: 2 });
+    const result = await remindersApi.badgeCount();
+    const [url] = globalThis.fetch.mock.calls[0];
+    expect(url).toBe('/api/reminders/badge-count');
+    expect(result).toEqual({ dueSoon: 1, overdue: 2 });
+  });
+
+  it('should GET /api/reminders with status param when provided', async () => {
+    mockFetch(200, []);
+    await remindersApi.list({ status: 'active' });
+    const [url] = globalThis.fetch.mock.calls[0];
+    expect(url).toBe('/api/reminders?status=active');
+  });
+
+  it('should GET /api/reminders without params when no status provided', async () => {
+    mockFetch(200, []);
+    await remindersApi.list();
+    const [url] = globalThis.fetch.mock.calls[0];
+    expect(url).toBe('/api/reminders');
   });
 });

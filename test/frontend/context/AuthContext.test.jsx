@@ -2,6 +2,10 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, act } from '@testing-library/react';
 import { AuthProvider, useAuth } from '@/context/AuthContext.jsx';
 
+vi.mock('posthog-js', () => ({
+  default: { identify: vi.fn(), reset: vi.fn() },
+}));
+
 vi.mock('@/services/apiService.js', () => ({
   authApi: {
     updateCurrency: vi.fn(),
@@ -15,6 +19,13 @@ vi.mock('@/i18n/index.js', () => ({
 
 vi.mock('@/constants/currencies.js', () => ({
   DEFAULT_CURRENCY: 'BRL',
+}));
+
+const mockRouterPush = vi.fn();
+vi.mock('next/navigation', () => ({
+  useRouter: () => ({ push: mockRouterPush }),
+  usePathname: () => '/',
+  useSearchParams: () => new URLSearchParams(),
 }));
 
 function makeToken(payload) {
@@ -36,6 +47,7 @@ function Consumer() {
 beforeEach(() => {
   localStorage.clear();
   vi.clearAllMocks();
+  mockRouterPush.mockReset();
 });
 
 describe('AuthProvider', () => {
@@ -99,5 +111,87 @@ describe('AuthProvider', () => {
     await act(async () => { render(<AuthProvider><LoginConsumer /></AuthProvider>); });
     await act(async () => { screen.getByRole('button', { name: 'login' }).click(); });
     expect(i18n.changeLanguage).not.toHaveBeenCalled();
+  });
+
+  it('should remove token and redirect on logout', async () => {
+    const token = makeToken({ id: '5', username: 'eve', currency: 'BRL', language: 'pt-BR' });
+    localStorage.setItem('token', token);
+    function LogoutConsumer() {
+      const { logout, isAuthed } = useAuth();
+      return (
+        <>
+          <span data-testid="authed">{String(isAuthed)}</span>
+          <button onClick={logout}>logout</button>
+        </>
+      );
+    }
+    await act(async () => { render(<AuthProvider><LogoutConsumer /></AuthProvider>); });
+    expect(screen.getByTestId('authed').textContent).toBe('true');
+    await act(async () => { screen.getByRole('button', { name: 'logout' }).click(); });
+    expect(screen.getByTestId('authed').textContent).toBe('false');
+    expect(localStorage.getItem('token')).toBeNull();
+    expect(mockRouterPush).toHaveBeenCalledWith('/login?loggedOut=1');
+  });
+
+  it('should clear token and set expiredBanner on auth:logout event', async () => {
+    const token = makeToken({ id: '6', username: 'frank', currency: 'BRL', language: 'pt-BR' });
+    localStorage.setItem('token', token);
+    function BannerConsumer() {
+      const { isAuthed, expiredBanner } = useAuth();
+      return (
+        <>
+          <span data-testid="authed">{String(isAuthed)}</span>
+          <span data-testid="banner">{String(expiredBanner)}</span>
+        </>
+      );
+    }
+    await act(async () => { render(<AuthProvider><BannerConsumer /></AuthProvider>); });
+    expect(screen.getByTestId('authed').textContent).toBe('true');
+    await act(async () => {
+      globalThis.dispatchEvent(new Event('auth:logout'));
+    });
+    expect(screen.getByTestId('authed').textContent).toBe('false');
+    expect(screen.getByTestId('banner').textContent).toBe('true');
+    expect(mockRouterPush).toHaveBeenCalledWith('/login');
+  });
+
+  it('should update token after updateCurrency', async () => {
+    const { authApi } = await import('@/services/apiService.js');
+    const newToken = makeToken({ id: '7', username: 'grace', currency: 'USD', language: 'en' });
+    authApi.updateCurrency.mockResolvedValue({ token: newToken });
+    const initial = makeToken({ id: '7', username: 'grace', currency: 'BRL', language: 'en' });
+    localStorage.setItem('token', initial);
+    function CurrencyConsumer() {
+      const { currency, updateCurrency } = useAuth();
+      return (
+        <>
+          <span data-testid="currency">{currency}</span>
+          <button onClick={() => updateCurrency('USD')}>update</button>
+        </>
+      );
+    }
+    await act(async () => { render(<AuthProvider><CurrencyConsumer /></AuthProvider>); });
+    expect(screen.getByTestId('currency').textContent).toBe('BRL');
+    await act(async () => { screen.getByRole('button', { name: 'update' }).click(); });
+    expect(authApi.updateCurrency).toHaveBeenCalledWith({ currency: 'USD' });
+    expect(localStorage.getItem('token')).toBe(newToken);
+  });
+
+  it('should update token and change language after updateLanguage', async () => {
+    const i18n = (await import('@/i18n/index.js')).default;
+    const { authApi } = await import('@/services/apiService.js');
+    const newToken = makeToken({ id: '8', username: 'henry', currency: 'BRL', language: 'en' });
+    authApi.updateLanguage.mockResolvedValue({ token: newToken });
+    const initial = makeToken({ id: '8', username: 'henry', currency: 'BRL', language: 'pt-BR' });
+    localStorage.setItem('token', initial);
+    function LangConsumer() {
+      const { updateLanguage } = useAuth();
+      return <button onClick={() => updateLanguage('en')}>update-lang</button>;
+    }
+    await act(async () => { render(<AuthProvider><LangConsumer /></AuthProvider>); });
+    await act(async () => { screen.getByRole('button', { name: 'update-lang' }).click(); });
+    expect(authApi.updateLanguage).toHaveBeenCalledWith({ language: 'en' });
+    expect(localStorage.getItem('i18nextLng')).toBe('en');
+    expect(i18n.changeLanguage).toHaveBeenCalledWith('en');
   });
 });
