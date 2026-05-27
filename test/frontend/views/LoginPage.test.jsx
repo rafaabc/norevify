@@ -20,12 +20,14 @@ vi.mock('@/services/apiService.js', () => ({
 }));
 
 const mockLogin = vi.fn();
+const mockClearExpiredBanner = vi.fn();
+let mockExpiredBanner = false;
 
 vi.mock('@/context/AuthContext.jsx', () => ({
   useAuth: () => ({
     login: mockLogin,
-    expiredBanner: false,
-    clearExpiredBanner: vi.fn(),
+    expiredBanner: mockExpiredBanner,
+    clearExpiredBanner: mockClearExpiredBanner,
   }),
 }));
 
@@ -45,6 +47,7 @@ import { authApi } from '@/services/apiService.js';
 
 beforeEach(() => {
   mockPush = vi.fn();
+  mockExpiredBanner = false;
   vi.clearAllMocks();
   mockUseSearchParams.mockReturnValue(new URLSearchParams());
 });
@@ -91,5 +94,29 @@ describe('LoginPage', () => {
     mockUseSearchParams.mockReturnValue(new URLSearchParams('deleted=1'));
     render(<LoginPage />);
     expect(screen.getByTestId('error-banner')).toHaveTextContent('auth.login.accountDeleted');
+  });
+
+  it('should show registered banner when registered=1 query param is present', () => {
+    mockUseSearchParams.mockReturnValue(new URLSearchParams('registered=1'));
+    render(<LoginPage />);
+    expect(screen.getByTestId('error-banner')).toHaveTextContent('auth.login.accountCreated');
+  });
+
+  it('should show loggedOut banner when loggedOut=1 query param is present', () => {
+    mockUseSearchParams.mockReturnValue(new URLSearchParams('loggedOut=1'));
+    render(<LoginPage />);
+    expect(screen.getByTestId('error-banner')).toHaveTextContent('auth.login.loggedOut');
+  });
+
+  it('should show passwordChanged banner when passwordChanged=1 query param is present', () => {
+    mockUseSearchParams.mockReturnValue(new URLSearchParams('passwordChanged=1'));
+    render(<LoginPage />);
+    expect(screen.getByTestId('error-banner')).toHaveTextContent('auth.login.passwordChanged');
+  });
+
+  it('should show session expired banner when expiredBanner is true', () => {
+    mockExpiredBanner = true;
+    render(<LoginPage />);
+    expect(screen.getByTestId('error-banner')).toHaveTextContent('auth.login.sessionExpired');
   });
 });

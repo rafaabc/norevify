@@ -46,7 +46,7 @@ export default function GoogleSignInButton({ mode = 'login', onSuccess, onError 
         text: mode === 'register' ? 'signup_with' : 'signin_with',
       });
 
-      if (mode === 'login' || mode === 'register') {
+      if ((mode === 'login' || mode === 'register') && process.env.NODE_ENV !== 'development') {
         globalThis.google.accounts.id.prompt();
       }
     }

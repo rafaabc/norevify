@@ -28,6 +28,7 @@ export default defineConfig({
         'components/PWAUpdater.jsx',
         'components/UpdatePrompt.jsx',
         'components/GoogleSignInButton.jsx',
+        'components/PostHogProvider.jsx',
         '**/*.module.css',
       ],
     },
