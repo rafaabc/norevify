@@ -44,6 +44,14 @@ vi.mock('@/services/apiService.js', () => ({
 }));
 
 describe('SettingsPage', () => {
+  const renderPage = () => act(async () => { render(<SettingsPage />); });
+  const openDeleteModal = async () => {
+    await renderPage();
+    await act(async () => {
+      fireEvent.click(screen.getByRole('button', { name: 'settings.myData.deleteAccount' }));
+    });
+  };
+
   beforeEach(() => {
     vi.clearAllMocks();
     mockEmailVerified = true;
@@ -58,18 +66,18 @@ describe('SettingsPage', () => {
   });
 
   it('should render heading and username', async () => {
-    await act(async () => { render(<SettingsPage />); });
+    await renderPage();
     expect(screen.getByText('settings.heading')).toBeInTheDocument();
     expect(screen.getByText('alice')).toBeInTheDocument();
   });
 
   it('should render currency select', async () => {
-    await act(async () => { render(<SettingsPage />); });
+    await renderPage();
     expect(screen.getByLabelText('settings.currency.label')).toBeInTheDocument();
   });
 
   it('should call updateCurrency on currency form submit', async () => {
-    await act(async () => { render(<SettingsPage />); });
+    await renderPage();
     const select = screen.getByLabelText('settings.currency.label');
     fireEvent.change(select, { target: { value: 'USD' } });
     const forms = document.querySelectorAll('form');
@@ -78,7 +86,7 @@ describe('SettingsPage', () => {
   });
 
   it('should call updateLanguage on language form submit', async () => {
-    await act(async () => { render(<SettingsPage />); });
+    await renderPage();
     const select = screen.getByLabelText('settings.language.label');
     fireEvent.change(select, { target: { value: 'pt-BR' } });
     const forms = document.querySelectorAll('form');
@@ -87,7 +95,7 @@ describe('SettingsPage', () => {
   });
 
   it('should call updateOdometer on odo form submit', async () => {
-    await act(async () => { render(<SettingsPage />); });
+    await renderPage();
     fireEvent.change(screen.getByLabelText('vehicle.currentKm'), { target: { value: '15000' } });
     const forms = document.querySelectorAll('form');
     await act(async () => { fireEvent.submit(forms[2]); });
@@ -95,12 +103,12 @@ describe('SettingsPage', () => {
   });
 
   it('should show disconnect button when google is linked', async () => {
-    await act(async () => { render(<SettingsPage />); });
+    await renderPage();
     expect(screen.getByText('settings.disconnectGoogle')).toBeInTheDocument();
   });
 
   it('should call unlinkGoogle and update providers on disconnect', async () => {
-    await act(async () => { render(<SettingsPage />); });
+    await renderPage();
     await act(async () => { fireEvent.click(screen.getByText('settings.disconnectGoogle')); });
     expect(mockUnlinkGoogle).toHaveBeenCalledOnce();
     expect(screen.getByRole('alert')).toHaveTextContent('settings.googleDisconnected');
@@ -108,35 +116,33 @@ describe('SettingsPage', () => {
 
   it('should show google link button when google is not linked', async () => {
     mockGetProviders.mockResolvedValue({ authProviders: [], hasPassword: true });
-    await act(async () => { render(<SettingsPage />); });
+    await renderPage();
     expect(screen.getByText('google-link')).toBeInTheDocument();
   });
 
   it('should render change-password link', async () => {
-    await act(async () => { render(<SettingsPage />); });
+    await renderPage();
     expect(screen.getByRole('link', { name: /settings\.changePassword/ })).toHaveAttribute('href', '/change-password');
   });
 
   it('should render export data button', async () => {
-    await act(async () => { render(<SettingsPage />); });
+    await renderPage();
     expect(screen.getByRole('button', { name: 'settings.myData.export' })).toBeInTheDocument();
   });
 
   it('should render delete account button', async () => {
-    await act(async () => { render(<SettingsPage />); });
+    await renderPage();
     expect(screen.getByRole('button', { name: 'settings.myData.deleteAccount' })).toBeInTheDocument();
   });
 
   it('should show delete modal when delete account button is clicked', async () => {
-    await act(async () => { render(<SettingsPage />); });
-    const deleteBtn = screen.getByRole('button', { name: 'settings.myData.deleteAccount' });
-    await act(async () => { fireEvent.click(deleteBtn); });
+    await openDeleteModal();
     expect(screen.getByText('settings.deleteAccount.heading')).toBeInTheDocument();
   });
 
   it('should show error banner when unlinkGoogle fails', async () => {
     mockUnlinkGoogle.mockRejectedValue(new Error('unlink failed'));
-    await act(async () => { render(<SettingsPage />); });
+    await renderPage();
     await act(async () => { fireEvent.click(screen.getByText('settings.disconnectGoogle')); });
     expect(screen.getByRole('alert')).toHaveTextContent('unlink failed');
   });
@@ -145,7 +151,7 @@ describe('SettingsPage', () => {
     global.URL.createObjectURL = vi.fn().mockReturnValue('blob:mock');
     global.URL.revokeObjectURL = vi.fn();
 
-    await act(async () => { render(<SettingsPage />); });
+    await renderPage();
     await act(async () => {
       fireEvent.click(screen.getByRole('button', { name: 'settings.myData.export' }));
     });
@@ -156,7 +162,7 @@ describe('SettingsPage', () => {
 
   it('should show export error when exportData fails', async () => {
     mockExportData.mockRejectedValue(new Error('export error'));
-    await act(async () => { render(<SettingsPage />); });
+    await renderPage();
     await act(async () => {
       fireEvent.click(screen.getByRole('button', { name: 'settings.myData.export' }));
     });
@@ -164,10 +170,7 @@ describe('SettingsPage', () => {
   });
 
   it('should call deleteAccount, logout and redirect on confirmed delete', async () => {
-    await act(async () => { render(<SettingsPage />); });
-    await act(async () => {
-      fireEvent.click(screen.getByRole('button', { name: 'settings.myData.deleteAccount' }));
-    });
+    await openDeleteModal();
     const passwordInput = screen.getByLabelText('settings.deleteAccount.passwordLabel');
     fireEvent.change(passwordInput, { target: { value: 'secret' } });
     await act(async () => {
@@ -180,10 +183,7 @@ describe('SettingsPage', () => {
 
   it('should show delete error when deleteAccount fails', async () => {
     mockDeleteAccount.mockRejectedValue(new Error('delete failed'));
-    await act(async () => { render(<SettingsPage />); });
-    await act(async () => {
-      fireEvent.click(screen.getByRole('button', { name: 'settings.myData.deleteAccount' }));
-    });
+    await openDeleteModal();
     const passwordInput = screen.getByLabelText('settings.deleteAccount.passwordLabel');
     fireEvent.change(passwordInput, { target: { value: 'bad' } });
     await act(async () => {
@@ -192,35 +192,33 @@ describe('SettingsPage', () => {
     expect(screen.getByText('delete failed')).toBeInTheDocument();
   });
 
-  it('should show resend verification button when emailVerified is false', async () => {
-    mockEmailVerified = false;
-    await act(async () => { render(<SettingsPage />); });
-    expect(screen.getByRole('button', { name: 'auth.verifyEmail.resend' })).toBeInTheDocument();
-  });
+  describe('when emailVerified is false', () => {
+    beforeEach(() => { mockEmailVerified = false; });
 
-  it('should call resendVerification when resend button is clicked', async () => {
-    mockEmailVerified = false;
-    await act(async () => { render(<SettingsPage />); });
-    await act(async () => {
-      fireEvent.click(screen.getByRole('button', { name: 'auth.verifyEmail.resend' }));
+    it('should show resend verification button', async () => {
+      await renderPage();
+      expect(screen.getByRole('button', { name: 'auth.verifyEmail.resend' })).toBeInTheDocument();
     });
-    expect(mockResendVerification).toHaveBeenCalled();
-  });
 
-  it('should show resend success banner after successful resend', async () => {
-    mockEmailVerified = false;
-    await act(async () => { render(<SettingsPage />); });
-    await act(async () => {
-      fireEvent.click(screen.getByRole('button', { name: 'auth.verifyEmail.resend' }));
+    it('should call resendVerification when resend button is clicked', async () => {
+      await renderPage();
+      await act(async () => {
+        fireEvent.click(screen.getByRole('button', { name: 'auth.verifyEmail.resend' }));
+      });
+      expect(mockResendVerification).toHaveBeenCalled();
     });
-    expect(screen.getByRole('alert')).toHaveTextContent('auth.verifyEmail.resendSuccess');
+
+    it('should show resend success banner after successful resend', async () => {
+      await renderPage();
+      await act(async () => {
+        fireEvent.click(screen.getByRole('button', { name: 'auth.verifyEmail.resend' }));
+      });
+      expect(screen.getByRole('alert')).toHaveTextContent('auth.verifyEmail.resendSuccess');
+    });
   });
 
   it('should close delete modal when cancel button is clicked', async () => {
-    await act(async () => { render(<SettingsPage />); });
-    await act(async () => {
-      fireEvent.click(screen.getByRole('button', { name: 'settings.myData.deleteAccount' }));
-    });
+    await openDeleteModal();
     expect(screen.getByText('settings.deleteAccount.heading')).toBeInTheDocument();
     await act(async () => {
       fireEvent.click(screen.getByRole('button', { name: 'common.cancel' }));

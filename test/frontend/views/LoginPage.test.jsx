@@ -90,28 +90,15 @@ describe('LoginPage', () => {
     expect(mockPush).toHaveBeenCalledWith('/');
   });
 
-  it('should show deleted banner when deleted=1 query param is present', () => {
-    mockUseSearchParams.mockReturnValue(new URLSearchParams('deleted=1'));
+  it.each([
+    ['deleted=1', 'auth.login.accountDeleted'],
+    ['registered=1', 'auth.login.accountCreated'],
+    ['loggedOut=1', 'auth.login.loggedOut'],
+    ['passwordChanged=1', 'auth.login.passwordChanged'],
+  ])('should show banner for query param %s', (param, expectedKey) => {
+    mockUseSearchParams.mockReturnValue(new URLSearchParams(param));
     render(<LoginPage />);
-    expect(screen.getByTestId('error-banner')).toHaveTextContent('auth.login.accountDeleted');
-  });
-
-  it('should show registered banner when registered=1 query param is present', () => {
-    mockUseSearchParams.mockReturnValue(new URLSearchParams('registered=1'));
-    render(<LoginPage />);
-    expect(screen.getByTestId('error-banner')).toHaveTextContent('auth.login.accountCreated');
-  });
-
-  it('should show loggedOut banner when loggedOut=1 query param is present', () => {
-    mockUseSearchParams.mockReturnValue(new URLSearchParams('loggedOut=1'));
-    render(<LoginPage />);
-    expect(screen.getByTestId('error-banner')).toHaveTextContent('auth.login.loggedOut');
-  });
-
-  it('should show passwordChanged banner when passwordChanged=1 query param is present', () => {
-    mockUseSearchParams.mockReturnValue(new URLSearchParams('passwordChanged=1'));
-    render(<LoginPage />);
-    expect(screen.getByTestId('error-banner')).toHaveTextContent('auth.login.passwordChanged');
+    expect(screen.getByTestId('error-banner')).toHaveTextContent(expectedKey);
   });
 
   it('should show session expired banner when expiredBanner is true', () => {
