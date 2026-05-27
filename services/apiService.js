@@ -20,7 +20,7 @@ async function request(path, { method = 'GET', body = null, auth = true, signal 
 
   const res = await fetch(`${BASE}${path}`, options);
 
-  if ((res.status === 401 || res.status === 403) && auth) {
+  if (res.status === 401 && auth) {
     localStorage.removeItem('token');
     window.dispatchEvent(new CustomEvent('auth:logout', { detail: { expired: true } }));
     const err = new Error(i18n.t('errors.sessionExpired'));

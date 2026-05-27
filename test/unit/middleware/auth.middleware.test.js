@@ -51,17 +51,17 @@ describe('withAuth', () => {
     assert.strictEqual(res.status, 401);
   });
 
-  it('should return 403 when token is invalid', async () => {
+  it('should return 401 when token is invalid', async () => {
     const res = await withAuth(makeHandler())(makeReq('Bearer this.is.not.valid'), {});
-    assert.strictEqual(res.status, 403);
+    assert.strictEqual(res.status, 401);
     const body = await res.json();
     assert.match(body.message, /invalid or expired/i);
   });
 
-  it('should return 403 when token is expired', async () => {
+  it('should return 401 when token is expired', async () => {
     const token = jwt.sign({ id: '1' }, SECRET, { expiresIn: -1 });
     const res = await withAuth(makeHandler())(makeReq(`Bearer ${token}`), {});
-    assert.strictEqual(res.status, 403);
+    assert.strictEqual(res.status, 401);
     const body = await res.json();
     assert.match(body.message, /invalid or expired/i);
   });

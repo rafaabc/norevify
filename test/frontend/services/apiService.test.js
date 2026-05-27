@@ -97,17 +97,18 @@ describe('request 401/403 auth handling', () => {
     globalThis.removeEventListener('auth:logout', eventSpy);
   });
 
-  it('should dispatch auth:logout event on 403', async () => {
+  it('should NOT dispatch auth:logout on 403 (authorization error, not session expiry)', async () => {
     localStorage.setItem('token', 'validtoken');
     globalThis.fetch = vi.fn().mockResolvedValue({
       ok: false,
       status: 403,
-      json: () => Promise.resolve({ message: 'Forbidden' }),
+      json: () => Promise.resolve({ message: 'Email not verified' }),
     });
     const eventSpy = vi.fn();
     globalThis.addEventListener('auth:logout', eventSpy);
     await expect(authApi.getProviders()).rejects.toThrow();
-    expect(eventSpy).toHaveBeenCalledOnce();
+    expect(eventSpy).not.toHaveBeenCalled();
+    expect(localStorage.getItem('token')).not.toBeNull();
     globalThis.removeEventListener('auth:logout', eventSpy);
   });
 

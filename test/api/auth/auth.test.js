@@ -171,7 +171,7 @@ describe('US-02 - User Login', () => {
 
   describe('Authentication middleware (JWT)', () => {
 
-    it('[TC-02-06] should return 403 when an expired token is presented', async () => {
+    it('[TC-02-06] should return 401 when an expired token is presented', async () => {
       const expiredToken = jwt.sign(
         { id: 0, username: 'expired', exp: Math.floor(Date.now() / 1000) - 60 },
         process.env.JWT_SECRET
@@ -181,7 +181,7 @@ describe('US-02 - User Login', () => {
         .get('/api/expenses')
         .set('Authorization', `Bearer ${expiredToken}`);
 
-      expect(res.status).to.equal(403);
+      expect(res.status).to.equal(401);
       expect(res.body).to.have.property('message', 'Invalid or expired token');
     });
 
