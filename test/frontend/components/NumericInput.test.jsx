@@ -74,6 +74,6 @@ describe('NumericInput — PT-BR', () => {
 
   it('should convert placeholder dots to commas', () => {
     render(<NumericInput id="x" name="x" value="" onChange={vi.fn()} placeholder="e.g. 5.50" />);
-    expect(screen.getByPlaceholderText('e,g, 5,50')).toBeInTheDocument();
+    expect(screen.getByPlaceholderText('e.g. 5,50')).toBeInTheDocument();
   });
 });

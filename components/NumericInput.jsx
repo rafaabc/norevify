@@ -22,7 +22,7 @@ export default function NumericInput({ value, onChange, name, id, placeholder, m
 
   // PT-BR: show comma as decimal separator, reject period
   const displayValue = String(value ?? '').replace('.', ',');
-  const localePlaceholder = placeholder ? placeholder.replace(/\./g, ',') : placeholder;
+  const localePlaceholder = placeholder ? placeholder.replace(/(\d)\.(\d)/g, '$1,$2') : placeholder;
 
   function handleChange(e) {
     const raw = e.target.value;
