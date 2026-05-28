@@ -51,38 +51,16 @@ export default function FuelFields({ litres, pricePerLitre, odometer = '', onCha
         />
       </div>
       <div className="form-group">
-        <label>
-          {t('expenses.fields.amount')}
-          <span style={{
-            marginLeft: '.5rem',
-            fontSize: '.75rem',
-            fontWeight: 400,
-            color: 'var(--text-muted)',
-            fontStyle: 'italic',
-          }}>
-            ({t('expenses.fields.amountAutoHint')})
-          </span>
-        </label>
-        <div
-          aria-label={t('expenses.fields.amount')}
-          style={{
-            padding: '.5rem .8rem',
-            background: computed ? 'var(--primary-dim)' : 'var(--surface-2, var(--surface))',
-            border: `1px solid ${computed ? 'var(--primary-glow)' : 'var(--border)'}`,
-            borderRadius: 'var(--radius-sm)',
-            fontFamily: 'var(--font-mono)',
-            fontSize: '.9rem',
-            color: computed ? 'var(--primary)' : 'var(--text-muted)',
-            fontWeight: computed ? 600 : 400,
-            cursor: 'not-allowed',
-            userSelect: 'none',
-            minHeight: '2.25rem',
-            display: 'flex',
-            alignItems: 'center',
-          }}
-        >
-          {computed ?? t('expenses.fields.amountPending')}
-        </div>
+        <label htmlFor="field-amount">{t('expenses.fields.amount')}</label>
+        <input
+          id="field-amount"
+          type="number"
+          value={computed ?? ''}
+          disabled
+          readOnly
+          title={t('expenses.fields.amountTooltip')}
+          onChange={() => {}}
+        />
       </div>
     </>
   );

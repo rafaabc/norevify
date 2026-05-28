@@ -12,14 +12,19 @@ describe('FuelFields', () => {
     expect(screen.getByLabelText('expenses.fields.odometer')).toBeInTheDocument();
   });
 
-  it('should always show amount field with pending hint when inputs are incomplete', () => {
+  it('should render amount field as disabled with tooltip when inputs are incomplete', () => {
     render(<FuelFields litres="" pricePerLitre="5" onChange={vi.fn()} />);
-    expect(screen.getByText('expenses.fields.amountPending')).toBeInTheDocument();
+    const amount = screen.getByLabelText('expenses.fields.amount');
+    expect(amount).toBeDisabled();
+    expect(amount).toHaveAttribute('title', 'expenses.fields.amountTooltip');
+    expect(amount).toHaveValue(null);
   });
 
-  it('should show computed amount when both litres and price are positive', () => {
+  it('should show computed amount in disabled input when both litres and price are positive', () => {
     render(<FuelFields litres="40" pricePerLitre="5.50" onChange={vi.fn()} />);
-    expect(screen.getByText('220.00')).toBeInTheDocument();
+    const amount = screen.getByLabelText('expenses.fields.amount');
+    expect(amount).toBeDisabled();
+    expect(amount).toHaveValue(220);
   });
 
   it('should show odometer field with provided value', () => {
@@ -27,9 +32,9 @@ describe('FuelFields', () => {
     expect(screen.getByDisplayValue('12500')).toBeInTheDocument();
   });
 
-  it('should show pending hint when litres is 0', () => {
+  it('should keep amount empty when litres is 0', () => {
     render(<FuelFields litres="0" pricePerLitre="5.50" onChange={vi.fn()} />);
-    expect(screen.queryByText('0.00')).toBeNull();
-    expect(screen.getByText('expenses.fields.amountPending')).toBeInTheDocument();
+    const amount = screen.getByLabelText('expenses.fields.amount');
+    expect(amount).toHaveValue(null);
   });
 });
