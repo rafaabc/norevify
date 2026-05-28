@@ -78,6 +78,12 @@ export default function FuelFields({ litres, pricePerLitre, odometer = '', onCha
           disabled
           readOnly
           onChange={() => {}}
+          style={{
+            background: 'var(--surface)',
+            border: 'none',
+            color: computed ? 'var(--primary)' : 'var(--text-muted)',
+            cursor: 'not-allowed',
+          }}
         />
       </div>
     </>
