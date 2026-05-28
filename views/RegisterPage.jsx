@@ -6,6 +6,7 @@ import { useTranslation } from 'react-i18next';
 import { authApi } from '@/services/apiService.js';
 import { bindField } from '@/utils/form.js';
 import ErrorBanner from '@/components/ErrorBanner.jsx';
+import FieldLabelWithHint from '@/components/FieldLabelWithHint.jsx';
 import GoogleSignInButton from '@/components/GoogleSignInButton.jsx';
 import AuthBrandPanel from '@/components/AuthBrandPanel.jsx';
 import { SUPPORTED_CURRENCIES } from '@/constants/currencies.js';
@@ -55,17 +56,16 @@ export default function RegisterPage() {
 
           <form onSubmit={handleSubmit}>
             <div className="form-group">
-              <label htmlFor="reg-username">{t('auth.register.username')}</label>
+              <FieldLabelWithHint htmlFor="reg-username" label={t('auth.register.username')} hint={t('auth.register.usernameHint')} />
               <input id="reg-username" name="username" value={form.username} onChange={handleChange} required autoFocus
-                minLength={3} maxLength={50} pattern="[a-zA-Z0-9_]+"
-                title="3–50 characters: letters, numbers, underscore" />
+                minLength={3} maxLength={50} pattern="[a-zA-Z0-9_]+" />
             </div>
             <div className="form-group">
               <label htmlFor="reg-email">{t('auth.register.email')}</label>
               <input id="reg-email" type="email" name="email" value={form.email} onChange={handleChange} required />
             </div>
             <div className="form-group">
-              <label htmlFor="reg-password">{t('auth.register.password')}</label>
+              <FieldLabelWithHint htmlFor="reg-password" label={t('auth.register.password')} hint={t('auth.passwordHint')} />
               <input id="reg-password" type="password" name="password" value={form.password} onChange={handleChange} required
                 minLength={8} maxLength={128} />
             </div>

@@ -6,6 +6,7 @@ import { useAuth } from '@/context/AuthContext.jsx';
 import { bindField } from '@/utils/form.js';
 import { useAsyncAction } from '@/hooks/useAsyncAction.js';
 import ErrorBanner from '@/components/ErrorBanner.jsx';
+import FieldLabelWithHint from '@/components/FieldLabelWithHint.jsx';
 
 export default function ChangePasswordPage() {
   const { t } = useTranslation();
@@ -43,11 +44,11 @@ export default function ChangePasswordPage() {
           <input id="cp-currentPassword" type="password" name="currentPassword" value={form.currentPassword} onChange={handleChange} required autoFocus />
         </div>
         <div className="form-group">
-          <label htmlFor="cp-newPassword">{t('auth.changePassword.new')}</label>
+          <FieldLabelWithHint htmlFor="cp-newPassword" label={t('auth.changePassword.new')} hint={t('auth.passwordHint')} />
           <input id="cp-newPassword" type="password" name="newPassword" value={form.newPassword} onChange={handleChange} required minLength={8} maxLength={20} />
         </div>
         <div className="form-group">
-          <label htmlFor="cp-confirmPassword">{t('auth.changePassword.confirm')}</label>
+          <FieldLabelWithHint htmlFor="cp-confirmPassword" label={t('auth.changePassword.confirm')} hint={t('auth.confirmPasswordHint')} />
           <input id="cp-confirmPassword" type="password" name="confirmPassword" value={form.confirmPassword} onChange={handleChange} required minLength={8} maxLength={20} />
         </div>
         <button type="submit" className="btn-primary" disabled={loading}>
