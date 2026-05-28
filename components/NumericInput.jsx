@@ -22,12 +22,11 @@ export default function NumericInput({ value, onChange, name, id, placeholder, m
 
   // PT-BR: show comma as decimal separator, reject period
   const displayValue = String(value ?? '').replace('.', ',');
-  const localePlaceholder = placeholder ? placeholder.replace(/(\d)\.(\d)/g, '$1,$2') : placeholder;
+  const localePlaceholder = placeholder ? placeholder.replace(/(?<=\d)\.(?=\d)/g, ',') : placeholder;
 
   function handleChange(e) {
     const raw = e.target.value;
-    // Reject anything that isn't digits + at most one comma
-    if (raw !== '' && !/^\d*[,]?\d*$/.test(raw)) return;
+    if (raw !== '' && !/^\d*(,\d*)?$/.test(raw)) return;
     onChange({ target: { name, value: raw.replace(',', '.') } });
   }
 
