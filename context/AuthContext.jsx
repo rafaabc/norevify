@@ -18,6 +18,14 @@ export function AuthProvider({ children }) {
     if (stored) setToken(stored);
     setAuthLoading(false);
   }, []);
+
+  useEffect(() => {
+    function handleStorage(e) {
+      if (e.key === 'token') setToken(e.newValue);
+    }
+    window.addEventListener('storage', handleStorage);
+    return () => window.removeEventListener('storage', handleStorage);
+  }, []);
   const [expiredBanner, setExpiredBanner] = useState(false);
   const router = useRouter();
 
