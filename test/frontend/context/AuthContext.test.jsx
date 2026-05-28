@@ -194,4 +194,26 @@ describe('AuthProvider', () => {
     expect(localStorage.getItem('i18nextLng')).toBe('en');
     expect(i18n.changeLanguage).toHaveBeenCalledWith('en');
   });
+
+  it('should update emailVerified when another tab sets a new token via storage event', async () => {
+    const initialToken = makeToken({ id: '9', username: 'ivan', currency: 'BRL', language: 'pt-BR', emailVerified: false });
+    localStorage.setItem('token', initialToken);
+
+    function VerifiedConsumer() {
+      const { emailVerified } = useAuth();
+      return <span data-testid="verified">{String(emailVerified)}</span>;
+    }
+
+    await act(async () => {
+      render(<AuthProvider><VerifiedConsumer /></AuthProvider>);
+    });
+    expect(screen.getByTestId('verified').textContent).toBe('false');
+
+    const newToken = makeToken({ id: '9', username: 'ivan', currency: 'BRL', language: 'pt-BR', emailVerified: true });
+    await act(async () => {
+      window.dispatchEvent(new StorageEvent('storage', { key: 'token', newValue: newToken }));
+    });
+
+    expect(screen.getByTestId('verified').textContent).toBe('true');
+  });
 });
