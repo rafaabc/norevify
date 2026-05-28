@@ -1,8 +1,11 @@
 'use client';
+import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { Info } from 'lucide-react';
 
 export default function FuelFields({ litres, pricePerLitre, odometer = '', onChange }) {
   const { t } = useTranslation();
+  const [showHint, setShowHint] = useState(false);
   const computed = (parseFloat(litres) > 0 && parseFloat(pricePerLitre) > 0)
     ? (Math.round(parseFloat(litres) * parseFloat(pricePerLitre) * 100) / 100).toFixed(2)
     : null;
@@ -50,8 +53,24 @@ export default function FuelFields({ litres, pricePerLitre, odometer = '', onCha
           placeholder="e.g. 12500"
         />
       </div>
-      <div className="form-group" title={t('expenses.fields.amountTooltip')}>
-        <label htmlFor="field-amount">{t('expenses.fields.amount')}</label>
+      <div className="form-group">
+        <div style={{ display: 'flex', alignItems: 'center', gap: '.35rem' }}>
+          <label htmlFor="field-amount">{t('expenses.fields.amount')}</label>
+          <button
+            type="button"
+            aria-label={t('expenses.fields.amountTooltip')}
+            aria-expanded={showHint}
+            onClick={() => setShowHint((v) => !v)}
+            style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer', color: 'var(--text-muted)', display: 'flex', alignItems: 'center' }}
+          >
+            <Info size={14} />
+          </button>
+        </div>
+        {showHint && (
+          <small style={{ color: 'var(--text-muted)', marginBottom: '.35rem', display: 'block' }}>
+            {t('expenses.fields.amountTooltip')}
+          </small>
+        )}
         <input
           id="field-amount"
           type="number"
