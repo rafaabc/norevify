@@ -2,6 +2,7 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { formatDate } from '@/utils/formatDate.js';
+import FieldLabelWithHint from '@/components/FieldLabelWithHint.jsx';
 
 function addMonths(date, m) {
   const d = new Date(date);
@@ -49,7 +50,7 @@ export default function CompleteReminderDialog({ open, reminder, onSubmit, onCan
       <form className="modal" onSubmit={handleSubmit}>
         <h3>{t('reminders.actions.complete')}</h3>
         <div className="form-group">
-          <label htmlFor="complete-km">{t('reminders.actions.completedKm')}</label>
+          <FieldLabelWithHint htmlFor="complete-km" label={t('reminders.actions.completedKm')} hint={t('reminders.actions.completedKmHint')} />
           <input
             id="complete-km"
             type="number"

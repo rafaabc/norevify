@@ -7,6 +7,7 @@ import { authApi } from '@/services/apiService.js';
 import { useAuth } from '@/context/AuthContext.jsx';
 import { bindField } from '@/utils/form.js';
 import ErrorBanner from '@/components/ErrorBanner.jsx';
+import FieldLabelWithHint from '@/components/FieldLabelWithHint.jsx';
 import GoogleSignInButton from '@/components/GoogleSignInButton.jsx';
 import AuthBrandPanel from '@/components/AuthBrandPanel.jsx';
 import styles from './LoginPage.module.css';
@@ -94,7 +95,7 @@ export default function LoginPage() {
 
           <form onSubmit={handleSubmit}>
             <div className="form-group">
-              <label htmlFor="login-username">{t('auth.register.username')}</label>
+              <FieldLabelWithHint htmlFor="login-username" label={t('auth.login.usernameLabel')} hint={t('auth.login.usernameHint')} />
               <input id="login-username" name="username" value={form.username} onChange={handleChange} required autoFocus />
             </div>
             <div className="form-group">

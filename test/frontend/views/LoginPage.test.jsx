@@ -55,7 +55,7 @@ beforeEach(() => {
 describe('LoginPage', () => {
   it('should render username and password inputs', () => {
     render(<LoginPage />);
-    expect(screen.getByLabelText(/auth\.register\.username/i)).toBeInTheDocument();
+    expect(screen.getByLabelText(/auth\.login\.usernameLabel/i)).toBeInTheDocument();
     expect(document.querySelector('input[type="password"]')).toBeInTheDocument();
   });
 

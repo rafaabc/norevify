@@ -1,11 +1,9 @@
 'use client';
-import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Info } from 'lucide-react';
+import FieldLabelWithHint from '@/components/FieldLabelWithHint.jsx';
 
 export default function FuelFields({ litres, pricePerLitre, odometer = '', onChange }) {
   const { t } = useTranslation();
-  const [showHint, setShowHint] = useState(false);
   const computed = (parseFloat(litres) > 0 && parseFloat(pricePerLitre) > 0)
     ? (Math.round(parseFloat(litres) * parseFloat(pricePerLitre) * 100) / 100).toFixed(2)
     : null;
@@ -13,7 +11,7 @@ export default function FuelFields({ litres, pricePerLitre, odometer = '', onCha
   return (
     <>
       <div className="form-group">
-        <label htmlFor="field-litres">{t('expenses.fields.litres')}</label>
+        <FieldLabelWithHint htmlFor="field-litres" label={t('expenses.fields.litres')} hint={t('expenses.fields.decimalHint')} />
         <input
           id="field-litres"
           type="number"
@@ -27,7 +25,7 @@ export default function FuelFields({ litres, pricePerLitre, odometer = '', onCha
         />
       </div>
       <div className="form-group">
-        <label htmlFor="field-price-per-litre">{t('expenses.fields.pricePerLitre')}</label>
+        <FieldLabelWithHint htmlFor="field-price-per-litre" label={t('expenses.fields.pricePerLitre')} hint={t('expenses.fields.decimalHint')} />
         <input
           id="field-price-per-litre"
           type="number"
@@ -41,7 +39,7 @@ export default function FuelFields({ litres, pricePerLitre, odometer = '', onCha
         />
       </div>
       <div className="form-group">
-        <label htmlFor="field-odometer">{t('expenses.fields.odometer')}</label>
+        <FieldLabelWithHint htmlFor="field-odometer" label={t('expenses.fields.odometer')} hint={t('expenses.fields.odometerHint')} />
         <input
           id="field-odometer"
           type="number"
@@ -54,23 +52,7 @@ export default function FuelFields({ litres, pricePerLitre, odometer = '', onCha
         />
       </div>
       <div className="form-group">
-        <div style={{ display: 'flex', alignItems: 'center', gap: '.35rem' }}>
-          <label htmlFor="field-amount">{t('expenses.fields.amount')}</label>
-          <button
-            type="button"
-            aria-label={t('expenses.fields.amountTooltip')}
-            aria-expanded={showHint}
-            onClick={() => setShowHint((v) => !v)}
-            style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer', color: 'var(--text-muted)', display: 'flex', alignItems: 'center' }}
-          >
-            <Info size={14} />
-          </button>
-        </div>
-        {showHint && (
-          <small style={{ color: 'var(--text-muted)', marginBottom: '.35rem', display: 'block' }}>
-            {t('expenses.fields.amountTooltip')}
-          </small>
-        )}
+        <FieldLabelWithHint htmlFor="field-amount" label={t('expenses.fields.amount')} hint={t('expenses.fields.amountTooltip')} />
         <input
           id="field-amount"
           type="number"

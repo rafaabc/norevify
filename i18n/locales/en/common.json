@@ -21,6 +21,8 @@
   "auth": {
     "login": {
       "heading": "Sign in",
+      "usernameLabel": "Username",
+      "usernameHint": "Use your username, not your email.",
       "submit": "Sign in",
       "submitting": "Signing in…",
       "noAccount": "Don't have an account?",
@@ -50,6 +52,7 @@
     "register": {
       "heading": "Create account",
       "username": "Username",
+      "usernameHint": "3–50 characters, letters, numbers and underscore.",
       "email": "Email",
       "password": "Password",
       "currency": "Currency",
@@ -87,7 +90,9 @@
       "submit": "Save",
       "submitting": "Saving…",
       "success": "Password changed successfully."
-    }
+    },
+    "passwordHint": "At least 8 characters.",
+    "confirmPasswordHint": "Must match the new password."
   },
   "settings": {
     "heading": "Settings",
@@ -150,13 +155,16 @@
     "confirmDelete": "Delete this expense?",
     "fields": {
       "date": "Date",
+      "dateHint": "Cannot be in the future.",
       "category": "Category",
       "description": "Description",
       "amount": "Amount",
       "amountTooltip": "Calculated automatically from litres × price per litre",
       "litres": "Litres",
+      "decimalHint": "Use a dot (.) as the decimal separator — e.g. 5.50",
       "pricePerLitre": "Price per litre",
-      "odometer": "Odometer (km)"
+      "odometer": "Odometer (km)",
+      "odometerHint": "Current vehicle reading in km. Logging fuel with an odometer updates your vehicle's total km."
     },
     "filters": "Filters",
     "clearFilters": "Clear filters",
@@ -233,8 +241,10 @@
       "title": "Title (optional)",
       "dueDate": "Due date",
       "dueKm": "Due at (km)",
+      "dueHint": "Provide at least one — due date or due km.",
       "intervalMonths": "Repeat every (months)",
-      "intervalKm": "Repeat every (km)"
+      "intervalKm": "Repeat every (km)",
+      "intervalHint": "Optional. If set, completing this reminder will create the next one automatically."
     },
     "status": {
       "upcoming": "Upcoming",
@@ -245,6 +255,7 @@
     "actions": {
       "complete": "Complete",
       "completedKm": "Odometer at completion",
+      "completedKmHint": "Current vehicle reading in km at completion.",
       "completePreviewBoth": "Next reminder will be created on {{nextDate}} at {{nextKm}} km",
       "completePreviewDate": "Next reminder will be created on {{nextDate}}",
       "completePreviewKm": "Next reminder will be created at {{nextKm}} km",

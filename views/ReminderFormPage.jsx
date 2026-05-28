@@ -4,6 +4,7 @@ import { useRouter, useParams } from 'next/navigation';
 import { useTranslation } from 'react-i18next';
 import ReminderTypeSelect from '@/components/ReminderTypeSelect.jsx';
 import ErrorBanner from '@/components/ErrorBanner.jsx';
+import FieldLabelWithHint from '@/components/FieldLabelWithHint.jsx';
 import { remindersApi } from '@/services/apiService.js';
 import { useAsyncAction } from '@/hooks/useAsyncAction.js';
 import { todayISO } from '@/utils/formatDate.js';
@@ -73,7 +74,7 @@ export default function ReminderFormPage() {
           <input id="field-title" name="title" value={form.title} onChange={handleChange} />
         </div>
         <div className="form-group">
-          <label htmlFor="field-dueDate">{t('reminders.fields.dueDate')}</label>
+          <FieldLabelWithHint htmlFor="field-dueDate" label={t('reminders.fields.dueDate')} hint={t('reminders.fields.dueHint')} />
           <input
             id="field-dueDate"
             type="date"
@@ -84,16 +85,16 @@ export default function ReminderFormPage() {
           />
         </div>
         <div className="form-group">
-          <label htmlFor="field-dueKm">{t('reminders.fields.dueKm')}</label>
+          <FieldLabelWithHint htmlFor="field-dueKm" label={t('reminders.fields.dueKm')} hint={t('reminders.fields.dueHint')} />
           <input id="field-dueKm" name="dueKm" type="number" min="0" value={form.dueKm} onChange={handleChange} />
         </div>
         <div className="form-group">
-          <label htmlFor="field-intervalMonths">{t('reminders.fields.intervalMonths')}</label>
+          <FieldLabelWithHint htmlFor="field-intervalMonths" label={t('reminders.fields.intervalMonths')} hint={t('reminders.fields.intervalHint')} />
           <input id="field-intervalMonths" name="intervalMonths" type="number" min="0"
                  value={form.intervalMonths} onChange={handleChange} />
         </div>
         <div className="form-group">
-          <label htmlFor="field-intervalKm">{t('reminders.fields.intervalKm')}</label>
+          <FieldLabelWithHint htmlFor="field-intervalKm" label={t('reminders.fields.intervalKm')} hint={t('reminders.fields.intervalHint')} />
           <input id="field-intervalKm" name="intervalKm" type="number" min="0"
                  value={form.intervalKm} onChange={handleChange} />
         </div>

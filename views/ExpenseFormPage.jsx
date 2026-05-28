@@ -9,6 +9,7 @@ import DateField from '@/components/DateField.jsx';
 import FuelFields from '@/components/FuelFields.jsx';
 import AmountField from '@/components/AmountField.jsx';
 import ErrorBanner from '@/components/ErrorBanner.jsx';
+import FieldLabelWithHint from '@/components/FieldLabelWithHint.jsx';
 import Loading from '@/components/Loading.jsx';
 import { todayISO } from '@/utils/formatDate.js';
 import styles from './ExpenseFormPage.module.css';
@@ -101,7 +102,7 @@ export default function ExpenseFormPage() {
 
         <form onSubmit={handleSubmit}>
           <div className="form-group">
-            <label htmlFor="field-date">{t('expenses.fields.date')}</label>
+            <FieldLabelWithHint htmlFor="field-date" label={t('expenses.fields.date')} hint={t('expenses.fields.dateHint')} />
             <DateField id="field-date" value={form.date} onChange={handleChange} />
           </div>
 

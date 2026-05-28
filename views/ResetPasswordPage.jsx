@@ -6,6 +6,7 @@ import { useTranslation } from 'react-i18next';
 import { authApi } from '@/services/apiService.js';
 import { bindField } from '@/utils/form.js';
 import ErrorBanner from '@/components/ErrorBanner.jsx';
+import FieldLabelWithHint from '@/components/FieldLabelWithHint.jsx';
 import AuthBrandPanel from '@/components/AuthBrandPanel.jsx';
 import styles from './LoginPage.module.css';
 
@@ -55,7 +56,7 @@ export default function ResetPasswordPage() {
 
           <form onSubmit={handleSubmit}>
             <div className="form-group">
-              <label htmlFor="reset-password">{t('auth.resetPassword.newPassword')}</label>
+              <FieldLabelWithHint htmlFor="reset-password" label={t('auth.resetPassword.newPassword')} hint={t('auth.passwordHint')} />
               <input
                 id="reset-password"
                 type="password"
@@ -69,7 +70,7 @@ export default function ResetPasswordPage() {
               />
             </div>
             <div className="form-group">
-              <label htmlFor="reset-confirm">{t('auth.resetPassword.confirm')}</label>
+              <FieldLabelWithHint htmlFor="reset-confirm" label={t('auth.resetPassword.confirm')} hint={t('auth.confirmPasswordHint')} />
               <input
                 id="reset-confirm"
                 type="password"
