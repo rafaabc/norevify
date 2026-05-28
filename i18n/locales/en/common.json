@@ -153,6 +153,7 @@
       "category": "Category",
       "description": "Description",
       "amount": "Amount",
+      "amountTooltip": "Calculated automatically from litres × price per litre",
       "litres": "Litres",
       "pricePerLitre": "Price per litre",
       "odometer": "Odometer (km)"

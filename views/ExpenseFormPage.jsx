@@ -101,12 +101,12 @@ export default function ExpenseFormPage() {
 
         <form onSubmit={handleSubmit}>
           <div className="form-group">
-            <label htmlFor="field-date">Date</label>
+            <label htmlFor="field-date">{t('expenses.fields.date')}</label>
             <DateField id="field-date" value={form.date} onChange={handleChange} />
           </div>
 
           <div className="form-group">
-            <label htmlFor="field-category">Category</label>
+            <label htmlFor="field-category">{t('expenses.fields.category')}</label>
             <CategorySelect id="field-category" value={form.category} onChange={handleChange} />
           </div>
 

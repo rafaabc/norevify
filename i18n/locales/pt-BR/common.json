@@ -153,6 +153,7 @@
       "category": "Categoria",
       "description": "Descrição",
       "amount": "Valor",
+      "amountTooltip": "Calculado automaticamente a partir de litros × preço por litro",
       "litres": "Litros",
       "pricePerLitre": "Preço por litro",
       "odometer": "Hodômetro (km)"
