@@ -43,7 +43,7 @@ export class ExpenseFormPage extends BasePage {
   }
 
   get computedAmountDisplay(): Locator {
-    return this.page.locator('.form-group div[style]');
+    return this.page.locator('#field-amount');
   }
 
   get litresInput(): Locator {

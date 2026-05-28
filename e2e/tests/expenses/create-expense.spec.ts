@@ -37,7 +37,7 @@ test('[TC-03-06] should display computed amount for Fuel and create expense with
   await formPage.fillLitres('40');
   await formPage.fillPricePerLitre('5.5');
 
-  await expect(formPage.computedAmountDisplay).toContainText('220.00');
+  await expect(formPage.computedAmountDisplay).toHaveValue('220.00');
 
   await formPage.submit();
 
