@@ -50,7 +50,7 @@ export default function FuelFields({ litres, pricePerLitre, odometer = '', onCha
           placeholder="e.g. 12500"
         />
       </div>
-      <div className="form-group">
+      <div className="form-group" title={t('expenses.fields.amountTooltip')}>
         <label htmlFor="field-amount">{t('expenses.fields.amount')}</label>
         <input
           id="field-amount"
@@ -58,7 +58,6 @@ export default function FuelFields({ litres, pricePerLitre, odometer = '', onCha
           value={computed ?? ''}
           disabled
           readOnly
-          title={t('expenses.fields.amountTooltip')}
           onChange={() => {}}
         />
       </div>

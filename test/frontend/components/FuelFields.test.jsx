@@ -12,11 +12,11 @@ describe('FuelFields', () => {
     expect(screen.getByLabelText('expenses.fields.odometer')).toBeInTheDocument();
   });
 
-  it('should render amount field as disabled with tooltip when inputs are incomplete', () => {
+  it('should render amount field as disabled with tooltip on wrapper when inputs are incomplete', () => {
     render(<FuelFields litres="" pricePerLitre="5" onChange={vi.fn()} />);
     const amount = screen.getByLabelText('expenses.fields.amount');
     expect(amount).toBeDisabled();
-    expect(amount).toHaveAttribute('title', 'expenses.fields.amountTooltip');
+    expect(amount.closest('.form-group')).toHaveAttribute('title', 'expenses.fields.amountTooltip');
     expect(amount).toHaveValue(null);
   });
 
