@@ -1,20 +1,24 @@
 'use client';
 import { useTranslation } from 'react-i18next';
 import FieldLabelWithHint from '@/components/FieldLabelWithHint.jsx';
+import NumericInput from '@/components/NumericInput.jsx';
 
 export default function FuelFields({ litres, pricePerLitre, odometer = '', onChange }) {
-  const { t } = useTranslation();
-  const computed = (parseFloat(litres) > 0 && parseFloat(pricePerLitre) > 0)
-    ? (Math.round(parseFloat(litres) * parseFloat(pricePerLitre) * 100) / 100).toFixed(2)
+  const { t, i18n } = useTranslation();
+  const computedRaw = (parseFloat(litres) > 0 && parseFloat(pricePerLitre) > 0)
+    ? Math.round(parseFloat(litres) * parseFloat(pricePerLitre) * 100) / 100
+    : null;
+  const locale = i18n.language === 'en' ? 'en-US' : 'pt-BR';
+  const computed = computedRaw !== null
+    ? computedRaw.toLocaleString(locale, { minimumFractionDigits: 2, maximumFractionDigits: 2 })
     : null;
 
   return (
     <>
       <div className="form-group">
         <FieldLabelWithHint htmlFor="field-litres" label={t('expenses.fields.litres')} hint={t('expenses.fields.decimalHint')} />
-        <input
+        <NumericInput
           id="field-litres"
-          type="number"
           name="litres"
           value={litres}
           onChange={onChange}
@@ -26,9 +30,8 @@ export default function FuelFields({ litres, pricePerLitre, odometer = '', onCha
       </div>
       <div className="form-group">
         <FieldLabelWithHint htmlFor="field-price-per-litre" label={t('expenses.fields.pricePerLitre')} hint={t('expenses.fields.decimalHint')} />
-        <input
+        <NumericInput
           id="field-price-per-litre"
-          type="number"
           name="price_per_litre"
           value={pricePerLitre}
           onChange={onChange}
@@ -55,7 +58,7 @@ export default function FuelFields({ litres, pricePerLitre, odometer = '', onCha
         <FieldLabelWithHint htmlFor="field-amount" label={t('expenses.fields.amount')} hint={t('expenses.fields.amountTooltip')} />
         <input
           id="field-amount"
-          type="number"
+          type="text"
           value={computed ?? ''}
           disabled
           readOnly
