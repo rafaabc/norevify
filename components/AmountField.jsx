@@ -1,15 +1,15 @@
 'use client';
 import { useTranslation } from 'react-i18next';
 import FieldLabelWithHint from '@/components/FieldLabelWithHint.jsx';
+import NumericInput from '@/components/NumericInput.jsx';
 
 export default function AmountField({ value, onChange }) {
   const { t } = useTranslation();
   return (
     <div className="form-group">
       <FieldLabelWithHint htmlFor="field-amount" label={t('expenses.fields.amount')} hint={t('expenses.fields.decimalHint')} />
-      <input
+      <NumericInput
         id="field-amount"
-        type="number"
         name="amount"
         value={value}
         onChange={onChange}

@@ -1,6 +1,7 @@
 'use client';
 import { useTranslation } from 'react-i18next';
 import FieldLabelWithHint from '@/components/FieldLabelWithHint.jsx';
+import NumericInput from '@/components/NumericInput.jsx';
 
 export default function FuelFields({ litres, pricePerLitre, odometer = '', onChange }) {
   const { t, i18n } = useTranslation();
@@ -16,9 +17,8 @@ export default function FuelFields({ litres, pricePerLitre, odometer = '', onCha
     <>
       <div className="form-group">
         <FieldLabelWithHint htmlFor="field-litres" label={t('expenses.fields.litres')} hint={t('expenses.fields.decimalHint')} />
-        <input
+        <NumericInput
           id="field-litres"
-          type="number"
           name="litres"
           value={litres}
           onChange={onChange}
@@ -30,9 +30,8 @@ export default function FuelFields({ litres, pricePerLitre, odometer = '', onCha
       </div>
       <div className="form-group">
         <FieldLabelWithHint htmlFor="field-price-per-litre" label={t('expenses.fields.pricePerLitre')} hint={t('expenses.fields.decimalHint')} />
-        <input
+        <NumericInput
           id="field-price-per-litre"
-          type="number"
           name="price_per_litre"
           value={pricePerLitre}
           onChange={onChange}
