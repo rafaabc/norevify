@@ -9,7 +9,7 @@ test.describe('Logout and Session Expiry', () => {
     // Set a structurally valid but cryptographically invalid JWT so
     // AuthContext treats the user as authenticated, but the backend rejects it
     const fakeToken =
-      'eyJhbGciOiJIUzI1NiJ9.eyJ1c2VybmFtZSI6InRlc3QiLCJpZCI6OTk5fQ.invalid_signature';
+      'eyJhbGciOiJIUzI1NiJ9.eyJ1c2VybmFtZSI6InRlc3QiLCJpZCI6OTk5fQ.invalid_signature'; // NOSONAR — deliberately invalid JWT for E2E test
 
     await page.addInitScript((t) => {
       localStorage.setItem('token', t);
