@@ -4,205 +4,86 @@
 
 **Live:** https://app.norevify.com
 
-## Description
-
-Norevify is a full-stack vehicle expense management application built on **Next.js App Router** — a single repo serving both the React frontend and the REST API via Route Handlers.
-
-Users can log and analyse expenses by category (fuel, maintenance, insurance, tolls, and more), set maintenance reminders triggered by date or odometer km (with optional recurrence), and view spending summaries by period.
+A full-stack vehicle expense tracker — built to practise and demonstrate production-grade Next.js development, covering the full stack from database modelling to E2E testing and CI/CD.
 
 ---
 
-## Key Features
+## Features
 
-### Expense Tracking
-
-* Log fuel, maintenance, insurance, parking, tolls, tax, and other costs
-* Filter by category, year, and month
-
-### Maintenance Reminders
-
-* Status computed as:
-  `upcoming → dueSoon (≤ 7 days or ≤ 500 km) → overdue`
-* Optional recurrence via `intervalMonths` / `intervalKm`
-
-### Odometer Tracking
-
-* Fuel expenses with an odometer value update the user's current km
-* Manual override available in Settings
-
-### Spending Summaries
-
-* Totals by category and period
-* Charts for visualization
-
-### Authentication
-
-* JWT stored in `localStorage`
-* Google Sign-In supported
-* Password recovery via email
-
-### Internationalisation
-
-* PT-BR (default) and English
-* Preference stored in `localStorage` and JWT
-
-### PWA Support
-
-* Installable on Android (Chrome) and iOS (Safari)
-* Fullscreen, offline-first
-* Auto-update toast on new deploy
-
-### Responsive Layout
-
-* Fully responsive at ≤ 640px (CSS-only)
-* Sidebar collapses to icon-only
-* Tables scroll horizontally
+- **Expense tracking** — log fuel, maintenance, insurance, tolls, and more; filter by category and period
+- **Maintenance reminders** — date- and odometer-based triggers with optional recurrence; automatic status progression (`upcoming → dueSoon → overdue`)
+- **Odometer tracking** — fuel entries update current km, which drives km-based reminder status
+- **Spending summaries** — category totals and trend charts by month and year
+- **Authentication** — email/password + Google OAuth; password recovery via email
+- **Internationalisation** — PT-BR and English; preference persisted across sessions
+- **PWA** — installable on Android and iOS; displays an update toast on new deploy
+- **Responsive** — fully usable at mobile widths via CSS-only layout
 
 ---
 
-## Dependencies
+## Tech stack
 
-* Node.js 18 or newer
-* MongoDB (self-hosted or managed)
-
----
-
-## Technologies Used
-
-* Next.js & React
-* Mongoose (MongoDB ODM)
-* jsonwebtoken & bcryptjs
-* react-i18next & i18next
-* @ducanh2912/next-pwa
-* Playwright (E2E Testing)
-* Vitest (Frontend Testing)
-* Mocha & Supertest (API Testing)
-* Node.js test runner & c8
-* Sentry & PostHog (Monitoring & Analytics)
+| Layer | Technologies |
+|---|---|
+| Frontend | Next.js 16 (App Router), React |
+| Backend | Next.js Route Handlers, Node.js |
+| Database | MongoDB (Mongoose) |
+| Auth | JWT, Google OAuth 2.0, Bcrypt |
+| Email | Resend |
+| Internationalisation | react-i18next |
+| Monitoring | Sentry, PostHog |
+| Testing | Playwright (E2E), Vitest (frontend unit), Mocha + Supertest (API), Node test runner (backend unit) |
+| CI | GitHub Actions |
+| Hosting | Vercel Fluid Compute |
 
 ---
 
-## Installation and Setup
+## Screenshots
 
-### 1. Clone and Install
+> *(Add screenshots here)*
+
+---
+
+## Architecture
+
+Single-repo Next.js app — React frontend and REST API in the same codebase, deployed to Vercel Fluid Compute as a monolith. Route Handlers are the API layer; all business logic lives in `lib/services/` and is covered by four test layers: backend unit → integration → API → E2E.
+
+---
+
+## Quick start
+
+**Prerequisites:** Node.js 18+, MongoDB (local or Atlas)
 
 ```bash
 git clone https://github.com/rafaabc/norevify.git
 cd norevify
 npm install
+cp .env.example .env   # fill in the required values
+npm run dev            # http://localhost:3000
 ```
 
----
+Swagger UI (API docs): `http://localhost:3000/api-docs`
 
-### 2. Configure Environment Variables
-
-Copy `.env.example` to `.env` and fill the required values.
-
-⚠️ Do not commit secrets or credentials.
-
-#### Common variables:
-
-```
-PORT                         # Server port (e.g. 3000)
-JWT_SECRET                   # JWT signing key
-JWT_EXPIRES_IN               # Token expiry (e.g. 1h)
-BASE_URL / FRONTEND_URL      # Used in emails/links
-MONGODB_URI                  # MongoDB connection string
-RESEND_API_KEY               # Email provider API key
-RESET_PASSWORD_EXPIRES_IN    # Reset token lifetime (default 15m)
-GOOGLE_CLIENT_ID
-NEXT_PUBLIC_GOOGLE_CLIENT_ID
-```
-
-For local development, you can:
-
-* Run a local MongoDB instance
-* Use a managed cloud database
-
----
-
-### 3. Start the Server
+### Run tests
 
 ```bash
-npm run dev      # Development (Turbo) → http://localhost:3000
-npm run build    # Production build
-npm start        # Production server
+npm run test:unit         # backend + frontend unit tests
+npm run test:integration  # service-layer integration tests
+npm run test:api          # API tests (requires running server)
+npm run test:e2e          # Playwright E2E (requires running server)
 ```
 
-📄 Swagger UI available at:
-`http://localhost:3000/api-docs`
-
----
-
-### 4. Run Tests
-
-Backend tests use in-memory MongoDB.
-Frontend tests use Vitest.
-API and E2E require a running server.
-
-| Command                             | Scope                              |
-| ----------------------------------- | ---------------------------------- |
-| `npm run test:unit`                 | Frontend + Backend unit tests      |
-| `npm run test:unit:backend`         | Backend unit tests                 |
-| `npm run test:unit:frontend`        | Frontend unit tests                |
-| `npm run test:unit:coverage`        | Coverage report                    |
-| `npm run test:integration`          | Integration tests                  |
-| `npm run test:integration:coverage` | Integration + HTML report          |
-| `npm run test:backend`              | Backend unit + integration         |
-| `npm run test:api`                  | API tests *(server required)*      |
-| `npm run test:api:report`           | API + HTML report                  |
-| `npm run test:e2e`                  | Playwright E2E *(server required)* |
-
-### CI Pipeline
+### CI pipeline
 
 ```
-test-unit → test-integration → test-api → e2e
+lint → audit → test-unit → test-integration → test-api → e2e
 ```
-
----
-
-## File Structure
-
-```
-norevify/
-├── app/
-│   ├── (auth)/          # Public pages
-│   ├── (app)/           # Protected pages
-│   └── api/             # Route Handlers
-├── lib/
-│   ├── db.mjs           # DB connection
-│   ├── auth.mjs         # Auth helper
-│   ├── models/          # Schemas
-│   ├── services/        # Business logic
-│   └── constants/       # Shared enums
-├── components/          # UI components
-├── views/               # Page components
-├── context/             # React context
-├── hooks/               # Custom hooks
-├── services/            # Client API layer
-├── i18n/                # Localization
-├── styles/              # CSS
-├── e2e/                 # E2E tests
-├── test/
-│   ├── helpers/
-│   ├── unit/
-│   ├── integration/
-│   └── api/
-└── .env.example
-```
-
----
-
-## Contributing
-
-Contributions, issues, and feature requests are welcome!
-Feel free to check the issues page.
 
 ---
 
 ## Author
 
-**rafaabc**
+**Rafael** — [LinkedIn](https://linkedin.com/in/your-profile) · [GitHub](https://github.com/rafaabc)
 
 ---
 
