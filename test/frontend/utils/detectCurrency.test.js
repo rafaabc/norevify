@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
+import { describe, it, expect, afterEach, vi } from 'vitest';
 
 vi.mock('@/lib/constants/currencies.js', () => ({
   DEFAULT_CURRENCY: 'BRL',
@@ -34,11 +34,11 @@ describe('detectCurrency', () => {
   it.each([
     ['pt-BR', 'BRL'],
     ['en-US', 'USD'],
-    ['de',    'EUR'],
+    ['de', 'EUR'],
     ['fr-FR', 'EUR'],
     ['en-GB', 'GBP'],
     ['ja-JP', 'JPY'],
-    ['sv',    'SEK'],
+    ['sv', 'SEK'],
     ['en-CA', 'CAD'],
     ['xx-XX', 'BRL'],
   ])('should return %s for %s locale', (lang, expected) => {

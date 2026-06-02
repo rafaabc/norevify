@@ -5,17 +5,21 @@ import DeleteConfirmDialog from '@/components/DeleteConfirmDialog';
 vi.mock('react-i18next', () => ({ useTranslation: () => ({ t: (k) => k }) }));
 
 describe('DeleteConfirmDialog', () => {
-  beforeEach(() => { vi.clearAllMocks(); });
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
 
   it('should render nothing when open=false', () => {
     const { container } = render(
-      <DeleteConfirmDialog open={false} message="Sure?" onConfirm={vi.fn()} onCancel={vi.fn()} />
+      <DeleteConfirmDialog open={false} message="Sure?" onConfirm={vi.fn()} onCancel={vi.fn()} />,
     );
     expect(container.firstChild).toBeNull();
   });
 
   it('should render message when open=true', () => {
-    render(<DeleteConfirmDialog open message="Delete this?" onConfirm={vi.fn()} onCancel={vi.fn()} />);
+    render(
+      <DeleteConfirmDialog open message="Delete this?" onConfirm={vi.fn()} onCancel={vi.fn()} />,
+    );
     expect(screen.getByText('Delete this?')).toBeInTheDocument();
   });
 
@@ -42,7 +46,7 @@ describe('DeleteConfirmDialog', () => {
         messages={['Are you sure?', 'Really sure?']}
         onConfirm={onConfirm}
         onCancel={vi.fn()}
-      />
+      />,
     );
     expect(screen.getByText('Are you sure?')).toBeInTheDocument();
     fireEvent.click(screen.getByText('Continue'));
@@ -61,7 +65,7 @@ describe('DeleteConfirmDialog', () => {
         messages={['Step 1', 'Step 2']}
         onConfirm={onConfirm}
         onCancel={vi.fn()}
-      />
+      />,
     );
     fireEvent.click(screen.getByText('Continue'));
     expect(screen.getByText('Step 2')).toBeInTheDocument();
@@ -72,7 +76,7 @@ describe('DeleteConfirmDialog', () => {
         messages={['Step 1', 'Step 2']}
         onConfirm={onConfirm}
         onCancel={vi.fn()}
-      />
+      />,
     );
     rerender(
       <DeleteConfirmDialog
@@ -81,7 +85,7 @@ describe('DeleteConfirmDialog', () => {
         messages={['Step 1', 'Step 2']}
         onConfirm={onConfirm}
         onCancel={vi.fn()}
-      />
+      />,
     );
     expect(screen.getByText('Step 1')).toBeInTheDocument();
   });

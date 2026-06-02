@@ -16,7 +16,8 @@ import styles from './SettingsPage.module.css';
 export default function SettingsPage() {
   const { t } = useTranslation();
   const router = useRouter();
-  const { username, currency, updateCurrency, language, updateLanguage, emailVerified, login, logout } = useAuth();
+  const { username, currency, updateCurrency, language, updateLanguage, emailVerified, logout } =
+    useAuth();
   const [selected, setSelected] = useState(currency);
   const [selectedLang, setSelectedLang] = useState(language);
 
@@ -44,7 +45,10 @@ export default function SettingsPage() {
   const [exportError, setExportError] = useState('');
 
   useEffect(() => {
-    authApi.getProviders().then(setProviders).catch(() => {});
+    authApi
+      .getProviders()
+      .then(setProviders)
+      .catch(() => {});
   }, []);
 
   async function handleSubmit(e) {
@@ -104,7 +108,9 @@ export default function SettingsPage() {
     setDeleteLoading(true);
     setDeleteError('');
     try {
-      await authApi.deleteAccount(providers?.hasPassword ? { password: deletePassword } : undefined);
+      await authApi.deleteAccount(
+        providers?.hasPassword ? { password: deletePassword } : undefined,
+      );
       logout();
       router.push('/login?deleted=1');
     } catch (err) {
@@ -120,7 +126,9 @@ export default function SettingsPage() {
         {t('settings.loggedInAs')} <strong style={{ color: 'var(--text)' }}>{username}</strong>
       </p>
 
-      {currencyAction.success && <ErrorBanner message={t('settings.currency.success')} type="success" />}
+      {currencyAction.success && (
+        <ErrorBanner message={t('settings.currency.success')} type="success" />
+      )}
       {currencyAction.error && <ErrorBanner message={currencyAction.error} />}
 
       <form onSubmit={handleSubmit} style={{ maxWidth: '400px' }}>
@@ -129,21 +137,32 @@ export default function SettingsPage() {
           <select
             id="settings-currency"
             value={selected}
-            onChange={(e) => { setSelected(e.target.value); currencyAction.setSuccess(false); }}
+            onChange={(e) => {
+              setSelected(e.target.value);
+              currencyAction.setSuccess(false);
+            }}
           >
             {SUPPORTED_CURRENCIES.map(({ code, label }) => (
-              <option key={code} value={code}>{label}</option>
+              <option key={code} value={code}>
+                {label}
+              </option>
             ))}
           </select>
         </div>
-        <button type="submit" className="btn-primary" disabled={currencyAction.loading || selected === currency}>
+        <button
+          type="submit"
+          className="btn-primary"
+          disabled={currencyAction.loading || selected === currency}
+        >
           {currencyAction.loading ? t('common.saving') : t('common.save')}
         </button>
       </form>
 
       <hr style={{ margin: '2rem 0', borderColor: 'var(--border)' }} />
 
-      {langAction.success && <ErrorBanner message={t('settings.language.success')} type="success" />}
+      {langAction.success && (
+        <ErrorBanner message={t('settings.language.success')} type="success" />
+      )}
       {langAction.error && <ErrorBanner message={langAction.error} />}
 
       <form onSubmit={handleLangSubmit} style={{ maxWidth: '400px' }}>
@@ -152,14 +171,21 @@ export default function SettingsPage() {
           <select
             id="settings-language"
             value={selectedLang}
-            onChange={(e) => { setSelectedLang(e.target.value); langAction.setSuccess(false); }}
+            onChange={(e) => {
+              setSelectedLang(e.target.value);
+              langAction.setSuccess(false);
+            }}
             disabled={langAction.loading}
           >
             <option value="en">English</option>
             <option value="pt-BR">Português (Brasil)</option>
           </select>
         </div>
-        <button type="submit" className="btn-primary" disabled={langAction.loading || selectedLang === language}>
+        <button
+          type="submit"
+          className="btn-primary"
+          disabled={langAction.loading || selectedLang === language}
+        >
           {langAction.loading ? t('common.saving') : t('common.save')}
         </button>
       </form>
@@ -167,7 +193,9 @@ export default function SettingsPage() {
       <hr style={{ margin: '2rem 0', borderColor: 'var(--border)' }} />
 
       <form onSubmit={handleOdoSubmit} style={{ maxWidth: '400px' }}>
-        <h2 style={{ fontSize: '1rem', fontWeight: 600, marginBottom: '1rem' }}>{t('vehicle.heading')}</h2>
+        <h2 style={{ fontSize: '1rem', fontWeight: 600, marginBottom: '1rem' }}>
+          {t('vehicle.heading')}
+        </h2>
         {odoAction.success && <ErrorBanner type="success" message={t('vehicle.saveSuccess')} />}
         {odoAction.error && <ErrorBanner message={odoAction.error} />}
         <div className="form-group">
@@ -189,15 +217,19 @@ export default function SettingsPage() {
 
       <hr style={{ margin: '2rem 0', borderColor: 'var(--border)' }} />
 
-      <h2 style={{ fontSize: '1rem', fontWeight: 600, marginBottom: '1rem' }}>{t('settings.linkedAccounts')}</h2>
+      <h2 style={{ fontSize: '1rem', fontWeight: 600, marginBottom: '1rem' }}>
+        {t('settings.linkedAccounts')}
+      </h2>
 
       {linkSuccess && <ErrorBanner message={linkSuccess} type="success" />}
       {linkError && <ErrorBanner message={linkError} />}
 
-      {providers && (
-        googleLinked ? (
+      {providers &&
+        (googleLinked ? (
           <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', flexWrap: 'wrap' }}>
-            <span style={{ color: 'var(--muted)', fontSize: '0.875rem' }}>{t('settings.googleConnected')}</span>
+            <span style={{ color: 'var(--muted)', fontSize: '0.875rem' }}>
+              {t('settings.googleConnected')}
+            </span>
             {providers.hasPassword ? (
               <button
                 className={styles.settingsLink}
@@ -219,21 +251,27 @@ export default function SettingsPage() {
               mode="link"
               onSuccess={() => {
                 setLinkSuccess(t('settings.googleConnected'));
-                setProviders((p) => ({ ...p, authProviders: [...(p?.authProviders ?? []), 'google'] }));
+                setProviders((p) => ({
+                  ...p,
+                  authProviders: [...(p?.authProviders ?? []), 'google'],
+                }));
               }}
               onError={setLinkError}
             />
           </div>
-        )
-      )}
+        ))}
 
       <hr style={{ margin: '2rem 0', borderColor: 'var(--border)' }} />
 
       {emailVerified === false && (
         <>
           <hr style={{ margin: '2rem 0', borderColor: 'var(--border)' }} />
-          <h2 style={{ fontSize: '1rem', fontWeight: 600, marginBottom: '1rem' }}>{t('auth.verifyEmail.heading')}</h2>
-          {resendAction.success && <ErrorBanner message={t('auth.verifyEmail.resendSuccess')} type="success" />}
+          <h2 style={{ fontSize: '1rem', fontWeight: 600, marginBottom: '1rem' }}>
+            {t('auth.verifyEmail.heading')}
+          </h2>
+          {resendAction.success && (
+            <ErrorBanner message={t('auth.verifyEmail.resendSuccess')} type="success" />
+          )}
           {resendAction.error && <ErrorBanner message={resendAction.error} />}
           <button
             className="btn-secondary"
@@ -253,7 +291,9 @@ export default function SettingsPage() {
       </Link>
 
       <hr style={{ margin: '2rem 0', borderColor: 'var(--border)' }} />
-      <h2 style={{ fontSize: '1rem', fontWeight: 600, marginBottom: '1rem' }}>{t('settings.myData.heading')}</h2>
+      <h2 style={{ fontSize: '1rem', fontWeight: 600, marginBottom: '1rem' }}>
+        {t('settings.myData.heading')}
+      </h2>
       <p style={{ color: 'var(--muted)', fontSize: '0.875rem', marginBottom: '1rem' }}>
         {t('settings.myData.description')}
       </p>
@@ -301,18 +341,33 @@ export default function SettingsPage() {
                 />
               </div>
             )}
-            {deleteError && <p style={{ color: 'var(--danger, #ef4444)', fontSize: '0.875rem', marginBottom: '1rem' }}>{deleteError}</p>}
+            {deleteError && (
+              <p
+                style={{
+                  color: 'var(--danger, #ef4444)',
+                  fontSize: '0.875rem',
+                  marginBottom: '1rem',
+                }}
+              >
+                {deleteError}
+              </p>
+            )}
             <div style={{ display: 'flex', gap: '1rem', justifyContent: 'flex-end' }}>
               <button className="btn-secondary" onClick={() => setShowDeleteModal(false)}>
                 {t('common.cancel')}
               </button>
               <button
                 className="btn-primary"
-                style={{ background: 'var(--danger, #ef4444)', borderColor: 'var(--danger, #ef4444)' }}
+                style={{
+                  background: 'var(--danger, #ef4444)',
+                  borderColor: 'var(--danger, #ef4444)',
+                }}
                 onClick={handleDeleteAccount}
                 disabled={deleteLoading || (providers?.hasPassword && !deletePassword)}
               >
-                {deleteLoading ? t('settings.deleteAccount.deleting') : t('settings.deleteAccount.confirm')}
+                {deleteLoading
+                  ? t('settings.deleteAccount.deleting')
+                  : t('settings.deleteAccount.confirm')}
               </button>
             </div>
           </div>

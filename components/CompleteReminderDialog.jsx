@@ -30,7 +30,10 @@ export default function CompleteReminderDialog({ open, reminder, onSubmit, onCan
 
   function previewText() {
     if (previewNextDate && previewNextKm !== null)
-      return t('reminders.actions.completePreviewBoth', { nextDate: previewNextDate, nextKm: previewNextKm });
+      return t('reminders.actions.completePreviewBoth', {
+        nextDate: previewNextDate,
+        nextKm: previewNextKm,
+      });
     if (previewNextDate)
       return t('reminders.actions.completePreviewDate', { nextDate: previewNextDate });
     if (previewNextKm !== null)
@@ -50,7 +53,11 @@ export default function CompleteReminderDialog({ open, reminder, onSubmit, onCan
       <form className="modal" onSubmit={handleSubmit}>
         <h3>{t('reminders.actions.complete')}</h3>
         <div className="form-group">
-          <FieldLabelWithHint htmlFor="complete-km" label={t('reminders.actions.completedKm')} hint={t('reminders.actions.completedKmHint')} />
+          <FieldLabelWithHint
+            htmlFor="complete-km"
+            label={t('reminders.actions.completedKm')}
+            hint={t('reminders.actions.completedKmHint')}
+          />
           <input
             id="complete-km"
             type="number"

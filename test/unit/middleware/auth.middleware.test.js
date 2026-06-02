@@ -15,7 +15,7 @@ before(async () => {
 
 function makeReq(authHeader) {
   return {
-    headers: { get: (name) => name === 'authorization' ? authHeader : null },
+    headers: { get: (name) => (name === 'authorization' ? authHeader : null) },
   };
 }
 

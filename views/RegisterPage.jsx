@@ -16,7 +16,12 @@ import styles from './LoginPage.module.css';
 export default function RegisterPage() {
   const { t } = useTranslation();
   const router = useRouter();
-  const [form, setForm] = useState({ username: '', email: '', password: '', currency: detectCurrency() });
+  const [form, setForm] = useState({
+    username: '',
+    email: '',
+    password: '',
+    currency: detectCurrency(),
+  });
   const [consented, setConsented] = useState(false);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
@@ -52,32 +57,76 @@ export default function RegisterPage() {
 
           <GoogleSignInButton mode="register" onError={setError} />
 
-          <div className={styles.divider}><span>{t('common.or')}</span></div>
+          <div className={styles.divider}>
+            <span>{t('common.or')}</span>
+          </div>
 
           <form onSubmit={handleSubmit}>
             <div className="form-group">
-              <FieldLabelWithHint htmlFor="reg-username" label={t('auth.register.username')} hint={t('auth.register.usernameHint')} />
-              <input id="reg-username" name="username" value={form.username} onChange={handleChange} required autoFocus
-                minLength={3} maxLength={50} pattern="[a-zA-Z0-9_]+" />
+              <FieldLabelWithHint
+                htmlFor="reg-username"
+                label={t('auth.register.username')}
+                hint={t('auth.register.usernameHint')}
+              />
+              <input
+                id="reg-username"
+                name="username"
+                value={form.username}
+                onChange={handleChange}
+                required
+                autoFocus
+                minLength={3}
+                maxLength={50}
+                pattern="[a-zA-Z0-9_]+"
+              />
             </div>
             <div className="form-group">
               <label htmlFor="reg-email">{t('auth.register.email')}</label>
-              <input id="reg-email" type="email" name="email" value={form.email} onChange={handleChange} required />
+              <input
+                id="reg-email"
+                type="email"
+                name="email"
+                value={form.email}
+                onChange={handleChange}
+                required
+              />
             </div>
             <div className="form-group">
-              <FieldLabelWithHint htmlFor="reg-password" label={t('auth.register.password')} hint={t('auth.passwordHint')} />
-              <input id="reg-password" type="password" name="password" value={form.password} onChange={handleChange} required
-                minLength={8} maxLength={128} />
+              <FieldLabelWithHint
+                htmlFor="reg-password"
+                label={t('auth.register.password')}
+                hint={t('auth.passwordHint')}
+              />
+              <input
+                id="reg-password"
+                type="password"
+                name="password"
+                value={form.password}
+                onChange={handleChange}
+                required
+                minLength={8}
+                maxLength={128}
+              />
             </div>
             <div className="form-group">
               <label htmlFor="reg-currency">{t('auth.register.currency')}</label>
-              <select id="reg-currency" name="currency" value={form.currency} onChange={handleChange}>
+              <select
+                id="reg-currency"
+                name="currency"
+                value={form.currency}
+                onChange={handleChange}
+              >
                 {SUPPORTED_CURRENCIES.map(({ code, label }) => (
-                  <option key={code} value={code}>{label}</option>
+                  <option key={code} value={code}>
+                    {label}
+                  </option>
                 ))}
               </select>
             </div>
-            <div className="form-group" style={{ display: 'flex', alignItems: 'flex-start', gap: '0.5rem' }}>
+            <div
+              className="form-group"
+              style={{ display: 'flex', alignItems: 'flex-start', gap: '0.5rem' }}
+            >
               <input
                 id="reg-consent"
                 type="checkbox"
@@ -85,14 +134,27 @@ export default function RegisterPage() {
                 onChange={(e) => setConsented(e.target.checked)}
                 style={{ marginTop: '0.25rem', flexShrink: 0 }}
               />
-              <label htmlFor="reg-consent" style={{ cursor: 'pointer', fontSize: '0.875rem', lineHeight: 1.4 }}>
-                {t('auth.register.consentLabel')} {' '}
-                <Link href="/privacy" style={{ color: 'var(--primary)' }}>{t('auth.register.privacyPolicy')}</Link>
-                {' '}{t('auth.register.consentAnd')}{' '}
-                <Link href="/terms" style={{ color: 'var(--primary)' }}>{t('auth.register.termsOfService')}</Link>.
+              <label
+                htmlFor="reg-consent"
+                style={{ cursor: 'pointer', fontSize: '0.875rem', lineHeight: 1.4 }}
+              >
+                {t('auth.register.consentLabel')}{' '}
+                <Link href="/privacy" style={{ color: 'var(--primary)' }}>
+                  {t('auth.register.privacyPolicy')}
+                </Link>{' '}
+                {t('auth.register.consentAnd')}{' '}
+                <Link href="/terms" style={{ color: 'var(--primary)' }}>
+                  {t('auth.register.termsOfService')}
+                </Link>
+                .
               </label>
             </div>
-            <button type="submit" className="btn-primary" style={{ width: '100%' }} disabled={loading || !consented}>
+            <button
+              type="submit"
+              className="btn-primary"
+              style={{ width: '100%' }}
+              disabled={loading || !consented}
+            >
               {loading ? t('auth.register.submitting') : t('auth.register.submit')}
             </button>
           </form>

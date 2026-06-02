@@ -12,7 +12,7 @@
 .filterForm {
   display: flex;
   flex-wrap: wrap;
-  gap: .75rem;
+  gap: 0.75rem;
   align-items: flex-end;
 }
 
@@ -31,18 +31,23 @@
 }
 
 @media (max-width: 800px) {
-  .chartsGrid { grid-template-columns: 1fr; }
+  .chartsGrid {
+    grid-template-columns: 1fr;
+  }
 }
 
 @media (max-width: 640px) {
-  .filterField { min-width: 100%; max-width: 100%; }
+  .filterField {
+    min-width: 100%;
+    max-width: 100%;
+  }
 }
 
 .sectionTitle {
   font-family: var(--font-sans);
-  font-size: .75rem;
+  font-size: 0.75rem;
   font-weight: 600;
-  letter-spacing: .07em;
+  letter-spacing: 0.07em;
   text-transform: uppercase;
   color: var(--muted);
   margin-bottom: var(--space-4);
@@ -68,9 +73,9 @@
 
 .pivotSummary::before {
   content: '▸';
-  font-size: .8rem;
+  font-size: 0.8rem;
   color: var(--muted);
-  transition: transform .15s;
+  transition: transform 0.15s;
 }
 
 details[open] .pivotSummary::before {
@@ -85,24 +90,30 @@ details[open] .pivotSummary::before {
   color: var(--primary);
 }
 
-.pivotMobile { display: none; }
+.pivotMobile {
+  display: none;
+}
 
 @media (max-width: 640px) {
-  .pivotDesktop { display: none; }
-  .pivotMobile  { display: block; }
+  .pivotDesktop {
+    display: none;
+  }
+  .pivotMobile {
+    display: block;
+  }
 }
 
 /* ── Category bars (mobile breakdown) ────────── */
 .catBars {
   display: flex;
   flex-direction: column;
-  gap: .875rem;
+  gap: 0.875rem;
 }
 
 .catBarRow {
   display: flex;
   flex-direction: column;
-  gap: .3rem;
+  gap: 0.3rem;
 }
 
 .catBarMeta {
@@ -113,7 +124,7 @@ details[open] .pivotSummary::before {
 
 .catBarValue {
   font-family: var(--font-mono);
-  font-size: .82rem;
+  font-size: 0.82rem;
   color: var(--text-2);
 }
 
@@ -128,22 +139,22 @@ details[open] .pivotSummary::before {
   height: 100%;
   border-radius: 99px;
   background: var(--cat-color, var(--primary));
-  transition: width .3s ease;
+  transition: width 0.3s ease;
 }
 
 .catBarTotal {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding-top: .5rem;
+  padding-top: 0.5rem;
   border-top: 1px solid var(--border);
-  font-size: .875rem;
+  font-size: 0.875rem;
   font-weight: 600;
   color: var(--primary);
 }
 
 .catBarTotal .catBarValue {
-  font-size: .875rem;
+  font-size: 0.875rem;
   color: var(--primary);
 }
 
@@ -153,13 +164,13 @@ details[open] .pivotSummary::before {
   background: var(--surface-2) !important;
   color: var(--primary);
   font-family: var(--font-mono);
-  font-size: .825rem;
+  font-size: 0.825rem;
   font-weight: 600;
 }
 
 .totalRow td:first-child {
   font-family: var(--font-sans);
-  font-size: .95rem;
+  font-size: 0.95rem;
   font-weight: 700;
   letter-spacing: -0.01em;
 }

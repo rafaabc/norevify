@@ -1,7 +1,15 @@
 'use strict';
 
 const jwt = require('jsonwebtoken');
-const { request, expect, BASE_URL, getToken, getUser, uniqueUsername, registerAndTrack } = require('../base/api-base');
+const {
+  request,
+  expect,
+  BASE_URL,
+  getToken,
+  getUser,
+  uniqueUsername,
+  registerAndTrack,
+} = require('../base/api-base');
 const fixtures = require('../fixtures/auth.json');
 
 const VALID_CONSENT = { policyVersion: '2026-05-20', acceptedAt: new Date().toISOString() };
@@ -20,7 +28,6 @@ function exactUsername(len) {
 
 describe('US-01 - User Registration', () => {
   describe('POST /api/auth/register', () => {
-
     it('[TC-01-01] should return 201 with id and username when credentials are valid', async () => {
       const res = await registerAndTrack(uniqueUsername('tc0101'), 'Password1');
 
@@ -35,7 +42,12 @@ describe('US-01 - User Registration', () => {
 
       const res = await request(BASE_URL)
         .post('/api/auth/register')
-        .send({ username, password: 'Password1', email: `${username}_dup@test.com`, consent: VALID_CONSENT });
+        .send({
+          username,
+          password: 'Password1',
+          email: `${username}_dup@test.com`,
+          consent: VALID_CONSENT,
+        });
 
       expect(res.status).to.equal(409);
     });
@@ -46,26 +58,35 @@ describe('US-01 - User Registration', () => {
 
       const res = await request(BASE_URL)
         .post('/api/auth/register')
-        .send({ username, password: 'Password1', email: `${username}_dup@test.com`, consent: VALID_CONSENT });
+        .send({
+          username,
+          password: 'Password1',
+          email: `${username}_dup@test.com`,
+          consent: VALID_CONSENT,
+        });
 
       expect(res.body).to.have.property('message').that.is.a('string');
     });
 
     // Parametrized invalid registration cases (TC-01-04, 05, 07, 09, 11, 12, 14, 16)
-    fixtures.invalidRegistrations.forEach(({ tcId, description, body, usernameLength, password, expectedStatus, expectedMessage }) => {
-      it(`[${tcId}] should return ${expectedStatus} when ${description}`, async () => {
-        const payload = body || { username: exactUsername(usernameLength), password, email: 'test@example.com' };
+    fixtures.invalidRegistrations.forEach(
+      ({ tcId, description, body, usernameLength, password, expectedStatus, expectedMessage }) => {
+        it(`[${tcId}] should return ${expectedStatus} when ${description}`, async () => {
+          const payload = body || {
+            username: exactUsername(usernameLength),
+            password,
+            email: 'test@example.com',
+          };
 
-        const res = await request(BASE_URL)
-          .post('/api/auth/register')
-          .send(payload);
+          const res = await request(BASE_URL).post('/api/auth/register').send(payload);
 
-        expect(res.status).to.equal(expectedStatus);
-        if (expectedMessage) {
-          expect(res.body).to.have.property('message', expectedMessage);
-        }
-      });
-    });
+          expect(res.status).to.equal(expectedStatus);
+          if (expectedMessage) {
+            expect(res.body).to.have.property('message', expectedMessage);
+          }
+        });
+      },
+    );
 
     it('[TC-01-08] should return 201 when password has exactly 8 characters', async () => {
       const res = await registerAndTrack(uniqueUsername('tc0108'), 'Pass1234');
@@ -93,7 +114,10 @@ describe('US-01 - User Registration', () => {
     });
 
     it('[TC-01-17] should return 201 when password has exactly 20 characters', async () => {
-      const res = await registerAndTrack(uniqueUsername('tc0117'), 'Password1234567890ab'.slice(0, 20));
+      const res = await registerAndTrack(
+        uniqueUsername('tc0117'),
+        'Password1234567890ab'.slice(0, 20),
+      );
 
       expect(res.status).to.equal(201);
     });
@@ -104,13 +128,10 @@ describe('US-01 - User Registration', () => {
 
 describe('US-02 - User Login', () => {
   describe('POST /api/auth/login', () => {
-
     it('[TC-02-01] should return 200 and a token when credentials are valid', async () => {
       const { username, password } = getUser();
 
-      const res = await request(BASE_URL)
-        .post('/api/auth/login')
-        .send({ username, password });
+      const res = await request(BASE_URL).post('/api/auth/login').send({ username, password });
 
       expect(res.status).to.equal(200);
       expect(res.body).to.have.property('token').that.is.a('string');
@@ -139,7 +160,7 @@ describe('US-02 - User Login', () => {
       const parts = token.split('.');
 
       expect(parts).to.have.lengthOf(3);
-      parts.forEach(part => expect(part).to.match(/^[A-Za-z0-9_-]+$/));
+      parts.forEach((part) => expect(part).to.match(/^[A-Za-z0-9_-]+$/));
     });
 
     it('[TC-02-05] should issue a JWT that expires in exactly 1 hour (exp - iat = 3600)', async () => {
@@ -160,9 +181,7 @@ describe('US-02 - User Login', () => {
           .send({ username, password: 'WrongPassword!' });
       }
 
-      const res = await request(BASE_URL)
-        .post('/api/auth/login')
-        .send({ username, password });
+      const res = await request(BASE_URL).post('/api/auth/login').send({ username, password });
 
       expect(res.status).to.equal(200);
       expect(res.body).to.have.property('token');
@@ -170,11 +189,10 @@ describe('US-02 - User Login', () => {
   });
 
   describe('Authentication middleware (JWT)', () => {
-
     it('[TC-02-06] should return 401 when an expired token is presented', async () => {
       const expiredToken = jwt.sign(
         { id: 0, username: 'expired', exp: Math.floor(Date.now() / 1000) - 60 },
-        process.env.JWT_SECRET
+        process.env.JWT_SECRET,
       );
 
       const res = await request(BASE_URL)

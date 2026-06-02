@@ -8,8 +8,8 @@ export const GET = withAuth(async (req, _ctx, user) => {
   const { searchParams } = new URL(req.url);
   try {
     const result = await expensesService.getSummary(user.id, {
-      year:     searchParams.get('year'),
-      month:    searchParams.get('month'),
+      year: searchParams.get('year'),
+      month: searchParams.get('month'),
       category: searchParams.get('category'),
     });
     return NextResponse.json(result);

@@ -23,7 +23,12 @@ const future = (d) => new Date(Date.now() + d * 86400000);
 
 describe('Reminder full flow', () => {
   it('create reminder → fuel updates currentKm → status flips → complete → next exists', async () => {
-    await authService.register({ username: 'flow1', password: 'pass1234', email: 'flow1@test.com', consent: VALID_CONSENT });
+    await authService.register({
+      username: 'flow1',
+      password: 'pass1234',
+      email: 'flow1@test.com',
+      consent: VALID_CONSENT,
+    });
     const user = await userModel.findByUsername('flow1');
     const uid = user._id.toString();
 
@@ -38,12 +43,18 @@ describe('Reminder full flow', () => {
     assert.strictEqual(listed[0].status, 'upcoming');
 
     await expensesService.createExpense(uid, {
-      date: TODAY, category: 'Fuel', litres: 40, price_per_litre: 1.5, odometer: 9700,
+      date: TODAY,
+      category: 'Fuel',
+      litres: 40,
+      price_per_litre: 1.5,
+      odometer: 9700,
     });
     listed = await remindersService.listReminders(uid, { status: 'active' });
     assert.strictEqual(listed[0].status, 'dueSoon');
 
-    const result = await remindersService.completeReminder(uid, r._id.toString(), { completedKm: 10100 });
+    const result = await remindersService.completeReminder(uid, r._id.toString(), {
+      completedKm: 10100,
+    });
     assert.ok(result.next);
     assert.strictEqual(result.next.dueKm, 20100);
 

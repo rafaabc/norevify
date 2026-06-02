@@ -1,10 +1,9 @@
 'use client';
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { authApi } from '@/services/apiService.js';
 import { useAuth } from '@/context/AuthContext.jsx';
 
-/* eslint-disable react/prop-types */
 const CLIENT_ID = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID;
 
 let scriptInjected = false;
@@ -24,6 +23,24 @@ export default function GoogleSignInButton({ mode = 'login', onSuccess, onError 
   const { login } = useAuth() || {};
   const router = useRouter();
   const containerRef = useRef(null);
+
+  const handleCredential = useCallback(
+    async ({ credential }) => {
+      try {
+        if (mode === 'link') {
+          await authApi.linkGoogle({ idToken: credential });
+          onSuccess?.();
+        } else {
+          const { token } = await authApi.googleLogin({ idToken: credential });
+          login(token);
+          router.push('/');
+        }
+      } catch (err) {
+        onError?.(err.message);
+      }
+    },
+    [mode, login, router, onSuccess, onError],
+  );
 
   useEffect(() => {
     if (!CLIENT_ID) return;
@@ -63,22 +80,7 @@ export default function GoogleSignInButton({ mode = 'login', onSuccess, onError 
     }
 
     return () => clearInterval(interval);
-  }, [mode]);
-
-  async function handleCredential({ credential }) {
-    try {
-      if (mode === 'link') {
-        await authApi.linkGoogle({ idToken: credential });
-        onSuccess?.();
-      } else {
-        const { token } = await authApi.googleLogin({ idToken: credential });
-        login(token);
-        router.push('/');
-      }
-    } catch (err) {
-      onError?.(err.message);
-    }
-  }
+  }, [mode, handleCredential]);
 
   if (!CLIENT_ID) return null;
 

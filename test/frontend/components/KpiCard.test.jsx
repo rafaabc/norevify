@@ -2,9 +2,20 @@ import { describe, it, expect, vi } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import KpiCard from '@/components/KpiCard';
 
-vi.mock('@/components/charts/Sparkline.jsx', () => ({ default: () => <svg data-testid="sparkline" /> }));
+vi.mock('@/components/charts/Sparkline.jsx', () => ({
+  default: () => <svg data-testid="sparkline" />,
+}));
 vi.mock('@/components/KpiCard.module.css', () => ({
-  default: { card: 'card', header: 'header', label: 'label', subtitle: 'subtitle', value: 'value', deltaPos: 'deltaPos', deltaNeg: 'deltaNeg', spark: 'spark' },
+  default: {
+    card: 'card',
+    header: 'header',
+    label: 'label',
+    subtitle: 'subtitle',
+    value: 'value',
+    deltaPos: 'deltaPos',
+    deltaNeg: 'deltaNeg',
+    spark: 'spark',
+  },
 }));
 
 describe('KpiCard', () => {

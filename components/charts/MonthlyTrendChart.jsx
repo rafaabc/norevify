@@ -16,7 +16,10 @@ export default function MonthlyTrendChart({ data = [] }) {
   const uid = useId().replace(/:/g, '');
   const gradientId = `trend-fill-${uid}`;
 
-  if (!data.length) return <div style={{ color: 'var(--muted)', textAlign: 'center', padding: '2rem' }}>No data</div>;
+  if (!data.length)
+    return (
+      <div style={{ color: 'var(--muted)', textAlign: 'center', padding: '2rem' }}>No data</div>
+    );
 
   const formatted = data.map((d) => ({ ...d, label: monthLabel(d.month) }));
 

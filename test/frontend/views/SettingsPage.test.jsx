@@ -4,14 +4,22 @@ import SettingsPage from '@/views/SettingsPage';
 
 vi.mock('react-i18next', () => ({ useTranslation: () => ({ t: (k) => k }) }));
 vi.mock('@/views/SettingsPage.module.css', () => ({ default: {} }));
-vi.mock('@/components/GoogleSignInButton.jsx', () => ({ default: ({ onSuccess }) => <button onClick={onSuccess}>google-link</button> }));
+vi.mock('@/components/GoogleSignInButton.jsx', () => ({
+  default: ({ onSuccess }) => <button onClick={onSuccess}>google-link</button>,
+}));
 
 const mockPush = vi.fn();
 vi.mock('next/navigation', () => ({ useRouter: () => ({ push: mockPush }) }));
 
 const mockUpdateCurrency = vi.fn();
 const mockUpdateLanguage = vi.fn();
-let mockAuthState = { username: 'alice', currency: 'BRL', language: 'en', updateCurrency: null, updateLanguage: null };
+let mockAuthState = {
+  username: 'alice',
+  currency: 'BRL',
+  language: 'en',
+  updateCurrency: null,
+  updateLanguage: null,
+};
 let mockEmailVerified = true;
 const mockLogout = vi.fn();
 
@@ -44,7 +52,10 @@ vi.mock('@/services/apiService.js', () => ({
 }));
 
 describe('SettingsPage', () => {
-  const renderPage = () => act(async () => { render(<SettingsPage />); });
+  const renderPage = () =>
+    act(async () => {
+      render(<SettingsPage />);
+    });
   const openDeleteModal = async () => {
     await renderPage();
     await act(async () => {
@@ -81,7 +92,9 @@ describe('SettingsPage', () => {
     const select = screen.getByLabelText('settings.currency.label');
     fireEvent.change(select, { target: { value: 'USD' } });
     const forms = document.querySelectorAll('form');
-    await act(async () => { fireEvent.submit(forms[0]); });
+    await act(async () => {
+      fireEvent.submit(forms[0]);
+    });
     expect(mockUpdateCurrency).toHaveBeenCalledWith('USD');
   });
 
@@ -90,7 +103,9 @@ describe('SettingsPage', () => {
     const select = screen.getByLabelText('settings.language.label');
     fireEvent.change(select, { target: { value: 'pt-BR' } });
     const forms = document.querySelectorAll('form');
-    await act(async () => { fireEvent.submit(forms[1]); });
+    await act(async () => {
+      fireEvent.submit(forms[1]);
+    });
     expect(mockUpdateLanguage).toHaveBeenCalledWith('pt-BR');
   });
 
@@ -98,7 +113,9 @@ describe('SettingsPage', () => {
     await renderPage();
     fireEvent.change(screen.getByLabelText('vehicle.currentKm'), { target: { value: '15000' } });
     const forms = document.querySelectorAll('form');
-    await act(async () => { fireEvent.submit(forms[2]); });
+    await act(async () => {
+      fireEvent.submit(forms[2]);
+    });
     expect(mockUpdateOdometer).toHaveBeenCalledOnce();
   });
 
@@ -109,7 +126,9 @@ describe('SettingsPage', () => {
 
   it('should call unlinkGoogle and update providers on disconnect', async () => {
     await renderPage();
-    await act(async () => { fireEvent.click(screen.getByText('settings.disconnectGoogle')); });
+    await act(async () => {
+      fireEvent.click(screen.getByText('settings.disconnectGoogle'));
+    });
     expect(mockUnlinkGoogle).toHaveBeenCalledOnce();
     expect(screen.getByRole('alert')).toHaveTextContent('settings.googleDisconnected');
   });
@@ -122,7 +141,10 @@ describe('SettingsPage', () => {
 
   it('should render change-password link', async () => {
     await renderPage();
-    expect(screen.getByRole('link', { name: /settings\.changePassword/ })).toHaveAttribute('href', '/change-password');
+    expect(screen.getByRole('link', { name: /settings\.changePassword/ })).toHaveAttribute(
+      'href',
+      '/change-password',
+    );
   });
 
   it('should render export data button', async () => {
@@ -132,7 +154,9 @@ describe('SettingsPage', () => {
 
   it('should render delete account button', async () => {
     await renderPage();
-    expect(screen.getByRole('button', { name: 'settings.myData.deleteAccount' })).toBeInTheDocument();
+    expect(
+      screen.getByRole('button', { name: 'settings.myData.deleteAccount' }),
+    ).toBeInTheDocument();
   });
 
   it('should show delete modal when delete account button is clicked', async () => {
@@ -143,7 +167,9 @@ describe('SettingsPage', () => {
   it('should show error banner when unlinkGoogle fails', async () => {
     mockUnlinkGoogle.mockRejectedValue(new Error('unlink failed'));
     await renderPage();
-    await act(async () => { fireEvent.click(screen.getByText('settings.disconnectGoogle')); });
+    await act(async () => {
+      fireEvent.click(screen.getByText('settings.disconnectGoogle'));
+    });
     expect(screen.getByRole('alert')).toHaveTextContent('unlink failed');
   });
 
@@ -193,7 +219,9 @@ describe('SettingsPage', () => {
   });
 
   describe('when emailVerified is false', () => {
-    beforeEach(() => { mockEmailVerified = false; });
+    beforeEach(() => {
+      mockEmailVerified = false;
+    });
 
     it('should show resend verification button', async () => {
       await renderPage();

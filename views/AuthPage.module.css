@@ -4,7 +4,11 @@
   align-items: center;
   min-height: 100vh;
   padding: 2rem 1rem;
-  background: radial-gradient(ellipse 70% 50% at 50% 0%, rgba(45, 212, 191, 0.07) 0%, transparent 70%);
+  background: radial-gradient(
+    ellipse 70% 50% at 50% 0%,
+    rgba(45, 212, 191, 0.07) 0%,
+    transparent 70%
+  );
 }
 
 .card {
@@ -29,12 +33,14 @@
   line-height: 1;
 }
 
-.titleAccent { color: var(--primary); }
+.titleAccent {
+  color: var(--primary);
+}
 
 .subtitle {
-  font-size: .72rem;
+  font-size: 0.72rem;
   font-weight: 600;
-  letter-spacing: .14em;
+  letter-spacing: 0.14em;
   text-transform: uppercase;
   text-align: center;
   color: var(--muted);
@@ -42,7 +48,7 @@
 }
 
 .switchLink {
-  font-size: .875rem;
-  margin-top: .9rem;
+  font-size: 0.875rem;
+  margin-top: 0.9rem;
   color: var(--text-2);
 }

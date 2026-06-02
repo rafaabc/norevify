@@ -19,7 +19,9 @@ export default function LoginPage() {
   const searchParams = useSearchParams();
   const [showRegistered, setShowRegistered] = useState(searchParams.get('registered') === '1');
   const [showLoggedOut, setShowLoggedOut] = useState(searchParams.get('loggedOut') === '1');
-  const [showPasswordChanged, setShowPasswordChanged] = useState(searchParams.get('passwordChanged') === '1');
+  const [showPasswordChanged, setShowPasswordChanged] = useState(
+    searchParams.get('passwordChanged') === '1',
+  );
   const [showDeleted, setShowDeleted] = useState(searchParams.get('deleted') === '1');
 
   const [form, setForm] = useState({ username: '', password: '' });
@@ -84,25 +86,54 @@ export default function LoginPage() {
 
           {expiredBanner && <ErrorBanner message={t('auth.login.sessionExpired')} type="info" />}
           {showLoggedOut && <ErrorBanner message={t('auth.login.loggedOut')} type="success" />}
-          {showRegistered && <ErrorBanner message={t('auth.login.accountCreated')} type="success" />}
-          {showPasswordChanged && <ErrorBanner message={t('auth.login.passwordChanged')} type="success" />}
+          {showRegistered && (
+            <ErrorBanner message={t('auth.login.accountCreated')} type="success" />
+          )}
+          {showPasswordChanged && (
+            <ErrorBanner message={t('auth.login.passwordChanged')} type="success" />
+          )}
           {showDeleted && <ErrorBanner message={t('auth.login.accountDeleted')} type="success" />}
           {error && <ErrorBanner message={error} />}
 
           <GoogleSignInButton mode="login" onError={setError} />
 
-          <div className={styles.divider}><span>{t('common.or')}</span></div>
+          <div className={styles.divider}>
+            <span>{t('common.or')}</span>
+          </div>
 
           <form onSubmit={handleSubmit}>
             <div className="form-group">
-              <FieldLabelWithHint htmlFor="login-username" label={t('auth.login.usernameLabel')} hint={t('auth.login.usernameHint')} />
-              <input id="login-username" name="username" value={form.username} onChange={handleChange} required autoFocus />
+              <FieldLabelWithHint
+                htmlFor="login-username"
+                label={t('auth.login.usernameLabel')}
+                hint={t('auth.login.usernameHint')}
+              />
+              <input
+                id="login-username"
+                name="username"
+                value={form.username}
+                onChange={handleChange}
+                required
+                autoFocus
+              />
             </div>
             <div className="form-group">
               <label htmlFor="login-password">{t('auth.register.password')}</label>
-              <input id="login-password" type="password" name="password" value={form.password} onChange={handleChange} required />
+              <input
+                id="login-password"
+                type="password"
+                name="password"
+                value={form.password}
+                onChange={handleChange}
+                required
+              />
             </div>
-            <button type="submit" className="btn-primary" style={{ width: '100%' }} disabled={loading}>
+            <button
+              type="submit"
+              className="btn-primary"
+              style={{ width: '100%' }}
+              disabled={loading}
+            >
               {loading ? t('auth.login.submitting') : t('auth.login.submit')}
             </button>
           </form>

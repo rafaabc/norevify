@@ -3,7 +3,15 @@ import { CATEGORIES, categoryLabel } from '@/utils/categories.js';
 
 describe('CATEGORIES', () => {
   it('should contain all valid category strings', () => {
-    expect(CATEGORIES).toEqual(['Fuel', 'Maintenance', 'Insurance', 'Parking', 'Toll', 'Tax', 'Other']);
+    expect(CATEGORIES).toEqual([
+      'Fuel',
+      'Maintenance',
+      'Insurance',
+      'Parking',
+      'Toll',
+      'Tax',
+      'Other',
+    ]);
   });
 });
 

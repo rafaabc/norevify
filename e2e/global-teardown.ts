@@ -44,7 +44,9 @@ export default async function globalTeardown(): Promise<void> {
     });
 
     const orphanCount = orphanResult.deletedCount ?? 0;
-    console.log(`[e2e teardown] Cleaned up ${testUsers.length} test user(s), their expenses and reminders.`);
+    console.log(
+      `[e2e teardown] Cleaned up ${testUsers.length} test user(s), their expenses and reminders.`,
+    );
     if (orphanCount > 0) console.log(`[e2e teardown] Removed ${orphanCount} orphaned reminder(s).`);
   } catch (err) {
     console.warn('[e2e teardown] Cleanup warning:', (err as Error).message);

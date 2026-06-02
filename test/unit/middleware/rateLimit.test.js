@@ -15,7 +15,11 @@ let withRateLimitedHandler;
 beforeEach(() => {
   delete require.cache[require.resolve('../../../lib/middleware/rateLimit.js')];
   if (globalThis._rateLimit) globalThis._rateLimit = {};
-  ({ createRateLimiter, clientIp, withRateLimitedHandler } = require('../../../lib/middleware/rateLimit.js'));
+  ({
+    createRateLimiter,
+    clientIp,
+    withRateLimitedHandler,
+  } = require('../../../lib/middleware/rateLimit.js'));
 });
 
 function makeReq(forwardedFor) {
@@ -85,7 +89,11 @@ describe('createRateLimiter()', () => {
     const limiter = createRateLimiter({ max: 1, windowMs: 60_000 });
     for (const loopback of ['127.0.0.1', '::1', '::ffff:127.0.0.1']) {
       for (let i = 0; i < 5; i++) {
-        assert.strictEqual(limiter.consume(loopback).allowed, true, `should bypass for ${loopback}`);
+        assert.strictEqual(
+          limiter.consume(loopback).allowed,
+          true,
+          `should bypass for ${loopback}`,
+        );
       }
     }
   });

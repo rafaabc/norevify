@@ -22,10 +22,13 @@ export class RemindersPage extends BasePage {
     return this.page.locator('li').nth(index);
   }
 
-  reminderByType(typeKey: string): Locator {
-    return this.page.locator('li').filter({
-      has: this.page.locator(`[data-testid="reminder-status-badge"]`),
-    }).first();
+  reminderByType(_typeKey: string): Locator {
+    return this.page
+      .locator('li')
+      .filter({
+        has: this.page.locator(`[data-testid="reminder-status-badge"]`),
+      })
+      .first();
   }
 
   async clickCompleteOnReminder(index: number = 0) {
@@ -42,7 +45,10 @@ export class RemindersPage extends BasePage {
   }
 
   async switchToHistory() {
-    await this.page.locator('button').filter({ hasText: /history|histórico/i }).click();
+    await this.page
+      .locator('button')
+      .filter({ hasText: /history|histórico/i })
+      .click();
   }
 
   async expectBadgeStatus(status: string, index: number = 0) {

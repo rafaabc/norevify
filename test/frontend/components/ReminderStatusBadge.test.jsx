@@ -29,6 +29,8 @@ describe('ReminderStatusBadge', () => {
 
   it('should render translated label via t()', () => {
     render(<ReminderStatusBadge status="upcoming" />);
-    expect(screen.getByTestId('reminder-status-badge')).toHaveTextContent('reminders.status.upcoming');
+    expect(screen.getByTestId('reminder-status-badge')).toHaveTextContent(
+      'reminders.status.upcoming',
+    );
   });
 });

@@ -11,10 +11,10 @@ export default function BottomTabs() {
   const [sheetOpen, setSheetOpen] = useState(false);
 
   const TABS = [
-    { to: '/',         icon: LayoutDashboard, label: t('nav.dashboard'), end: true },
-    { to: '/expenses', icon: Receipt,          label: t('nav.expenses') },
-    { to: '/summary',  icon: BarChart3,        label: t('nav.summary') },
-    { to: '/settings', icon: Settings,         label: t('nav.settings') },
+    { to: '/', icon: LayoutDashboard, label: t('nav.dashboard'), end: true },
+    { to: '/expenses', icon: Receipt, label: t('nav.expenses') },
+    { to: '/summary', icon: BarChart3, label: t('nav.summary') },
+    { to: '/settings', icon: Settings, label: t('nav.settings') },
   ];
 
   return (
@@ -25,7 +25,7 @@ export default function BottomTabs() {
             key={to}
             href={to}
             end={end}
-            className={({ isActive }) => isActive ? `${styles.tab} ${styles.active}` : styles.tab}
+            className={({ isActive }) => (isActive ? `${styles.tab} ${styles.active}` : styles.tab)}
           >
             <Icon size={22} className={styles.icon} />
             <span className={styles.label}>{label}</span>
@@ -48,7 +48,7 @@ export default function BottomTabs() {
             key={to}
             href={to}
             end={end}
-            className={({ isActive }) => isActive ? `${styles.tab} ${styles.active}` : styles.tab}
+            className={({ isActive }) => (isActive ? `${styles.tab} ${styles.active}` : styles.tab)}
           >
             <Icon size={22} className={styles.icon} />
             <span className={styles.label}>{label}</span>

@@ -2,22 +2,22 @@
 
 ## Contact
 
-| Role | Contact |
-|---|---|
-| DPO / Owner | faelsabc21@gmail.com |
-| ANPD (BR) | anpd.gov.br/web/guest/contato |
+| Role                       | Contact                            |
+| -------------------------- | ---------------------------------- |
+| DPO / Owner                | faelsabc21@gmail.com               |
+| ANPD (BR)                  | anpd.gov.br/web/guest/contato      |
 | GDPR supervisory authority | varies by country of affected user |
 
 ---
 
 ## Severity levels
 
-| Level | Definition | Example |
-|---|---|---|
-| P0 — Critical | Data breach or service fully down | DB credentials leaked, all API 500s |
-| P1 — High | Partial data exposure or major feature broken | Auth bypass, export returns other user's data |
-| P2 — Medium | Degraded functionality, no data exposure | Rate limiter not firing, emails not sending |
-| P3 — Low | Minor bug, no user impact | UI misalignment, log noise |
+| Level         | Definition                                    | Example                                       |
+| ------------- | --------------------------------------------- | --------------------------------------------- |
+| P0 — Critical | Data breach or service fully down             | DB credentials leaked, all API 500s           |
+| P1 — High     | Partial data exposure or major feature broken | Auth bypass, export returns other user's data |
+| P2 — Medium   | Degraded functionality, no data exposure      | Rate limiter not firing, emails not sending   |
+| P3 — Low      | Minor bug, no user impact                     | UI misalignment, log noise                    |
 
 ---
 
@@ -26,6 +26,7 @@
 ### 1. Detection
 
 Sources:
+
 - Sentry alert (5xx spike or new error class)
 - User report (email to DPO contact above)
 - Vercel logs (abnormal pattern)
@@ -37,17 +38,18 @@ Sources:
 
 Immediate actions depending on incident type:
 
-| Incident | Containment |
-|---|---|
-| Leaked `JWT_SECRET` | Rotate secret in Vercel → redeploy (invalidates all sessions) |
-| Leaked DB credentials | Atlas → Database Access → reset password → update `MONGODB_URI` |
-| Leaked `RESEND_API_KEY` | Resend Dashboard → delete key → create new one |
-| Active brute-force | Confirm rate limiter is firing (check logs for 429s); if not, temporarily block IP via Vercel Firewall |
-| Data exposed to wrong user | Disable affected endpoint via Vercel (set maintenance page or feature flag) |
+| Incident                   | Containment                                                                                            |
+| -------------------------- | ------------------------------------------------------------------------------------------------------ |
+| Leaked `JWT_SECRET`        | Rotate secret in Vercel → redeploy (invalidates all sessions)                                          |
+| Leaked DB credentials      | Atlas → Database Access → reset password → update `MONGODB_URI`                                        |
+| Leaked `RESEND_API_KEY`    | Resend Dashboard → delete key → create new one                                                         |
+| Active brute-force         | Confirm rate limiter is firing (check logs for 429s); if not, temporarily block IP via Vercel Firewall |
+| Data exposed to wrong user | Disable affected endpoint via Vercel (set maintenance page or feature flag)                            |
 
 ### 3. Assessment
 
 Answer:
+
 - What data was exposed? (categories: name, email, expenses, reminders, password hash)
 - How many users are affected?
 - Is the exposure still ongoing or already contained?
@@ -111,6 +113,7 @@ Questions? Contact us: faelsabc21@gmail.com
 ### 6. Post-mortem
 
 Within 5 business days of resolution, write a brief post-mortem covering:
+
 - Timeline of events
 - Root cause
 - Impact (users, data, duration)

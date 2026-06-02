@@ -2,7 +2,14 @@
 import Sparkline from './charts/Sparkline.jsx';
 import styles from './KpiCard.module.css';
 
-export default function KpiCard({ label, subtitle, value, delta, sparkData, invertColors = false }) {
+export default function KpiCard({
+  label,
+  subtitle,
+  value,
+  delta,
+  sparkData,
+  invertColors = false,
+}) {
   const hasDelta = typeof delta === 'number' && delta !== 0;
   const hasSpark = Array.isArray(sparkData) && sparkData.length > 0;
 

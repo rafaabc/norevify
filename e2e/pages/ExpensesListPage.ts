@@ -40,7 +40,11 @@ export class ExpensesListPage extends BasePage {
 
   async deleteFirstRow() {
     this.page.once('dialog', (dialog) => dialog.accept());
-    await this.page.locator('tbody tr').first().getByRole('button', { name: /delete/i }).click();
+    await this.page
+      .locator('tbody tr')
+      .first()
+      .getByRole('button', { name: /delete/i })
+      .click();
   }
 
   async clickEditInFirstRow() {

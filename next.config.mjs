@@ -41,7 +41,7 @@ const securityHeaders = [
       "font-src 'self' fonts.gstatic.com",
       "img-src 'self' data: blob:",
       "connect-src 'self' accounts.google.com *.sentry.io eu.i.posthog.com",
-      "frame-src accounts.google.com",
+      'frame-src accounts.google.com',
     ].join('; '),
   },
 ];
@@ -65,9 +65,9 @@ export default withSentryConfig(withPWAConfig(nextConfig), {
   // For all available options, see:
   // https://www.npmjs.com/package/@sentry/webpack-plugin#options
 
-  org: "norevify",
+  org: 'norevify',
 
-  project: "norevify",
+  project: 'norevify',
 
   // Only print logs for uploading source maps in CI
   silent: !process.env.CI,
@@ -82,7 +82,7 @@ export default withSentryConfig(withPWAConfig(nextConfig), {
   // This can increase your server load as well as your hosting bill.
   // Note: Check that the configured route will not match with your Next.js middleware, otherwise reporting of client-
   // side errors will fail.
-  tunnelRoute: "/monitoring",
+  tunnelRoute: '/monitoring',
 
   webpack: {
     // Enables automatic instrumentation of Vercel Cron Monitors. (Does not yet work with App Router route handlers.)

@@ -4,7 +4,7 @@ import { LoginPage } from '../../pages/LoginPage';
 import { DEFAULT_PASSWORD } from '../../fixtures/test-data';
 import { expectEnglishNav } from '../../fixtures/i18n';
 
-const MOBILE_VIEWPORT  = { width: 390, height: 844 };
+const MOBILE_VIEWPORT = { width: 390, height: 844 };
 const DESKTOP_VIEWPORT = { width: 1280, height: 800 };
 
 test.describe('Sidebar responsiveness', () => {
@@ -21,7 +21,7 @@ test.describe('Sidebar responsiveness', () => {
     await page.addInitScript(() => localStorage.setItem('i18nextLng', 'en'));
   });
 
-  async function loginAndGoTo(page: typeof loginPage['page'], path = '/') {
+  async function loginAndGoTo(page: (typeof loginPage)['page'], path = '/') {
     await loginPage.navigate();
     await loginPage.login(username, DEFAULT_PASSWORD);
     await page.waitForURL('/dashboard');
@@ -36,7 +36,9 @@ test.describe('Sidebar responsiveness', () => {
 
   // ── Mobile ──────────────────────────────────────────────────────────
 
-  test('[TC-UI-01] should hide sidebar and show bottom tab navigation on mobile viewport', async ({ page }) => {
+  test('[TC-UI-01] should hide sidebar and show bottom tab navigation on mobile viewport', async ({
+    page,
+  }) => {
     await page.setViewportSize(MOBILE_VIEWPORT);
     await loginAndGoTo(page);
 

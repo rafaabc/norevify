@@ -16,15 +16,15 @@ Para questões relacionadas à privacidade, entre em contato com nosso Encarrega
 
 Coletamos e armazenamos as seguintes categorias de dados pessoais:
 
-| Dado | Descrição |
-|---|---|
-| Nome de usuário | Identificador escolhido pelo usuário no cadastro |
-| Endereço de e-mail | Utilizado para autenticação e comunicações do serviço |
-| Senha (hash) | Armazenada em formato irreversível (bcrypt); nunca em texto claro |
-| Despesas automotivas | Categoria, valor, data, litros abastecidos, preço por litro (quando aplicável) |
-| Lembretes | Tipo, data de vencimento, quilometragem de vencimento, intervalo de recorrência |
-| Leitura de odômetro | Quilometragem atual registrada pelo usuário |
-| Hash de IP | Hash unidirecional do endereço IP de acesso, usado para fins de segurança |
+| Dado                 | Descrição                                                                       |
+| -------------------- | ------------------------------------------------------------------------------- |
+| Nome de usuário      | Identificador escolhido pelo usuário no cadastro                                |
+| Endereço de e-mail   | Utilizado para autenticação e comunicações do serviço                           |
+| Senha (hash)         | Armazenada em formato irreversível (bcrypt); nunca em texto claro               |
+| Despesas automotivas | Categoria, valor, data, litros abastecidos, preço por litro (quando aplicável)  |
+| Lembretes            | Tipo, data de vencimento, quilometragem de vencimento, intervalo de recorrência |
+| Leitura de odômetro  | Quilometragem atual registrada pelo usuário                                     |
+| Hash de IP           | Hash unidirecional do endereço IP de acesso, usado para fins de segurança       |
 
 Não coletamos dados sensíveis (saúde, biometria, raça, religião, etc.) nem dados de menores de 18 anos.
 
@@ -73,11 +73,11 @@ Nos termos da LGPD (Art. 18), você tem os seguintes direitos em relação aos s
 
 Você pode exercer seus direitos diretamente pela plataforma ou por e-mail:
 
-| Direito | Como exercer |
-|---|---|
+| Direito                                      | Como exercer                                     |
+| -------------------------------------------- | ------------------------------------------------ |
 | Exportar meus dados (portabilidade / acesso) | Painel de configurações — botão "Exportar dados" |
-| Excluir minha conta e todos os dados | Painel de configurações — botão "Excluir conta" |
-| Demais solicitações ou dúvidas | E-mail: **faelsabc21@gmail.com** |
+| Excluir minha conta e todos os dados         | Painel de configurações — botão "Excluir conta"  |
+| Demais solicitações ou dúvidas               | E-mail: **faelsabc21@gmail.com**                 |
 
 Responderemos às solicitações em até **15 dias úteis**, conforme previsto na LGPD.
 
@@ -89,11 +89,11 @@ Não vendemos, alugamos nem compartilhamos seus dados pessoais com terceiros par
 
 Utilizamos os seguintes subprocessadores estritamente necessários para a operação do serviço:
 
-| Subprocessador | Finalidade | País |
-|---|---|---|
-| MongoDB Atlas (MongoDB, Inc.) | Banco de dados | EUA (com adequação SCCs) |
-| Vercel Inc. | Hospedagem e CDN | EUA (com adequação SCCs) |
-| Resend Inc. | Envio de e-mails transacionais | EUA (com adequação SCCs) |
+| Subprocessador                | Finalidade                     | País                     |
+| ----------------------------- | ------------------------------ | ------------------------ |
+| MongoDB Atlas (MongoDB, Inc.) | Banco de dados                 | EUA (com adequação SCCs) |
+| Vercel Inc.                   | Hospedagem e CDN               | EUA (com adequação SCCs) |
+| Resend Inc.                   | Envio de e-mails transacionais | EUA (com adequação SCCs) |
 
 Todos os subprocessadores operam sob contratos que garantem proteção adequada aos dados pessoais.
 
@@ -130,4 +130,4 @@ Para exercer seus direitos, reportar incidentes de segurança ou esclarecer dúv
 
 ---
 
-*Última atualização: 2026-05-20*
+_Última atualização: 2026-05-20_

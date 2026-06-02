@@ -13,7 +13,15 @@ export default function FieldLabelWithHint({ htmlFor, label, hint }) {
           aria-label={hint}
           aria-expanded={show}
           onClick={() => setShow((v) => !v)}
-          style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer', color: 'var(--text-muted)', display: 'flex', alignItems: 'center' }}
+          style={{
+            background: 'none',
+            border: 'none',
+            padding: 0,
+            cursor: 'pointer',
+            color: 'var(--text-muted)',
+            display: 'flex',
+            alignItems: 'center',
+          }}
         >
           <Info size={14} />
         </button>

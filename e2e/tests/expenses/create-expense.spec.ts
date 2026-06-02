@@ -29,7 +29,9 @@ test('[TC-03-01] should create a Maintenance expense and return to the list', as
 });
 
 // TC-03-06 — Fuel expense with auto-computed amount
-test('[TC-03-06] should display computed amount for Fuel and create expense with correct total', async ({ page }) => {
+test('[TC-03-06] should display computed amount for Fuel and create expense with correct total', async ({
+  page,
+}) => {
   const formPage = new ExpenseFormPage(page);
   await formPage.navigateNew();
 
@@ -45,4 +47,3 @@ test('[TC-03-06] should display computed amount for Fuel and create expense with
   await expect(page.locator('tbody [data-cat="Fuel"]').first()).toBeVisible();
   await expect(page.locator('tbody').getByText('220.00').first()).toBeVisible();
 });
-

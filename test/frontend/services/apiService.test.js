@@ -42,8 +42,9 @@ describe('authApi.login', () => {
       status: 401,
       json: () => Promise.resolve({ message: 'Invalid credentials' }),
     });
-    await expect(authApi.login({ username: 'bad', password: 'wrong' }))
-      .rejects.toThrow('errors.invalidCredentials');
+    await expect(authApi.login({ username: 'bad', password: 'wrong' })).rejects.toThrow(
+      'errors.invalidCredentials',
+    );
   });
 });
 

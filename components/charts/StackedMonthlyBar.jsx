@@ -16,7 +16,10 @@ import { categoryLabel } from '@/utils/categories.js';
 
 export default function StackedMonthlyBar({ data = [], categories = [] }) {
   const { t } = useTranslation();
-  if (!data.length) return <div style={{ color: 'var(--muted)', textAlign: 'center', padding: '2rem' }}>No data</div>;
+  if (!data.length)
+    return (
+      <div style={{ color: 'var(--muted)', textAlign: 'center', padding: '2rem' }}>No data</div>
+    );
 
   const formatted = data.map((d) => ({ ...d, label: monthLabel(d.month) }));
 

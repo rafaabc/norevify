@@ -27,30 +27,40 @@ beforeEach(() => {
 describe('LegalPage', () => {
   it('should fetch English URL when language is en', async () => {
     mockI18n.language = 'en';
-    await act(async () => { render(<LegalPage doc="privacy" />); });
+    await act(async () => {
+      render(<LegalPage doc="privacy" />);
+    });
     expect(globalThis.fetch).toHaveBeenCalledWith('/legal/en/privacy.md');
   });
 
   it('should fetch pt-BR URL when language starts with pt', async () => {
     mockI18n.language = 'pt-BR';
-    await act(async () => { render(<LegalPage doc="terms" />); });
+    await act(async () => {
+      render(<LegalPage doc="terms" />);
+    });
     expect(globalThis.fetch).toHaveBeenCalledWith('/legal/pt-BR/terms.md');
   });
 
   it('should render fetched markdown content', async () => {
-    await act(async () => { render(<LegalPage doc="privacy" />); });
+    await act(async () => {
+      render(<LegalPage doc="privacy" />);
+    });
     expect(screen.getByTestId('markdown')).toHaveTextContent('## Privacy Policy');
   });
 
   it('should set content to empty string when fetch fails', async () => {
     globalThis.fetch = vi.fn().mockRejectedValue(new Error('network error'));
-    await act(async () => { render(<LegalPage doc="privacy" />); });
+    await act(async () => {
+      render(<LegalPage doc="privacy" />);
+    });
     expect(screen.getByTestId('markdown').textContent).toBe('');
   });
 
   it('should set content to empty string when response is not ok', async () => {
     globalThis.fetch = vi.fn().mockResolvedValue({ ok: false });
-    await act(async () => { render(<LegalPage doc="privacy" />); });
+    await act(async () => {
+      render(<LegalPage doc="privacy" />);
+    });
     expect(screen.getByTestId('markdown').textContent).toBe('');
   });
 
@@ -60,21 +70,27 @@ describe('LegalPage', () => {
       ok: true,
       text: () => Promise.resolve('## Terms'),
     });
-    await act(async () => { rerender(<LegalPage doc="terms" />); });
+    await act(async () => {
+      rerender(<LegalPage doc="terms" />);
+    });
     expect(globalThis.fetch).toHaveBeenCalledWith('/legal/en/terms.md');
   });
 });
 
 describe('PrivacyPage', () => {
   it('should pass doc=privacy to LegalPage', async () => {
-    await act(async () => { render(<PrivacyPage />); });
+    await act(async () => {
+      render(<PrivacyPage />);
+    });
     expect(globalThis.fetch).toHaveBeenCalledWith(expect.stringContaining('privacy.md'));
   });
 });
 
 describe('TermsPage', () => {
   it('should pass doc=terms to LegalPage', async () => {
-    await act(async () => { render(<TermsPage />); });
+    await act(async () => {
+      render(<TermsPage />);
+    });
     expect(globalThis.fetch).toHaveBeenCalledWith(expect.stringContaining('terms.md'));
   });
 });

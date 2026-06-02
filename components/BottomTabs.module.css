@@ -26,20 +26,23 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: .2rem;
+  gap: 0.2rem;
   color: var(--muted);
   text-decoration: none;
-  font-size: .68rem;
+  font-size: 0.68rem;
   font-weight: 500;
-  letter-spacing: .03em;
+  letter-spacing: 0.03em;
   background: none;
   border: none;
   cursor: pointer;
-  padding: .5rem .25rem;
-  transition: color .15s;
+  padding: 0.5rem 0.25rem;
+  transition: color 0.15s;
   -webkit-tap-highlight-color: transparent;
 }
-.tab:hover { color: var(--text-2); text-decoration: none; }
+.tab:hover {
+  color: var(--text-2);
+  text-decoration: none;
+}
 
 .tab.active {
   color: var(--primary);
@@ -53,10 +56,14 @@
   background: var(--primary);
   color: #07101a;
   border-radius: 50%;
-  padding: .22rem;
+  padding: 0.22rem;
   box-sizing: content-box;
 }
 
-.icon { flex-shrink: 0; }
+.icon {
+  flex-shrink: 0;
+}
 
-.label { line-height: 1; }
+.label {
+  line-height: 1;
+}

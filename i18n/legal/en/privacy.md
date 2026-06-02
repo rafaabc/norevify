@@ -16,15 +16,15 @@ For privacy-related questions, please contact our Data Protection Officer (DPO) 
 
 We collect and store the following categories of personal data:
 
-| Data | Description |
-|---|---|
-| Username | Identifier chosen by the user at registration |
-| Email address | Used for authentication and service communications |
-| Password (hash) | Stored in irreversible format (bcrypt); never in plain text |
+| Data                | Description                                                                |
+| ------------------- | -------------------------------------------------------------------------- |
+| Username            | Identifier chosen by the user at registration                              |
+| Email address       | Used for authentication and service communications                         |
+| Password (hash)     | Stored in irreversible format (bcrypt); never in plain text                |
 | Automotive expenses | Category, amount, date, litres fuelled, price per litre (where applicable) |
-| Reminders | Type, due date, due mileage, recurrence interval |
-| Odometer reading | Current mileage recorded by the user |
-| IP hash | One-way hash of the access IP address, used for security purposes |
+| Reminders           | Type, due date, due mileage, recurrence interval                           |
+| Odometer reading    | Current mileage recorded by the user                                       |
+| IP hash             | One-way hash of the access IP address, used for security purposes          |
 
 We do not collect sensitive data (health, biometrics, race, religion, etc.) or data from individuals under 18 years of age.
 
@@ -77,11 +77,11 @@ Under LGPD (Art. 18) and GDPR (Art. 15–22), you have the following rights rega
 
 You may exercise your rights directly through the platform or by email:
 
-| Right | How to exercise |
-|---|---|
-| Export my data (portability / access) | Settings panel — "Export data" button |
-| Delete my account and all data | Settings panel — "Delete account" button |
-| Other requests or questions | Email: **faelsabc21@gmail.com** |
+| Right                                 | How to exercise                          |
+| ------------------------------------- | ---------------------------------------- |
+| Export my data (portability / access) | Settings panel — "Export data" button    |
+| Delete my account and all data        | Settings panel — "Delete account" button |
+| Other requests or questions           | Email: **faelsabc21@gmail.com**          |
 
 We will respond to requests within **15 business days** (LGPD) or **30 calendar days** (GDPR), as required by applicable law.
 
@@ -93,11 +93,11 @@ We do not sell, rent, or share your personal data with third parties for commerc
 
 We use the following subprocessors strictly necessary for service operation:
 
-| Subprocessor | Purpose | Country |
-|---|---|---|
-| MongoDB Atlas (MongoDB, Inc.) | Database | USA (Standard Contractual Clauses) |
-| Vercel Inc. | Hosting and CDN | USA (Standard Contractual Clauses) |
-| Resend Inc. | Transactional email delivery | USA (Standard Contractual Clauses) |
+| Subprocessor                  | Purpose                      | Country                            |
+| ----------------------------- | ---------------------------- | ---------------------------------- |
+| MongoDB Atlas (MongoDB, Inc.) | Database                     | USA (Standard Contractual Clauses) |
+| Vercel Inc.                   | Hosting and CDN              | USA (Standard Contractual Clauses) |
+| Resend Inc.                   | Transactional email delivery | USA (Standard Contractual Clauses) |
 
 All subprocessors operate under agreements ensuring adequate protection of personal data, including Standard Contractual Clauses where applicable under GDPR.
 
@@ -134,4 +134,4 @@ To exercise your rights, report security incidents, or clarify questions about t
 
 ---
 
-*Last updated: 2026-05-20*
+_Last updated: 2026-05-20_

@@ -12,7 +12,7 @@ export default function LegalPage({ doc }) {
   useEffect(() => {
     const lang = i18n.language?.startsWith('pt') ? 'pt-BR' : 'en';
     fetch(`/legal/${lang}/${doc}.md`)
-      .then(r => r.ok ? r.text() : '')
+      .then((r) => (r.ok ? r.text() : ''))
       .then(setContent)
       .catch(() => setContent(''));
   }, [i18n.language, doc]);

@@ -48,7 +48,11 @@ const mockCreate = vi.fn();
 const mockUpdate = vi.fn();
 const mockGet = vi.fn();
 vi.mock('@/services/apiService.js', () => ({
-  expensesApi: { create: () => mockCreate(), update: (...a) => mockUpdate(...a), get: (id) => mockGet(id) },
+  expensesApi: {
+    create: () => mockCreate(),
+    update: (...a) => mockUpdate(...a),
+    get: (id) => mockGet(id),
+  },
 }));
 
 describe('ExpenseFormPage', () => {
@@ -73,20 +77,26 @@ describe('ExpenseFormPage', () => {
 
   it('should show AmountField for non-fuel category', () => {
     render(<ExpenseFormPage />);
-    fireEvent.change(document.querySelector('[name="category"]'), { target: { value: 'Maintenance', name: 'category' } });
+    fireEvent.change(document.querySelector('[name="category"]'), {
+      target: { value: 'Maintenance', name: 'category' },
+    });
     expect(screen.getByTestId('amount')).toBeInTheDocument();
   });
 
   it('should show FuelFields for Fuel category', () => {
     render(<ExpenseFormPage />);
-    fireEvent.change(document.querySelector('[name="category"]'), { target: { value: 'Fuel', name: 'category' } });
+    fireEvent.change(document.querySelector('[name="category"]'), {
+      target: { value: 'Fuel', name: 'category' },
+    });
     expect(screen.getByTestId('litres')).toBeInTheDocument();
     expect(screen.getByTestId('ppl')).toBeInTheDocument();
   });
 
   it('should call create and navigate to /expenses on non-fuel submit', async () => {
     render(<ExpenseFormPage />);
-    fireEvent.change(document.querySelector('[name="category"]'), { target: { value: 'Maintenance', name: 'category' } });
+    fireEvent.change(document.querySelector('[name="category"]'), {
+      target: { value: 'Maintenance', name: 'category' },
+    });
     fireEvent.change(screen.getByTestId('amount'), { target: { value: '100', name: 'amount' } });
     await act(async () => {
       fireEvent.submit(document.querySelector('form'));
@@ -97,9 +107,13 @@ describe('ExpenseFormPage', () => {
 
   it('should call create with fuel payload on Fuel submit', async () => {
     render(<ExpenseFormPage />);
-    fireEvent.change(document.querySelector('[name="category"]'), { target: { value: 'Fuel', name: 'category' } });
+    fireEvent.change(document.querySelector('[name="category"]'), {
+      target: { value: 'Fuel', name: 'category' },
+    });
     fireEvent.change(screen.getByTestId('litres'), { target: { value: '40', name: 'litres' } });
-    fireEvent.change(screen.getByTestId('ppl'), { target: { value: '5.5', name: 'price_per_litre' } });
+    fireEvent.change(screen.getByTestId('ppl'), {
+      target: { value: '5.5', name: 'price_per_litre' },
+    });
     await act(async () => {
       fireEvent.submit(document.querySelector('form'));
     });
@@ -110,7 +124,9 @@ describe('ExpenseFormPage', () => {
   it('should show error banner when create fails', async () => {
     mockCreate.mockRejectedValue(new Error('bad request'));
     render(<ExpenseFormPage />);
-    fireEvent.change(document.querySelector('[name="category"]'), { target: { value: 'Maintenance', name: 'category' } });
+    fireEvent.change(document.querySelector('[name="category"]'), {
+      target: { value: 'Maintenance', name: 'category' },
+    });
     await act(async () => {
       fireEvent.submit(document.querySelector('form'));
     });
@@ -125,8 +141,17 @@ describe('ExpenseFormPage', () => {
 
   it('should load existing expense in edit mode', async () => {
     mockUseParams.mockReturnValue({ id: 'e1' });
-    mockGet.mockResolvedValue({ date: '2026-05-10T00:00:00.000Z', category: 'Maintenance', amount: 200, litres: null, price_per_litre: null, odometer: null });
-    await act(async () => { render(<ExpenseFormPage />); });
+    mockGet.mockResolvedValue({
+      date: '2026-05-10T00:00:00.000Z',
+      category: 'Maintenance',
+      amount: 200,
+      litres: null,
+      price_per_litre: null,
+      odometer: null,
+    });
+    await act(async () => {
+      render(<ExpenseFormPage />);
+    });
     expect(screen.getByText('expenses.editExpense')).toBeInTheDocument();
   });
 

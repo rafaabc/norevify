@@ -11,7 +11,9 @@ vi.mock('@/context/AuthContext.jsx', () => ({
 }));
 
 describe('Sidebar', () => {
-  beforeEach(() => { vi.clearAllMocks(); });
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
 
   it('should render brand name', () => {
     render(<Sidebar />);

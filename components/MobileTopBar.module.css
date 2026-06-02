@@ -24,24 +24,28 @@
 .brand {
   display: flex;
   align-items: center;
-  gap: .5rem;
+  gap: 0.5rem;
 }
 
-.brandIcon { color: var(--primary); }
+.brandIcon {
+  color: var(--primary);
+}
 
 .brandName {
-  font-size: .875rem;
+  font-size: 0.875rem;
   font-weight: 700;
-  letter-spacing: .08em;
+  letter-spacing: 0.08em;
   text-transform: uppercase;
 }
 
-.brandName span { color: var(--primary); }
+.brandName span {
+  color: var(--primary);
+}
 
 .actions {
   display: flex;
   align-items: center;
-  gap: .25rem;
+  gap: 0.25rem;
 }
 
 .bellBtn {
@@ -49,12 +53,14 @@
   display: flex;
   align-items: center;
   color: var(--muted);
-  padding: .35rem;
+  padding: 0.35rem;
   border-radius: var(--radius-sm);
-  transition: color .15s;
+  transition: color 0.15s;
   text-decoration: none;
 }
-.bellBtn:hover { color: var(--primary); }
+.bellBtn:hover {
+  color: var(--primary);
+}
 
 .badge {
   position: absolute;
@@ -70,7 +76,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 0 .2rem;
+  padding: 0 0.2rem;
   line-height: 1;
 }
 
@@ -78,11 +84,13 @@
   background: none;
   border: none;
   color: var(--muted);
-  padding: .35rem;
+  padding: 0.35rem;
   cursor: pointer;
   border-radius: var(--radius-sm);
   display: flex;
   align-items: center;
-  transition: color .15s;
+  transition: color 0.15s;
 }
-.logoutBtn:hover { color: var(--danger); }
+.logoutBtn:hover {
+  color: var(--danger);
+}

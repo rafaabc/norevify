@@ -25,7 +25,9 @@ describe('ForgotPasswordPage', () => {
 
   it('should show success message after successful submit', async () => {
     render(<ForgotPasswordPage />);
-    fireEvent.change(screen.getByLabelText('auth.forgotPassword.email'), { target: { value: 'user@example.com' } });
+    fireEvent.change(screen.getByLabelText('auth.forgotPassword.email'), {
+      target: { value: 'user@example.com' },
+    });
     await act(async () => {
       fireEvent.submit(screen.getByRole('button').closest('form'));
     });
@@ -37,7 +39,9 @@ describe('ForgotPasswordPage', () => {
   it('should show error banner when forgotPassword throws', async () => {
     mockForgotPassword.mockRejectedValue(new Error('user not found'));
     render(<ForgotPasswordPage />);
-    fireEvent.change(screen.getByLabelText('auth.forgotPassword.email'), { target: { value: 'bad@example.com' } });
+    fireEvent.change(screen.getByLabelText('auth.forgotPassword.email'), {
+      target: { value: 'bad@example.com' },
+    });
     await act(async () => {
       fireEvent.submit(screen.getByRole('button').closest('form'));
     });
@@ -46,6 +50,8 @@ describe('ForgotPasswordPage', () => {
 
   it('should render back to login link', () => {
     render(<ForgotPasswordPage />);
-    expect(screen.getByRole('link', { name: 'auth.forgotPassword.backToLogin' })).toBeInTheDocument();
+    expect(
+      screen.getByRole('link', { name: 'auth.forgotPassword.backToLogin' }),
+    ).toBeInTheDocument();
   });
 });

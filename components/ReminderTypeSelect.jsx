@@ -11,7 +11,9 @@ export default function ReminderTypeSelect({ value, onChange, id = 'field-remind
       <label htmlFor={id}>{t('reminders.fields.type')}</label>
       <select id={id} name="type" value={value} onChange={onChange}>
         {CATEGORIES.map((cat) => (
-          <option key={cat} value={cat}>{categoryLabel(cat, t)}</option>
+          <option key={cat} value={cat}>
+            {categoryLabel(cat, t)}
+          </option>
         ))}
       </select>
     </div>

@@ -23,7 +23,10 @@ export default function ChangePasswordPage() {
       return;
     }
     await run(async () => {
-      await authApi.changePassword({ currentPassword: form.currentPassword, newPassword: form.newPassword });
+      await authApi.changePassword({
+        currentPassword: form.currentPassword,
+        newPassword: form.newPassword,
+      });
       setForm({ currentPassword: '', newPassword: '', confirmPassword: '' });
     });
   }
@@ -41,15 +44,49 @@ export default function ChangePasswordPage() {
       <form onSubmit={handleSubmit} style={{ maxWidth: '400px' }}>
         <div className="form-group">
           <label htmlFor="cp-currentPassword">{t('auth.changePassword.current')}</label>
-          <input id="cp-currentPassword" type="password" name="currentPassword" value={form.currentPassword} onChange={handleChange} required autoFocus />
+          <input
+            id="cp-currentPassword"
+            type="password"
+            name="currentPassword"
+            value={form.currentPassword}
+            onChange={handleChange}
+            required
+            autoFocus
+          />
         </div>
         <div className="form-group">
-          <FieldLabelWithHint htmlFor="cp-newPassword" label={t('auth.changePassword.new')} hint={t('auth.passwordHint')} />
-          <input id="cp-newPassword" type="password" name="newPassword" value={form.newPassword} onChange={handleChange} required minLength={8} maxLength={20} />
+          <FieldLabelWithHint
+            htmlFor="cp-newPassword"
+            label={t('auth.changePassword.new')}
+            hint={t('auth.passwordHint')}
+          />
+          <input
+            id="cp-newPassword"
+            type="password"
+            name="newPassword"
+            value={form.newPassword}
+            onChange={handleChange}
+            required
+            minLength={8}
+            maxLength={20}
+          />
         </div>
         <div className="form-group">
-          <FieldLabelWithHint htmlFor="cp-confirmPassword" label={t('auth.changePassword.confirm')} hint={t('auth.confirmPasswordHint')} />
-          <input id="cp-confirmPassword" type="password" name="confirmPassword" value={form.confirmPassword} onChange={handleChange} required minLength={8} maxLength={20} />
+          <FieldLabelWithHint
+            htmlFor="cp-confirmPassword"
+            label={t('auth.changePassword.confirm')}
+            hint={t('auth.confirmPasswordHint')}
+          />
+          <input
+            id="cp-confirmPassword"
+            type="password"
+            name="confirmPassword"
+            value={form.confirmPassword}
+            onChange={handleChange}
+            required
+            minLength={8}
+            maxLength={20}
+          />
         </div>
         <button type="submit" className="btn-primary" disabled={loading}>
           {loading ? t('auth.changePassword.submitting') : t('auth.changePassword.submit')}

@@ -56,7 +56,11 @@ export default function ResetPasswordPage() {
 
           <form onSubmit={handleSubmit}>
             <div className="form-group">
-              <FieldLabelWithHint htmlFor="reset-password" label={t('auth.resetPassword.newPassword')} hint={t('auth.passwordHint')} />
+              <FieldLabelWithHint
+                htmlFor="reset-password"
+                label={t('auth.resetPassword.newPassword')}
+                hint={t('auth.passwordHint')}
+              />
               <input
                 id="reset-password"
                 type="password"
@@ -70,7 +74,11 @@ export default function ResetPasswordPage() {
               />
             </div>
             <div className="form-group">
-              <FieldLabelWithHint htmlFor="reset-confirm" label={t('auth.resetPassword.confirm')} hint={t('auth.confirmPasswordHint')} />
+              <FieldLabelWithHint
+                htmlFor="reset-confirm"
+                label={t('auth.resetPassword.confirm')}
+                hint={t('auth.confirmPasswordHint')}
+              />
               <input
                 id="reset-confirm"
                 type="password"
@@ -82,7 +90,12 @@ export default function ResetPasswordPage() {
                 maxLength={20}
               />
             </div>
-            <button type="submit" className="btn-primary" style={{ width: '100%' }} disabled={loading}>
+            <button
+              type="submit"
+              className="btn-primary"
+              style={{ width: '100%' }}
+              disabled={loading}
+            >
               {loading ? t('auth.resetPassword.submitting') : t('auth.resetPassword.submit')}
             </button>
           </form>

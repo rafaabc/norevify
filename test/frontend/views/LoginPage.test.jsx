@@ -67,10 +67,16 @@ describe('LoginPage', () => {
   it('should call authApi.login with form values on submit', async () => {
     authApi.login.mockResolvedValue({ token: 'tok' });
     render(<LoginPage />);
-    fireEvent.change(document.querySelector('input[name="username"]'), { target: { name: 'username', value: 'alice' } });
-    fireEvent.change(document.querySelector('input[name="password"]'), { target: { name: 'password', value: 'pass' } });
+    fireEvent.change(document.querySelector('input[name="username"]'), {
+      target: { name: 'username', value: 'alice' },
+    });
+    fireEvent.change(document.querySelector('input[name="password"]'), {
+      target: { name: 'password', value: 'pass' },
+    });
     fireEvent.submit(document.querySelector('form'));
-    await waitFor(() => expect(authApi.login).toHaveBeenCalledWith({ username: 'alice', password: 'pass' }));
+    await waitFor(() =>
+      expect(authApi.login).toHaveBeenCalledWith({ username: 'alice', password: 'pass' }),
+    );
   });
 
   it('should show error message when login fails', async () => {

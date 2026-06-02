@@ -7,7 +7,9 @@ export default function UpdatePrompt({ onUpdate }) {
   return (
     <div className={styles.toast}>
       <span>{t('pwa.updateAvailable')}</span>
-      <button className={styles.btn} onClick={onUpdate}>{t('pwa.reload')}</button>
+      <button className={styles.btn} onClick={onUpdate}>
+        {t('pwa.reload')}
+      </button>
     </div>
   );
 }

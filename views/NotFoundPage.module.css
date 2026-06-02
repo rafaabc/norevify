@@ -23,6 +23,6 @@
 
 .message {
   color: var(--muted);
-  font-size: .875rem;
-  letter-spacing: .05em;
+  font-size: 0.875rem;
+  letter-spacing: 0.05em;
 }

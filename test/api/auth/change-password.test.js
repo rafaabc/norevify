@@ -6,7 +6,6 @@ const { request, expect, BASE_URL, createAndLoginUser } = require('../base/api-b
 
 describe('US-05 - Change Password', () => {
   describe('PATCH /api/auth/password', () => {
-
     it('[TC-05-01] should return 200 when token is valid and credentials are correct', async () => {
       const token = await createAndLoginUser('tc0501');
 
@@ -59,6 +58,5 @@ describe('US-05 - Change Password', () => {
 
       expect(res.status).to.equal(400);
     });
-
   });
 });

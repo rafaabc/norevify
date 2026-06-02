@@ -53,7 +53,11 @@ beforeEach(() => {
 describe('AuthProvider', () => {
   it('should report isAuthed false when no token in localStorage', async () => {
     await act(async () => {
-      render(<AuthProvider><Consumer /></AuthProvider>);
+      render(
+        <AuthProvider>
+          <Consumer />
+        </AuthProvider>,
+      );
     });
     expect(screen.getByTestId('authed').textContent).toBe('false');
   });
@@ -62,7 +66,11 @@ describe('AuthProvider', () => {
     const token = makeToken({ id: '1', username: 'alice', currency: 'USD', language: 'en' });
     localStorage.setItem('token', token);
     await act(async () => {
-      render(<AuthProvider><Consumer /></AuthProvider>);
+      render(
+        <AuthProvider>
+          <Consumer />
+        </AuthProvider>,
+      );
     });
     expect(screen.getByTestId('authed').textContent).toBe('true');
     expect(screen.getByTestId('username').textContent).toBe('alice');
@@ -75,15 +83,27 @@ describe('AuthProvider', () => {
       return (
         <>
           <span data-testid="authed">{String(isAuthed)}</span>
-          <button onClick={() => login(makeToken({ id: '2', username: 'bob', currency: 'EUR', language: 'pt-BR' }))}>
+          <button
+            onClick={() =>
+              login(makeToken({ id: '2', username: 'bob', currency: 'EUR', language: 'pt-BR' }))
+            }
+          >
             login
           </button>
         </>
       );
     }
-    await act(async () => { render(<AuthProvider><LoginConsumer /></AuthProvider>); });
+    await act(async () => {
+      render(
+        <AuthProvider>
+          <LoginConsumer />
+        </AuthProvider>,
+      );
+    });
     expect(screen.getByTestId('authed').textContent).toBe('false');
-    await act(async () => { screen.getByRole('button', { name: 'login' }).click(); });
+    await act(async () => {
+      screen.getByRole('button', { name: 'login' }).click();
+    });
     expect(screen.getByTestId('authed').textContent).toBe('true');
     expect(localStorage.getItem('token')).toBeTruthy();
   });
@@ -95,8 +115,16 @@ describe('AuthProvider', () => {
       const { login } = useAuth();
       return <button onClick={() => login(token)}>login</button>;
     }
-    await act(async () => { render(<AuthProvider><LoginConsumer /></AuthProvider>); });
-    await act(async () => { screen.getByRole('button', { name: 'login' }).click(); });
+    await act(async () => {
+      render(
+        <AuthProvider>
+          <LoginConsumer />
+        </AuthProvider>,
+      );
+    });
+    await act(async () => {
+      screen.getByRole('button', { name: 'login' }).click();
+    });
     expect(i18n.changeLanguage).toHaveBeenCalledWith('en');
   });
 
@@ -108,8 +136,16 @@ describe('AuthProvider', () => {
       const { login } = useAuth();
       return <button onClick={() => login(token)}>login</button>;
     }
-    await act(async () => { render(<AuthProvider><LoginConsumer /></AuthProvider>); });
-    await act(async () => { screen.getByRole('button', { name: 'login' }).click(); });
+    await act(async () => {
+      render(
+        <AuthProvider>
+          <LoginConsumer />
+        </AuthProvider>,
+      );
+    });
+    await act(async () => {
+      screen.getByRole('button', { name: 'login' }).click();
+    });
     expect(i18n.changeLanguage).not.toHaveBeenCalled();
   });
 
@@ -125,9 +161,17 @@ describe('AuthProvider', () => {
         </>
       );
     }
-    await act(async () => { render(<AuthProvider><LogoutConsumer /></AuthProvider>); });
+    await act(async () => {
+      render(
+        <AuthProvider>
+          <LogoutConsumer />
+        </AuthProvider>,
+      );
+    });
     expect(screen.getByTestId('authed').textContent).toBe('true');
-    await act(async () => { screen.getByRole('button', { name: 'logout' }).click(); });
+    await act(async () => {
+      screen.getByRole('button', { name: 'logout' }).click();
+    });
     expect(screen.getByTestId('authed').textContent).toBe('false');
     expect(localStorage.getItem('token')).toBeNull();
     expect(mockRouterPush).toHaveBeenCalledWith('/login?loggedOut=1');
@@ -145,7 +189,13 @@ describe('AuthProvider', () => {
         </>
       );
     }
-    await act(async () => { render(<AuthProvider><BannerConsumer /></AuthProvider>); });
+    await act(async () => {
+      render(
+        <AuthProvider>
+          <BannerConsumer />
+        </AuthProvider>,
+      );
+    });
     expect(screen.getByTestId('authed').textContent).toBe('true');
     await act(async () => {
       globalThis.dispatchEvent(new Event('auth:logout'));
@@ -170,9 +220,17 @@ describe('AuthProvider', () => {
         </>
       );
     }
-    await act(async () => { render(<AuthProvider><CurrencyConsumer /></AuthProvider>); });
+    await act(async () => {
+      render(
+        <AuthProvider>
+          <CurrencyConsumer />
+        </AuthProvider>,
+      );
+    });
     expect(screen.getByTestId('currency').textContent).toBe('BRL');
-    await act(async () => { screen.getByRole('button', { name: 'update' }).click(); });
+    await act(async () => {
+      screen.getByRole('button', { name: 'update' }).click();
+    });
     expect(authApi.updateCurrency).toHaveBeenCalledWith({ currency: 'USD' });
     expect(localStorage.getItem('token')).toBe(newToken);
   });
@@ -188,15 +246,29 @@ describe('AuthProvider', () => {
       const { updateLanguage } = useAuth();
       return <button onClick={() => updateLanguage('en')}>update-lang</button>;
     }
-    await act(async () => { render(<AuthProvider><LangConsumer /></AuthProvider>); });
-    await act(async () => { screen.getByRole('button', { name: 'update-lang' }).click(); });
+    await act(async () => {
+      render(
+        <AuthProvider>
+          <LangConsumer />
+        </AuthProvider>,
+      );
+    });
+    await act(async () => {
+      screen.getByRole('button', { name: 'update-lang' }).click();
+    });
     expect(authApi.updateLanguage).toHaveBeenCalledWith({ language: 'en' });
     expect(localStorage.getItem('i18nextLng')).toBe('en');
     expect(i18n.changeLanguage).toHaveBeenCalledWith('en');
   });
 
   it('should update emailVerified when another tab sets a new token via storage event', async () => {
-    const initialToken = makeToken({ id: '9', username: 'ivan', currency: 'BRL', language: 'pt-BR', emailVerified: false });
+    const initialToken = makeToken({
+      id: '9',
+      username: 'ivan',
+      currency: 'BRL',
+      language: 'pt-BR',
+      emailVerified: false,
+    });
     localStorage.setItem('token', initialToken);
 
     function VerifiedConsumer() {
@@ -205,11 +277,21 @@ describe('AuthProvider', () => {
     }
 
     await act(async () => {
-      render(<AuthProvider><VerifiedConsumer /></AuthProvider>);
+      render(
+        <AuthProvider>
+          <VerifiedConsumer />
+        </AuthProvider>,
+      );
     });
     expect(screen.getByTestId('verified').textContent).toBe('false');
 
-    const newToken = makeToken({ id: '9', username: 'ivan', currency: 'BRL', language: 'pt-BR', emailVerified: true });
+    const newToken = makeToken({
+      id: '9',
+      username: 'ivan',
+      currency: 'BRL',
+      language: 'pt-BR',
+      emailVerified: true,
+    });
     await act(async () => {
       window.dispatchEvent(new StorageEvent('storage', { key: 'token', newValue: newToken }));
     });

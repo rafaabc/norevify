@@ -23,14 +23,30 @@ describe('ExpenseRow', () => {
   });
 
   it('should render date, category badge and amount', () => {
-    render(<table><tbody><tr><ExpenseRow expense={expense} onDeleted={vi.fn()} /></tr></tbody></table>);
+    render(
+      <table>
+        <tbody>
+          <tr>
+            <ExpenseRow expense={expense} onDeleted={vi.fn()} />
+          </tr>
+        </tbody>
+      </table>,
+    );
     expect(screen.getByText('2026-05-10')).toBeInTheDocument();
     expect(screen.getByText('categories.Fuel')).toBeInTheDocument();
     expect(screen.getByText('150')).toBeInTheDocument();
   });
 
   it('should navigate to edit page when edit button clicked', () => {
-    render(<table><tbody><tr><ExpenseRow expense={expense} onDeleted={vi.fn()} /></tr></tbody></table>);
+    render(
+      <table>
+        <tbody>
+          <tr>
+            <ExpenseRow expense={expense} onDeleted={vi.fn()} />
+          </tr>
+        </tbody>
+      </table>,
+    );
     fireEvent.click(screen.getByRole('button', { name: 'common.edit' }));
     expect(mockPush).toHaveBeenCalledWith('/expenses/e1/edit');
   });
@@ -39,14 +55,30 @@ describe('ExpenseRow', () => {
     window.confirm = vi.fn().mockReturnValue(true);
     expensesApi.remove.mockResolvedValue({});
     const onDeleted = vi.fn();
-    render(<table><tbody><tr><ExpenseRow expense={expense} onDeleted={onDeleted} /></tr></tbody></table>);
+    render(
+      <table>
+        <tbody>
+          <tr>
+            <ExpenseRow expense={expense} onDeleted={onDeleted} />
+          </tr>
+        </tbody>
+      </table>,
+    );
     await fireEvent.click(screen.getByRole('button', { name: 'common.delete' }));
     await vi.waitFor(() => expect(onDeleted).toHaveBeenCalledWith('e1'));
   });
 
   it('should not call remove when confirm is cancelled', () => {
     window.confirm = vi.fn().mockReturnValue(false);
-    render(<table><tbody><tr><ExpenseRow expense={expense} onDeleted={vi.fn()} /></tr></tbody></table>);
+    render(
+      <table>
+        <tbody>
+          <tr>
+            <ExpenseRow expense={expense} onDeleted={vi.fn()} />
+          </tr>
+        </tbody>
+      </table>,
+    );
     fireEvent.click(screen.getByRole('button', { name: 'common.delete' }));
     expect(expensesApi.remove).not.toHaveBeenCalled();
   });
@@ -55,7 +87,15 @@ describe('ExpenseRow', () => {
     window.confirm = vi.fn().mockReturnValue(true);
     expensesApi.remove.mockRejectedValue(new Error('server error'));
     const onError = vi.fn();
-    render(<table><tbody><tr><ExpenseRow expense={expense} onDeleted={vi.fn()} onError={onError} /></tr></tbody></table>);
+    render(
+      <table>
+        <tbody>
+          <tr>
+            <ExpenseRow expense={expense} onDeleted={vi.fn()} onError={onError} />
+          </tr>
+        </tbody>
+      </table>,
+    );
     fireEvent.click(screen.getByRole('button', { name: 'common.delete' }));
     await vi.waitFor(() => expect(onError).toHaveBeenCalledWith('server error'));
   });

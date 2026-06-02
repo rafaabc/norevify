@@ -33,7 +33,13 @@ describe('Reminders API', function () {
       const res = await request(process.env.BASE_URL || 'http://localhost:3000')
         .post('/api/reminders')
         .set('Authorization', `Bearer ${token}`)
-        .send({ type: 'Maintenance', dueDate: future(30), dueKm: 10000, intervalMonths: 12, intervalKm: 10000 });
+        .send({
+          type: 'Maintenance',
+          dueDate: future(30),
+          dueKm: 10000,
+          intervalMonths: 12,
+          intervalKm: 10000,
+        });
       expect(res.status).to.equal(201);
       expect(res.body).to.have.property('id');
     });
@@ -69,7 +75,13 @@ describe('Reminders API', function () {
       const created = await request(process.env.BASE_URL || 'http://localhost:3000')
         .post('/api/reminders')
         .set('Authorization', `Bearer ${token}`)
-        .send({ type: 'Maintenance', dueDate: future(30), dueKm: 50000, intervalMonths: 12, intervalKm: 10000 });
+        .send({
+          type: 'Maintenance',
+          dueDate: future(30),
+          dueKm: 50000,
+          intervalMonths: 12,
+          intervalKm: 10000,
+        });
       const res = await request(process.env.BASE_URL || 'http://localhost:3000')
         .post(`/api/reminders/${created.body.id}/complete`)
         .set('Authorization', `Bearer ${token}`)

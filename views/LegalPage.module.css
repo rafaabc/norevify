@@ -5,13 +5,32 @@
   color: var(--text);
 }
 
-.container h1 { font-size: 1.75rem; margin-bottom: 1rem; }
-.container h2 { font-size: 1.25rem; margin-top: 2rem; margin-bottom: 0.5rem; color: var(--primary); }
-.container p { line-height: 1.7; margin-bottom: 1rem; }
-.container ul { margin: 0.5rem 0 1rem 1.5rem; }
-.container li { margin-bottom: 0.25rem; }
-.container a { color: var(--primary); }
+.container h1 {
+  font-size: 1.75rem;
+  margin-bottom: 1rem;
+}
+.container h2 {
+  font-size: 1.25rem;
+  margin-top: 2rem;
+  margin-bottom: 0.5rem;
+  color: var(--primary);
+}
+.container p {
+  line-height: 1.7;
+  margin-bottom: 1rem;
+}
+.container ul {
+  margin: 0.5rem 0 1rem 1.5rem;
+}
+.container li {
+  margin-bottom: 0.25rem;
+}
+.container a {
+  color: var(--primary);
+}
 
 @media (max-width: 640px) {
-  .container { padding: 0 1rem 2rem; }
+  .container {
+    padding: 0 1rem 2rem;
+  }
 }
