@@ -23,24 +23,24 @@ A full-stack vehicle expense tracker — built to practise and demonstrate produ
 
 ## Tech stack
 
-| Layer | Technologies |
-|---|---|
-| Frontend | Next.js 16 (App Router), React |
-| Backend | Next.js Route Handlers, Node.js |
-| Database | MongoDB (Mongoose) |
-| Auth | JWT, Google OAuth 2.0, Bcrypt |
-| Email | Resend |
-| Internationalisation | react-i18next |
-| Monitoring | Sentry, PostHog |
-| Testing | Playwright (E2E), Vitest (frontend unit), Mocha + Supertest (API), Node test runner (backend unit) |
-| CI | GitHub Actions |
-| Hosting | Vercel Fluid Compute |
+| Layer                | Technologies                                                                                       |
+| -------------------- | -------------------------------------------------------------------------------------------------- |
+| Frontend             | Next.js 16 (App Router), React                                                                     |
+| Backend              | Next.js Route Handlers, Node.js                                                                    |
+| Database             | MongoDB (Mongoose)                                                                                 |
+| Auth                 | JWT, Google OAuth 2.0, Bcrypt                                                                      |
+| Email                | Resend                                                                                             |
+| Internationalisation | react-i18next                                                                                      |
+| Monitoring           | Sentry, PostHog                                                                                    |
+| Testing              | Playwright (E2E), Vitest (frontend unit), Mocha + Supertest (API), Node test runner (backend unit) |
+| CI                   | GitHub Actions                                                                                     |
+| Hosting              | Vercel Fluid Compute                                                                               |
 
 ---
 
 ## Screenshots
 
-> *(Add screenshots here)*
+> _(Add screenshots here)_
 
 ---
 
