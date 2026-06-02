@@ -11,6 +11,9 @@ export const PATCH = withAuth(async (req, _ctx, user) => {
     const result = await authService.updateOdometer({ id: user.id, currentKm });
     return NextResponse.json(result);
   } catch (err) {
-    return NextResponse.json({ message: err.message }, { status: reportHandlerError(err, { route: '/api/auth/odometer', method: 'PATCH' }) });
+    return NextResponse.json(
+      { message: err.message },
+      { status: reportHandlerError(err, { route: '/api/auth/odometer', method: 'PATCH' }) },
+    );
   }
 });

@@ -15,6 +15,9 @@ export const GET = withAuth(async (req, _ctx, user) => {
     });
     return NextResponse.json(result);
   } catch (err) {
-    return NextResponse.json({ message: err.message }, { status: reportHandlerError(err, { route: '/api/expenses/summary' }) });
+    return NextResponse.json(
+      { message: err.message },
+      { status: reportHandlerError(err, { route: '/api/expenses/summary' }) },
+    );
   }
 });

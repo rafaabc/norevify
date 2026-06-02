@@ -13,7 +13,10 @@ export const GET = withAuth(async (req, _ctx, user) => {
     });
     return NextResponse.json(result);
   } catch (err) {
-    return NextResponse.json({ message: err.message }, { status: reportHandlerError(err, { route: '/api/reminders' }) });
+    return NextResponse.json(
+      { message: err.message },
+      { status: reportHandlerError(err, { route: '/api/reminders' }) },
+    );
   }
 });
 
@@ -24,6 +27,9 @@ export const POST = withVerifiedUser(async (req, _ctx, user) => {
     const result = await remindersService.createReminder(user.id, body);
     return NextResponse.json(result, { status: 201 });
   } catch (err) {
-    return NextResponse.json({ message: err.message }, { status: reportHandlerError(err, { route: '/api/reminders' }) });
+    return NextResponse.json(
+      { message: err.message },
+      { status: reportHandlerError(err, { route: '/api/reminders' }) },
+    );
   }
 });

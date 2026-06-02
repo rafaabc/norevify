@@ -10,6 +10,9 @@ export const GET = withAuth(async (_req, _ctx, user) => {
     const result = await remindersService.getBadgeCount(user.id);
     return NextResponse.json(result);
   } catch (err) {
-    return NextResponse.json({ message: err.message }, { status: reportHandlerError(err, { route: '/api/reminders/badge-count' }) });
+    return NextResponse.json(
+      { message: err.message },
+      { status: reportHandlerError(err, { route: '/api/reminders/badge-count' }) },
+    );
   }
 });

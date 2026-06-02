@@ -10,6 +10,9 @@ export async function POST(req) {
     const result = await authService.verifyEmail(body);
     return NextResponse.json(result);
   } catch (err) {
-    return NextResponse.json({ message: err.message }, { status: reportHandlerError(err, { route: '/api/auth/verify-email', method: 'POST' }) });
+    return NextResponse.json(
+      { message: err.message },
+      { status: reportHandlerError(err, { route: '/api/auth/verify-email', method: 'POST' }) },
+    );
   }
 }

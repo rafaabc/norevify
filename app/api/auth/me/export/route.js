@@ -10,6 +10,9 @@ export const GET = withAuth(async (req, ctx, user) => {
     const result = await authService.exportUserData({ userId: user.id });
     return NextResponse.json(result);
   } catch (err) {
-    return NextResponse.json({ message: err.message }, { status: reportHandlerError(err, { route: '/api/auth/me/export', method: 'GET' }) });
+    return NextResponse.json(
+      { message: err.message },
+      { status: reportHandlerError(err, { route: '/api/auth/me/export', method: 'GET' }) },
+    );
   }
 });

@@ -15,7 +15,10 @@ export const GET = withAuth(async (req, _ctx, user) => {
     });
     return NextResponse.json(result);
   } catch (err) {
-    return NextResponse.json({ message: err.message }, { status: reportHandlerError(err, { route: '/api/expenses' }) });
+    return NextResponse.json(
+      { message: err.message },
+      { status: reportHandlerError(err, { route: '/api/expenses' }) },
+    );
   }
 });
 
@@ -26,6 +29,9 @@ export const POST = withVerifiedUser(async (req, _ctx, user) => {
     const result = await expensesService.createExpense(user.id, body);
     return NextResponse.json(result, { status: 201 });
   } catch (err) {
-    return NextResponse.json({ message: err.message }, { status: reportHandlerError(err, { route: '/api/expenses' }) });
+    return NextResponse.json(
+      { message: err.message },
+      { status: reportHandlerError(err, { route: '/api/expenses' }) },
+    );
   }
 });

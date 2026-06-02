@@ -12,6 +12,9 @@ export const POST = withAuth(async (req, ctx, user) => {
     const result = await remindersService.completeReminder(user.id, id, body);
     return NextResponse.json(result);
   } catch (err) {
-    return NextResponse.json({ message: err.message }, { status: reportHandlerError(err, { route: '/api/reminders/[id]/complete' }) });
+    return NextResponse.json(
+      { message: err.message },
+      { status: reportHandlerError(err, { route: '/api/reminders/[id]/complete' }) },
+    );
   }
 });

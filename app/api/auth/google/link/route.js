@@ -11,7 +11,10 @@ export const POST = withAuth(async (req, _ctx, user) => {
     const result = await authService.linkGoogle({ userId: user.id, idToken });
     return NextResponse.json(result);
   } catch (err) {
-    return NextResponse.json({ message: err.message }, { status: reportHandlerError(err, { route: '/api/auth/google/link' }) });
+    return NextResponse.json(
+      { message: err.message },
+      { status: reportHandlerError(err, { route: '/api/auth/google/link' }) },
+    );
   }
 });
 
@@ -21,6 +24,9 @@ export const DELETE = withAuth(async (_req, _ctx, user) => {
     const result = await authService.unlinkGoogle({ userId: user.id });
     return NextResponse.json(result);
   } catch (err) {
-    return NextResponse.json({ message: err.message }, { status: reportHandlerError(err, { route: '/api/auth/google/link' }) });
+    return NextResponse.json(
+      { message: err.message },
+      { status: reportHandlerError(err, { route: '/api/auth/google/link' }) },
+    );
   }
 });

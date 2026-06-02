@@ -11,6 +11,9 @@ export const DELETE = withAuth(async (req, ctx, user) => {
     await authService.deleteAccount({ userId: user.id, password: body.password });
     return new Response(null, { status: 204 });
   } catch (err) {
-    return NextResponse.json({ message: err.message }, { status: reportHandlerError(err, { route: '/api/auth/me', method: 'DELETE' }) });
+    return NextResponse.json(
+      { message: err.message },
+      { status: reportHandlerError(err, { route: '/api/auth/me', method: 'DELETE' }) },
+    );
   }
 });

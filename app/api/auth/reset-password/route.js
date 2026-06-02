@@ -10,6 +10,9 @@ export async function POST(req) {
     const result = await authService.resetPassword(body);
     return NextResponse.json(result);
   } catch (err) {
-    return NextResponse.json({ message: err.message }, { status: reportHandlerError(err, { route: '/api/auth/reset-password', method: 'POST' }) });
+    return NextResponse.json(
+      { message: err.message },
+      { status: reportHandlerError(err, { route: '/api/auth/reset-password', method: 'POST' }) },
+    );
   }
 }

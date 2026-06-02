@@ -11,7 +11,10 @@ export const GET = withAuth(async (_req, ctx, user) => {
     const result = await expensesService.getExpense(user.id, id);
     return NextResponse.json(result);
   } catch (err) {
-    return NextResponse.json({ message: err.message }, { status: reportHandlerError(err, { route: '/api/expenses/[id]' }) });
+    return NextResponse.json(
+      { message: err.message },
+      { status: reportHandlerError(err, { route: '/api/expenses/[id]' }) },
+    );
   }
 });
 
@@ -23,7 +26,10 @@ export const PUT = withAuth(async (req, ctx, user) => {
     const result = await expensesService.updateExpense(user.id, id, body);
     return NextResponse.json(result);
   } catch (err) {
-    return NextResponse.json({ message: err.message }, { status: reportHandlerError(err, { route: '/api/expenses/[id]' }) });
+    return NextResponse.json(
+      { message: err.message },
+      { status: reportHandlerError(err, { route: '/api/expenses/[id]' }) },
+    );
   }
 });
 
@@ -34,6 +40,9 @@ export const DELETE = withAuth(async (_req, ctx, user) => {
     await expensesService.deleteExpense(user.id, id);
     return new Response(null, { status: 204 });
   } catch (err) {
-    return NextResponse.json({ message: err.message }, { status: reportHandlerError(err, { route: '/api/expenses/[id]' }) });
+    return NextResponse.json(
+      { message: err.message },
+      { status: reportHandlerError(err, { route: '/api/expenses/[id]' }) },
+    );
   }
 });

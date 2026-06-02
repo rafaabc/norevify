@@ -13,6 +13,9 @@ export const POST = withRateLimitedHandler(limiter, async (req) => {
     const result = await authService.login(body);
     return NextResponse.json(result);
   } catch (err) {
-    return NextResponse.json({ message: err.message }, { status: reportHandlerError(err, { route: '/api/auth/login', method: 'POST' }) });
+    return NextResponse.json(
+      { message: err.message },
+      { status: reportHandlerError(err, { route: '/api/auth/login', method: 'POST' }) },
+    );
   }
 });

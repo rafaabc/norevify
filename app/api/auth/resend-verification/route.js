@@ -15,7 +15,15 @@ export const POST = withRateLimitedHandler(
       const result = await authService.resendVerification({ userId: user.id });
       return NextResponse.json(result);
     } catch (err) {
-      return NextResponse.json({ message: err.message }, { status: reportHandlerError(err, { route: '/api/auth/resend-verification', method: 'POST' }) });
+      return NextResponse.json(
+        { message: err.message },
+        {
+          status: reportHandlerError(err, {
+            route: '/api/auth/resend-verification',
+            method: 'POST',
+          }),
+        },
+      );
     }
   }),
 );
