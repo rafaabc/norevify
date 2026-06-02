@@ -1,3 +1,4 @@
+import * as Sentry from '@sentry/nextjs';
 import i18n from '@/i18n/index.js';
 import { API_ERROR_MAP } from '@/i18n/apiErrors.js';
 
@@ -18,7 +19,13 @@ async function request(path, { method = 'GET', body = null, auth = true, signal 
   if (body !== null) options.body = JSON.stringify(body);
   if (signal) options.signal = signal;
 
-  const res = await fetch(`${BASE}${path}`, options);
+  let res;
+  try {
+    res = await fetch(`${BASE}${path}`, options);
+  } catch (networkErr) {
+    Sentry.captureException(networkErr, { extra: { path, method } });
+    throw networkErr;
+  }
 
   if (res.status === 401 && auth) {
     localStorage.removeItem('token');
@@ -35,6 +42,9 @@ async function request(path, { method = 'GET', body = null, auth = true, signal 
     const message = i18nKey ? i18n.t(i18nKey) : i18n.t('errors.generic');
     const err = new Error(message);
     err.status = res.status;
+    if (res.status >= 500) {
+      Sentry.captureException(err, { extra: { path, method, serverMessage: rawMessage } });
+    }
     throw err;
   }
 

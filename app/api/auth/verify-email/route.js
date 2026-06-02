@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { connectDB } from '@/lib/db.mjs';
 import authService from '@/lib/services/auth.service';
+import { reportHandlerError } from '@/lib/sentry.mjs';
 
 export async function POST(req) {
   await connectDB();
@@ -9,6 +10,6 @@ export async function POST(req) {
     const result = await authService.verifyEmail(body);
     return NextResponse.json(result);
   } catch (err) {
-    return NextResponse.json({ message: err.message }, { status: err.status || 500 });
+    return NextResponse.json({ message: err.message }, { status: reportHandlerError(err, { route: '/api/auth/verify-email', method: 'POST' }) });
   }
 }
