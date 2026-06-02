@@ -11,7 +11,9 @@ vi.mock('@/context/AuthContext.jsx', () => ({
 }));
 
 describe('MobileTopBar', () => {
-  beforeEach(() => { vi.clearAllMocks(); });
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
 
   it('should render brand name', () => {
     render(<MobileTopBar />);
@@ -20,7 +22,10 @@ describe('MobileTopBar', () => {
 
   it('should render reminders link', () => {
     render(<MobileTopBar />);
-    expect(screen.getByRole('link', { name: 'nav.reminders' })).toHaveAttribute('href', '/reminders');
+    expect(screen.getByRole('link', { name: 'nav.reminders' })).toHaveAttribute(
+      'href',
+      '/reminders',
+    );
   });
 
   it('should not render badge when badgeCount is 0', () => {

@@ -2,12 +2,12 @@
 
 ## Overview
 
-| Component | Value |
-|---|---|
-| Registrar | Hostinger |
-| Apex domain | `norevify.com` (reserved for future landing page) |
-| App subdomain | `app.norevify.com` → Vercel Fluid Compute |
-| DNS provider | Hostinger hPanel (or active nameserver if different) |
+| Component     | Value                                                |
+| ------------- | ---------------------------------------------------- |
+| Registrar     | Hostinger                                            |
+| Apex domain   | `norevify.com` (reserved for future landing page)    |
+| App subdomain | `app.norevify.com` → Vercel Fluid Compute            |
+| DNS provider  | Hostinger hPanel (or active nameserver if different) |
 
 ---
 
@@ -25,8 +25,8 @@ Open **hPanel** → **Domains** → `norevify.com` → **DNS / Nameservers**.
 
 > **If Hostinger shows nameservers outside Hostinger** (e.g. Cloudflare), create the records in the active nameserver's dashboard, not here.
 
-| Type | Name | Value | TTL |
-|---|---|---|---|
+| Type  | Name  | Value                  | TTL  |
+| ----- | ----- | ---------------------- | ---- |
 | CNAME | `app` | `cname.vercel-dns.com` | 3600 |
 
 ---
@@ -35,9 +35,9 @@ Open **hPanel** → **Domains** → `norevify.com` → **DNS / Nameservers**.
 
 Vercel Dashboard → your project → **Settings** → **Environment Variables** → set for **Production**:
 
-| Variable | Value |
-|---|---|
-| `BASE_URL` | `https://app.norevify.com` |
+| Variable       | Value                      |
+| -------------- | -------------------------- |
+| `BASE_URL`     | `https://app.norevify.com` |
 | `FRONTEND_URL` | `https://app.norevify.com` |
 
 Trigger a redeploy after saving so the new values take effect.
@@ -70,9 +70,9 @@ Or use [dnschecker.org](https://dnschecker.org) to check multiple regions.
 
 ## Troubleshooting
 
-| Symptom | Likely cause | Fix |
-|---|---|---|
-| Domain still red on Vercel | DNS not yet propagated (up to 48 h) | Wait; check with `nslookup` |
-| `ERR_SSL_PROTOCOL_ERROR` | TLS not yet provisioned | Wait 5–15 min after DNS propagates |
-| Google Sign-In fails on new domain | Origin not added to Google Console | Complete Step 4 |
-| Password-reset link points to old URL | `FRONTEND_URL` env not updated | Complete Step 3 + redeploy |
+| Symptom                               | Likely cause                        | Fix                                |
+| ------------------------------------- | ----------------------------------- | ---------------------------------- |
+| Domain still red on Vercel            | DNS not yet propagated (up to 48 h) | Wait; check with `nslookup`        |
+| `ERR_SSL_PROTOCOL_ERROR`              | TLS not yet provisioned             | Wait 5–15 min after DNS propagates |
+| Google Sign-In fails on new domain    | Origin not added to Google Console  | Complete Step 4                    |
+| Password-reset link points to old URL | `FRONTEND_URL` env not updated      | Complete Step 3 + redeploy         |

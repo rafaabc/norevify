@@ -26,7 +26,7 @@ async function loginAsNewUser(
 }
 
 test.describe('Data Subject Rights', () => {
-  test('[TC-DR-E2E-01] should register with consent and navigate to login', async ({ page, request }) => {
+  test('[TC-DR-E2E-01] should register with consent and navigate to login', async ({ page }) => {
     await page.addInitScript(() => localStorage.setItem('i18nextLng', 'en'));
     await page.goto('/register');
 
@@ -58,7 +58,10 @@ test.describe('Data Subject Rights', () => {
     }
   });
 
-  test('[TC-DR-E2E-03] should delete account and redirect to /login with banner', async ({ page, request }) => {
+  test('[TC-DR-E2E-03] should delete account and redirect to /login with banner', async ({
+    page,
+    request,
+  }) => {
     const { password } = await loginAsNewUser(request, page, 'del');
 
     await page.getByRole('button', { name: /delete.*account/i }).click();
@@ -69,7 +72,10 @@ test.describe('Data Subject Rights', () => {
       await passwordInput.fill(password);
     }
 
-    await page.getByRole('button', { name: /delete account/i }).last().click();
+    await page
+      .getByRole('button', { name: /delete account/i })
+      .last()
+      .click();
     await expect(page).toHaveURL(/\/login/, { timeout: 10000 });
   });
 });

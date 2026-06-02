@@ -3,8 +3,14 @@
 }
 
 @keyframes fadeUp {
-  from { opacity: 0; transform: translateY(10px); }
-  to   { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .pageTitle {
@@ -115,19 +121,35 @@
 }
 .recentTable th,
 .recentTable td {
-  padding: .5rem .75rem;
+  padding: 0.5rem 0.75rem;
 }
-.thDate     { width: 130px; }
-.thCategory { width: 150px; }
-.thAmount   { width: 120px; }
+.thDate {
+  width: 130px;
+}
+.thCategory {
+  width: 150px;
+}
+.thAmount {
+  width: 120px;
+}
 
 @media (max-width: 640px) {
-  .pageTitle  { font-size: 1.4rem; }
-  .thDate     { width: 90px; }
-  .thCategory { width: 100px; }
-  .thAmount   { width: 90px; }
+  .pageTitle {
+    font-size: 1.4rem;
+  }
+  .thDate {
+    width: 90px;
+  }
+  .thCategory {
+    width: 100px;
+  }
+  .thAmount {
+    width: 90px;
+  }
   .recentTable th,
-  .recentTable td { padding: .4rem .5rem; }
+  .recentTable td {
+    padding: 0.4rem 0.5rem;
+  }
 }
 
 /* Recent expenses table cells */
@@ -143,4 +165,3 @@
   color: var(--text);
   white-space: nowrap;
 }
-

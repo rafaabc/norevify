@@ -2,7 +2,9 @@ import { describe, it, expect, vi } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
 import FuelFields from '@/components/FuelFields';
 
-vi.mock('react-i18next', () => ({ useTranslation: () => ({ t: (k) => k, i18n: { language: 'en' } }) }));
+vi.mock('react-i18next', () => ({
+  useTranslation: () => ({ t: (k) => k, i18n: { language: 'en' } }),
+}));
 
 describe('FuelFields', () => {
   it('should render litres, price_per_litre, and odometer inputs', () => {

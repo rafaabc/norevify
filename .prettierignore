@@ -1,0 +1,9 @@
+node_modules
+.next
+coverage
+reports
+playwright-report
+public/sw.js
+public/workbox-*.js
+public/swe-worker-*.js
+_usability

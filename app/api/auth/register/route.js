@@ -9,7 +9,9 @@ export const POST = withRateLimitedHandler(limiter, async (req) => {
   await connectDB();
   try {
     const body = await req.json();
-    const ip = (req.headers.get('x-forwarded-for') || req.headers.get('x-real-ip') || '').split(',')[0].trim();
+    const ip = (req.headers.get('x-forwarded-for') || req.headers.get('x-real-ip') || '')
+      .split(',')[0]
+      .trim();
     const result = await authService.register({ ...body, ip });
     return NextResponse.json(result, { status: 201 });
   } catch (err) {

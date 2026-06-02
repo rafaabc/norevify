@@ -1,6 +1,6 @@
 'use strict';
 
-const { request, expect, BASE_URL, authHeader, createAndLoginUser, uniqueUsername } = require('../base/api-base');
+const { request, expect, BASE_URL, authHeader, createAndLoginUser } = require('../base/api-base');
 const fixtures = require('../fixtures/expenses.json');
 
 const today = new Date().toISOString().split('T')[0];
@@ -8,9 +8,7 @@ const today = new Date().toISOString().split('T')[0];
 // ─── US-03: Register / Manage Vehicle Expense ─────────────────────────────────
 
 describe('US-03 - Register / Manage Vehicle Expense', () => {
-
   describe('POST /api/expenses', () => {
-
     it('[TC-03-01] should return 201 and the created expense when payload is valid (Fuel)', async () => {
       const res = await request(BASE_URL)
         .post('/api/expenses')
@@ -34,9 +32,7 @@ describe('US-03 - Register / Manage Vehicle Expense', () => {
       expect(createRes.status).to.equal(201);
       const { id } = createRes.body;
 
-      const getRes = await request(BASE_URL)
-        .get(`/api/expenses/${id}`)
-        .set(authHeader());
+      const getRes = await request(BASE_URL).get(`/api/expenses/${id}`).set(authHeader());
 
       expect(getRes.status).to.equal(200);
       expect(getRes.body).to.have.property('id', id);
@@ -45,10 +41,7 @@ describe('US-03 - Register / Manage Vehicle Expense', () => {
 
     it('[TC-03-03] should return 201 for each of the predefined categories', async () => {
       for (const expense of fixtures.validNonFuel) {
-        const res = await request(BASE_URL)
-          .post('/api/expenses')
-          .set(authHeader())
-          .send(expense);
+        const res = await request(BASE_URL).post('/api/expenses').set(authHeader()).send(expense);
 
         expect(res.status, `failed for category ${expense.category}`).to.equal(201);
       }
@@ -62,18 +55,15 @@ describe('US-03 - Register / Manage Vehicle Expense', () => {
     });
 
     it('[TC-03-04] should return 400 when category is not in the predefined list', async () => {
-      const tc = fixtures.invalidCases.find(c => c.tcId === 'TC-03-04');
+      const tc = fixtures.invalidCases.find((c) => c.tcId === 'TC-03-04');
 
-      const res = await request(BASE_URL)
-        .post('/api/expenses')
-        .set(authHeader())
-        .send(tc.body);
+      const res = await request(BASE_URL).post('/api/expenses').set(authHeader()).send(tc.body);
 
       expect(res.status).to.equal(400);
     });
 
     it('[TC-03-05] should allow duplicate expenses and return 201 for both with different ids', async () => {
-      const payload = { date: '2026-01-15', category: 'Parking', amount: 5.50 };
+      const payload = { date: '2026-01-15', category: 'Parking', amount: 5.5 };
 
       const res1 = await request(BASE_URL).post('/api/expenses').set(authHeader()).send(payload);
       const res2 = await request(BASE_URL).post('/api/expenses').set(authHeader()).send(payload);
@@ -98,13 +88,10 @@ describe('US-03 - Register / Manage Vehicle Expense', () => {
 
     // Parametrized invalid cases (TC-03-07, 08, 09, 11, 12)
     fixtures.invalidCases
-      .filter(c => c.tcId !== 'TC-03-04')
+      .filter((c) => c.tcId !== 'TC-03-04')
       .forEach(({ tcId, description, body, expectedStatus, expectedMessage }) => {
         it(`[${tcId}] should return ${expectedStatus} when ${description}`, async () => {
-          const res = await request(BASE_URL)
-            .post('/api/expenses')
-            .set(authHeader())
-            .send(body);
+          const res = await request(BASE_URL).post('/api/expenses').set(authHeader()).send(body);
 
           expect(res.status).to.equal(expectedStatus);
           if (expectedMessage) {
@@ -113,7 +100,7 @@ describe('US-03 - Register / Manage Vehicle Expense', () => {
         });
       });
 
-    it("[TC-03-10] should return 201 when date is today", async () => {
+    it('[TC-03-10] should return 201 when date is today', async () => {
       const res = await request(BASE_URL)
         .post('/api/expenses')
         .set(authHeader())
@@ -156,7 +143,6 @@ describe('US-03 - Register / Manage Vehicle Expense', () => {
   });
 
   describe('DELETE /api/expenses/:id', () => {
-
     it('[TC-03-15] should return 204 and make the expense unreachable via GET afterwards', async () => {
       const createRes = await request(BASE_URL)
         .post('/api/expenses')
@@ -164,23 +150,17 @@ describe('US-03 - Register / Manage Vehicle Expense', () => {
         .send({ date: '2026-01-15', category: 'Toll', amount: 3 });
       const { id } = createRes.body;
 
-      const deleteRes = await request(BASE_URL)
-        .delete(`/api/expenses/${id}`)
-        .set(authHeader());
+      const deleteRes = await request(BASE_URL).delete(`/api/expenses/${id}`).set(authHeader());
 
       expect(deleteRes.status).to.equal(204);
 
-      const getRes = await request(BASE_URL)
-        .get(`/api/expenses/${id}`)
-        .set(authHeader());
+      const getRes = await request(BASE_URL).get(`/api/expenses/${id}`).set(authHeader());
 
       expect(getRes.status).to.equal(404);
     });
 
     it('[TC-03-16] should return 404 when deleting a non-existent expense', async () => {
-      const res = await request(BASE_URL)
-        .delete('/api/expenses/999999999')
-        .set(authHeader());
+      const res = await request(BASE_URL).delete('/api/expenses/999999999').set(authHeader());
 
       expect(res.status).to.equal(404);
     });
@@ -212,21 +192,20 @@ describe('US-03 - Register / Manage Vehicle Expense', () => {
   });
 
   describe('GET /api/expenses', () => {
-
     it('[TC-03-18] should return amount as an unformatted number (not a string)', async () => {
       await request(BASE_URL)
         .post('/api/expenses')
         .set(authHeader())
         .send({ date: '2026-01-15', category: 'Other', amount: 99.99 });
 
-      const res = await request(BASE_URL)
-        .get('/api/expenses')
-        .set(authHeader());
+      const res = await request(BASE_URL).get('/api/expenses').set(authHeader());
 
       expect(res.status).to.equal(200);
       expect(res.body).to.be.an('array').that.is.not.empty;
-      res.body.forEach(expense => {
-        expect(expense.amount, `expense id=${expense.id} amount should be a number`).to.be.a('number');
+      res.body.forEach((expense) => {
+        expect(expense.amount, `expense id=${expense.id} amount should be a number`).to.be.a(
+          'number',
+        );
       });
     });
   });

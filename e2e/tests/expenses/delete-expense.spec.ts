@@ -31,7 +31,10 @@ test('[TC-03-15] should remove expense from list after deletion', async ({ page,
 });
 
 // TC-03-05 — duplicate expenses are independent
-test('[TC-03-05] should allow two identical expenses and delete them independently', async ({ page, request }) => {
+test('[TC-03-05] should allow two identical expenses and delete them independently', async ({
+  page,
+  request,
+}) => {
   await createExpenseViaApi(request, token, { category: 'Other', amount: 50 });
   await createExpenseViaApi(request, token, { category: 'Other', amount: 50 });
 

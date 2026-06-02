@@ -14,14 +14,22 @@ describe('I18nProvider', () => {
   });
 
   it('should render children', () => {
-    render(<I18nProvider><span>hello</span></I18nProvider>);
+    render(
+      <I18nProvider>
+        <span>hello</span>
+      </I18nProvider>,
+    );
     expect(screen.getByText('hello')).toBeInTheDocument();
   });
 
   it('should call changeLanguage when localStorage has a different language', async () => {
     localStorage.setItem('i18nextLng', 'en');
     await act(async () => {
-      render(<I18nProvider><span>x</span></I18nProvider>);
+      render(
+        <I18nProvider>
+          <span>x</span>
+        </I18nProvider>,
+      );
     });
     expect(i18n.changeLanguage).toHaveBeenCalledWith('en');
   });
@@ -29,14 +37,22 @@ describe('I18nProvider', () => {
   it('should not call changeLanguage when localStorage matches i18n.language', async () => {
     localStorage.setItem('i18nextLng', 'pt-BR');
     await act(async () => {
-      render(<I18nProvider><span>x</span></I18nProvider>);
+      render(
+        <I18nProvider>
+          <span>x</span>
+        </I18nProvider>,
+      );
     });
     expect(i18n.changeLanguage).not.toHaveBeenCalled();
   });
 
   it('should not call changeLanguage when localStorage is empty', async () => {
     await act(async () => {
-      render(<I18nProvider><span>x</span></I18nProvider>);
+      render(
+        <I18nProvider>
+          <span>x</span>
+        </I18nProvider>,
+      );
     });
     expect(i18n.changeLanguage).not.toHaveBeenCalled();
   });

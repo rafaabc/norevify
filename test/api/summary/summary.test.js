@@ -28,7 +28,6 @@ describe('US-04 - Expenses Summary by Period', () => {
   });
 
   describe('GET /api/expenses/summary', () => {
-
     it('[TC-04-01] should return 200 with per-category totals when queried by year only', async () => {
       const res = await request(BASE_URL)
         .get('/api/expenses/summary')
@@ -72,7 +71,7 @@ describe('US-04 - Expenses Summary by Period', () => {
 
       expect(res.status).to.equal(200);
       const zeroCategories = ['Parking', 'Toll', 'Tax', 'Other'];
-      zeroCategories.forEach(cat => {
+      zeroCategories.forEach((cat) => {
         expect(res.body.categories, `${cat} should be 0`).to.have.property(cat, 0);
       });
     });
@@ -113,25 +112,27 @@ describe('US-04 - Expenses Summary by Period', () => {
         .query({ year: 2025 });
 
       expect(res.status).to.equal(200);
-      CATEGORIES.forEach(cat => {
+      CATEGORIES.forEach((cat) => {
         expect(res.body.categories, `category "${cat}" should be present`).to.have.property(cat);
       });
     });
 
     // Parametrized invalid query cases (TC-04-08, 09, 10)
-    fixtures.invalidQueryCases.forEach(({ tcId, description, query, expectedStatus, expectedMessage }) => {
-      it(`[${tcId}] should return ${expectedStatus} when ${description}`, async () => {
-        const res = await request(BASE_URL)
-          .get('/api/expenses/summary')
-          .set('Authorization', `Bearer ${summaryToken}`)
-          .query(query);
+    fixtures.invalidQueryCases.forEach(
+      ({ tcId, description, query, expectedStatus, expectedMessage }) => {
+        it(`[${tcId}] should return ${expectedStatus} when ${description}`, async () => {
+          const res = await request(BASE_URL)
+            .get('/api/expenses/summary')
+            .set('Authorization', `Bearer ${summaryToken}`)
+            .query(query);
 
-        expect(res.status).to.equal(expectedStatus);
-        if (expectedMessage) {
-          expect(res.body).to.have.property('message', expectedMessage);
-        }
-      });
-    });
+          expect(res.status).to.equal(expectedStatus);
+          if (expectedMessage) {
+            expect(res.body).to.have.property('message', expectedMessage);
+          }
+        });
+      },
+    );
 
     it('[TC-04-11] should return total as an unformatted number (not a string)', async () => {
       const res = await request(BASE_URL)
@@ -141,7 +142,7 @@ describe('US-04 - Expenses Summary by Period', () => {
 
       expect(res.status).to.equal(200);
       expect(res.body.total).to.be.a('number');
-      CATEGORIES.forEach(cat => {
+      CATEGORIES.forEach((cat) => {
         expect(res.body.categories[cat], `categories.${cat} should be a number`).to.be.a('number');
       });
     });

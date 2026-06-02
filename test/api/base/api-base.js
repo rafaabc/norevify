@@ -26,8 +26,12 @@ function uniqueUsername(prefix) {
   return `${prefix}_${Date.now()}_${counter++}`;
 }
 
-function getToken() { return authToken; }
-function getUser()  { return authUser; }
+function getToken() {
+  return authToken;
+}
+function getUser() {
+  return authUser;
+}
 
 function authHeader() {
   return { Authorization: `Bearer ${getToken()}` };
@@ -49,7 +53,7 @@ async function registerAndTrack(username, password, email) {
 async function createAndLoginUser(prefix) {
   const username = uniqueUsername(prefix);
   const password = 'Password1';
-  const email    = `${username}@test.com`;
+  const email = `${username}@test.com`;
 
   const regRes = await request(BASE_URL)
     .post('/api/auth/register')
@@ -60,9 +64,7 @@ async function createAndLoginUser(prefix) {
     await verifyUserInDb(regRes.body.id);
   }
 
-  const loginRes = await request(BASE_URL)
-    .post('/api/auth/login')
-    .send({ username, password });
+  const loginRes = await request(BASE_URL).post('/api/auth/login').send({ username, password });
 
   return loginRes.body.token;
 }
@@ -82,7 +84,7 @@ before(async function () {
 
   const username = uniqueUsername('primary');
   const password = 'Password1';
-  const email    = `${username}@test.com`;
+  const email = `${username}@test.com`;
 
   const regRes = await request(BASE_URL)
     .post('/api/auth/register')
@@ -91,7 +93,7 @@ before(async function () {
 
   if (!regRes) {
     throw new Error(
-      `API server not reachable at ${BASE_URL}. Run "npm run dev" in a separate terminal before running the API test suite.`
+      `API server not reachable at ${BASE_URL}. Run "npm run dev" in a separate terminal before running the API test suite.`,
     );
   }
 
@@ -100,9 +102,7 @@ before(async function () {
   createdUserIds.push(regRes.body.id);
   await verifyUserInDb(regRes.body.id);
 
-  const loginRes = await request(BASE_URL)
-    .post('/api/auth/login')
-    .send({ username, password });
+  const loginRes = await request(BASE_URL).post('/api/auth/login').send({ username, password });
 
   expect(loginRes.status, 'primary user login failed').to.equal(200);
 
@@ -114,8 +114,8 @@ before(async function () {
 after(async function () {
   this.timeout(30000);
   try {
-    const UserM     = mongoose.model('User');
-    const ExpenseM  = mongoose.model('Expense');
+    const UserM = mongoose.model('User');
+    const ExpenseM = mongoose.model('Expense');
     const ReminderM = mongoose.model('Reminder');
 
     for (const id of createdUserIds) {
@@ -129,7 +129,7 @@ after(async function () {
   } finally {
     await Promise.race([
       mongoose.connection.close(true),
-      new Promise(resolve => setTimeout(resolve, 8000)),
+      new Promise((resolve) => setTimeout(resolve, 8000)),
     ]);
   }
 });

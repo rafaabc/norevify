@@ -20,7 +20,8 @@ beforeEach(async () => await resetMongo());
 
 const VALID_CONSENT = { policyVersion: '2026-05-20', acceptedAt: new Date().toISOString() };
 
-const fakeVerify = (sub = 'g-sub-1', email = 'guser@gmail.com', emailVerified = true) =>
+const fakeVerify =
+  (sub = 'g-sub-1', email = 'guser@gmail.com', emailVerified = true) =>
   async () => ({ sub, email, emailVerified, name: 'G User' });
 
 describe('Google auth flow integration', () => {
@@ -33,7 +34,12 @@ describe('Google auth flow integration', () => {
   });
 
   it('should auto-link Google to an existing password account sharing the same email', async () => {
-    const user = await authService.register({ username: 'alice', password: 'password1', email: 'guser@gmail.com', consent: VALID_CONSENT });
+    const user = await authService.register({
+      username: 'alice',
+      password: 'password1',
+      email: 'guser@gmail.com',
+      consent: VALID_CONSENT,
+    });
     const { token } = await authService.googleLogin({ idToken: 'tok' }, fakeVerify());
     const decoded = jwt.decode(token);
     assert.strictEqual(decoded.id, user.id, 'same user id after auto-link');
@@ -41,7 +47,12 @@ describe('Google auth flow integration', () => {
   });
 
   it('should allow linking Google via Settings then unlinking (user has password)', async () => {
-    const user = await authService.register({ username: 'bob', password: 'password1', email: 'bob@gmail.com', consent: VALID_CONSENT });
+    const user = await authService.register({
+      username: 'bob',
+      password: 'password1',
+      email: 'bob@gmail.com',
+      consent: VALID_CONSENT,
+    });
     const verify = fakeVerify('g-sub-bob', 'bob@gmail.com');
 
     const linkResult = await authService.linkGoogle({ userId: user.id, idToken: 'tok' }, verify);
@@ -56,7 +67,10 @@ describe('Google auth flow integration', () => {
     const { id } = jwt.decode(token);
     await assert.rejects(
       () => authService.unlinkGoogle({ userId: id }),
-      (err) => { assert.strictEqual(err.status, 400); return true; }
+      (err) => {
+        assert.strictEqual(err.status, 400);
+        return true;
+      },
     );
   });
 
@@ -69,7 +83,12 @@ describe('Google auth flow integration', () => {
   });
 
   it('should return password provider and hasPassword=true for a normal user', async () => {
-    const user = await authService.register({ username: 'carol', password: 'password1', email: 'carol@example.com', consent: VALID_CONSENT });
+    const user = await authService.register({
+      username: 'carol',
+      password: 'password1',
+      email: 'carol@example.com',
+      consent: VALID_CONSENT,
+    });
     const result = await authService.getProviders({ userId: user.id });
     assert.deepStrictEqual(result.authProviders, ['password']);
     assert.strictEqual(result.hasPassword, true);

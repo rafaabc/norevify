@@ -12,7 +12,9 @@ export default function NotFoundPage() {
       <Compass size={64} className={styles.icon} aria-hidden="true" />
       <p className={styles.code}>404</p>
       <p className={styles.message}>{t('notFound.heading')}</p>
-      <button className="btn-primary" onClick={() => router.push('/')}>{t('notFound.back')}</button>
+      <button className="btn-primary" onClick={() => router.push('/')}>
+        {t('notFound.back')}
+      </button>
     </div>
   );
 }

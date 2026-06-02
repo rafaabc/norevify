@@ -24,7 +24,10 @@
   border: 1px solid transparent;
   border-radius: var(--radius-sm);
   color: var(--muted);
-  transition: color .15s, background .15s, border-color .15s;
+  transition:
+    color 0.15s,
+    background 0.15s,
+    border-color 0.15s;
 }
 
 .iconBtn:hover {

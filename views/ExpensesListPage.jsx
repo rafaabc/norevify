@@ -15,8 +15,19 @@ import { formatCurrency } from '@/utils/formatCurrency.js';
 import styles from './ExpensesListPage.module.css';
 
 const MONTHS = [
-  '', 'January', 'February', 'March', 'April', 'May', 'June',
-  'July', 'August', 'September', 'October', 'November', 'December',
+  '',
+  'January',
+  'February',
+  'March',
+  'April',
+  'May',
+  'June',
+  'July',
+  'August',
+  'September',
+  'October',
+  'November',
+  'December',
 ];
 
 const DEFAULT_YEAR = String(currentYear());
@@ -43,7 +54,9 @@ function ExpenseCard({ expense, onDeleted, onError, router, currency }) {
     <div className={styles.expenseCard}>
       <div className={styles.cardTop}>
         <span className={styles.cardDate}>{formatDate(expense.date)}</span>
-        <span className="badge" data-cat={expense.category}>{categoryLabel(expense.category, t)}</span>
+        <span className="badge" data-cat={expense.category}>
+          {categoryLabel(expense.category, t)}
+        </span>
       </div>
       <div className={styles.cardBody}>
         <span className={styles.cardAmount}>{formatCurrency(expense.amount, currency)}</span>
@@ -106,6 +119,7 @@ export default function ExpensesListPage() {
 
   useEffect(() => {
     const controller = new AbortController();
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- fetchExpenses is async, setState only after await
     fetchExpenses(filters, controller.signal);
     return () => controller.abort();
   }, [filters, fetchExpenses]);
@@ -123,9 +137,7 @@ export default function ExpensesListPage() {
   }
 
   const hasActiveFilters =
-    filters.category !== '' ||
-    filters.year !== DEFAULT_YEAR ||
-    filters.month !== '';
+    filters.category !== '' || filters.year !== DEFAULT_YEAR || filters.month !== '';
 
   return (
     <div className="page">
@@ -144,7 +156,10 @@ export default function ExpensesListPage() {
           aria-expanded={filtersOpen}
         >
           <Filter size={15} aria-hidden="true" />
-          {t('expenses.filters')}{hasActiveFilters ? ` (${[filters.category, filters.year !== DEFAULT_YEAR ? filters.year : '', filters.month].filter(Boolean).length})` : ''}
+          {t('expenses.filters')}
+          {hasActiveFilters
+            ? ` (${[filters.category, filters.year !== DEFAULT_YEAR ? filters.year : '', filters.month].filter(Boolean).length})`
+            : ''}
           {filtersOpen ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
         </button>
 
@@ -160,7 +175,9 @@ export default function ExpensesListPage() {
           >
             <option value="">{t('expenses.filterCategory')}</option>
             {CATEGORIES.map((c) => (
-              <option key={c} value={c}>{categoryLabel(c, t)}</option>
+              <option key={c} value={c}>
+                {categoryLabel(c, t)}
+              </option>
             ))}
           </select>
 
@@ -173,7 +190,9 @@ export default function ExpensesListPage() {
           >
             <option value="">{t('expenses.filterYear')}</option>
             {buildYearOptions().map((y) => (
-              <option key={y} value={String(y)}>{y}</option>
+              <option key={y} value={String(y)}>
+                {y}
+              </option>
             ))}
           </select>
 
@@ -186,7 +205,9 @@ export default function ExpensesListPage() {
           >
             <option value="">{t('expenses.filterMonth')}</option>
             {MONTHS.slice(1).map((m, i) => (
-              <option key={i + 1} value={i + 1}>{m}</option>
+              <option key={i + 1} value={i + 1}>
+                {m}
+              </option>
             ))}
           </select>
 
@@ -205,10 +226,12 @@ export default function ExpensesListPage() {
       ) : expenses.length === 0 ? (
         <div className={styles.emptyState}>
           <FileX2 size={48} className={styles.emptyIcon} aria-hidden="true" />
-          <p className={styles.emptyText}>
-            {t('expenses.noExpenses')}
-          </p>
-          <Link href="/expenses/new" className="btn-primary" style={{ textDecoration: 'none', display: 'inline-block' }}>
+          <p className={styles.emptyText}>{t('expenses.noExpenses')}</p>
+          <Link
+            href="/expenses/new"
+            className="btn-primary"
+            style={{ textDecoration: 'none', display: 'inline-block' }}
+          >
             + {t('common.new')}
           </Link>
         </div>
@@ -219,15 +242,29 @@ export default function ExpensesListPage() {
               <table className={styles.expenseTable}>
                 <thead>
                   <tr>
-                    <th scope="col" className={styles.thDate}>{t('expenses.date')}</th>
-                    <th scope="col" className={styles.thCategory}>{t('expenses.category')}</th>
-                    <th scope="col" className={`num ${styles.thAmount}`}>{t('expenses.amount')}</th>
-                    <th scope="col" className={styles.thActions}><span className="sr-only">{t('expenses.actions')}</span></th>
+                    <th scope="col" className={styles.thDate}>
+                      {t('expenses.date')}
+                    </th>
+                    <th scope="col" className={styles.thCategory}>
+                      {t('expenses.category')}
+                    </th>
+                    <th scope="col" className={`num ${styles.thAmount}`}>
+                      {t('expenses.amount')}
+                    </th>
+                    <th scope="col" className={styles.thActions}>
+                      <span className="sr-only">{t('expenses.actions')}</span>
+                    </th>
                   </tr>
                 </thead>
                 <tbody>
                   {expenses.map((exp) => (
-                    <ExpenseRow key={exp.id} expense={exp} onDeleted={handleDeleted} onError={setError} currency={currency} />
+                    <ExpenseRow
+                      key={exp.id}
+                      expense={exp}
+                      onDeleted={handleDeleted}
+                      onError={setError}
+                      currency={currency}
+                    />
                   ))}
                 </tbody>
               </table>
@@ -236,7 +273,14 @@ export default function ExpensesListPage() {
 
           <div className={styles.cardList}>
             {expenses.map((exp) => (
-              <ExpenseCard key={exp.id} expense={exp} onDeleted={handleDeleted} onError={setError} router={router} currency={currency} />
+              <ExpenseCard
+                key={exp.id}
+                expense={exp}
+                onDeleted={handleDeleted}
+                onError={setError}
+                router={router}
+                currency={currency}
+              />
             ))}
           </div>
         </>

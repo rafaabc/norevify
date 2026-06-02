@@ -54,7 +54,9 @@ export default function DashboardPage() {
         const prevYearData = isJanuary ? results[1] : [];
         const allExpenses = [...prevYearData, ...curYearData];
 
-        setExpenses(allExpenses.map((e) => ({ ...e, _curYear: e.date.startsWith(String(currentYear)) })));
+        setExpenses(
+          allExpenses.map((e) => ({ ...e, _curYear: e.date.startsWith(String(currentYear)) })),
+        );
       } catch (err) {
         if (!cancelled) setError(err.message);
       } finally {
@@ -63,7 +65,9 @@ export default function DashboardPage() {
     }
 
     fetchData();
-    return () => { cancelled = true; };
+    return () => {
+      cancelled = true;
+    };
   }, [currentYear]);
 
   if (loading) return <Loading />;
@@ -73,9 +77,8 @@ export default function DashboardPage() {
 
   const mtd = computeMtd(curYearExpenses);
   const prevMonthTotal = computePrevMonthTotal(expenses);
-  const mtdDelta = prevMonthTotal > 0
-    ? Math.round(((mtd - prevMonthTotal) / prevMonthTotal) * 1000) / 10
-    : null;
+  const mtdDelta =
+    prevMonthTotal > 0 ? Math.round(((mtd - prevMonthTotal) / prevMonthTotal) * 1000) / 10 : null;
 
   const ytd = computeYtd(curYearExpenses);
   const fuelShare = computeFuelShare(curYearExpenses);
@@ -128,7 +131,9 @@ export default function DashboardPage() {
 
       <div className={styles.chartsRow}>
         <div className={styles.chartCard}>
-          <h2 className={styles.sectionTitle}>{t('dashboard.monthlySpend', { year: currentYear })}</h2>
+          <h2 className={styles.sectionTitle}>
+            {t('dashboard.monthlySpend', { year: currentYear })}
+          </h2>
           <MonthlyTrendChart data={monthlyData} />
         </div>
         <div className={styles.chartCard}>
@@ -140,7 +145,9 @@ export default function DashboardPage() {
       <div className={styles.recentCard}>
         <div className={styles.recentHeader}>
           <h2 className={styles.sectionTitle}>{t('dashboard.recentExpenses')}</h2>
-          <Link href="/expenses" className={styles.viewAll}>View all →</Link>
+          <Link href="/expenses" className={styles.viewAll}>
+            View all →
+          </Link>
         </div>
 
         {recentExpenses.length === 0 ? (
@@ -152,9 +159,15 @@ export default function DashboardPage() {
             <table className={styles.recentTable}>
               <thead>
                 <tr>
-                  <th scope="col" className={styles.thDate}>{t('dashboard.date')}</th>
-                  <th scope="col" className={styles.thCategory}>{t('dashboard.category')}</th>
-                  <th scope="col" className={`num ${styles.thAmount}`}>{t('dashboard.amount')}</th>
+                  <th scope="col" className={styles.thDate}>
+                    {t('dashboard.date')}
+                  </th>
+                  <th scope="col" className={styles.thCategory}>
+                    {t('dashboard.category')}
+                  </th>
+                  <th scope="col" className={`num ${styles.thAmount}`}>
+                    {t('dashboard.amount')}
+                  </th>
                 </tr>
               </thead>
               <tbody>
@@ -162,9 +175,13 @@ export default function DashboardPage() {
                   <tr key={exp.id}>
                     <td className={styles.dateCell}>{formatDate(exp.date)}</td>
                     <td>
-                      <span className="badge" data-cat={exp.category}>{categoryLabel(exp.category, t)}</span>
+                      <span className="badge" data-cat={exp.category}>
+                        {categoryLabel(exp.category, t)}
+                      </span>
                     </td>
-                    <td className={`num ${styles.amountCell}`}>{formatCurrency(exp.amount, currency)}</td>
+                    <td className={`num ${styles.amountCell}`}>
+                      {formatCurrency(exp.amount, currency)}
+                    </td>
                   </tr>
                 ))}
               </tbody>

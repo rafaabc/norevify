@@ -9,7 +9,14 @@ import { remindersApi } from '@/services/apiService.js';
 import { useAsyncAction } from '@/hooks/useAsyncAction.js';
 import { todayISO } from '@/utils/formatDate.js';
 
-const EMPTY = { type: 'Maintenance', title: '', dueDate: '', dueKm: '', intervalMonths: '', intervalKm: '' };
+const EMPTY = {
+  type: 'Maintenance',
+  title: '',
+  dueDate: '',
+  dueKm: '',
+  intervalMonths: '',
+  intervalKm: '',
+};
 
 export default function ReminderFormPage() {
   const { t } = useTranslation();
@@ -23,16 +30,19 @@ export default function ReminderFormPage() {
 
   useEffect(() => {
     if (!isEdit) return;
-    remindersApi.get(id).then((r) => {
-      setForm({
-        type: r.type,
-        title: r.title || '',
-        dueDate: r.dueDate ? r.dueDate.slice(0, 10) : '',
-        dueKm: r.dueKm ?? '',
-        intervalMonths: r.intervalMonths ?? '',
-        intervalKm: r.intervalKm ?? '',
-      });
-    }).catch((e) => setLoadError(e.message));
+    remindersApi
+      .get(id)
+      .then((r) => {
+        setForm({
+          type: r.type,
+          title: r.title || '',
+          dueDate: r.dueDate ? r.dueDate.slice(0, 10) : '',
+          dueKm: r.dueKm ?? '',
+          intervalMonths: r.intervalMonths ?? '',
+          intervalKm: r.intervalKm ?? '',
+        });
+      })
+      .catch((e) => setLoadError(e.message));
   }, [id, isEdit]);
 
   function handleChange(e) {
@@ -57,7 +67,7 @@ export default function ReminderFormPage() {
     }
     await action.run(async () => {
       if (isEdit) await remindersApi.update(id, buildBody());
-      else        await remindersApi.create(buildBody());
+      else await remindersApi.create(buildBody());
       router.push('/reminders');
     });
   }
@@ -74,7 +84,11 @@ export default function ReminderFormPage() {
           <input id="field-title" name="title" value={form.title} onChange={handleChange} />
         </div>
         <div className="form-group">
-          <FieldLabelWithHint htmlFor="field-dueDate" label={t('reminders.fields.dueDate')} hint={t('reminders.fields.dueHint')} />
+          <FieldLabelWithHint
+            htmlFor="field-dueDate"
+            label={t('reminders.fields.dueDate')}
+            hint={t('reminders.fields.dueHint')}
+          />
           <input
             id="field-dueDate"
             type="date"
@@ -85,18 +99,49 @@ export default function ReminderFormPage() {
           />
         </div>
         <div className="form-group">
-          <FieldLabelWithHint htmlFor="field-dueKm" label={t('reminders.fields.dueKm')} hint={t('reminders.fields.dueHint')} />
-          <input id="field-dueKm" name="dueKm" type="number" min="0" value={form.dueKm} onChange={handleChange} />
+          <FieldLabelWithHint
+            htmlFor="field-dueKm"
+            label={t('reminders.fields.dueKm')}
+            hint={t('reminders.fields.dueHint')}
+          />
+          <input
+            id="field-dueKm"
+            name="dueKm"
+            type="number"
+            min="0"
+            value={form.dueKm}
+            onChange={handleChange}
+          />
         </div>
         <div className="form-group">
-          <FieldLabelWithHint htmlFor="field-intervalMonths" label={t('reminders.fields.intervalMonths')} hint={t('reminders.fields.intervalHint')} />
-          <input id="field-intervalMonths" name="intervalMonths" type="number" min="0"
-                 value={form.intervalMonths} onChange={handleChange} />
+          <FieldLabelWithHint
+            htmlFor="field-intervalMonths"
+            label={t('reminders.fields.intervalMonths')}
+            hint={t('reminders.fields.intervalHint')}
+          />
+          <input
+            id="field-intervalMonths"
+            name="intervalMonths"
+            type="number"
+            min="0"
+            value={form.intervalMonths}
+            onChange={handleChange}
+          />
         </div>
         <div className="form-group">
-          <FieldLabelWithHint htmlFor="field-intervalKm" label={t('reminders.fields.intervalKm')} hint={t('reminders.fields.intervalHint')} />
-          <input id="field-intervalKm" name="intervalKm" type="number" min="0"
-                 value={form.intervalKm} onChange={handleChange} />
+          <FieldLabelWithHint
+            htmlFor="field-intervalKm"
+            label={t('reminders.fields.intervalKm')}
+            hint={t('reminders.fields.intervalHint')}
+          />
+          <input
+            id="field-intervalKm"
+            name="intervalKm"
+            type="number"
+            min="0"
+            value={form.intervalKm}
+            onChange={handleChange}
+          />
         </div>
         <div style={{ display: 'flex', gap: '0.5rem' }}>
           <button type="submit" className="btn-primary" disabled={action.loading}>

@@ -35,10 +35,19 @@ describe('expensesService.createExpense()', () => {
     const categories = ['Fuel', 'Maintenance', 'Insurance', 'Parking', 'Toll', 'Tax', 'Other'];
     for (const category of categories) {
       if (category === 'Fuel') {
-        const expense = await expensesService.createExpense(USER_ID, { date: TODAY, category, litres: 10, price_per_litre: 2 });
+        const expense = await expensesService.createExpense(USER_ID, {
+          date: TODAY,
+          category,
+          litres: 10,
+          price_per_litre: 2,
+        });
         assert.strictEqual(expense.category, category);
       } else {
-        const expense = await expensesService.createExpense(USER_ID, { date: TODAY, category, amount: 10 });
+        const expense = await expensesService.createExpense(USER_ID, {
+          date: TODAY,
+          category,
+          amount: 10,
+        });
         assert.strictEqual(expense.category, category);
       }
     }
@@ -52,7 +61,7 @@ describe('expensesService.createExpense()', () => {
         assert.strictEqual(err.status, 400);
         assert.match(err.message, /category must be one of/i);
         return true;
-      }
+      },
     );
   });
 
@@ -67,12 +76,22 @@ describe('expensesService.createExpense()', () => {
 
   // TC-03-06
   it('should compute Fuel amount as litres × price_per_litre rounded to 2 decimals', async () => {
-    const expense = await expensesService.createExpense(USER_ID, { date: TODAY, category: 'Fuel', litres: 40, price_per_litre: 1.5 });
+    const expense = await expensesService.createExpense(USER_ID, {
+      date: TODAY,
+      category: 'Fuel',
+      litres: 40,
+      price_per_litre: 1.5,
+    });
     assert.strictEqual(expense.amount, 60);
   });
 
   it('should round Fuel amount correctly at the 2nd decimal place', async () => {
-    const expense = await expensesService.createExpense(USER_ID, { date: TODAY, category: 'Fuel', litres: 3, price_per_litre: 1.235 });
+    const expense = await expensesService.createExpense(USER_ID, {
+      date: TODAY,
+      category: 'Fuel',
+      litres: 3,
+      price_per_litre: 1.235,
+    });
     assert.strictEqual(expense.amount, 3.71);
   });
 
@@ -84,37 +103,47 @@ describe('expensesService.createExpense()', () => {
         assert.strictEqual(err.status, 400);
         assert.match(err.message, /price_per_litre is required/i);
         return true;
-      }
+      },
     );
   });
 
   // TC-03-08
   it('should throw 400 when Fuel expense is missing litres', async () => {
     await assert.rejects(
-      () => expensesService.createExpense(USER_ID, { date: TODAY, category: 'Fuel', price_per_litre: 1.5 }),
+      () =>
+        expensesService.createExpense(USER_ID, {
+          date: TODAY,
+          category: 'Fuel',
+          price_per_litre: 1.5,
+        }),
       (err) => {
         assert.strictEqual(err.status, 400);
         assert.match(err.message, /litres is required/i);
         return true;
-      }
+      },
     );
   });
 
   // TC-03-09
   it('should throw 400 when date is in the future', async () => {
     await assert.rejects(
-      () => expensesService.createExpense(USER_ID, { date: FUTURE, category: 'Parking', amount: 10 }),
+      () =>
+        expensesService.createExpense(USER_ID, { date: FUTURE, category: 'Parking', amount: 10 }),
       (err) => {
         assert.strictEqual(err.status, 400);
         assert.match(err.message, /future/i);
         return true;
-      }
+      },
     );
   });
 
   // TC-03-10
   it("should accept an expense with today's date", async () => {
-    const expense = await expensesService.createExpense(USER_ID, { date: TODAY, category: 'Parking', amount: 10 });
+    const expense = await expensesService.createExpense(USER_ID, {
+      date: TODAY,
+      category: 'Parking',
+      amount: 10,
+    });
     assert.ok(expense.id);
     assert.strictEqual(new Date(expense.date).toISOString().slice(0, 10), TODAY);
   });
@@ -127,127 +156,223 @@ describe('expensesService.createExpense()', () => {
         assert.strictEqual(err.status, 400);
         assert.match(err.message, /positive/i);
         return true;
-      }
+      },
     );
   });
 
   // TC-03-12
   it('should throw 400 when amount is negative', async () => {
     await assert.rejects(
-      () => expensesService.createExpense(USER_ID, { date: TODAY, category: 'Parking', amount: -5 }),
+      () =>
+        expensesService.createExpense(USER_ID, { date: TODAY, category: 'Parking', amount: -5 }),
       (err) => {
         assert.strictEqual(err.status, 400);
         assert.match(err.message, /positive/i);
         return true;
-      }
+      },
     );
   });
 
   // TC-03-18
   it('should return amount as a number, not a string', async () => {
-    const expense = await expensesService.createExpense(USER_ID, { date: TODAY, category: 'Parking', amount: 25.5 });
+    const expense = await expensesService.createExpense(USER_ID, {
+      date: TODAY,
+      category: 'Parking',
+      amount: 25.5,
+    });
     assert.strictEqual(typeof expense.amount, 'number');
   });
 
   it('should throw 400 when non-Fuel expense includes litres', async () => {
     await assert.rejects(
-      () => expensesService.createExpense(USER_ID, { date: TODAY, category: 'Parking', amount: 10, litres: 5 }),
+      () =>
+        expensesService.createExpense(USER_ID, {
+          date: TODAY,
+          category: 'Parking',
+          amount: 10,
+          litres: 5,
+        }),
       (err) => {
         assert.strictEqual(err.status, 400);
         return true;
-      }
+      },
     );
   });
 
   it('should throw 400 when Fuel expense explicitly passes amount', async () => {
     await assert.rejects(
-      () => expensesService.createExpense(USER_ID, { date: TODAY, category: 'Fuel', litres: 40, price_per_litre: 1.5, amount: 60 }),
+      () =>
+        expensesService.createExpense(USER_ID, {
+          date: TODAY,
+          category: 'Fuel',
+          litres: 40,
+          price_per_litre: 1.5,
+          amount: 60,
+        }),
       (err) => {
         assert.strictEqual(err.status, 400);
         assert.match(err.message, /amount is not allowed for Fuel/i);
         return true;
-      }
+      },
     );
   });
 
   it('should throw 400 when date is missing', async () => {
     await assert.rejects(
       () => expensesService.createExpense(USER_ID, { category: 'Parking', amount: 10 }),
-      (err) => { assert.strictEqual(err.status, 400); assert.match(err.message, /date is required/i); return true; }
+      (err) => {
+        assert.strictEqual(err.status, 400);
+        assert.match(err.message, /date is required/i);
+        return true;
+      },
     );
   });
 
   it('should throw 400 when category is missing', async () => {
     await assert.rejects(
       () => expensesService.createExpense(USER_ID, { date: TODAY, amount: 10 }),
-      (err) => { assert.strictEqual(err.status, 400); assert.match(err.message, /category is required/i); return true; }
+      (err) => {
+        assert.strictEqual(err.status, 400);
+        assert.match(err.message, /category is required/i);
+        return true;
+      },
     );
   });
 
   it('should throw 400 when date string is not a valid date', async () => {
     await assert.rejects(
-      () => expensesService.createExpense(USER_ID, { date: 'not-a-date', category: 'Parking', amount: 10 }),
+      () =>
+        expensesService.createExpense(USER_ID, {
+          date: 'not-a-date',
+          category: 'Parking',
+          amount: 10,
+        }),
       (err) => {
         assert.strictEqual(err.status, 400);
         assert.match(err.message, /date is invalid/i);
         return true;
-      }
+      },
     );
   });
 
   it('should throw 400 when Fuel litres is null', async () => {
     await assert.rejects(
-      () => expensesService.createExpense(USER_ID, { date: TODAY, category: 'Fuel', litres: null, price_per_litre: 1.5 }),
-      (err) => { assert.strictEqual(err.status, 400); return true; }
+      () =>
+        expensesService.createExpense(USER_ID, {
+          date: TODAY,
+          category: 'Fuel',
+          litres: null,
+          price_per_litre: 1.5,
+        }),
+      (err) => {
+        assert.strictEqual(err.status, 400);
+        return true;
+      },
     );
   });
 
   it('should throw 400 when Fuel price_per_litre is null', async () => {
     await assert.rejects(
-      () => expensesService.createExpense(USER_ID, { date: TODAY, category: 'Fuel', litres: 40, price_per_litre: null }),
-      (err) => { assert.strictEqual(err.status, 400); return true; }
+      () =>
+        expensesService.createExpense(USER_ID, {
+          date: TODAY,
+          category: 'Fuel',
+          litres: 40,
+          price_per_litre: null,
+        }),
+      (err) => {
+        assert.strictEqual(err.status, 400);
+        return true;
+      },
     );
   });
 
   it('should throw 400 when Fuel litres is zero', async () => {
     await assert.rejects(
-      () => expensesService.createExpense(USER_ID, { date: TODAY, category: 'Fuel', litres: 0, price_per_litre: 1.5 }),
-      (err) => { assert.strictEqual(err.status, 400); assert.match(err.message, /positive/i); return true; }
+      () =>
+        expensesService.createExpense(USER_ID, {
+          date: TODAY,
+          category: 'Fuel',
+          litres: 0,
+          price_per_litre: 1.5,
+        }),
+      (err) => {
+        assert.strictEqual(err.status, 400);
+        assert.match(err.message, /positive/i);
+        return true;
+      },
     );
   });
 
   it('should throw 400 when Fuel litres is not a number', async () => {
     await assert.rejects(
-      () => expensesService.createExpense(USER_ID, { date: TODAY, category: 'Fuel', litres: 'forty', price_per_litre: 1.5 }),
-      (err) => { assert.strictEqual(err.status, 400); return true; }
+      () =>
+        expensesService.createExpense(USER_ID, {
+          date: TODAY,
+          category: 'Fuel',
+          litres: 'forty',
+          price_per_litre: 1.5,
+        }),
+      (err) => {
+        assert.strictEqual(err.status, 400);
+        return true;
+      },
     );
   });
 
   it('should throw 400 when Fuel price_per_litre is zero', async () => {
     await assert.rejects(
-      () => expensesService.createExpense(USER_ID, { date: TODAY, category: 'Fuel', litres: 40, price_per_litre: 0 }),
-      (err) => { assert.strictEqual(err.status, 400); assert.match(err.message, /positive/i); return true; }
+      () =>
+        expensesService.createExpense(USER_ID, {
+          date: TODAY,
+          category: 'Fuel',
+          litres: 40,
+          price_per_litre: 0,
+        }),
+      (err) => {
+        assert.strictEqual(err.status, 400);
+        assert.match(err.message, /positive/i);
+        return true;
+      },
     );
   });
 
   it('should throw 400 when Fuel price_per_litre is not a number', async () => {
     await assert.rejects(
-      () => expensesService.createExpense(USER_ID, { date: TODAY, category: 'Fuel', litres: 40, price_per_litre: 'cheap' }),
-      (err) => { assert.strictEqual(err.status, 400); return true; }
+      () =>
+        expensesService.createExpense(USER_ID, {
+          date: TODAY,
+          category: 'Fuel',
+          litres: 40,
+          price_per_litre: 'cheap',
+        }),
+      (err) => {
+        assert.strictEqual(err.status, 400);
+        return true;
+      },
     );
   });
 
   it('should throw 400 when non-Fuel amount is null', async () => {
     await assert.rejects(
-      () => expensesService.createExpense(USER_ID, { date: TODAY, category: 'Parking', amount: null }),
-      (err) => { assert.strictEqual(err.status, 400); return true; }
+      () =>
+        expensesService.createExpense(USER_ID, { date: TODAY, category: 'Parking', amount: null }),
+      (err) => {
+        assert.strictEqual(err.status, 400);
+        return true;
+      },
     );
   });
 
   it('should throw 400 when non-Fuel amount is not a number', async () => {
     await assert.rejects(
-      () => expensesService.createExpense(USER_ID, { date: TODAY, category: 'Parking', amount: 'ten' }),
-      (err) => { assert.strictEqual(err.status, 400); assert.match(err.message, /positive/i); return true; }
+      () =>
+        expensesService.createExpense(USER_ID, { date: TODAY, category: 'Parking', amount: 'ten' }),
+      (err) => {
+        assert.strictEqual(err.status, 400);
+        assert.match(err.message, /positive/i);
+        return true;
+      },
     );
   });
 });
@@ -269,7 +394,7 @@ describe('expensesService.getExpense()', () => {
       (err) => {
         assert.strictEqual(err.status, 404);
         return true;
-      }
+      },
     );
   });
 
@@ -280,7 +405,7 @@ describe('expensesService.getExpense()', () => {
       (err) => {
         assert.strictEqual(err.status, 404);
         return true;
-      }
+      },
     );
   });
 });
@@ -293,8 +418,14 @@ describe('expensesService.updateExpense()', () => {
   });
 
   it('should keep existing amount when non-Fuel update omits amount', async () => {
-    const created = await expensesService.createExpense(USER_ID, { date: `${PAST_YEAR}-01-01`, category: 'Parking', amount: 42 });
-    const updated = await expensesService.updateExpense(USER_ID, created.id, { date: `${PAST_YEAR}-02-01` });
+    const created = await expensesService.createExpense(USER_ID, {
+      date: `${PAST_YEAR}-01-01`,
+      category: 'Parking',
+      amount: 42,
+    });
+    const updated = await expensesService.updateExpense(USER_ID, created.id, {
+      date: `${PAST_YEAR}-02-01`,
+    });
     assert.strictEqual(updated.amount, 42);
   });
 
@@ -306,13 +437,22 @@ describe('expensesService.updateExpense()', () => {
 
   it('should recompute Fuel amount when only price_per_litre is updated', async () => {
     const created = await expensesService.createExpense(USER_ID, validFuel());
-    const updated = await expensesService.updateExpense(USER_ID, created.id, { price_per_litre: 2.0 });
+    const updated = await expensesService.updateExpense(USER_ID, created.id, {
+      price_per_litre: 2.0,
+    });
     assert.strictEqual(updated.amount, Math.round(40 * 2.0 * 100) / 100);
   });
 
   it('should update the category of an existing expense', async () => {
-    const created = await expensesService.createExpense(USER_ID, { date: TODAY, category: 'Parking', amount: 10 });
-    const updated = await expensesService.updateExpense(USER_ID, created.id, { category: 'Toll', amount: 10 });
+    const created = await expensesService.createExpense(USER_ID, {
+      date: TODAY,
+      category: 'Parking',
+      amount: 10,
+    });
+    const updated = await expensesService.updateExpense(USER_ID, created.id, {
+      category: 'Toll',
+      amount: 10,
+    });
     assert.strictEqual(updated.category, 'Toll');
   });
 
@@ -320,7 +460,10 @@ describe('expensesService.updateExpense()', () => {
     const created = await expensesService.createExpense(USER_ID, validOther());
     await assert.rejects(
       () => expensesService.updateExpense(OTHER_USER_ID, created.id, { amount: 50 }),
-      (err) => { assert.strictEqual(err.status, 404); return true; }
+      (err) => {
+        assert.strictEqual(err.status, 404);
+        return true;
+      },
     );
   });
 });
@@ -331,7 +474,10 @@ describe('expensesService.deleteExpense()', () => {
     await assert.doesNotReject(() => expensesService.deleteExpense(USER_ID, created.id));
     await assert.rejects(
       () => expensesService.getExpense(USER_ID, created.id),
-      (err) => { assert.strictEqual(err.status, 404); return true; }
+      (err) => {
+        assert.strictEqual(err.status, 404);
+        return true;
+      },
     );
   });
 
@@ -339,7 +485,10 @@ describe('expensesService.deleteExpense()', () => {
     const created = await expensesService.createExpense(USER_ID, validOther());
     await assert.rejects(
       () => expensesService.deleteExpense(OTHER_USER_ID, created.id),
-      (err) => { assert.strictEqual(err.status, 404); return true; }
+      (err) => {
+        assert.strictEqual(err.status, 404);
+        return true;
+      },
     );
   });
 });
@@ -365,16 +514,31 @@ describe('expensesService.listExpenses()', () => {
   });
 
   it('should filter by year when query.year is provided', async () => {
-    await expensesService.createExpense(USER_ID, { date: `${PAST_YEAR}-06-01`, category: 'Parking', amount: 5 });
+    await expensesService.createExpense(USER_ID, {
+      date: `${PAST_YEAR}-06-01`,
+      category: 'Parking',
+      amount: 5,
+    });
     await expensesService.createExpense(USER_ID, validOther());
     const results = await expensesService.listExpenses(USER_ID, { year: String(PAST_YEAR) });
     assert.strictEqual(results.length, 1);
   });
 
   it('should filter by month when query.month is provided', async () => {
-    await expensesService.createExpense(USER_ID, { date: `${PAST_YEAR}-01-15`, category: 'Parking', amount: 5 });
-    await expensesService.createExpense(USER_ID, { date: `${PAST_YEAR}-03-10`, category: 'Parking', amount: 8 });
-    const results = await expensesService.listExpenses(USER_ID, { year: String(PAST_YEAR), month: '1' });
+    await expensesService.createExpense(USER_ID, {
+      date: `${PAST_YEAR}-01-15`,
+      category: 'Parking',
+      amount: 5,
+    });
+    await expensesService.createExpense(USER_ID, {
+      date: `${PAST_YEAR}-03-10`,
+      category: 'Parking',
+      amount: 8,
+    });
+    const results = await expensesService.listExpenses(USER_ID, {
+      year: String(PAST_YEAR),
+      month: '1',
+    });
     assert.strictEqual(results.length, 1);
     assert.strictEqual(new Date(results[0].date).getMonth(), 0);
   });
@@ -392,7 +556,7 @@ describe('expensesService.getSummary()', () => {
         assert.strictEqual(err.status, 400);
         assert.match(err.message, /year/i);
         return true;
-      }
+      },
     );
   });
 
@@ -400,21 +564,30 @@ describe('expensesService.getSummary()', () => {
   it('should throw 400 when month is 13', async () => {
     await assert.rejects(
       () => expensesService.getSummary(USER_ID, { year: String(PAST_YEAR), month: '13' }),
-      (err) => { assert.strictEqual(err.status, 400); return true; }
+      (err) => {
+        assert.strictEqual(err.status, 400);
+        return true;
+      },
     );
   });
 
   it('should throw 400 when month is 0', async () => {
     await assert.rejects(
       () => expensesService.getSummary(USER_ID, { year: String(PAST_YEAR), month: '0' }),
-      (err) => { assert.strictEqual(err.status, 400); return true; }
+      (err) => {
+        assert.strictEqual(err.status, 400);
+        return true;
+      },
     );
   });
 
   it('should throw 400 when month is not a number', async () => {
     await assert.rejects(
       () => expensesService.getSummary(USER_ID, { year: String(PAST_YEAR), month: 'abc' }),
-      (err) => { assert.strictEqual(err.status, 400); return true; }
+      (err) => {
+        assert.strictEqual(err.status, 400);
+        return true;
+      },
     );
   });
 
@@ -426,14 +599,22 @@ describe('expensesService.getSummary()', () => {
         assert.strictEqual(err.status, 400);
         assert.match(err.message, /future/i);
         return true;
-      }
+      },
     );
   });
 
   // TC-04-04
   it('should include all 7 categories with value 0 when there are no expenses', async () => {
     const summary = await expensesService.getSummary(USER_ID, { year: String(PAST_YEAR) });
-    const expectedCategories = ['Fuel', 'Maintenance', 'Insurance', 'Parking', 'Toll', 'Tax', 'Other'];
+    const expectedCategories = [
+      'Fuel',
+      'Maintenance',
+      'Insurance',
+      'Parking',
+      'Toll',
+      'Tax',
+      'Other',
+    ];
     for (const cat of expectedCategories) {
       assert.ok(Object.hasOwn(summary.categories, cat), `category ${cat} missing`);
       assert.strictEqual(summary.categories[cat], 0);
@@ -443,7 +624,11 @@ describe('expensesService.getSummary()', () => {
 
   // TC-04-11
   it('should return category totals and overall total as numbers, not strings', async () => {
-    await expensesService.createExpense(USER_ID, { date: `${PAST_YEAR}-06-01`, category: 'Parking', amount: 10 });
+    await expensesService.createExpense(USER_ID, {
+      date: `${PAST_YEAR}-06-01`,
+      category: 'Parking',
+      amount: 10,
+    });
     const summary = await expensesService.getSummary(USER_ID, { year: String(PAST_YEAR) });
     assert.strictEqual(typeof summary.total, 'number');
     for (const val of Object.values(summary.categories)) {
@@ -452,15 +637,26 @@ describe('expensesService.getSummary()', () => {
   });
 
   it('should sum expenses correctly for a given year', async () => {
-    await expensesService.createExpense(USER_ID, { date: `${PAST_YEAR}-01-01`, category: 'Parking', amount: 10 });
-    await expensesService.createExpense(USER_ID, { date: `${PAST_YEAR}-02-01`, category: 'Parking', amount: 20 });
+    await expensesService.createExpense(USER_ID, {
+      date: `${PAST_YEAR}-01-01`,
+      category: 'Parking',
+      amount: 10,
+    });
+    await expensesService.createExpense(USER_ID, {
+      date: `${PAST_YEAR}-02-01`,
+      category: 'Parking',
+      amount: 20,
+    });
     const summary = await expensesService.getSummary(USER_ID, { year: String(PAST_YEAR) });
     assert.strictEqual(summary.categories['Parking'], 30);
     assert.strictEqual(summary.total, 30);
   });
 
   it('should return period with month when month query is provided', async () => {
-    const summary = await expensesService.getSummary(USER_ID, { year: String(PAST_YEAR), month: '6' });
+    const summary = await expensesService.getSummary(USER_ID, {
+      year: String(PAST_YEAR),
+      month: '6',
+    });
     assert.strictEqual(summary.period.year, PAST_YEAR);
     assert.strictEqual(summary.period.month, 6);
   });
@@ -468,30 +664,61 @@ describe('expensesService.getSummary()', () => {
   it('should throw 400 when year is not a number', async () => {
     await assert.rejects(
       () => expensesService.getSummary(USER_ID, { year: 'abc' }),
-      (err) => { assert.strictEqual(err.status, 400); assert.match(err.message, /year must be a number/i); return true; }
+      (err) => {
+        assert.strictEqual(err.status, 400);
+        assert.match(err.message, /year must be a number/i);
+        return true;
+      },
     );
   });
 
   it('should throw 400 when category filter is not a valid category', async () => {
     await assert.rejects(
       () => expensesService.getSummary(USER_ID, { year: String(PAST_YEAR), category: 'Snacks' }),
-      (err) => { assert.strictEqual(err.status, 400); assert.match(err.message, /category must be one of/i); return true; }
+      (err) => {
+        assert.strictEqual(err.status, 400);
+        assert.match(err.message, /category must be one of/i);
+        return true;
+      },
     );
   });
 
   it('should return only the filtered category when category query is provided', async () => {
-    await expensesService.createExpense(USER_ID, { date: `${PAST_YEAR}-03-01`, category: 'Toll', amount: 7 });
-    await expensesService.createExpense(USER_ID, { date: `${PAST_YEAR}-03-01`, category: 'Parking', amount: 5 });
-    const summary = await expensesService.getSummary(USER_ID, { year: String(PAST_YEAR), category: 'Toll' });
+    await expensesService.createExpense(USER_ID, {
+      date: `${PAST_YEAR}-03-01`,
+      category: 'Toll',
+      amount: 7,
+    });
+    await expensesService.createExpense(USER_ID, {
+      date: `${PAST_YEAR}-03-01`,
+      category: 'Parking',
+      amount: 5,
+    });
+    const summary = await expensesService.getSummary(USER_ID, {
+      year: String(PAST_YEAR),
+      category: 'Toll',
+    });
     assert.ok(Object.hasOwn(summary.categories, 'Toll'));
     assert.strictEqual(Object.keys(summary.categories).length, 1);
     assert.strictEqual(summary.categories['Toll'], 7);
   });
 
   it('should filter by both month and category when both are provided', async () => {
-    await expensesService.createExpense(USER_ID, { date: `${PAST_YEAR}-06-01`, category: 'Parking', amount: 10 });
-    await expensesService.createExpense(USER_ID, { date: `${PAST_YEAR}-07-01`, category: 'Parking', amount: 20 });
-    const summary = await expensesService.getSummary(USER_ID, { year: String(PAST_YEAR), month: '6', category: 'Parking' });
+    await expensesService.createExpense(USER_ID, {
+      date: `${PAST_YEAR}-06-01`,
+      category: 'Parking',
+      amount: 10,
+    });
+    await expensesService.createExpense(USER_ID, {
+      date: `${PAST_YEAR}-07-01`,
+      category: 'Parking',
+      amount: 20,
+    });
+    const summary = await expensesService.getSummary(USER_ID, {
+      year: String(PAST_YEAR),
+      month: '6',
+      category: 'Parking',
+    });
     assert.strictEqual(summary.categories['Parking'], 10);
     assert.strictEqual(summary.total, 10);
   });
@@ -503,10 +730,17 @@ describe('expensesService.getSummary()', () => {
 describe('expensesService — Fuel odometer side effect', () => {
   it('should raise user.currentKm when Fuel has odometer greater than current', async () => {
     const user = await userModel.create({
-      username: 'odoTest1', password: 'x', email: 'odot1@test.com', currentKm: 1000,
+      username: 'odoTest1',
+      password: 'x',
+      email: 'odot1@test.com',
+      currentKm: 1000,
     });
     await expensesService.createExpense(user._id.toString(), {
-      date: TODAY, category: 'Fuel', litres: 40, price_per_litre: 1.5, odometer: 2000,
+      date: TODAY,
+      category: 'Fuel',
+      litres: 40,
+      price_per_litre: 1.5,
+      odometer: 2000,
     });
     const after = await userModel.findById(user._id);
     assert.strictEqual(after.currentKm, 2000);
@@ -514,10 +748,17 @@ describe('expensesService — Fuel odometer side effect', () => {
 
   it('should NOT lower user.currentKm when Fuel odometer is older reading', async () => {
     const user = await userModel.create({
-      username: 'odoTest2', password: 'x', email: 'odot2@test.com', currentKm: 5000,
+      username: 'odoTest2',
+      password: 'x',
+      email: 'odot2@test.com',
+      currentKm: 5000,
     });
     await expensesService.createExpense(user._id.toString(), {
-      date: TODAY, category: 'Fuel', litres: 40, price_per_litre: 1.5, odometer: 3000,
+      date: TODAY,
+      category: 'Fuel',
+      litres: 40,
+      price_per_litre: 1.5,
+      odometer: 3000,
     });
     const after = await userModel.findById(user._id);
     assert.strictEqual(after.currentKm, 5000);
@@ -525,16 +766,23 @@ describe('expensesService — Fuel odometer side effect', () => {
 
   it('should throw 400 when odometer is supplied for non-Fuel category', async () => {
     await assert.rejects(
-      () => expensesService.createExpense(USER_ID, {
-        date: TODAY, category: 'Parking', amount: 10, odometer: 1000,
-      }),
-      (err) => err.status === 400 && /odometer is only valid for Fuel/i.test(err.message)
+      () =>
+        expensesService.createExpense(USER_ID, {
+          date: TODAY,
+          category: 'Parking',
+          amount: 10,
+          odometer: 1000,
+        }),
+      (err) => err.status === 400 && /odometer is only valid for Fuel/i.test(err.message),
     );
   });
 
   it('should accept Fuel without odometer (optional)', async () => {
     const exp = await expensesService.createExpense(USER_ID, {
-      date: TODAY, category: 'Fuel', litres: 40, price_per_litre: 1.5,
+      date: TODAY,
+      category: 'Fuel',
+      litres: 40,
+      price_per_litre: 1.5,
     });
     assert.strictEqual(exp.category, 'Fuel');
     assert.strictEqual(exp.odometer, undefined);

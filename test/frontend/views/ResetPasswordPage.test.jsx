@@ -37,16 +37,24 @@ describe('ResetPasswordPage', () => {
 
   it('should redirect to /forgot-password when no token', async () => {
     mockUseSearchParams.mockReturnValue(new URLSearchParams(''));
-    await act(async () => { render(<ResetPasswordPage />); });
+    await act(async () => {
+      render(<ResetPasswordPage />);
+    });
     expect(mockReplace).toHaveBeenCalledWith('/forgot-password');
   });
 
   it('should show mismatch error when passwords differ', async () => {
     render(<ResetPasswordPage />);
-    fireEvent.change(screen.getByLabelText('auth.resetPassword.newPassword'), { target: { value: 'pass0001', name: 'newPassword' } });
-    fireEvent.change(screen.getByLabelText('auth.resetPassword.confirm'), { target: { value: 'pass0002', name: 'confirmPassword' } });
+    fireEvent.change(screen.getByLabelText('auth.resetPassword.newPassword'), {
+      target: { value: 'pass0001', name: 'newPassword' },
+    });
+    fireEvent.change(screen.getByLabelText('auth.resetPassword.confirm'), {
+      target: { value: 'pass0002', name: 'confirmPassword' },
+    });
     await act(async () => {
-      fireEvent.submit(screen.getByRole('button', { name: 'auth.resetPassword.submit' }).closest('form'));
+      fireEvent.submit(
+        screen.getByRole('button', { name: 'auth.resetPassword.submit' }).closest('form'),
+      );
     });
     expect(screen.getByRole('alert')).toHaveTextContent('errors.passwordMismatch');
     expect(mockResetPassword).not.toHaveBeenCalled();
@@ -54,10 +62,16 @@ describe('ResetPasswordPage', () => {
 
   it('should call resetPassword and redirect to /login?passwordChanged=1 on success', async () => {
     render(<ResetPasswordPage />);
-    fireEvent.change(screen.getByLabelText('auth.resetPassword.newPassword'), { target: { value: 'newpass1', name: 'newPassword' } });
-    fireEvent.change(screen.getByLabelText('auth.resetPassword.confirm'), { target: { value: 'newpass1', name: 'confirmPassword' } });
+    fireEvent.change(screen.getByLabelText('auth.resetPassword.newPassword'), {
+      target: { value: 'newpass1', name: 'newPassword' },
+    });
+    fireEvent.change(screen.getByLabelText('auth.resetPassword.confirm'), {
+      target: { value: 'newpass1', name: 'confirmPassword' },
+    });
     await act(async () => {
-      fireEvent.submit(screen.getByRole('button', { name: 'auth.resetPassword.submit' }).closest('form'));
+      fireEvent.submit(
+        screen.getByRole('button', { name: 'auth.resetPassword.submit' }).closest('form'),
+      );
     });
     expect(mockResetPassword).toHaveBeenCalledOnce();
     expect(mockPush).toHaveBeenCalledWith('/login?passwordChanged=1');
@@ -66,10 +80,16 @@ describe('ResetPasswordPage', () => {
   it('should show error banner when resetPassword throws', async () => {
     mockResetPassword.mockRejectedValue(new Error('token expired'));
     render(<ResetPasswordPage />);
-    fireEvent.change(screen.getByLabelText('auth.resetPassword.newPassword'), { target: { value: 'newpass1', name: 'newPassword' } });
-    fireEvent.change(screen.getByLabelText('auth.resetPassword.confirm'), { target: { value: 'newpass1', name: 'confirmPassword' } });
+    fireEvent.change(screen.getByLabelText('auth.resetPassword.newPassword'), {
+      target: { value: 'newpass1', name: 'newPassword' },
+    });
+    fireEvent.change(screen.getByLabelText('auth.resetPassword.confirm'), {
+      target: { value: 'newpass1', name: 'confirmPassword' },
+    });
     await act(async () => {
-      fireEvent.submit(screen.getByRole('button', { name: 'auth.resetPassword.submit' }).closest('form'));
+      fireEvent.submit(
+        screen.getByRole('button', { name: 'auth.resetPassword.submit' }).closest('form'),
+      );
     });
     expect(screen.getByRole('alert')).toHaveTextContent('token expired');
   });

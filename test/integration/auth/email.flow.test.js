@@ -4,36 +4,50 @@
 // singleton picks up MockResend instead of the real client.
 const sentPayloads = [];
 const MockResend = function () {
-  this.emails = { send: async (payload) => { sentPayloads.push(payload); } };
+  this.emails = {
+    send: async (payload) => {
+      sentPayloads.push(payload);
+    },
+  };
 };
 
-const resendPath      = require.resolve('resend');
-const emailSvcPath    = require.resolve('../../../lib/services/email.service');
+const resendPath = require.resolve('resend');
+const emailSvcPath = require.resolve('../../../lib/services/email.service');
 
 require.cache[resendPath] = {
-  id: resendPath, filename: resendPath, loaded: true,
+  id: resendPath,
+  filename: resendPath,
+  loaded: true,
   exports: { Resend: MockResend },
 };
 // Force fresh load so it picks up the mocked Resend
 delete require.cache[emailSvcPath];
 
-process.env.JWT_SECRET      = process.env.JWT_SECRET      || 'test-secret';
-process.env.BASE_URL        = process.env.BASE_URL        || 'http://localhost:3000';
-process.env.RESEND_API_KEY  = process.env.RESEND_API_KEY  || 'test-key';
+process.env.JWT_SECRET = process.env.JWT_SECRET || 'test-secret';
+process.env.BASE_URL = process.env.BASE_URL || 'http://localhost:3000';
+process.env.RESEND_API_KEY = process.env.RESEND_API_KEY || 'test-key';
 
 const { describe, it, before, after, beforeEach } = require('node:test');
 const assert = require('node:assert/strict');
 
 const { startMongo, stopMongo, resetMongo } = require('../../helpers/mongo');
-const authService  = require('../../../lib/services/auth.service');
+const authService = require('../../../lib/services/auth.service');
 const emailService = require('../../../lib/services/email.service');
 
 before(async () => await startMongo());
 after(async () => await stopMongo());
-beforeEach(async () => { await resetMongo(); sentPayloads.splice(0); });
+beforeEach(async () => {
+  await resetMongo();
+  sentPayloads.splice(0);
+});
 
 const VALID_CONSENT = { policyVersion: '2026-05-20', acceptedAt: new Date().toISOString() };
-const USER = { username: 'bob', password: 'Password1', email: 'bob@example.com', consent: VALID_CONSENT };
+const USER = {
+  username: 'bob',
+  password: 'Password1',
+  email: 'bob@example.com',
+  consent: VALID_CONSENT,
+};
 
 describe('Email service integration — register sends verification email', () => {
   it('should send a verification email on register', async () => {
@@ -53,7 +67,10 @@ describe('Email service integration — forgotPassword without injection', () =>
 
     assert.strictEqual(sentPayloads.length, 1);
     assert.strictEqual(sentPayloads[0].to, USER.email);
-    assert.ok(sentPayloads[0].html.includes('reset-password?token='), 'html must contain the reset URL');
+    assert.ok(
+      sentPayloads[0].html.includes('reset-password?token='),
+      'html must contain the reset URL',
+    );
   });
 
   it('should not call sendPasswordResetEmail when email is not registered', async () => {

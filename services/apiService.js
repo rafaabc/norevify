@@ -43,23 +43,25 @@ async function request(path, { method = 'GET', body = null, auth = true, signal 
 }
 
 export const authApi = {
-  register:       (data) => request('/auth/register',        { method: 'POST',   body: data, auth: false }),
-  login:          (data) => request('/auth/login',           { method: 'POST',   body: data, auth: false }),
-  changePassword: (data) => request('/auth/password',        { method: 'PATCH',  body: data, auth: true }),
-  updateCurrency: (data) => request('/auth/currency',        { method: 'PATCH',  body: data, auth: true }),
-  updateLanguage: (data) => request('/auth/language',        { method: 'PATCH',  body: data, auth: true }),
-  forgotPassword: (data) => request('/auth/forgot-password', { method: 'POST',   body: data, auth: false }),
-  resetPassword:  (data) => request('/auth/reset-password',  { method: 'POST',   body: data, auth: false }),
-  googleLogin:    (data) => request('/auth/google',          { method: 'POST',   body: data, auth: false }),
-  linkGoogle:     (data) => request('/auth/google/link',     { method: 'POST',   body: data, auth: true }),
-  unlinkGoogle:    ()     => request('/auth/google/link',     { method: 'DELETE',             auth: true }),
-  getProviders:    ()     => request('/auth/providers',       {                               auth: true }),
-  updateOdometer:      (data) => request('/auth/odometer',              { method: 'PATCH', body: data, auth: true }),
-  verifyEmail:         (data) => request('/auth/verify-email',          { method: 'POST',  body: data, auth: false }),
-  resendVerification:   ()    => request('/auth/resend-verification',   { method: 'POST',             auth: true }),
-  exportData:           ()    => request('/auth/me/export',             {                             auth: true }),
-  deleteAccount:       (data) => request('/auth/me',                    { method: 'DELETE', body: data, auth: true }),
-  getAccessInfo:        ()    => request('/auth/me/access',             {                             auth: true }),
+  register: (data) => request('/auth/register', { method: 'POST', body: data, auth: false }),
+  login: (data) => request('/auth/login', { method: 'POST', body: data, auth: false }),
+  changePassword: (data) => request('/auth/password', { method: 'PATCH', body: data, auth: true }),
+  updateCurrency: (data) => request('/auth/currency', { method: 'PATCH', body: data, auth: true }),
+  updateLanguage: (data) => request('/auth/language', { method: 'PATCH', body: data, auth: true }),
+  forgotPassword: (data) =>
+    request('/auth/forgot-password', { method: 'POST', body: data, auth: false }),
+  resetPassword: (data) =>
+    request('/auth/reset-password', { method: 'POST', body: data, auth: false }),
+  googleLogin: (data) => request('/auth/google', { method: 'POST', body: data, auth: false }),
+  linkGoogle: (data) => request('/auth/google/link', { method: 'POST', body: data, auth: true }),
+  unlinkGoogle: () => request('/auth/google/link', { method: 'DELETE', auth: true }),
+  getProviders: () => request('/auth/providers', { auth: true }),
+  updateOdometer: (data) => request('/auth/odometer', { method: 'PATCH', body: data, auth: true }),
+  verifyEmail: (data) => request('/auth/verify-email', { method: 'POST', body: data, auth: false }),
+  resendVerification: () => request('/auth/resend-verification', { method: 'POST', auth: true }),
+  exportData: () => request('/auth/me/export', { auth: true }),
+  deleteAccount: (data) => request('/auth/me', { method: 'DELETE', body: data, auth: true }),
+  getAccessInfo: () => request('/auth/me/access', { auth: true }),
 };
 
 export const expensesApi = {
@@ -91,10 +93,10 @@ export const remindersApi = {
     const qs = params.toString();
     return request(`/reminders${qs ? `?${qs}` : ''}`, { signal });
   },
-  get:        (id)       => request(`/reminders/${id}`),
-  create:     (data)     => request('/reminders',                { method: 'POST',   body: data }),
-  update:     (id, data) => request(`/reminders/${id}`,          { method: 'PUT',    body: data }),
-  remove:     (id)       => request(`/reminders/${id}`,          { method: 'DELETE' }),
-  complete:   (id, data) => request(`/reminders/${id}/complete`, { method: 'POST',   body: data }),
-  badgeCount: ()         => request('/reminders/badge-count'),
+  get: (id) => request(`/reminders/${id}`),
+  create: (data) => request('/reminders', { method: 'POST', body: data }),
+  update: (id, data) => request(`/reminders/${id}`, { method: 'PUT', body: data }),
+  remove: (id) => request(`/reminders/${id}`, { method: 'DELETE' }),
+  complete: (id, data) => request(`/reminders/${id}/complete`, { method: 'POST', body: data }),
+  badgeCount: () => request('/reminders/badge-count'),
 };

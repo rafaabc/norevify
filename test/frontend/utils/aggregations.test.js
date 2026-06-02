@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { describe, it, expect, vi } from 'vitest';
 
 vi.mock('@/i18n/index.js', () => ({
   default: { language: 'en' },
@@ -16,10 +16,10 @@ import {
 } from '@/utils/aggregations.js';
 
 const expenses = [
-  { date: '2025-01-10', category: 'Fuel',        amount: 100 },
-  { date: '2025-01-20', category: 'Maintenance', amount: 50  },
-  { date: '2025-02-05', category: 'Fuel',        amount: 80  },
-  { date: '2025-03-01', category: 'Insurance',   amount: 200 },
+  { date: '2025-01-10', category: 'Fuel', amount: 100 },
+  { date: '2025-01-20', category: 'Maintenance', amount: 50 },
+  { date: '2025-02-05', category: 'Fuel', amount: 80 },
+  { date: '2025-03-01', category: 'Insurance', amount: 200 },
 ];
 
 describe('aggregateByMonth', () => {
@@ -27,7 +27,7 @@ describe('aggregateByMonth', () => {
     const result = aggregateByMonth(expenses);
     expect(result).toEqual([
       { month: '2025-01', total: 150 },
-      { month: '2025-02', total: 80  },
+      { month: '2025-02', total: 80 },
       { month: '2025-03', total: 200 },
     ]);
   });
@@ -41,7 +41,7 @@ describe('aggregateByCategory', () => {
   it('should group expenses by category sorted by total descending', () => {
     const result = aggregateByCategory(expenses);
     expect(result[0]).toEqual({ category: 'Insurance', total: 200 });
-    expect(result[1]).toEqual({ category: 'Fuel',      total: 180 });
+    expect(result[1]).toEqual({ category: 'Fuel', total: 180 });
     expect(result[2]).toEqual({ category: 'Maintenance', total: 50 });
   });
 });
@@ -82,7 +82,10 @@ describe('computeFuelShare', () => {
 
 describe('computeAvgMonthly', () => {
   it('should average monthly totals', () => {
-    const data = [{ month: '2025-01', total: 150 }, { month: '2025-02', total: 80 }];
+    const data = [
+      { month: '2025-01', total: 150 },
+      { month: '2025-02', total: 80 },
+    ];
     expect(computeAvgMonthly(data)).toBe(115);
   });
 

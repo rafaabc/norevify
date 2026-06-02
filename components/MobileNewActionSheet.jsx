@@ -27,10 +27,20 @@ export default function MobileNewActionSheet({ open, onClose }) {
         onKeyDown={(e) => e.stopPropagation()}
       >
         <h3>{t('mobile.newAction')}</h3>
-        <button type="button" className="action-sheet-btn" onClick={() => go('/expenses/new')} data-action="new-expense">
+        <button
+          type="button"
+          className="action-sheet-btn"
+          onClick={() => go('/expenses/new')}
+          data-action="new-expense"
+        >
           {t('mobile.newExpense')}
         </button>
-        <button type="button" className="action-sheet-btn" onClick={() => go('/reminders/new')} data-action="new-reminder">
+        <button
+          type="button"
+          className="action-sheet-btn"
+          onClick={() => go('/reminders/new')}
+          data-action="new-reminder"
+        >
           {t('mobile.newReminder')}
         </button>
         <button type="button" className="btn-secondary" onClick={onClose}>

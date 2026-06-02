@@ -142,7 +142,10 @@
         "properties": {
           "id": { "type": "string" },
           "userId": { "type": "string" },
-          "type": { "type": "string", "enum": ["Fuel","Maintenance","Insurance","Parking","Toll","Tax","Other"] },
+          "type": {
+            "type": "string",
+            "enum": ["Fuel", "Maintenance", "Insurance", "Parking", "Toll", "Tax", "Other"]
+          },
           "title": { "type": "string" },
           "dueDate": { "type": "string", "format": "date-time" },
           "dueKm": { "type": "number" },
@@ -150,7 +153,7 @@
           "intervalKm": { "type": "number" },
           "completedAt": { "type": "string", "format": "date-time", "nullable": true },
           "completedKm": { "type": "number", "nullable": true },
-          "status": { "type": "string", "enum": ["upcoming","dueSoon","overdue","done"] }
+          "status": { "type": "string", "enum": ["upcoming", "dueSoon", "overdue", "done"] }
         }
       }
     }
@@ -179,15 +182,21 @@
           },
           "400": {
             "description": "Validation error",
-            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } }
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/Error" } }
+            }
           },
           "409": {
             "description": "Username already taken",
-            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } }
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/Error" } }
+            }
           },
           "500": {
             "description": "Internal server error",
-            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } }
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/Error" } }
+            }
           }
         }
       }
@@ -215,15 +224,21 @@
           },
           "400": {
             "description": "Missing credentials",
-            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } }
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/Error" } }
+            }
           },
           "401": {
             "description": "Invalid credentials",
-            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } }
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/Error" } }
+            }
           },
           "500": {
             "description": "Internal server error",
-            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } }
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/Error" } }
+            }
           }
         }
       }
@@ -243,19 +258,27 @@
         "responses": {
           "200": {
             "description": "Password updated successfully",
-            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/SuccessMessage" } } }
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/SuccessMessage" } }
+            }
           },
           "400": {
             "description": "Validation error",
-            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } }
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/Error" } }
+            }
           },
           "401": {
             "description": "Invalid credentials",
-            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } }
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/Error" } }
+            }
           },
           "404": {
             "description": "User not found",
-            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } }
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/Error" } }
+            }
           }
         }
       }
@@ -346,9 +369,20 @@
         "summary": "List current user's expenses",
         "security": [{ "bearerAuth": [] }],
         "parameters": [
-          { "name": "category", "in": "query", "schema": { "type": "string", "enum": ["Fuel", "Maintenance", "Insurance", "Parking", "Toll", "Tax", "Other"] } },
+          {
+            "name": "category",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": ["Fuel", "Maintenance", "Insurance", "Parking", "Toll", "Tax", "Other"]
+            }
+          },
           { "name": "year", "in": "query", "schema": { "type": "integer" } },
-          { "name": "month", "in": "query", "schema": { "type": "integer", "minimum": 1, "maximum": 12 } }
+          {
+            "name": "month",
+            "in": "query",
+            "schema": { "type": "integer", "minimum": 1, "maximum": 12 }
+          }
         ],
         "responses": {
           "200": {
@@ -361,15 +395,21 @@
           },
           "401": {
             "description": "Token not provided",
-            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } }
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/Error" } }
+            }
           },
           "403": {
             "description": "Invalid or expired token",
-            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } }
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/Error" } }
+            }
           },
           "500": {
             "description": "Internal server error",
-            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } }
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/Error" } }
+            }
           }
         }
       },
@@ -401,19 +441,27 @@
           },
           "400": {
             "description": "Validation error",
-            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } }
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/Error" } }
+            }
           },
           "401": {
             "description": "Token not provided",
-            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } }
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/Error" } }
+            }
           },
           "403": {
             "description": "Invalid or expired token",
-            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } }
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/Error" } }
+            }
           },
           "500": {
             "description": "Internal server error",
-            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } }
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/Error" } }
+            }
           }
         }
       }
@@ -424,9 +472,28 @@
         "summary": "Get expense totals by category for a period",
         "security": [{ "bearerAuth": [] }],
         "parameters": [
-          { "name": "year", "in": "query", "required": true, "description": "Must not be in the future.", "schema": { "type": "integer" }, "example": 2026 },
-          { "name": "month", "in": "query", "schema": { "type": "integer", "minimum": 1, "maximum": 12 }, "example": 4 },
-          { "name": "category", "in": "query", "schema": { "type": "string", "enum": ["Fuel", "Maintenance", "Insurance", "Parking", "Toll", "Tax", "Other"] } }
+          {
+            "name": "year",
+            "in": "query",
+            "required": true,
+            "description": "Must not be in the future.",
+            "schema": { "type": "integer" },
+            "example": 2026
+          },
+          {
+            "name": "month",
+            "in": "query",
+            "schema": { "type": "integer", "minimum": 1, "maximum": 12 },
+            "example": 4
+          },
+          {
+            "name": "category",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": ["Fuel", "Maintenance", "Insurance", "Parking", "Toll", "Tax", "Other"]
+            }
+          }
         ],
         "responses": {
           "200": {
@@ -439,19 +506,27 @@
           },
           "400": {
             "description": "Missing or invalid query parameters",
-            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } }
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/Error" } }
+            }
           },
           "401": {
             "description": "Token not provided",
-            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } }
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/Error" } }
+            }
           },
           "403": {
             "description": "Invalid or expired token",
-            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } }
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/Error" } }
+            }
           },
           "500": {
             "description": "Internal server error",
-            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } }
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/Error" } }
+            }
           }
         }
       }
@@ -467,23 +542,33 @@
         "responses": {
           "200": {
             "description": "Expense found",
-            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Expense" } } }
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/Expense" } }
+            }
           },
           "401": {
             "description": "Token not provided",
-            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } }
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/Error" } }
+            }
           },
           "403": {
             "description": "Invalid or expired token",
-            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } }
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/Error" } }
+            }
           },
           "404": {
             "description": "Expense not found",
-            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } }
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/Error" } }
+            }
           },
           "500": {
             "description": "Internal server error",
-            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } }
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/Error" } }
+            }
           }
         }
       },
@@ -510,27 +595,39 @@
         "responses": {
           "200": {
             "description": "Expense updated",
-            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Expense" } } }
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/Expense" } }
+            }
           },
           "400": {
             "description": "Validation error",
-            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } }
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/Error" } }
+            }
           },
           "401": {
             "description": "Token not provided",
-            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } }
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/Error" } }
+            }
           },
           "403": {
             "description": "Invalid or expired token",
-            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } }
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/Error" } }
+            }
           },
           "404": {
             "description": "Expense not found",
-            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } }
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/Error" } }
+            }
           },
           "500": {
             "description": "Internal server error",
-            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } }
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/Error" } }
+            }
           }
         }
       },
@@ -545,19 +642,27 @@
           "204": { "description": "Expense deleted" },
           "401": {
             "description": "Token not provided",
-            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } }
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/Error" } }
+            }
           },
           "403": {
             "description": "Invalid or expired token",
-            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } }
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/Error" } }
+            }
           },
           "404": {
             "description": "Expense not found",
-            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } }
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/Error" } }
+            }
           },
           "500": {
             "description": "Internal server error",
-            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } }
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/Error" } }
+            }
           }
         }
       }
@@ -572,13 +677,20 @@
           {
             "name": "status",
             "in": "query",
-            "schema": { "type": "string", "enum": ["active","upcoming","dueSoon","overdue","done"] }
+            "schema": {
+              "type": "string",
+              "enum": ["active", "upcoming", "dueSoon", "overdue", "done"]
+            }
           }
         ],
         "responses": {
           "200": {
             "description": "Array of reminders with computed status",
-            "content": { "application/json": { "schema": { "type": "array", "items": { "$ref": "#/components/schemas/Reminder" } } } }
+            "content": {
+              "application/json": {
+                "schema": { "type": "array", "items": { "$ref": "#/components/schemas/Reminder" } }
+              }
+            }
           },
           "401": { "description": "Unauthorized" }
         }
@@ -595,7 +707,10 @@
                 "type": "object",
                 "required": ["type"],
                 "properties": {
-                  "type": { "type": "string", "enum": ["Fuel","Maintenance","Insurance","Parking","Toll","Tax","Other"] },
+                  "type": {
+                    "type": "string",
+                    "enum": ["Fuel", "Maintenance", "Insurance", "Parking", "Toll", "Tax", "Other"]
+                  },
                   "title": { "type": "string" },
                   "dueDate": { "type": "string", "format": "date-time" },
                   "dueKm": { "type": "number" },
@@ -607,7 +722,12 @@
           }
         },
         "responses": {
-          "201": { "description": "Created reminder", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Reminder" } } } },
+          "201": {
+            "description": "Created reminder",
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/Reminder" } }
+            }
+          },
           "400": { "description": "Validation error" },
           "401": { "description": "Unauthorized" }
         }
@@ -642,9 +762,16 @@
         "tags": ["Reminders"],
         "summary": "Get reminder by ID",
         "security": [{ "bearerAuth": [] }],
-        "parameters": [{ "name": "id", "in": "path", "required": true, "schema": { "type": "string" } }],
+        "parameters": [
+          { "name": "id", "in": "path", "required": true, "schema": { "type": "string" } }
+        ],
         "responses": {
-          "200": { "description": "Reminder", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Reminder" } } } },
+          "200": {
+            "description": "Reminder",
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/Reminder" } }
+            }
+          },
           "401": { "description": "Unauthorized" },
           "404": { "description": "Not found" }
         }
@@ -653,7 +780,9 @@
         "tags": ["Reminders"],
         "summary": "Update reminder",
         "security": [{ "bearerAuth": [] }],
-        "parameters": [{ "name": "id", "in": "path", "required": true, "schema": { "type": "string" } }],
+        "parameters": [
+          { "name": "id", "in": "path", "required": true, "schema": { "type": "string" } }
+        ],
         "requestBody": {
           "content": {
             "application/json": {
@@ -682,7 +811,9 @@
         "tags": ["Reminders"],
         "summary": "Delete reminder",
         "security": [{ "bearerAuth": [] }],
-        "parameters": [{ "name": "id", "in": "path", "required": true, "schema": { "type": "string" } }],
+        "parameters": [
+          { "name": "id", "in": "path", "required": true, "schema": { "type": "string" } }
+        ],
         "responses": {
           "204": { "description": "Deleted" },
           "401": { "description": "Unauthorized" },
@@ -695,7 +826,9 @@
         "tags": ["Reminders"],
         "summary": "Complete a reminder",
         "security": [{ "bearerAuth": [] }],
-        "parameters": [{ "name": "id", "in": "path", "required": true, "schema": { "type": "string" } }],
+        "parameters": [
+          { "name": "id", "in": "path", "required": true, "schema": { "type": "string" } }
+        ],
         "requestBody": {
           "required": true,
           "content": {

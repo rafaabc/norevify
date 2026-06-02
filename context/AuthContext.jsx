@@ -15,6 +15,7 @@ export function AuthProvider({ children }) {
 
   useEffect(() => {
     const stored = localStorage.getItem('token');
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- localStorage init is SSR-safe only in effects
     if (stored) setToken(stored);
     setAuthLoading(false);
   }, []);
@@ -79,7 +80,23 @@ export function AuthProvider({ children }) {
   }, []);
 
   return (
-    <AuthContext.Provider value={{ token, isAuthed: !!token, authLoading, username, currency, language, emailVerified, updateCurrency, updateLanguage, login, logout, expiredBanner, clearExpiredBanner: () => setExpiredBanner(false) }}>
+    <AuthContext.Provider
+      value={{
+        token,
+        isAuthed: !!token,
+        authLoading,
+        username,
+        currency,
+        language,
+        emailVerified,
+        updateCurrency,
+        updateLanguage,
+        login,
+        logout,
+        expiredBanner,
+        clearExpiredBanner: () => setExpiredBanner(false),
+      }}
+    >
       {children}
     </AuthContext.Provider>
   );

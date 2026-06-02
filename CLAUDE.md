@@ -88,6 +88,7 @@ Error convention: `makeError(status, message)` in each service creates an `Error
 Error monitoring via `@sentry/nextjs`. Captures unhandled exceptions in Route Handlers automatically via `onRequestError` hook (requires Next.js 15+).
 
 Key files:
+
 - `instrumentation.js` — registers `onRequestError: Sentry.captureRequestError`; imports `sentry.server.config.mjs` / `sentry.edge.config.mjs` by runtime
 - `instrumentation-client.js` — client-side init with Session Replay; reads `NEXT_PUBLIC_SENTRY_DSN`
 - `sentry.server.config.mjs` / `sentry.edge.config.mjs` — server/edge init
@@ -108,16 +109,19 @@ Supported languages are defined in `lib/constants/languages.js` (`SUPPORTED_LANG
 - Database isolation via `mongodb-memory-server` (no Atlas connection needed)
 
 ### Test layers covered
+
 - `lib/services/` — business logic and validation
 - `lib/models/` — Mongoose schema behaviour and CRUD
 - `lib/middleware/` — JWT auth logic
 - Route Handler wrappers — HTTP status code mapping and `err.status || 500` fallback
 
 ### Scripts
+
 - `npm run test:unit` — run all unit tests (backend + frontend)
 - `npm run test:unit:coverage` — run tests with coverage reports
 
 ### Conventions
+
 - Pattern: AAA (Arrange, Act, Assert)
 - Test naming: `should <behavior> when <condition>`
 - Each test file boots an in-memory Mongo via `test/helpers/mongo.js`:
@@ -132,13 +136,16 @@ Supported languages are defined in `lib/constants/languages.js` (`SUPPORTED_LANG
 - Config: `vitest.config.ts` at root; `setupFiles: test/frontend/setup.tsx`
 
 ### Scripts
+
 - `npm run test:unit:frontend` — run frontend unit tests
 - `npm run test:unit:frontend:coverage` — run with v8 coverage (HTML report in `coverage/`)
 
 ### Coverage scope
+
 Coverage is measured only over: `components/`, `views/`, `hooks/`, `context/`, `services/`, `utils/`, `i18n/index.js`, `i18n/apiErrors.js`, `lib/constants/`.
 
 Excluded from coverage (browser-only / third-party-heavy, covered by E2E):
+
 - `components/charts/**`
 - `components/PWAUpdater.jsx`
 - `components/UpdatePrompt.jsx`
@@ -149,6 +156,7 @@ Excluded from coverage (browser-only / third-party-heavy, covered by E2E):
 All patterns below are used consistently across the frontend test suite. Do not introduce `vi.hoisted` or MSW unless the need is clear.
 
 **Global mocks (applied to every test via `test/frontend/setup.tsx`):**
+
 - `next/navigation` — `useRouter`, `usePathname`, `useSearchParams` stubbed with `vi.fn()`
 - `next/link` — renders a plain `<a>` element
 
@@ -177,44 +185,61 @@ vi.mock('@/context/AuthContext.jsx', () => ({
 ```
 
 **Service-layer tests** replace `global.fetch` directly:
+
 ```js
 global.fetch = vi.fn().mockResolvedValue({ ok: true, status: 200, json: async () => ({}) });
 ```
+
 Run `vi.clearAllMocks()` and `localStorage.clear()` in `beforeEach`.
 
 **JWT fixture** — build a fake token without signing:
+
 ```js
 const makeToken = (payload) => `h.${btoa(JSON.stringify(payload))}.s`;
 ```
 
 **`usePathname` per-test override:**
+
 ```js
 let mockUsePathname = vi.fn().mockReturnValue('/current-path');
 vi.mock('next/navigation', () => ({ usePathname: () => mockUsePathname() }));
 ```
 
 **`useRouter` per-test override (for view tests):**
+
 ```js
 let mockPush;
-beforeEach(() => { mockPush = vi.fn(); mockUseRouter.mockReturnValue({ push: mockPush }); });
+beforeEach(() => {
+  mockPush = vi.fn();
+  mockUseRouter.mockReturnValue({ push: mockPush });
+});
 ```
 
 **`useParams` mock (for form pages with edit/create modes):**
+
 ```js
 const mockUseParams = vi.fn();
-vi.mock('next/navigation', () => ({ useRouter: () => mockUseRouter(), useParams: () => mockUseParams() }));
+vi.mock('next/navigation', () => ({
+  useRouter: () => mockUseRouter(),
+  useParams: () => mockUseParams(),
+}));
 // create mode: mockUseParams.mockReturnValue({})
 // edit mode:   mockUseParams.mockReturnValue({ id: 'some-id' })
 ```
 
 **`useSearchParams` override per test (for ResetPasswordPage, etc.):**
+
 ```js
 const mockUseSearchParams = vi.fn();
-vi.mock('next/navigation', () => ({ useRouter: () => mockUseRouter(), useSearchParams: () => mockUseSearchParams() }));
+vi.mock('next/navigation', () => ({
+  useRouter: () => mockUseRouter(),
+  useSearchParams: () => mockUseSearchParams(),
+}));
 // in test: mockUseSearchParams.mockReturnValue(new URLSearchParams('token=abc123'))
 ```
 
 **`i18n` mock reference pattern** — when a component imports `@/i18n/index.js` and you need to assert on it (e.g. `changeLanguage` was called), import the mocked module directly rather than keeping a top-level `const` reference in the factory (which fails hoisting):
+
 ```js
 vi.mock('@/i18n/index.js', () => ({ default: { language: 'pt-BR', changeLanguage: vi.fn() } }));
 import i18n from '@/i18n/index.js'; // gives you the mocked object
@@ -230,10 +255,13 @@ import i18n from '@/i18n/index.js'; // gives you the mocked object
 **Chart components are intentionally uncovered** — `SummaryPage`, `DashboardPage` tests mock `StackedMonthlyBar`, `MonthlyTrendChart`, `CategoryDonut` as no-op stubs and assert only on data plumbing + table/KPI rendering.
 
 **Module-level state for per-test mock overrides** — when `useAuth` returns different values per test, use a module-level `let` variable and close over it in the factory (not `vi.mocked`, which requires the factory value to be a `vi.fn()`):
+
 ```js
 let mockIsAuthed = true;
 vi.mock('@/context/AuthContext.jsx', () => ({ useAuth: () => ({ isAuthed: mockIsAuthed }) }));
-beforeEach(() => { mockIsAuthed = true; }); // reset default
+beforeEach(() => {
+  mockIsAuthed = true;
+}); // reset default
 ```
 
 ## Integration Tests
@@ -244,6 +272,7 @@ beforeEach(() => { mockIsAuthed = true; }); // reset default
 - Database isolation via `mongodb-memory-server` (same helper as unit tests)
 
 ### What integration tests cover
+
 - Service ↔ Mongoose model collaboration (real in-memory Mongo)
 - Middleware → service context hand-off (decoded `req.user.id` drives real service calls)
 - Multi-step internal flows: register → login → create expense → summary
@@ -251,15 +280,18 @@ beforeEach(() => { mockIsAuthed = true; }); // reset default
 - Password-recovery cycle: forgotPassword → resetPassword → login with new password
 
 ### What they do NOT cover
+
 - Isolated function logic — that's unit tests in `test/unit/`
 - HTTP contracts, status codes, response bodies — that's API tests in `test/api/`
 
 ### Scripts
+
 - `npm run test:integration` — run all integration tests
 - `npm run test:integration:coverage` — run with c8 coverage report
 - `npm run test:backend` — run unit + integration suites together
 
 ### Conventions
+
 - Pattern: AAA (Arrange, Act, Assert)
 - Files named `<flow>.flow.test.js` under `test/integration/`
 - Both collections reset via `resetMongo()` in `beforeEach` (async `deleteMany`)
@@ -272,15 +304,18 @@ beforeEach(() => { mockIsAuthed = true; }); // reset default
 - Test files live in `test/api/`, organized by feature (auth, expenses, summary)
 
 ### Structure
+
 - `test/api/base/api-base.js` — shared base: exports `request`, `expect`, `BASE_URL`, `CATEGORIES`, `authHeader()`, `createAndLoginUser(prefix)`
 - `test/api/hooks/auth.js` — root `before` hook: registers and logs in a primary user; exports `getToken()`, `getUser()`, `uniqueUsername(prefix)`
 - `test/api/fixtures/` — JSON test data per feature (data-driven testing)
 
 ### Scripts
+
 - `npm run test:api` — run all API tests (spec reporter); sets `NODE_OPTIONS=--use-system-ca` for Atlas TLS on Windows
 - `npm run test:api:report` — run tests and generate HTML report in `reports/`
 
 ### Conventions
+
 - Pattern: AAA (Arrange, Act, Assert)
 - Test naming: `[TC-XX-YY] should <behavior> when <condition>`
 - All tests run against a live server; `BASE_URL` read from `.env` (defaults to `http://localhost:3000`)
@@ -295,12 +330,15 @@ beforeEach(() => { mockIsAuthed = true; }); // reset default
 - Config: `playwright.config.ts` at root; `baseURL` defaults to `http://localhost:3000`
 
 ### Scripts
+
 - `npm run test:e2e` — run all E2E tests (Chromium); sets `NODE_OPTIONS=--use-system-ca` for Atlas TLS on Windows
 
 ### Atlas cleanup — globalTeardown
+
 After all tests finish, `e2e/global-teardown.ts` opens a direct Mongoose connection to Atlas and deletes all users whose email matches `/@test\.com$/` (the pattern used by `createAndLoginUser`), plus their expenses. This pattern-based approach is crash-safe — it cleans up residual data from any previous run, including runs that were interrupted before teardown.
 
 ### Conventions
+
 - Pattern: Page Object Model — each page is a class in `e2e/pages/`
 - Test naming: `[TC-XX-YY] should <behavior> when <condition>`
 - `createAndLoginUser(request, prefix)` — registers + logs in a fresh user (email `${username}@test.com`, cleaned up by teardown pattern), returns `{ username, token }`
@@ -312,13 +350,13 @@ After all tests finish, `e2e/global-teardown.ts` opens a direct Mongoose connect
 
 Swagger UI at `GET /api-docs` (served from `resources/swagger.json`). Also logged to console on startup.
 
-| Prefix | Auth required | Description |
-|---|---|---|
-| `/api/auth` | No | `POST /register`, `POST /login`, `PATCH /password`, `POST /forgot-password`, `POST /reset-password`, `POST /google` |
-| `/api/auth` | Yes (Bearer JWT) | `PATCH /currency`, `PATCH /language`, `PATCH /odometer`, `POST /google/link`, `DELETE /google/link`, `GET /providers` |
-| `/api/expenses` | Yes (Bearer JWT) | CRUD + `GET /summary` |
-| `/api/reminders` | Yes (Bearer JWT) | `GET /`, `POST /`, `GET /:id`, `PUT /:id`, `POST /:id/complete`, `DELETE /:id`, `GET /badge-count` |
-| `/api/health` | No | `GET /` — health check |
+| Prefix           | Auth required    | Description                                                                                                           |
+| ---------------- | ---------------- | --------------------------------------------------------------------------------------------------------------------- |
+| `/api/auth`      | No               | `POST /register`, `POST /login`, `PATCH /password`, `POST /forgot-password`, `POST /reset-password`, `POST /google`   |
+| `/api/auth`      | Yes (Bearer JWT) | `PATCH /currency`, `PATCH /language`, `PATCH /odometer`, `POST /google/link`, `DELETE /google/link`, `GET /providers` |
+| `/api/expenses`  | Yes (Bearer JWT) | CRUD + `GET /summary`                                                                                                 |
+| `/api/reminders` | Yes (Bearer JWT) | `GET /`, `POST /`, `GET /:id`, `PUT /:id`, `POST /:id/complete`, `DELETE /:id`, `GET /badge-count`                    |
+| `/api/health`    | No               | `GET /` — health check                                                                                                |
 
 Auth: `Authorization: Bearer <token>` header. JWT decoded into `req.user` (`{ id, username }`). `id` is an ObjectId hex string.
 
@@ -329,6 +367,7 @@ Valid types: `Fuel`, `Maintenance`, `Insurance`, `Parking`, `Toll`, `Tax`, `Othe
 A reminder must have at least one of `dueDate` or `dueKm`. Both are optional individually but at least one is required.
 
 Status computation (`lib/services/reminders.service.js`):
+
 - `overdue` — past `dueDate` OR `currentKm >= dueKm`
 - `dueSoon` — within `LEAD_DAYS = 7` days of `dueDate` OR within `LEAD_KM = 500` km of `dueKm`
 - `upcoming` — everything else
@@ -368,25 +407,25 @@ All HTTP calls go through `services/apiService.js` — never call `fetch()` dire
 
 ```js
 // Auth
-authApi.register({ username, password })
-authApi.login({ username, password })          // returns { token }
+authApi.register({ username, password });
+authApi.login({ username, password }); // returns { token }
 
 // Expenses
-expensesApi.list({ category, year, month })
-expensesApi.get(id)
-expensesApi.create(data)
-expensesApi.update(id, data)
-expensesApi.remove(id)
-expensesApi.summary({ year, month, category })
+expensesApi.list({ category, year, month });
+expensesApi.get(id);
+expensesApi.create(data);
+expensesApi.update(id, data);
+expensesApi.remove(id);
+expensesApi.summary({ year, month, category });
 
 // Reminders
-remindersApi.list({ status })                  // status: 'active' | 'done'
-remindersApi.get(id)
-remindersApi.create(data)
-remindersApi.update(id, data)
-remindersApi.complete(id, { completedKm })
-remindersApi.remove(id)
-remindersApi.badgeCount()                      // returns { dueSoon, overdue }
+remindersApi.list({ status }); // status: 'active' | 'done'
+remindersApi.get(id);
+remindersApi.create(data);
+remindersApi.update(id, data);
+remindersApi.complete(id, { completedKm });
+remindersApi.remove(id);
+remindersApi.badgeCount(); // returns { dueSoon, overdue }
 ```
 
 To add a new endpoint: export a new function from `services/apiService.js` that calls the internal `request()` helper. Do not add `fetch()` calls elsewhere.
@@ -413,6 +452,7 @@ To add a new endpoint: export a new function from `services/apiService.js` that 
 ### Modal / dialog pattern
 
 Modals use two global CSS classes from `styles/globals.css`:
+
 - `.modal-backdrop` — `position: fixed; inset: 0` overlay with semi-transparent background; Playwright-visible (has explicit dimensions).
 - `.modal` — centered card inside the backdrop.
 
@@ -471,21 +511,48 @@ Modals use two global CSS classes from `styles/globals.css`:
 - Services: `*Api` object exported from `services/apiService.js`
 - CSS Modules: `*.module.css` co-located with the component/page
 
+## Linting & Formatting
+
+- **ESLint 9** flat config at `eslint.config.mjs` — `eslint-config-next` preset (bundles React, React Hooks, Next.js, a11y rules) + `eslint-config-prettier` last to disable format-conflicting rules
+- **Prettier** config at `.prettierrc.json` — `singleQuote: true`, `semi: true`, `trailingComma: 'all'`, `printWidth: 100`
+- **`globals`** package supplies per-directory environments (node, mocha, vitest, browser, playwright)
+
+```bash
+npm run lint          # ESLint check (exit 1 on error)
+npm run lint:fix      # ESLint auto-fix
+npm run format        # Prettier write
+npm run format:check  # Prettier check (exit 1 on diff)
+```
+
+Key config decisions:
+- `react/react-in-jsx-scope` off — React 19 new JSX transform
+- `react/prop-types` off — project is plain JS, no PropTypes
+- `no-unused-vars` warn (not error), ignored for `^_` prefix
+- `@next/next/no-page-custom-font` off for `app/**` — rule targets Pages Router `_document.js` only
+- `no-unused-vars` off for `**/*.ts` / `**/*.tsx` — TypeScript compiler handles it; constructor parameter properties are falsely flagged by this rule
+- `react-hooks/set-state-in-effect` false positives on async functions called in effects — suppressed per-line with explanatory comment; `AuthContext` localStorage init similarly suppressed (SSR-safe only in `useEffect`)
+- `frontend/**` excluded — legacy build artifacts directory
+
 ## CI Pipeline
 
 Single workflow file `.github/workflows/ci.yml` — triggers on push/PR to `main`:
 
-| Job | Needs | Description |
-|---|---|---|
-| `test-unit` | — | Node.js native test runner + mongodb-memory-server |
-| `test-integration` | `test-unit` | Real service↔model flows, in-memory Mongo |
-| `test-api` | `test-integration` | Mocha/Supertest against `next build && next start` |
-| `e2e` | `test-api` | Playwright Chromium against `next build && next start` |
+| Job                | Needs              | Description                                            |
+| ------------------ | ------------------ | ------------------------------------------------------ |
+| `lint`             | —                  | ESLint + Prettier check                                |
+| `audit`            | —                  | `npm audit --audit-level=high --omit=dev`              |
+| `test-unit`        | —                  | Node.js native test runner + mongodb-memory-server     |
+| `test-integration` | `test-unit`        | Real service↔model flows, in-memory Mongo              |
+| `test-api`         | `test-integration` | Mocha/Supertest against `next build && next start`     |
+| `e2e`              | `test-api`         | Playwright Chromium against `next build && next start` |
 
+- `lint`, `audit`, `test-unit` run in parallel (no `needs:`)
 - `test-unit` and `test-integration` use `mongodb-memory-server` — no secrets needed
 - `test-api` and `e2e` build the Next.js app and boot `next start`; require `JWT_SECRET` + `MONGODB_URI` from GitHub Secrets
+- `audit` fails on high/critical advisories in prod deps only (`--omit=dev`)
 - Health check endpoint: `GET /api/health`
 - Supports `workflow_dispatch` for manual runs
+- Dependabot configured at `.github/dependabot.yml` — weekly updates for npm and github-actions
 
 ## Visual Identity
 

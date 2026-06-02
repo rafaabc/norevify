@@ -3,6 +3,7 @@
 ## Database (MongoDB Atlas M0)
 
 ### Automatic backups
+
 Atlas M0 (free tier) takes **one snapshot per day** with a **2-day retention window**. Snapshots are accessible under:
 
 > Atlas → your cluster → **Backup** tab
@@ -10,6 +11,7 @@ Atlas M0 (free tier) takes **one snapshot per day** with a **2-day retention win
 You cannot restore individual collections on M0 — only full cluster restores via Atlas support.
 
 ### Manual export (weekly recommended)
+
 Run from a machine with `mongodump` installed:
 
 ```bash
@@ -25,6 +27,7 @@ tar czf backup-$(date +%Y-%m-%d).tar.gz backup/$(date +%Y-%m-%d)
 ```
 
 ### Restore from dump
+
 ```bash
 mongorestore \
   --uri "mongodb+srv://<USER>:<PASS>@cluster0.xxxxx.mongodb.net/drive-ledger" \
@@ -62,13 +65,13 @@ In-memory rate limit store (`lib/middleware/rateLimit.js`) uses `globalThis._rat
 
 Current limits:
 
-| Endpoint | Limit |
-|---|---|
-| `POST /api/auth/login` | 10 req / 15 min per IP |
-| `POST /api/auth/register` | 5 req / h per IP |
-| `POST /api/auth/forgot-password` | 3 req / h per IP |
-| `POST /api/auth/google` | 10 req / 15 min per IP |
-| `POST /api/auth/resend-verification` | 3 req / h per IP |
+| Endpoint                             | Limit                  |
+| ------------------------------------ | ---------------------- |
+| `POST /api/auth/login`               | 10 req / 15 min per IP |
+| `POST /api/auth/register`            | 5 req / h per IP       |
+| `POST /api/auth/forgot-password`     | 3 req / h per IP       |
+| `POST /api/auth/google`              | 10 req / 15 min per IP |
+| `POST /api/auth/resend-verification` | 3 req / h per IP       |
 
 ---
 
@@ -101,9 +104,9 @@ npm run test:unit && npm run test:integration
 
 ## Secrets rotation
 
-| Secret | Steps |
-|---|---|
-| `JWT_SECRET` | Generate new value → update Vercel env → redeploy. All active sessions are invalidated. |
-| `RESEND_API_KEY` | Resend Dashboard → API Keys → Create new → update Vercel env → delete old key. |
-| `MONGODB_URI` password | Atlas → Database Access → Edit user → new password → update URI in Vercel env. |
-| `GOOGLE_CLIENT_ID` | Only rotate if credentials are leaked — regenerate in Google Cloud Console. |
+| Secret                 | Steps                                                                                   |
+| ---------------------- | --------------------------------------------------------------------------------------- |
+| `JWT_SECRET`           | Generate new value → update Vercel env → redeploy. All active sessions are invalidated. |
+| `RESEND_API_KEY`       | Resend Dashboard → API Keys → Create new → update Vercel env → delete old key.          |
+| `MONGODB_URI` password | Atlas → Database Access → Edit user → new password → update URI in Vercel env.          |
+| `GOOGLE_CLIENT_ID`     | Only rotate if credentials are leaked — regenerate in Google Cloud Console.             |

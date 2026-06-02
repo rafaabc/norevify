@@ -4,7 +4,13 @@ import NumericInput from '@/components/NumericInput';
 
 const mockLang = vi.fn().mockReturnValue('en');
 vi.mock('react-i18next', () => ({
-  useTranslation: () => ({ i18n: { get language() { return mockLang(); } } }),
+  useTranslation: () => ({
+    i18n: {
+      get language() {
+        return mockLang();
+      },
+    },
+  }),
 }));
 
 describe('NumericInput — EN', () => {
@@ -46,9 +52,11 @@ describe('NumericInput — PT-BR', () => {
     const onChange = vi.fn();
     render(<NumericInput id="x" name="x" value="" onChange={onChange} />);
     fireEvent.change(screen.getByRole('textbox'), { target: { value: '5,55' } });
-    expect(onChange).toHaveBeenCalledWith(expect.objectContaining({
-      target: expect.objectContaining({ name: 'x', value: '5.55' }),
-    }));
+    expect(onChange).toHaveBeenCalledWith(
+      expect.objectContaining({
+        target: expect.objectContaining({ name: 'x', value: '5.55' }),
+      }),
+    );
   });
 
   it('should reject period input', () => {

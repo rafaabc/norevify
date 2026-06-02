@@ -1,4 +1,4 @@
-import { describe, it, expect, vi } from 'vitest';
+import { describe, it, expect } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
 import FieldLabelWithHint from '@/components/FieldLabelWithHint';
 
@@ -15,7 +15,10 @@ describe('FieldLabelWithHint', () => {
 
   it('should have aria-expanded=false initially', () => {
     render(<FieldLabelWithHint htmlFor="test-id" label="My label" hint="Hint text" />);
-    expect(screen.getByRole('button', { name: 'Hint text' })).toHaveAttribute('aria-expanded', 'false');
+    expect(screen.getByRole('button', { name: 'Hint text' })).toHaveAttribute(
+      'aria-expanded',
+      'false',
+    );
   });
 
   it('should not show hint text initially', () => {

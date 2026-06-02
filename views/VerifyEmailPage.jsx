@@ -13,20 +13,17 @@ export default function VerifyEmailPage() {
   const router = useRouter();
   const { login } = useAuth();
 
-  const [status, setStatus] = useState('verifying'); // verifying | success | error
-  const [errorMsg, setErrorMsg] = useState('');
+  const verifyToken = searchParams.get('token');
+  const [status, setStatus] = useState(verifyToken ? 'verifying' : 'error');
+  const [errorMsg, setErrorMsg] = useState(verifyToken ? '' : t('auth.verifyEmail.invalid'));
   const [resendLoading, setResendLoading] = useState(false);
   const [resendSuccess, setResendSuccess] = useState(false);
   const [resendError, setResendError] = useState('');
 
   useEffect(() => {
-    const token = searchParams.get('token');
-    if (!token) {
-      setErrorMsg(t('auth.verifyEmail.invalid'));
-      setStatus('error');
-      return;
-    }
-    authApi.verifyEmail({ token })
+    if (!verifyToken) return;
+    authApi
+      .verifyEmail({ token: verifyToken })
       .then(({ token: newToken }) => {
         login(newToken);
         setStatus('success');
@@ -35,7 +32,7 @@ export default function VerifyEmailPage() {
         setErrorMsg(err.message);
         setStatus('error');
       });
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   async function handleResend() {
@@ -78,7 +75,9 @@ export default function VerifyEmailPage() {
           {status === 'error' && (
             <>
               <ErrorBanner message={errorMsg} />
-              {resendSuccess && <ErrorBanner message={t('auth.verifyEmail.resendSuccess')} type="success" />}
+              {resendSuccess && (
+                <ErrorBanner message={t('auth.verifyEmail.resendSuccess')} type="success" />
+              )}
               {resendError && <ErrorBanner message={resendError} />}
               <button
                 className="btn-secondary"

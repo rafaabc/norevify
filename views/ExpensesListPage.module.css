@@ -20,7 +20,7 @@
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: .625rem;
+  gap: 0.625rem;
 }
 
 .toolbarIcon {
@@ -31,8 +31,8 @@
 .toolbarSelect {
   width: auto;
   min-width: 130px;
-  padding: .4rem .7rem;
-  font-size: .82rem;
+  padding: 0.4rem 0.7rem;
+  font-size: 0.82rem;
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: var(--radius-sm);
@@ -49,8 +49,8 @@
 .clearBtn {
   background: transparent;
   color: var(--muted);
-  font-size: .8rem;
-  padding: .35rem .7rem;
+  font-size: 0.8rem;
+  padding: 0.35rem 0.7rem;
   border: none;
   border-radius: var(--radius-sm);
   text-decoration: underline;
@@ -62,43 +62,57 @@
 }
 
 /* ── Expense table ───────────────────────────── */
-.tableCard { display: block; }
-.tableScroll { overflow-x: auto; }
+.tableCard {
+  display: block;
+}
+.tableScroll {
+  overflow-x: auto;
+}
 
 .expenseTable {
   table-layout: fixed;
 }
 .expenseTable th,
 .expenseTable td {
-  padding: .5rem .75rem;
+  padding: 0.5rem 0.75rem;
 }
-.thDate     { width: 130px; }
-.thCategory { width: 150px; }
-.thAmount   { width: 120px; }
-.thActions  { width: 80px; }
+.thDate {
+  width: 130px;
+}
+.thCategory {
+  width: 150px;
+}
+.thAmount {
+  width: 120px;
+}
+.thActions {
+  width: 80px;
+}
 
 /* ── Mobile: card list ───────────────────────── */
-.cardList { display: none; }
+.cardList {
+  display: none;
+}
 
 .expenseCard {
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: var(--radius);
-  padding: .875rem 1rem;
+  padding: 0.875rem 1rem;
   display: flex;
   flex-direction: column;
-  gap: .4rem;
+  gap: 0.4rem;
 }
 
 .cardTop {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: .5rem;
+  gap: 0.5rem;
 }
 
 .cardDate {
-  font-size: .8rem;
+  font-size: 0.8rem;
   color: var(--muted);
   font-family: var(--font-mono);
 }
@@ -106,7 +120,7 @@
 .cardBody {
   display: flex;
   align-items: baseline;
-  gap: .625rem;
+  gap: 0.625rem;
 }
 
 .cardAmount {
@@ -114,74 +128,96 @@
   font-size: 1.4rem;
   font-weight: 600;
   color: var(--text);
-  letter-spacing: -.01em;
+  letter-spacing: -0.01em;
 }
 
 .cardSub {
-  font-size: .78rem;
+  font-size: 0.78rem;
   color: var(--muted);
   font-family: var(--font-mono);
 }
 
 .cardActions {
   display: flex;
-  gap: .5rem;
+  gap: 0.5rem;
   justify-content: flex-end;
 }
 
 .iconBtn {
   background: none;
   border: none;
-  padding: .3rem;
+  padding: 0.3rem;
   border-radius: var(--radius-sm);
   color: var(--muted);
   cursor: pointer;
   display: flex;
   align-items: center;
-  transition: color .15s, background .15s;
+  transition:
+    color 0.15s,
+    background 0.15s;
 }
-.iconBtn:hover { color: var(--text-2); background: var(--surface-2); }
-.iconBtnDanger:hover { color: var(--danger); background: var(--danger-dim); }
+.iconBtn:hover {
+  color: var(--text-2);
+  background: var(--surface-2);
+}
+.iconBtnDanger:hover {
+  color: var(--danger);
+  background: var(--danger-dim);
+}
 
 @media (max-width: 640px) {
   .filterToggle {
     display: flex;
     align-items: center;
-    gap: .4rem;
+    gap: 0.4rem;
     background: var(--surface);
     border: 1px solid var(--border);
     border-radius: var(--radius-sm);
     color: var(--text-2);
-    font-size: .82rem;
-    padding: .45rem .75rem;
-    margin-bottom: .625rem;
+    font-size: 0.82rem;
+    padding: 0.45rem 0.75rem;
+    margin-bottom: 0.625rem;
     width: 100%;
     justify-content: center;
   }
-  .filterToggle:hover { background: var(--surface-2); }
+  .filterToggle:hover {
+    background: var(--surface-2);
+  }
 
   .toolbar {
     display: none;
     flex-direction: column;
     align-items: stretch;
-    padding: .75rem;
+    padding: 0.75rem;
     background: var(--surface);
     border: 1px solid var(--border);
     border-radius: var(--radius);
-    margin-bottom: .625rem;
-    gap: .5rem;
+    margin-bottom: 0.625rem;
+    gap: 0.5rem;
   }
-  .toolbar.toolbarOpen { display: flex; }
+  .toolbar.toolbarOpen {
+    display: flex;
+  }
 
-  .toolbarIcon { display: none; }
-  .toolbarSelect { min-width: 0; width: 100%; }
-  .clearBtn { text-align: center; width: 100%; }
+  .toolbarIcon {
+    display: none;
+  }
+  .toolbarSelect {
+    min-width: 0;
+    width: 100%;
+  }
+  .clearBtn {
+    text-align: center;
+    width: 100%;
+  }
 
-  .tableCard { display: none; }
+  .tableCard {
+    display: none;
+  }
   .cardList {
     display: flex;
     flex-direction: column;
-    gap: .625rem;
+    gap: 0.625rem;
   }
 }
 
@@ -202,5 +238,5 @@
 
 .emptyText {
   color: var(--muted);
-  font-size: .95rem;
+  font-size: 0.95rem;
 }

@@ -6,12 +6,15 @@ import { createRateLimiter, withRateLimitedHandler } from '@/lib/middleware/rate
 
 const limiter = createRateLimiter({ max: 3, windowMs: 60 * 60_000, key: 'resend-verification' });
 
-export const POST = withRateLimitedHandler(limiter, withAuth(async (req, _ctx, user) => {
-  await connectDB();
-  try {
-    const result = await authService.resendVerification({ userId: user.id });
-    return NextResponse.json(result);
-  } catch (err) {
-    return NextResponse.json({ message: err.message }, { status: err.status || 500 });
-  }
-}));
+export const POST = withRateLimitedHandler(
+  limiter,
+  withAuth(async (req, _ctx, user) => {
+    await connectDB();
+    try {
+      const result = await authService.resendVerification({ userId: user.id });
+      return NextResponse.json(result);
+    } catch (err) {
+      return NextResponse.json({ message: err.message }, { status: err.status || 500 });
+    }
+  }),
+);

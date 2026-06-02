@@ -26,18 +26,18 @@ Key features:
 
 ## Technologies Used
 
-| Package | Purpose |
-|---|---|
-| Next.js 14 | App Router — SSR + API Route Handlers |
-| React 18 | UI (`'use client'` components) |
-| Mongoose | MongoDB ODM |
-| jsonwebtoken / bcryptjs | JWT auth + password hashing |
-| Resend | Transactional email (password recovery) |
-| react-i18next / i18next | PT-BR + English i18n |
-| @ducanh2912/next-pwa | Service worker + web app manifest |
-| Playwright | E2E tests |
-| Mocha + Supertest | API contract tests |
-| Node.js test runner + c8 | Unit and integration tests + coverage |
+| Package                  | Purpose                                 |
+| ------------------------ | --------------------------------------- |
+| Next.js 14               | App Router — SSR + API Route Handlers   |
+| React 18                 | UI (`'use client'` components)          |
+| Mongoose                 | MongoDB ODM                             |
+| jsonwebtoken / bcryptjs  | JWT auth + password hashing             |
+| Resend                   | Transactional email (password recovery) |
+| react-i18next / i18next  | PT-BR + English i18n                    |
+| @ducanh2912/next-pwa     | Service worker + web app manifest       |
+| Playwright               | E2E tests                               |
+| Mocha + Supertest        | API contract tests                      |
+| Node.js test runner + c8 | Unit and integration tests + coverage   |
 
 ## Installation and Setup
 
@@ -55,18 +55,18 @@ npm install
 cp .env.example .env
 ```
 
-| Variable | Description |
-|---|---|
-| `PORT` | Server port (e.g. `3000`) |
-| `JWT_SECRET` | JWT signing key |
-| `JWT_EXPIRES_IN` | Token expiry (e.g. `1h`) |
-| `BASE_URL` | Base URL (e.g. `http://localhost:3000`) |
-| `FRONTEND_URL` | Frontend origin for password-reset links — same as `BASE_URL` locally |
-| `MONGODB_URI` | MongoDB Atlas connection string (see below) |
-| `RESEND_API_KEY` | [Resend](https://resend.com) API key for password-recovery emails |
-| `RESET_PASSWORD_EXPIRES_IN` | Reset token lifetime (default `15m`) |
-| `GOOGLE_CLIENT_ID` | Google OAuth client ID (server-side) |
-| `NEXT_PUBLIC_GOOGLE_CLIENT_ID` | Same Google client ID (exposed to browser) |
+| Variable                       | Description                                                           |
+| ------------------------------ | --------------------------------------------------------------------- |
+| `PORT`                         | Server port (e.g. `3000`)                                             |
+| `JWT_SECRET`                   | JWT signing key                                                       |
+| `JWT_EXPIRES_IN`               | Token expiry (e.g. `1h`)                                              |
+| `BASE_URL`                     | Base URL (e.g. `http://localhost:3000`)                               |
+| `FRONTEND_URL`                 | Frontend origin for password-reset links — same as `BASE_URL` locally |
+| `MONGODB_URI`                  | MongoDB Atlas connection string (see below)                           |
+| `RESEND_API_KEY`               | [Resend](https://resend.com) API key for password-recovery emails     |
+| `RESET_PASSWORD_EXPIRES_IN`    | Reset token lifetime (default `15m`)                                  |
+| `GOOGLE_CLIENT_ID`             | Google OAuth client ID (server-side)                                  |
+| `NEXT_PUBLIC_GOOGLE_CLIENT_ID` | Same Google client ID (exposed to browser)                            |
 
 **MongoDB Atlas setup:**
 
@@ -95,16 +95,16 @@ Swagger UI is available at `http://localhost:3000/api-docs`.
 
 Unit and integration tests use `mongodb-memory-server` — no Atlas connection needed. API and E2E tests require a running server connected to Atlas.
 
-| Command | Scope |
-|---|---|
-| `npm run test:unit` | Unit — services, models, middleware |
-| `npm run test:unit:coverage` | Unit + HTML coverage report |
-| `npm run test:integration` | Integration — cross-layer flows |
-| `npm run test:integration:coverage` | Integration + HTML coverage report |
-| `npm run test:backend` | Unit + integration |
-| `npm run test:api` | API contracts (server must be running) |
-| `npm run test:api:report` | API tests + HTML report in `reports/` |
-| `npm run test:e2e` | E2E (server must be running) |
+| Command                             | Scope                                  |
+| ----------------------------------- | -------------------------------------- |
+| `npm run test:unit`                 | Unit — services, models, middleware    |
+| `npm run test:unit:coverage`        | Unit + HTML coverage report            |
+| `npm run test:integration`          | Integration — cross-layer flows        |
+| `npm run test:integration:coverage` | Integration + HTML coverage report     |
+| `npm run test:backend`              | Unit + integration                     |
+| `npm run test:api`                  | API contracts (server must be running) |
+| `npm run test:api:report`           | API tests + HTML report in `reports/`  |
+| `npm run test:e2e`                  | E2E (server must be running)           |
 
 **CI pipeline** (`.github/workflows/ci.yml`):
 

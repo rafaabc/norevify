@@ -1,6 +1,13 @@
 'use strict';
 
-const { request, expect, BASE_URL, uniqueUsername, createAndLoginUser, verifyUserInDb } = require('../base/api-base');
+const {
+  request,
+  expect,
+  BASE_URL,
+  uniqueUsername,
+  createAndLoginUser,
+  verifyUserInDb,
+} = require('../base/api-base');
 
 const VALID_CONSENT = { policyVersion: '2026-05-20', acceptedAt: new Date().toISOString() };
 
@@ -12,9 +19,7 @@ async function registerAndLogin(prefix, password = 'Password1') {
     .send({ username, password, email, consent: VALID_CONSENT });
   expect(regRes.status).to.equal(201);
   await verifyUserInDb(regRes.body.id);
-  const loginRes = await request(BASE_URL)
-    .post('/api/auth/login')
-    .send({ username, password });
+  const loginRes = await request(BASE_URL).post('/api/auth/login').send({ username, password });
   return { username, password, token: loginRes.body.token };
 }
 

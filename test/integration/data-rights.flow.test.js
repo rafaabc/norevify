@@ -21,19 +21,33 @@ beforeEach(async () => await resetMongo());
 describe('data rights flow', () => {
   it('should reject registration without consent', async () => {
     await assert.rejects(
-      () => authService.register({ username: 'alice', password: 'password1', email: 'alice@test.com' }),
-      (err) => { assert.strictEqual(err.status, 400); return true; }
+      () =>
+        authService.register({ username: 'alice', password: 'password1', email: 'alice@test.com' }),
+      (err) => {
+        assert.strictEqual(err.status, 400);
+        return true;
+      },
     );
   });
 
   it('should allow export and delete after register + verify', async () => {
-    const { id: userId } = await authService.register({ username: 'alice', password: 'password1', email: 'alice@test.com', consent: VALID_CONSENT });
+    const { id: userId } = await authService.register({
+      username: 'alice',
+      password: 'password1',
+      email: 'alice@test.com',
+      consent: VALID_CONSENT,
+    });
 
     // manually verify email (simulate email verification)
     await userModel.setEmailVerified(userId);
 
     // Create an expense
-    await expensesService.createExpense(userId, { category: 'Fuel', litres: 10, price_per_litre: 5.5, date: new Date(Date.now() - 86400000).toISOString() });
+    await expensesService.createExpense(userId, {
+      category: 'Fuel',
+      litres: 10,
+      price_per_litre: 5.5,
+      date: new Date(Date.now() - 86400000).toISOString(),
+    });
 
     // Export should return user data with expenses
     const exported = await authService.exportUserData({ userId });

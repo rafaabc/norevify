@@ -7,7 +7,11 @@ export default function AmountField({ value, onChange }) {
   const { t } = useTranslation();
   return (
     <div className="form-group">
-      <FieldLabelWithHint htmlFor="field-amount" label={t('expenses.fields.amount')} hint={t('expenses.fields.decimalHint')} />
+      <FieldLabelWithHint
+        htmlFor="field-amount"
+        label={t('expenses.fields.amount')}
+        hint={t('expenses.fields.decimalHint')}
+      />
       <NumericInput
         id="field-amount"
         name="amount"

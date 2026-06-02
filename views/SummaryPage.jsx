@@ -18,8 +18,9 @@ import styles from './SummaryPage.module.css';
 function getMonthName(monthIndex) {
   const lang = i18n?.language;
   const locale = !lang || lang === 'en' ? 'en-US' : lang;
-  return new Intl.DateTimeFormat(locale, { month: 'long', timeZone: 'UTC' })
-    .format(new Date(Date.UTC(2000, monthIndex - 1, 1)));
+  return new Intl.DateTimeFormat(locale, { month: 'long', timeZone: 'UTC' }).format(
+    new Date(Date.UTC(2000, monthIndex - 1, 1)),
+  );
 }
 
 function buildPivot(expenses, visibleCategories) {
@@ -38,9 +39,7 @@ function buildPivot(expenses, visibleCategories) {
 }
 
 function colTotal(monthly, cat) {
-  return Math.round(
-    Object.values(monthly).reduce((s, row) => s + (row[cat] || 0), 0) * 100
-  ) / 100;
+  return Math.round(Object.values(monthly).reduce((s, row) => s + (row[cat] || 0), 0) * 100) / 100;
 }
 
 function rowTotal(row) {
@@ -85,17 +84,22 @@ export default function SummaryPage() {
     }
   }, []);
 
-  useEffect(() => { fetchData(filters); }, [filters, fetchData]);
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- fetchData is async, setState only after await
+    fetchData(filters);
+  }, [filters, fetchData]);
 
   function handleChange(e) {
     setFilters((f) => ({ ...f, [e.target.name]: e.target.value }));
   }
 
-  const targetCategories = useMemo(() => (
-    filters.category
-      ? [filters.category]
-      : CATEGORIES.filter((cat) => expenses.some((e) => e.category === cat))
-  ), [filters.category, expenses]);
+  const targetCategories = useMemo(
+    () =>
+      filters.category
+        ? [filters.category]
+        : CATEGORIES.filter((cat) => expenses.some((e) => e.category === cat)),
+    [filters.category, expenses],
+  );
 
   const hasData = expenses.length > 0;
 
@@ -128,7 +132,12 @@ export default function SummaryPage() {
       <div className={`card ${styles.filterCard}`}>
         <div className={styles.filterForm}>
           <div className={styles.filterField}>
-            <label htmlFor="summary-year">{t('summary.year')} <span aria-hidden="true" style={{ color: 'var(--danger)' }}>*</span></label>
+            <label htmlFor="summary-year">
+              {t('summary.year')}{' '}
+              <span aria-hidden="true" style={{ color: 'var(--danger)' }}>
+                *
+              </span>
+            </label>
             <input
               id="summary-year"
               type="number"
@@ -141,7 +150,12 @@ export default function SummaryPage() {
           </div>
           <div className={styles.filterField}>
             <label htmlFor="summary-category">{t('summary.category')}</label>
-            <CategorySelect id="summary-category" value={filters.category} onChange={handleChange} includeAll />
+            <CategorySelect
+              id="summary-category"
+              value={filters.category}
+              onChange={handleChange}
+              includeAll
+            />
           </div>
         </div>
       </div>
@@ -165,15 +179,23 @@ export default function SummaryPage() {
           {/* Desktop pivot table */}
           <details className={`card ${styles.pivotSection} ${styles.pivotDesktop}`} open>
             <summary className={styles.pivotSummary}>
-              <span className={styles.period}>{filters.year} {t('summary.breakdown')}</span>
+              <span className={styles.period}>
+                {filters.year} {t('summary.breakdown')}
+              </span>
             </summary>
             <div style={{ overflowX: 'auto', marginTop: '1rem' }}>
               <table>
                 <thead>
                   <tr>
                     <th scope="col">{t('summary.month')}</th>
-                    {targetCategories.map((cat) => <th key={cat} scope="col" className="num">{categoryLabel(cat, t)}</th>)}
-                    <th scope="col" className="num">{t('summary.total')}</th>
+                    {targetCategories.map((cat) => (
+                      <th key={cat} scope="col" className="num">
+                        {categoryLabel(cat, t)}
+                      </th>
+                    ))}
+                    <th scope="col" className="num">
+                      {t('summary.total')}
+                    </th>
                   </tr>
                 </thead>
                 <tbody>
@@ -196,9 +218,15 @@ export default function SummaryPage() {
                 </tbody>
                 <tfoot>
                   <tr className={styles.totalRow}>
-                    <td><strong>{t('summary.total')} {filters.year}</strong></td>
+                    <td>
+                      <strong>
+                        {t('summary.total')} {filters.year}
+                      </strong>
+                    </td>
                     {targetCategories.map((cat) => (
-                      <td key={cat} className="num">{formatCurrency(colTotal(monthly, cat), currency)}</td>
+                      <td key={cat} className="num">
+                        {formatCurrency(colTotal(monthly, cat), currency)}
+                      </td>
                     ))}
                     <td className="num">{formatCurrency(grandTotal, currency)}</td>
                   </tr>
@@ -209,7 +237,9 @@ export default function SummaryPage() {
 
           {/* Mobile category bars */}
           <div className={`card ${styles.pivotMobile}`}>
-            <h3 className={styles.sectionTitle}>{filters.year} {t('summary.byCategory')}</h3>
+            <h3 className={styles.sectionTitle}>
+              {filters.year} {t('summary.byCategory')}
+            </h3>
             {donutData.length === 0 ? (
               <p className="text-muted">{t('summary.noData')}</p>
             ) : (
@@ -223,13 +253,20 @@ export default function SummaryPage() {
                     return (
                       <div key={category} className={styles.catBarRow}>
                         <div className={styles.catBarMeta}>
-                          <span className="badge" data-cat={category}>{categoryLabel(category, t)}</span>
-                          <span className={styles.catBarValue}>{formatCurrency(total, currency)}</span>
+                          <span className="badge" data-cat={category}>
+                            {categoryLabel(category, t)}
+                          </span>
+                          <span className={styles.catBarValue}>
+                            {formatCurrency(total, currency)}
+                          </span>
                         </div>
                         <div className={styles.catBarTrack}>
                           <div
                             className={styles.catBarFill}
-                            style={{ width: `${pct}%`, '--cat-color': `var(--cat-${category.toLowerCase()})` }}
+                            style={{
+                              width: `${pct}%`,
+                              '--cat-color': `var(--cat-${category.toLowerCase()})`,
+                            }}
                           />
                         </div>
                       </div>

@@ -21,25 +21,43 @@ const TODAY = new Date().toISOString().slice(0, 10);
 
 describe('Odometer flow', () => {
   it('fuel odometer raises user.currentKm; older reading does not lower it', async () => {
-    await authService.register({ username: 'od1', password: 'pass1234', email: 'od1@test.com', consent: VALID_CONSENT });
+    await authService.register({
+      username: 'od1',
+      password: 'pass1234',
+      email: 'od1@test.com',
+      consent: VALID_CONSENT,
+    });
     const user = await userModel.findByUsername('od1');
     const uid = user._id.toString();
 
     await expensesService.createExpense(uid, {
-      date: TODAY, category: 'Fuel', litres: 30, price_per_litre: 1.5, odometer: 1000,
+      date: TODAY,
+      category: 'Fuel',
+      litres: 30,
+      price_per_litre: 1.5,
+      odometer: 1000,
     });
     let u = await userModel.findById(uid);
     assert.strictEqual(u.currentKm, 1000);
 
     await expensesService.createExpense(uid, {
-      date: TODAY, category: 'Fuel', litres: 30, price_per_litre: 1.5, odometer: 500,
+      date: TODAY,
+      category: 'Fuel',
+      litres: 30,
+      price_per_litre: 1.5,
+      odometer: 500,
     });
     u = await userModel.findById(uid);
     assert.strictEqual(u.currentKm, 1000);
   });
 
   it('manual override allows setting a lower value', async () => {
-    await authService.register({ username: 'od2', password: 'pass1234', email: 'od2@test.com', consent: VALID_CONSENT });
+    await authService.register({
+      username: 'od2',
+      password: 'pass1234',
+      email: 'od2@test.com',
+      consent: VALID_CONSENT,
+    });
     const user = await userModel.findByUsername('od2');
     const uid = user._id.toString();
 

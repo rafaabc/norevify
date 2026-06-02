@@ -11,10 +11,16 @@ describe('API_ERROR_MAP', () => {
     expect(API_ERROR_MAP['Invalid or expired reset token']).toBe('errors.invalidToken');
     expect(API_ERROR_MAP['Reminder not found']).toBe('errors.reminderNotFound');
     expect(API_ERROR_MAP['reminder already completed']).toBe('errors.reminderAlreadyCompleted');
-    expect(API_ERROR_MAP['cannot edit completed reminder']).toBe('errors.reminderCannotEditCompleted');
+    expect(API_ERROR_MAP['cannot edit completed reminder']).toBe(
+      'errors.reminderCannotEditCompleted',
+    );
     expect(API_ERROR_MAP['must provide dueDate or dueKm']).toBe('errors.reminderMissingDue');
-    expect(API_ERROR_MAP['odometer cannot be lower than current reading']).toBe('errors.odometerRewind');
-    expect(API_ERROR_MAP['odometer is only valid for Fuel category']).toBe('errors.odometerNonFuel');
+    expect(API_ERROR_MAP['odometer cannot be lower than current reading']).toBe(
+      'errors.odometerRewind',
+    );
+    expect(API_ERROR_MAP['odometer is only valid for Fuel category']).toBe(
+      'errors.odometerNonFuel',
+    );
   });
 
   it('should return undefined for unknown backend messages', () => {

@@ -32,7 +32,9 @@ test.describe('Language switching (i18n)', () => {
   }
 
   // TC-LG-E2E-01: PT-BR strings visible when language is set to pt-BR
-  test('[TC-LG-E2E-01] should show PT-BR strings by default when visiting the login page', async ({ page }) => {
+  test('[TC-LG-E2E-01] should show PT-BR strings by default when visiting the login page', async ({
+    page,
+  }) => {
     await page.goto('/login');
     await setLanguage(page, 'pt-BR');
 
@@ -41,7 +43,9 @@ test.describe('Language switching (i18n)', () => {
   });
 
   // TC-LG-E2E-02: Login → Settings → switch to EN → verify nav + localStorage
-  test('[TC-LG-E2E-02] should switch UI to English and persist lang in localStorage when EN is selected', async ({ page }) => {
+  test('[TC-LG-E2E-02] should switch UI to English and persist lang in localStorage when EN is selected', async ({
+    page,
+  }) => {
     await loginAs(page, 'pt-BR');
 
     await expect(page.getByRole('link', { name: 'Painel' })).toBeVisible();
@@ -56,7 +60,9 @@ test.describe('Language switching (i18n)', () => {
   });
 
   // TC-LG-E2E-03: Reload preserves EN language
-  test('[TC-LG-E2E-03] should keep English UI after page reload when EN was previously selected', async ({ page }) => {
+  test('[TC-LG-E2E-03] should keep English UI after page reload when EN was previously selected', async ({
+    page,
+  }) => {
     await loginAs(page);
 
     await setLanguage(page, 'en');
@@ -64,7 +70,9 @@ test.describe('Language switching (i18n)', () => {
   });
 
   // TC-LG-E2E-04: Switch back to PT-BR → verify nav shows "Painel"
-  test('[TC-LG-E2E-04] should revert sidebar to PT-BR labels when language is switched back to Português', async ({ page }) => {
+  test('[TC-LG-E2E-04] should revert sidebar to PT-BR labels when language is switched back to Português', async ({
+    page,
+  }) => {
     await loginAs(page, 'en');
 
     await expect(page.getByRole('link', { name: 'Dashboard' })).toBeVisible();

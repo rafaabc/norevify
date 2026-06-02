@@ -28,7 +28,9 @@ export default function ExpenseRow({ expense, onDeleted, onError, currency = 'BR
     <tr>
       <td className={styles.dateCell}>{dateLabel}</td>
       <td>
-        <span className="badge" data-cat={expense.category}>{categoryLabel(expense.category, t)}</span>
+        <span className="badge" data-cat={expense.category}>
+          {categoryLabel(expense.category, t)}
+        </span>
       </td>
       <td className={`num ${styles.amountCell}`}>{formatCurrency(expense.amount, currency)}</td>
       <td>

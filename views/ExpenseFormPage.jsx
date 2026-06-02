@@ -14,7 +14,14 @@ import Loading from '@/components/Loading.jsx';
 import { todayISO } from '@/utils/formatDate.js';
 import styles from './ExpenseFormPage.module.css';
 
-const EMPTY = { date: todayISO(), category: '', litres: '', price_per_litre: '', amount: '', odometer: '' };
+const EMPTY = {
+  date: todayISO(),
+  category: '',
+  litres: '',
+  price_per_litre: '',
+  amount: '',
+  odometer: '',
+};
 
 export default function ExpenseFormPage() {
   const { t } = useTranslation();
@@ -30,7 +37,8 @@ export default function ExpenseFormPage() {
 
   useEffect(() => {
     if (!isEdit) return;
-    expensesApi.get(id)
+    expensesApi
+      .get(id)
       .then((exp) => {
         setForm({
           date: exp.date?.split('T')[0] || todayISO(),
@@ -96,13 +104,19 @@ export default function ExpenseFormPage() {
   return (
     <div className="page">
       <div className={`card ${styles.formCard}`}>
-        <h2 className={`page-title ${styles.heading}`}>{isEdit ? t('expenses.editExpense') : t('expenses.newExpense')}</h2>
+        <h2 className={`page-title ${styles.heading}`}>
+          {isEdit ? t('expenses.editExpense') : t('expenses.newExpense')}
+        </h2>
 
         {error && <ErrorBanner message={error} />}
 
         <form onSubmit={handleSubmit}>
           <div className="form-group">
-            <FieldLabelWithHint htmlFor="field-date" label={t('expenses.fields.date')} hint={t('expenses.fields.dateHint')} />
+            <FieldLabelWithHint
+              htmlFor="field-date"
+              label={t('expenses.fields.date')}
+              hint={t('expenses.fields.dateHint')}
+            />
             <DateField id="field-date" value={form.date} onChange={handleChange} />
           </div>
 
@@ -111,8 +125,8 @@ export default function ExpenseFormPage() {
             <CategorySelect id="field-category" value={form.category} onChange={handleChange} />
           </div>
 
-          {form.category && (
-            isFuel ? (
+          {form.category &&
+            (isFuel ? (
               <FuelFields
                 litres={form.litres}
                 pricePerLitre={form.price_per_litre}
@@ -121,8 +135,7 @@ export default function ExpenseFormPage() {
               />
             ) : (
               <AmountField value={form.amount} onChange={handleChange} />
-            )
-          )}
+            ))}
 
           <div className={`actions ${styles.submitRow}`}>
             <button type="submit" className="btn-primary" disabled={saving || !form.category}>

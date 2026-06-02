@@ -115,10 +115,7 @@ export function computeAvgMonthly(monthlyData) {
 export function computePrevMonthTotal(expenses, now = new Date()) {
   const prev = new Date(now.getFullYear(), now.getMonth() - 1, 1);
   const prevYM = `${prev.getFullYear()}-${String(prev.getMonth() + 1).padStart(2, '0')}`;
-  const total = expenses.reduce(
-    (sum, e) => (e.date.startsWith(prevYM) ? sum + e.amount : sum),
-    0,
-  );
+  const total = expenses.reduce((sum, e) => (e.date.startsWith(prevYM) ? sum + e.amount : sum), 0);
   return Math.round(total * 100) / 100;
 }
 

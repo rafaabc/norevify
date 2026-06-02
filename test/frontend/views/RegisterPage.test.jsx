@@ -5,7 +5,9 @@ import RegisterPage from '@/views/RegisterPage';
 vi.mock('react-i18next', () => ({ useTranslation: () => ({ t: (k) => k }) }));
 vi.mock('@/views/LoginPage.module.css', () => ({ default: {} }));
 vi.mock('@/components/AuthBrandPanel.jsx', () => ({ default: () => <div data-testid="brand" /> }));
-vi.mock('@/components/GoogleSignInButton.jsx', () => ({ default: () => <div data-testid="google-btn" /> }));
+vi.mock('@/components/GoogleSignInButton.jsx', () => ({
+  default: () => <div data-testid="google-btn" />,
+}));
 vi.mock('@/utils/detectCurrency.js', () => ({ detectCurrency: () => 'BRL' }));
 
 const mockPush = vi.fn();
@@ -40,7 +42,9 @@ describe('RegisterPage', () => {
   it('should navigate to /login?registered=1 on success', async () => {
     render(<RegisterPage />);
     await act(async () => {
-      fireEvent.submit(screen.getByRole('button', { name: 'auth.register.submit' }).closest('form'));
+      fireEvent.submit(
+        screen.getByRole('button', { name: 'auth.register.submit' }).closest('form'),
+      );
     });
     expect(mockPush).toHaveBeenCalledWith('/login?registered=1');
   });
@@ -49,7 +53,9 @@ describe('RegisterPage', () => {
     mockRegister.mockRejectedValue(new Error('username taken'));
     render(<RegisterPage />);
     await act(async () => {
-      fireEvent.submit(screen.getByRole('button', { name: 'auth.register.submit' }).closest('form'));
+      fireEvent.submit(
+        screen.getByRole('button', { name: 'auth.register.submit' }).closest('form'),
+      );
     });
     expect(screen.getByRole('alert')).toHaveTextContent('username taken');
   });

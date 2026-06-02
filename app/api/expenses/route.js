@@ -9,8 +9,8 @@ export const GET = withAuth(async (req, _ctx, user) => {
   try {
     const result = await expensesService.listExpenses(user.id, {
       category: searchParams.get('category'),
-      year:     searchParams.get('year'),
-      month:    searchParams.get('month'),
+      year: searchParams.get('year'),
+      month: searchParams.get('month'),
     });
     return NextResponse.json(result);
   } catch (err) {

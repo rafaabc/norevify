@@ -10,15 +10,14 @@ async function markEmailVerified(userId: string): Promise<void> {
   const uri = process.env.MONGODB_URI;
   if (!uri) return;
   if (mongoose.connection.readyState === 0) await mongoose.connect(uri);
-  await mongoose.connection.db!.collection('users').updateOne(
-    { _id: new mongoose.Types.ObjectId(userId) },
-    { $set: { emailVerified: true } }
-  );
+  await mongoose.connection
+    .db!.collection('users')
+    .updateOne({ _id: new mongoose.Types.ObjectId(userId) }, { $set: { emailVerified: true } });
 }
 
 export async function createAndLoginUser(
   request: APIRequestContext,
-  prefix = 'user'
+  prefix = 'user',
 ): Promise<{ username: string; token: string }> {
   const username = uniqueUsername(prefix);
   const regRes = await request.post('/api/auth/register', {
@@ -42,7 +41,7 @@ export async function createAndLoginUser(
 export async function createExpenseViaApi(
   request: APIRequestContext,
   token: string,
-  data: Record<string, unknown>
+  data: Record<string, unknown>,
 ): Promise<{ id: number; category: string; amount: number; [key: string]: unknown }> {
   const payload = { date: todayISO(), ...data };
   const res = await request.post('/api/expenses', {

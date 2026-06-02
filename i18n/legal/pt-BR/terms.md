@@ -61,7 +61,7 @@ Os dados que você inserir na plataforma (despesas, lembretes, etc.) permanecem 
 
 ## 6. Limitação de responsabilidade
 
-O Norevify é fornecido **"no estado em que se encontra"** (*as-is*), sem garantias expressas ou implícitas de disponibilidade ininterrupta, ausência de erros ou adequação a uma finalidade específica.
+O Norevify é fornecido **"no estado em que se encontra"** (_as-is_), sem garantias expressas ou implícitas de disponibilidade ininterrupta, ausência de erros ou adequação a uma finalidade específica.
 
 Em nenhuma hipótese seremos responsáveis por:
 
@@ -107,4 +107,4 @@ Para dúvidas, sugestões ou solicitações relacionadas a estes Termos:
 
 ---
 
-*Última atualização: 2026-05-20*
+_Última atualização: 2026-05-20_

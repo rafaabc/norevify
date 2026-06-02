@@ -40,10 +40,7 @@ export default function ForgotPasswordPage() {
 
           {submitted ? (
             <>
-              <ErrorBanner
-                message={t('auth.forgotPassword.success')}
-                type="success"
-              />
+              <ErrorBanner message={t('auth.forgotPassword.success')} type="success" />
               <p className={styles.switchLink}>
                 <Link href="/login">{t('auth.forgotPassword.backToLogin')}</Link>
               </p>
@@ -63,7 +60,12 @@ export default function ForgotPasswordPage() {
                     autoFocus
                   />
                 </div>
-                <button type="submit" className="btn-primary" style={{ width: '100%' }} disabled={loading}>
+                <button
+                  type="submit"
+                  className="btn-primary"
+                  style={{ width: '100%' }}
+                  disabled={loading}
+                >
                   {loading ? t('auth.forgotPassword.submitting') : t('auth.forgotPassword.submit')}
                 </button>
               </form>

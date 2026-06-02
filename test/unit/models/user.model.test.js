@@ -3,8 +3,6 @@
 const mongoose = require('mongoose');
 const { describe, it, before, after, beforeEach } = require('node:test');
 const assert = require('node:assert/strict');
-const { SUPPORTED_LANGUAGES, DEFAULT_LANGUAGE } = require('../../../lib/constants/languages');
-
 const { startMongo, stopMongo, resetMongo } = require('../../helpers/mongo');
 const userModel = require('../../../lib/models/user.model');
 
@@ -14,20 +12,36 @@ beforeEach(async () => await resetMongo());
 
 describe('userModel.create()', () => {
   it('should create a user with a unique _id', async () => {
-    const user = await userModel.create({ username: 'alice', password: 'hashed', email: 'alice@example.com' });
+    const user = await userModel.create({
+      username: 'alice',
+      password: 'hashed',
+      email: 'alice@example.com',
+    });
     assert.ok(user._id);
     assert.strictEqual(user.username, 'alice');
   });
 
   it('should populate createdAt and updatedAt timestamps', async () => {
-    const user = await userModel.create({ username: 'ts_user', password: 'hashed', email: 'ts@example.com' });
+    const user = await userModel.create({
+      username: 'ts_user',
+      password: 'hashed',
+      email: 'ts@example.com',
+    });
     assert.ok(user.createdAt instanceof Date, 'createdAt should be a Date');
     assert.ok(user.updatedAt instanceof Date, 'updatedAt should be a Date');
   });
 
   it('should assign distinct _ids to multiple users', async () => {
-    const first  = await userModel.create({ username: 'alice', password: 'hashed', email: 'alice@example.com' });
-    const second = await userModel.create({ username: 'bob',   password: 'hashed', email: 'bob@example.com' });
+    const first = await userModel.create({
+      username: 'alice',
+      password: 'hashed',
+      email: 'alice@example.com',
+    });
+    const second = await userModel.create({
+      username: 'bob',
+      password: 'hashed',
+      email: 'bob@example.com',
+    });
     assert.notStrictEqual(first._id.toString(), second._id.toString());
   });
 });
@@ -62,7 +76,11 @@ describe('userModel.findByEmail()', () => {
 
 describe('userModel.findById()', () => {
   it('should return the user when id matches', async () => {
-    const created = await userModel.create({ username: 'alice', password: 'hashed', email: 'alice@example.com' });
+    const created = await userModel.create({
+      username: 'alice',
+      password: 'hashed',
+      email: 'alice@example.com',
+    });
     const found = await userModel.findById(created._id);
     assert.ok(found);
     assert.strictEqual(found.username, 'alice');
@@ -86,7 +104,11 @@ describe('userModel._reset()', () => {
 
 describe('userModel.updatePassword()', () => {
   it('should persist hashed password to the user document', async () => {
-    await userModel.create({ username: 'alice', password: 'original_hash', email: 'alice@example.com' });
+    await userModel.create({
+      username: 'alice',
+      password: 'original_hash',
+      email: 'alice@example.com',
+    });
     await userModel.updatePassword('alice', 'new_hash');
     const found = await userModel.findByUsername('alice');
     assert.strictEqual(found.password, 'new_hash');
@@ -101,8 +123,14 @@ describe('userModel language field', () => {
 
   it('should reject an unsupported language value', async () => {
     await assert.rejects(
-      () => userModel.create({ username: 'lang2', password: 'h', email: 'lang2@x.com', language: 'fr' }),
-      /language/i
+      () =>
+        userModel.create({
+          username: 'lang2',
+          password: 'h',
+          email: 'lang2@x.com',
+          language: 'fr',
+        }),
+      /language/i,
     );
   });
 
@@ -117,7 +145,9 @@ describe('userModel language field', () => {
 describe('userModel — odometer', () => {
   it('should default currentKm to 0 and currentKmUpdatedAt to undefined', async () => {
     const user = await userModel.create({
-      username: 'odo1', password: 'x', email: 'odo1@test.com',
+      username: 'odo1',
+      password: 'x',
+      email: 'odo1@test.com',
     });
     assert.strictEqual(user.currentKm, 0);
     assert.strictEqual(user.currentKmUpdatedAt, undefined);
@@ -125,7 +155,9 @@ describe('userModel — odometer', () => {
 
   it('should update currentKm and currentKmUpdatedAt via updateOdometerAndReturn', async () => {
     const user = await userModel.create({
-      username: 'odo2', password: 'x', email: 'odo2@test.com',
+      username: 'odo2',
+      password: 'x',
+      email: 'odo2@test.com',
     });
     const updated = await userModel.updateOdometerAndReturn(user._id, 12345);
     assert.strictEqual(updated.currentKm, 12345);

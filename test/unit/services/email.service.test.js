@@ -8,7 +8,9 @@ const sentPayloads = [];
 const MockResend = function (apiKey) {
   this._apiKey = apiKey;
   this.emails = {
-    send: async (payload) => { sentPayloads.push(payload); },
+    send: async (payload) => {
+      sentPayloads.push(payload);
+    },
   };
 };
 
@@ -30,7 +32,9 @@ beforeEach(() => {
   process.env.RESEND_API_KEY = 'test-key';
 });
 
-afterEach(() => { delete process.env.RESEND_API_KEY; });
+afterEach(() => {
+  delete process.env.RESEND_API_KEY;
+});
 
 describe('emailService.sendPasswordResetEmail()', () => {
   it('should call Resend with correct from, to, and subject', async () => {
@@ -56,8 +60,14 @@ describe('emailService.sendPasswordResetEmail()', () => {
   });
 
   it('should send one email per call and not batch', async () => {
-    await emailService.sendPasswordResetEmail({ to: 'a@example.com', resetUrl: 'http://x.com/r?t=1' });
-    await emailService.sendPasswordResetEmail({ to: 'b@example.com', resetUrl: 'http://x.com/r?t=2' });
+    await emailService.sendPasswordResetEmail({
+      to: 'a@example.com',
+      resetUrl: 'http://x.com/r?t=1',
+    });
+    await emailService.sendPasswordResetEmail({
+      to: 'b@example.com',
+      resetUrl: 'http://x.com/r?t=2',
+    });
     assert.strictEqual(sentPayloads.length, 2);
     assert.strictEqual(sentPayloads[0].to, 'a@example.com');
     assert.strictEqual(sentPayloads[1].to, 'b@example.com');

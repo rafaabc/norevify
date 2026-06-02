@@ -107,4 +107,4 @@ For questions, feedback, or requests related to these Terms:
 
 ---
 
-*Last updated: 2026-05-20*
+_Last updated: 2026-05-20_

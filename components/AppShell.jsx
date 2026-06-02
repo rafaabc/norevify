@@ -15,10 +15,7 @@ function useReminderBadge(isAuthed) {
   const [count, setCount] = useState(0);
 
   useEffect(() => {
-    if (!isAuthed) {
-      setCount(0);
-      return;
-    }
+    if (!isAuthed) return;
     let cancelled = false;
 
     async function fetchCount() {
@@ -32,7 +29,9 @@ function useReminderBadge(isAuthed) {
 
     fetchCount();
 
-    function onChanged() { fetchCount(); }
+    function onChanged() {
+      fetchCount();
+    }
     window.addEventListener('reminders:changed', onChanged);
     window.addEventListener('focus', onChanged);
 
@@ -43,7 +42,7 @@ function useReminderBadge(isAuthed) {
     };
   }, [isAuthed, pathname]);
 
-  return count;
+  return isAuthed ? count : 0;
 }
 
 function EmailVerificationBanner({ emailVerified }) {
@@ -66,15 +65,17 @@ function EmailVerificationBanner({ emailVerified }) {
   }
 
   return (
-    <div style={{
-      background: '#854d0e',
-      color: '#fef9c3',
-      padding: '0.5rem 1rem',
-      display: 'flex',
-      alignItems: 'center',
-      gap: '1rem',
-      fontSize: '0.875rem',
-    }}>
+    <div
+      style={{
+        background: '#854d0e',
+        color: '#fef9c3',
+        padding: '0.5rem 1rem',
+        display: 'flex',
+        alignItems: 'center',
+        gap: '1rem',
+        fontSize: '0.875rem',
+      }}
+    >
       <span style={{ flex: 1 }}>
         {sent ? t('auth.verifyEmail.resendSuccess') : t('auth.verifyEmail.bannerText')}
       </span>
@@ -112,16 +113,22 @@ export default function AppShell({ children }) {
       <main className={styles.main}>
         <EmailVerificationBanner emailVerified={emailVerified} />
         {children}
-        <footer style={{
-          padding: '1.5rem 1rem',
-          textAlign: 'center',
-          fontSize: '0.75rem',
-          color: 'var(--muted)',
-          borderTop: '1px solid var(--border)',
-        }}>
-          <Link href="/privacy" style={{ color: 'var(--muted)' }}>{t('legal.privacy')}</Link>
+        <footer
+          style={{
+            padding: '1.5rem 1rem',
+            textAlign: 'center',
+            fontSize: '0.75rem',
+            color: 'var(--muted)',
+            borderTop: '1px solid var(--border)',
+          }}
+        >
+          <Link href="/privacy" style={{ color: 'var(--muted)' }}>
+            {t('legal.privacy')}
+          </Link>
           {' · '}
-          <Link href="/terms" style={{ color: 'var(--muted)' }}>{t('legal.terms')}</Link>
+          <Link href="/terms" style={{ color: 'var(--muted)' }}>
+            {t('legal.terms')}
+          </Link>
         </footer>
       </main>
       <BottomTabs />

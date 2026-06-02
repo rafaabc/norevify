@@ -25,7 +25,11 @@ const mockCreate = vi.fn();
 const mockUpdate = vi.fn();
 const mockGet = vi.fn();
 vi.mock('@/services/apiService.js', () => ({
-  remindersApi: { create: () => mockCreate(), update: (...a) => mockUpdate(...a), get: (id) => mockGet(id) },
+  remindersApi: {
+    create: () => mockCreate(),
+    update: (...a) => mockUpdate(...a),
+    get: (id) => mockGet(id),
+  },
 }));
 
 describe('ReminderFormPage', () => {
@@ -53,7 +57,9 @@ describe('ReminderFormPage', () => {
 
   it('should call create and navigate to /reminders on valid submit', async () => {
     render(<ReminderFormPage />);
-    fireEvent.change(screen.getByLabelText('reminders.fields.dueDate'), { target: { value: '2026-06-01', name: 'dueDate' } });
+    fireEvent.change(screen.getByLabelText('reminders.fields.dueDate'), {
+      target: { value: '2026-06-01', name: 'dueDate' },
+    });
     await act(async () => {
       fireEvent.submit(screen.getByRole('button', { name: 'common.save' }).closest('form'));
     });
@@ -63,7 +69,9 @@ describe('ReminderFormPage', () => {
 
   it('should call create with dueKm when dueDate is empty', async () => {
     render(<ReminderFormPage />);
-    fireEvent.change(screen.getByLabelText('reminders.fields.dueKm'), { target: { value: '15000', name: 'dueKm' } });
+    fireEvent.change(screen.getByLabelText('reminders.fields.dueKm'), {
+      target: { value: '15000', name: 'dueKm' },
+    });
     await act(async () => {
       fireEvent.submit(screen.getByRole('button', { name: 'common.save' }).closest('form'));
     });
@@ -73,7 +81,9 @@ describe('ReminderFormPage', () => {
   it('should show error banner when create fails', async () => {
     mockCreate.mockRejectedValue(new Error('server error'));
     render(<ReminderFormPage />);
-    fireEvent.change(screen.getByLabelText('reminders.fields.dueDate'), { target: { value: '2026-06-01', name: 'dueDate' } });
+    fireEvent.change(screen.getByLabelText('reminders.fields.dueDate'), {
+      target: { value: '2026-06-01', name: 'dueDate' },
+    });
     await act(async () => {
       fireEvent.submit(screen.getByRole('button', { name: 'common.save' }).closest('form'));
     });
@@ -88,8 +98,17 @@ describe('ReminderFormPage', () => {
 
   it('should load existing reminder data in edit mode', async () => {
     mockUseParams.mockReturnValue({ id: 'r1' });
-    mockGet.mockResolvedValue({ type: 'Fuel', title: 'Oil check', dueDate: '2026-07-01T00:00:00.000Z', dueKm: null, intervalMonths: null, intervalKm: null });
-    await act(async () => { render(<ReminderFormPage />); });
+    mockGet.mockResolvedValue({
+      type: 'Fuel',
+      title: 'Oil check',
+      dueDate: '2026-07-01T00:00:00.000Z',
+      dueKm: null,
+      intervalMonths: null,
+      intervalKm: null,
+    });
+    await act(async () => {
+      render(<ReminderFormPage />);
+    });
     expect(screen.getByText('reminders.editReminder')).toBeInTheDocument();
     expect(screen.getByLabelText('reminders.fields.title')).toHaveValue('Oil check');
   });
@@ -97,7 +116,9 @@ describe('ReminderFormPage', () => {
   it('should show load error when get fails in edit mode', async () => {
     mockUseParams.mockReturnValue({ id: 'r1' });
     mockGet.mockRejectedValue(new Error('not found'));
-    await act(async () => { render(<ReminderFormPage />); });
+    await act(async () => {
+      render(<ReminderFormPage />);
+    });
     expect(screen.getByRole('alert')).toHaveTextContent('not found');
   });
 });

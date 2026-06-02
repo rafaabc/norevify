@@ -43,12 +43,21 @@ vi.mock('@/services/apiService.js', () => ({
 }));
 
 const activeReminders = [
-  { id: 'r1', type: 'Fuel', title: 'Tank up', dueDate: '2026-06-01', dueKm: null, status: 'upcoming' },
+  {
+    id: 'r1',
+    type: 'Fuel',
+    title: 'Tank up',
+    dueDate: '2026-06-01',
+    dueKm: null,
+    status: 'upcoming',
+  },
   { id: 'r2', type: 'Maintenance', title: '', dueDate: null, dueKm: 15000, status: 'dueSoon' },
 ];
 
 async function renderPage() {
-  await act(async () => { render(<RemindersListPage />); });
+  await act(async () => {
+    render(<RemindersListPage />);
+  });
 }
 
 describe('RemindersListPage', () => {
@@ -63,7 +72,10 @@ describe('RemindersListPage', () => {
   it('should render reminders heading and new link', async () => {
     await renderPage();
     expect(screen.getByText('reminders.heading')).toBeInTheDocument();
-    expect(screen.getByRole('link', { name: /common\.new/i })).toHaveAttribute('href', '/reminders/new');
+    expect(screen.getByRole('link', { name: /common\.new/i })).toHaveAttribute(
+      'href',
+      '/reminders/new',
+    );
   });
 
   it('should render active reminders list after load', async () => {
@@ -81,7 +93,9 @@ describe('RemindersListPage', () => {
   it('should switch to history tab and reload', async () => {
     await renderPage();
     expect(mockList).toHaveBeenCalledTimes(1);
-    await act(async () => { fireEvent.click(screen.getByText('reminders.tabs.history')); });
+    await act(async () => {
+      fireEvent.click(screen.getByText('reminders.tabs.history'));
+    });
     expect(mockList).toHaveBeenCalledTimes(2);
   });
 
@@ -94,7 +108,9 @@ describe('RemindersListPage', () => {
   it('should call remindersApi.complete and reload on confirm complete', async () => {
     await renderPage();
     fireEvent.click(screen.getAllByText('reminders.actions.complete')[0]);
-    await act(async () => { fireEvent.click(screen.getByText('confirm-complete')); });
+    await act(async () => {
+      fireEvent.click(screen.getByText('confirm-complete'));
+    });
     expect(mockComplete).toHaveBeenCalledOnce();
     expect(mockList).toHaveBeenCalledTimes(2);
   });
@@ -108,7 +124,9 @@ describe('RemindersListPage', () => {
   it('should call remindersApi.remove and reload on confirm delete', async () => {
     await renderPage();
     fireEvent.click(screen.getAllByText('common.delete')[0]);
-    await act(async () => { fireEvent.click(screen.getByText('confirm-delete')); });
+    await act(async () => {
+      fireEvent.click(screen.getByText('confirm-delete'));
+    });
     expect(mockRemove).toHaveBeenCalledOnce();
     expect(mockList).toHaveBeenCalledTimes(2);
   });

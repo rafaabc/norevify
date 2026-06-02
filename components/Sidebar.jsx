@@ -1,5 +1,14 @@
 'use client';
-import { LayoutDashboard, Receipt, BarChart3, LogOut, Gauge, KeyRound, Settings, Bell } from 'lucide-react';
+import {
+  LayoutDashboard,
+  Receipt,
+  BarChart3,
+  LogOut,
+  Gauge,
+  KeyRound,
+  Settings,
+  Bell,
+} from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '@/context/AuthContext.jsx';
 import NavLink from './NavLink.jsx';
