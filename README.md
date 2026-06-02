@@ -40,7 +40,16 @@ A full-stack vehicle expense tracker — built to practise and demonstrate produ
 
 ## Screenshots
 
-> _(Add screenshots here)_
+<table>
+  <tr>
+    <td><img src="screenshots/dashboard.png" alt="Dashboard" width="420"/></td>
+    <td><img src="screenshots/summary.png" alt="Summary" width="420"/></td>
+  </tr>
+  <tr>
+    <td><img src="screenshots/expenses.png" alt="Expenses" width="420"/></td>
+    <td><img src="screenshots/reminders.png" alt="Reminders" width="420"/></td>
+  </tr>
+</table>
 
 ---
 
@@ -83,7 +92,7 @@ lint → audit → test-unit → test-integration → test-api → e2e
 
 ## Author
 
-**Rafael** — [LinkedIn](https://linkedin.com/in/your-profile) · [GitHub](https://github.com/rafaabc)
+**Rafael** — [LinkedIn](https://www.linkedin.com/in/rafael-albuquerque-qa/) · [GitHub](https://github.com/rafaabc)
 
 ---
 
