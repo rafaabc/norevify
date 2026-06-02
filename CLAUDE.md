@@ -70,13 +70,13 @@ Sentry gotcha: `instrumentation.js` and `instrumentation-client.js` use CJS (`re
 
 Swagger UI: `GET /api-docs`. Auth: `Authorization: Bearer <token>` → `req.user = { id, username }`.
 
-| Prefix           | Auth | Endpoints |
-| ---------------- | ---- | --------- |
-| `/api/auth`      | No   | `POST /register`, `/login`, `/forgot-password`, `/reset-password`, `/google` |
+| Prefix           | Auth | Endpoints                                                                                                                              |
+| ---------------- | ---- | -------------------------------------------------------------------------------------------------------------------------------------- |
+| `/api/auth`      | No   | `POST /register`, `/login`, `/forgot-password`, `/reset-password`, `/google`                                                           |
 | `/api/auth`      | Yes  | `PATCH /currency`, `/language`, `/odometer`, `/password`; `POST/DELETE /google/link`; `GET /providers`; `DELETE /me`; `GET /me/export` |
-| `/api/expenses`  | Yes  | CRUD + `GET /summary?year=&month=&category=` |
-| `/api/reminders` | Yes  | CRUD + `POST /:id/complete`, `GET /badge-count` |
-| `/api/health`    | No   | `GET /` |
+| `/api/expenses`  | Yes  | CRUD + `GET /summary?year=&month=&category=`                                                                                           |
+| `/api/reminders` | Yes  | CRUD + `POST /:id/complete`, `GET /badge-count`                                                                                        |
+| `/api/health`    | No   | `GET /`                                                                                                                                |
 
 ## Tests
 
@@ -86,7 +86,9 @@ Swagger UI: `GET /api-docs`. Auth: `Authorization: Bearer <token>` → `req.user
 
 ```js
 vi.mock('react-i18next', () => ({ useTranslation: () => ({ t: (k) => k }) }));
-vi.mock('@/i18n/index.js', () => ({ default: { t: (k) => k, changeLanguage: vi.fn(), language: 'en' } }));
+vi.mock('@/i18n/index.js', () => ({
+  default: { t: (k) => k, changeLanguage: vi.fn(), language: 'en' },
+}));
 // service-layer tests replace global.fetch directly
 global.fetch = vi.fn().mockResolvedValue({ ok: true, status: 200, json: async () => ({}) });
 // JWT fixture
@@ -108,6 +110,7 @@ E2E language gotcha: new users default to `pt-BR` via JWT. Always set `localStor
 ESLint 9 flat config (`eslint.config.mjs`) — `eslint-config-next` + `eslint-config-prettier`. Prettier at `.prettierrc.json`.
 
 Non-obvious rule decisions:
+
 - `@next/next/no-page-custom-font` off for `app/**` — rule targets Pages Router `_document.js` only
 - `no-unused-vars` off for `*.ts`/`*.tsx` — TypeScript handles it; constructor parameter properties falsely flagged
 - `react-hooks/set-state-in-effect` false-positives on async functions in effects — suppressed per-line with comment; `AuthContext` localStorage init suppressed (SSR-safe only in `useEffect`)
@@ -117,13 +120,13 @@ Non-obvious rule decisions:
 
 `.github/workflows/ci.yml` — push/PR to `main`:
 
-| Job                | Needs              | Description                                        |
-| ------------------ | ------------------ | -------------------------------------------------- |
-| `lint`             | —                  | ESLint + Prettier check                            |
-| `audit`            | —                  | `npm audit --audit-level=high --omit=dev`          |
-| `test-unit`        | —                  | Node test runner + mongodb-memory-server           |
-| `test-integration` | `test-unit`        | In-memory Mongo, no secrets                        |
-| `test-api`         | `test-integration` | Mocha against `next build && next start`           |
+| Job                | Needs              | Description                                            |
+| ------------------ | ------------------ | ------------------------------------------------------ |
+| `lint`             | —                  | ESLint + Prettier check                                |
+| `audit`            | —                  | `npm audit --audit-level=high --omit=dev`              |
+| `test-unit`        | —                  | Node test runner + mongodb-memory-server               |
+| `test-integration` | `test-unit`        | In-memory Mongo, no secrets                            |
+| `test-api`         | `test-integration` | Mocha against `next build && next start`               |
 | `e2e`              | `test-api`         | Playwright Chromium against `next build && next start` |
 
 `test-api` and `e2e` require `JWT_SECRET` + `MONGODB_URI` GitHub Secrets. Dependabot: weekly npm + github-actions updates (`.github/dependabot.yml`).
