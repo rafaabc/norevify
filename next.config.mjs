@@ -1,27 +1,10 @@
-import withPWA from '@ducanh2912/next-pwa';
+import withSerwistInit from '@serwist/next';
 import { withSentryConfig } from '@sentry/nextjs';
 
-const withPWAConfig = withPWA({
-  dest: 'public',
-  cacheOnFrontEndNav: true,
-  aggressiveFrontEndNavCaching: true,
-  reloadOnOnline: true,
+const withSerwist = withSerwistInit({
+  swSrc: 'app/sw.ts',
+  swDest: 'public/sw.js',
   disable: process.env.NODE_ENV === 'development',
-  workboxOptions: {
-    disableDevLogs: true,
-    runtimeCaching: [
-      {
-        urlPattern: ({ url }) => url.pathname.startsWith('/api/'),
-        handler: 'NetworkFirst',
-        options: {
-          cacheName: 'api-cache',
-          networkTimeoutSeconds: 5,
-          expiration: { maxEntries: 50, maxAgeSeconds: 60 * 60 * 24 },
-          cacheableResponse: { statuses: [200] },
-        },
-      },
-    ],
-  },
 });
 
 const isDev = process.env.NODE_ENV === 'development';
@@ -61,7 +44,7 @@ const nextConfig = {
   },
 };
 
-export default withSentryConfig(withPWAConfig(nextConfig), {
+export default withSentryConfig(withSerwist(nextConfig), {
   // For all available options, see:
   // https://www.npmjs.com/package/@sentry/webpack-plugin#options
 
