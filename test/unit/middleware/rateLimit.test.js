@@ -87,6 +87,7 @@ describe('createRateLimiter()', () => {
 
   it('should bypass rate limit for loopback IPs (Next.js injects socket.remoteAddress)', () => {
     const limiter = createRateLimiter({ max: 1, windowMs: 60_000 });
+    // NOSONAR — testing loopback bypass
     for (const loopback of ['127.0.0.1', '::1', '::ffff:127.0.0.1']) {
       for (let i = 0; i < 5; i++) {
         assert.strictEqual(

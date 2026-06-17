@@ -39,17 +39,17 @@
     "@sentry/nextjs": "^10.53.1",
     "bcryptjs": "^3.0.3",
     "dotenv": "^17.4.2",
-    "google-auth-library": "^10.6.2",
+    "google-auth-library": "^10.7.0",
     "i18next": "^26.2.0",
     "i18next-browser-languagedetector": "^8.2.1",
     "jsonwebtoken": "^9.0.3",
     "lucide-react": "^1.16.0",
     "mongoose": "^9.6.1",
-    "next": "16.2.6",
+    "next": "16.2.9",
     "pino": "^10.3.1",
     "posthog-js": "^1.374.3",
-    "react": "19.2.6",
-    "react-dom": "19.2.6",
+    "react": "19.2.7",
+    "react-dom": "19.2.7",
     "react-i18next": "^17.0.8",
     "react-markdown": "^10.1.0",
     "recharts": "^3.8.1",
@@ -82,12 +82,15 @@
     "nodemon": "^3.1.14",
     "prettier": "^3.8.3",
     "serwist": "^9.5.11",
-    "supertest": "^6.3.4",
+    "supertest": "^7.2.2",
     "vitest": "^4.1.8"
   },
   "overrides": {
     "@types/react": "19.2.15",
     "@types/react-dom": "19.2.3",
-    "serialize-javascript": "^7.0.5"
+    "serialize-javascript": "^7.0.5",
+    "esbuild": "^0.28.1",
+    "uuid": "^11.1.1",
+    "postcss": "^8.5.10"
   }
 }
