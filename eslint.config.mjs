@@ -43,6 +43,15 @@ const config = [
       'no-unused-vars': 'off',
     },
   },
+  // Service worker — runs in SW scope, not browser/node
+  {
+    files: ['app/sw.ts'],
+    languageOptions: {
+      globals: {
+        ...globals.serviceworker,
+      },
+    },
+  },
   // Node.js native test runner + Mocha (test/unit, test/integration, test/api)
   {
     files: ['test/unit/**', 'test/integration/**', 'test/api/**'],
