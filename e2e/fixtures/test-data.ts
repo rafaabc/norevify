@@ -1,4 +1,4 @@
-export const DEFAULT_PASSWORD = 'Password123';
+export const DEFAULT_PASSWORD = process.env.E2E_TEST_PASSWORD ?? 'Password123'; // NOSONAR
 
 export function uniqueUsername(prefix = 'user'): string {
   return `${prefix}_${Date.now()}_${Math.floor(Math.random() * 999)}`;
