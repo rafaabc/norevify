@@ -7,6 +7,12 @@ on:
     branches: [main]
   workflow_dispatch:
 
+# Serialize all runs that touch the shared Atlas DB so concurrent e2e teardowns
+# cannot delete another run's test users mid-suite.
+concurrency:
+  group: ci-shared-atlas
+  cancel-in-progress: false
+
 jobs:
   lint:
     runs-on: ubuntu-latest
