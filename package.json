@@ -44,7 +44,7 @@
     "i18next-browser-languagedetector": "^8.2.1",
     "jsonwebtoken": "^9.0.3",
     "lucide-react": "^1.16.0",
-    "mongoose": "^9.6.1",
+    "mongoose": "^9.7.2",
     "next": "16.2.9",
     "pino": "^10.3.1",
     "posthog-js": "^1.374.3",
