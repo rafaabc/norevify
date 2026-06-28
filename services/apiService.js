@@ -96,6 +96,15 @@ export const expensesApi = {
   },
 };
 
+export const recurringApi = {
+  list: () => request('/recurring'),
+  get: (id) => request(`/recurring/${id}`),
+  create: (data) => request('/recurring', { method: 'POST', body: data }),
+  update: (id, data) => request(`/recurring/${id}`, { method: 'PUT', body: data }),
+  remove: (id) => request(`/recurring/${id}`, { method: 'DELETE' }),
+  catchUp: () => request('/recurring/catch-up', { method: 'POST' }),
+};
+
 export const remindersApi = {
   list: ({ status } = {}, signal = null) => {
     const params = new URLSearchParams();

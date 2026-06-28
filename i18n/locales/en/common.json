@@ -12,6 +12,7 @@
   "nav": {
     "dashboard": "Dashboard",
     "expenses": "Expenses",
+    "recurring": "Recurring",
     "summary": "Summary",
     "reminders": "Reminders",
     "settings": "Settings",
@@ -217,7 +218,9 @@
     "odometerRewind": "Odometer cannot be lower than current reading.",
     "odometerNonFuel": "Odometer is only valid for Fuel expenses.",
     "accountDeleted": "Account not found.",
-    "consentRequired": "You must accept the privacy policy and terms to register."
+    "consentRequired": "You must accept the privacy policy and terms to register.",
+    "recurringRuleNotFound": "Recurring rule not found.",
+    "fuelNotRecurring": "Fuel expenses cannot be set as recurring."
   },
   "pwa": {
     "updateAvailable": "New version available.",
@@ -275,6 +278,32 @@
     "newAction": "What do you want to add?",
     "newExpense": "New expense",
     "newReminder": "New reminder"
+  },
+  "recurring": {
+    "heading": "Recurring Expenses",
+    "newRule": "New recurring rule",
+    "editRule": "Edit recurring rule",
+    "noRules": "No recurring rules yet.",
+    "confirmDelete": "Delete this recurring rule? Already-generated expenses will be kept.",
+    "fields": {
+      "category": "Category",
+      "description": "Description (optional)",
+      "descriptionPlaceholder": "e.g. Monthly insurance",
+      "amount": "Amount",
+      "startDate": "Start date",
+      "interval": "Frequency",
+      "status": "Status",
+      "active": "Active"
+    },
+    "intervals": {
+      "monthly": "Monthly",
+      "every6months": "Every 6 months",
+      "every12months": "Every 12 months"
+    },
+    "status": {
+      "active": "Active",
+      "inactive": "Inactive"
+    }
   },
   "legal": {
     "privacy": "Privacy",

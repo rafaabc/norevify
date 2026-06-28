@@ -12,6 +12,7 @@
   "nav": {
     "dashboard": "Painel",
     "expenses": "Despesas",
+    "recurring": "Recorrentes",
     "summary": "Resumo",
     "reminders": "Lembretes",
     "settings": "Configurações",
@@ -217,7 +218,9 @@
     "odometerRewind": "Hodômetro não pode ser menor que o valor atual.",
     "odometerNonFuel": "Hodômetro só é válido em abastecimento.",
     "accountDeleted": "Conta não encontrada.",
-    "consentRequired": "Você deve aceitar a política de privacidade e os termos para se cadastrar."
+    "consentRequired": "Você deve aceitar a política de privacidade e os termos para se cadastrar.",
+    "recurringRuleNotFound": "Regra de recorrência não encontrada.",
+    "fuelNotRecurring": "Despesas de combustível não podem ser recorrentes."
   },
   "pwa": {
     "updateAvailable": "Nova versão disponível.",
@@ -275,6 +278,32 @@
     "newAction": "O que deseja criar?",
     "newExpense": "Novo gasto",
     "newReminder": "Novo lembrete"
+  },
+  "recurring": {
+    "heading": "Despesas Recorrentes",
+    "newRule": "Nova regra de recorrência",
+    "editRule": "Editar regra de recorrência",
+    "noRules": "Nenhuma regra de recorrência cadastrada.",
+    "confirmDelete": "Excluir esta regra? As despesas já geradas serão mantidas.",
+    "fields": {
+      "category": "Categoria",
+      "description": "Descrição (opcional)",
+      "descriptionPlaceholder": "ex.: Seguro mensal",
+      "amount": "Valor",
+      "startDate": "Data de início",
+      "interval": "Frequência",
+      "status": "Status",
+      "active": "Ativa"
+    },
+    "intervals": {
+      "monthly": "Mensal",
+      "every6months": "A cada 6 meses",
+      "every12months": "A cada 12 meses"
+    },
+    "status": {
+      "active": "Ativa",
+      "inactive": "Inativa"
+    }
   },
   "legal": {
     "privacy": "Privacidade",
