@@ -17,57 +17,6 @@ function intervalLabel(interval, t) {
   return String(interval);
 }
 
-function RuleRow({ rule, onDeleted, onError, currency }) {
-  const { t } = useTranslation();
-  const router = useRouter();
-
-  async function handleDelete() {
-    if (!window.confirm(t('recurring.confirmDelete'))) return;
-    try {
-      await recurringApi.remove(rule.id);
-      onDeleted(rule.id);
-    } catch (err) {
-      onError?.(err.message);
-    }
-  }
-
-  return (
-    <tr>
-      <td>
-        <span className="badge" data-cat={rule.category}>
-          {t(`categories.${rule.category}`)}
-        </span>
-      </td>
-      <td className={styles.descCell}>{rule.description || '—'}</td>
-      <td className="num">{formatCurrency(rule.amount, currency)}</td>
-      <td>{intervalLabel(rule.interval, t)}</td>
-      <td>
-        <span className={rule.active ? styles.activeYes : styles.activeNo}>
-          {rule.active ? t('recurring.status.active') : t('recurring.status.inactive')}
-        </span>
-      </td>
-      <td className={styles.actionsCell}>
-        <button
-          className={styles.iconBtn}
-          onClick={() => router.push(`/recurring/${rule.id}/edit`)}
-          aria-label={t('common.edit')}
-          type="button"
-        >
-          <Pencil size={15} />
-        </button>
-        <button
-          className={`${styles.iconBtn} ${styles.iconBtnDanger}`}
-          onClick={handleDelete}
-          aria-label={t('common.delete')}
-          type="button"
-        >
-          <Trash2 size={15} />
-        </button>
-      </td>
-    </tr>
-  );
-}
-
 export default function RecurringListPage() {
   const { t } = useTranslation();
   const { currency } = useAuth();
@@ -95,8 +44,86 @@ export default function RecurringListPage() {
     fetchRules();
   }, [fetchRules]);
 
-  function handleDeleted(id) {
-    setRules((prev) => prev.filter((r) => r.id !== id));
+  async function handleDelete(id) {
+    if (!globalThis.confirm(t('recurring.confirmDelete'))) return;
+    try {
+      await recurringApi.remove(id);
+      setRules((prev) => prev.filter((r) => r.id !== id));
+    } catch (err) {
+      setError(err.message);
+    }
+  }
+
+  let content;
+  if (loading) {
+    content = <Loading />;
+  } else if (rules.length === 0) {
+    content = (
+      <div className={styles.emptyState}>
+        <RefreshCw size={48} className={styles.emptyIcon} aria-hidden="true" />
+        <p className={styles.emptyText}>{t('recurring.noRules')}</p>
+      </div>
+    );
+  } else {
+    content = (
+      <div className={`card ${styles.tableCard}`} style={{ padding: 0, overflow: 'hidden' }}>
+        <div className={styles.tableScroll}>
+          <table className={styles.rulesTable}>
+            <thead>
+              <tr>
+                <th scope="col">{t('recurring.fields.category')}</th>
+                <th scope="col">{t('recurring.fields.description')}</th>
+                <th scope="col" className="num">
+                  {t('recurring.fields.amount')}
+                </th>
+                <th scope="col">{t('recurring.fields.interval')}</th>
+                <th scope="col">{t('recurring.fields.status')}</th>
+                <th scope="col">
+                  <span className="sr-only">{t('expenses.actions')}</span>
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              {rules.map((rule) => (
+                <tr key={rule.id}>
+                  <td>
+                    <span className="badge" data-cat={rule.category}>
+                      {t(`categories.${rule.category}`)}
+                    </span>
+                  </td>
+                  <td className={styles.descCell}>{rule.description || '—'}</td>
+                  <td className="num">{formatCurrency(rule.amount, currency)}</td>
+                  <td>{intervalLabel(rule.interval, t)}</td>
+                  <td>
+                    <span className={rule.active ? styles.activeYes : styles.activeNo}>
+                      {rule.active ? t('recurring.status.active') : t('recurring.status.inactive')}
+                    </span>
+                  </td>
+                  <td className={styles.actionsCell}>
+                    <button
+                      className={styles.iconBtn}
+                      onClick={() => router.push(`/recurring/${rule.id}/edit`)}
+                      aria-label={t('common.edit')}
+                      type="button"
+                    >
+                      <Pencil size={15} />
+                    </button>
+                    <button
+                      className={`${styles.iconBtn} ${styles.iconBtnDanger}`}
+                      onClick={() => handleDelete(rule.id)}
+                      aria-label={t('common.delete')}
+                      type="button"
+                    >
+                      <Trash2 size={15} />
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    );
   }
 
   return (
@@ -110,46 +137,7 @@ export default function RecurringListPage() {
 
       {error && <ErrorBanner message={error} />}
 
-      {loading ? (
-        <Loading />
-      ) : rules.length === 0 ? (
-        <div className={styles.emptyState}>
-          <RefreshCw size={48} className={styles.emptyIcon} aria-hidden="true" />
-          <p className={styles.emptyText}>{t('recurring.noRules')}</p>
-        </div>
-      ) : (
-        <div className={`card ${styles.tableCard}`} style={{ padding: 0, overflow: 'hidden' }}>
-          <div className={styles.tableScroll}>
-            <table className={styles.rulesTable}>
-              <thead>
-                <tr>
-                  <th scope="col">{t('recurring.fields.category')}</th>
-                  <th scope="col">{t('recurring.fields.description')}</th>
-                  <th scope="col" className="num">
-                    {t('recurring.fields.amount')}
-                  </th>
-                  <th scope="col">{t('recurring.fields.interval')}</th>
-                  <th scope="col">{t('recurring.fields.status')}</th>
-                  <th scope="col">
-                    <span className="sr-only">{t('expenses.actions')}</span>
-                  </th>
-                </tr>
-              </thead>
-              <tbody>
-                {rules.map((rule) => (
-                  <RuleRow
-                    key={rule.id}
-                    rule={rule}
-                    onDeleted={handleDeleted}
-                    onError={setError}
-                    currency={currency}
-                  />
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </div>
-      )}
+      {content}
     </div>
   );
 }

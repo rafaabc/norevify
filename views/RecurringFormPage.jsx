@@ -65,7 +65,7 @@ export default function RecurringFormPage() {
     const payload = {
       category: form.category,
       description: form.description || undefined,
-      amount: parseFloat(form.amount),
+      amount: Number.parseFloat(form.amount),
       startDate: form.startDate,
       interval: Number(form.interval),
       active: form.active,
