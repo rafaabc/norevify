@@ -1,0 +1,105 @@
+/* ── Page header ─────────────────────────────── */
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1.25rem;
+  gap: 1rem;
+}
+
+/* ── Rules table ─────────────────────────────── */
+.tableCard {
+  display: block;
+}
+
+.tableScroll {
+  overflow-x: auto;
+}
+
+.rulesTable {
+  width: 100%;
+}
+
+.rulesTable th,
+.rulesTable td {
+  padding: 0.5rem 0.75rem;
+}
+
+.descCell {
+  color: var(--muted);
+  font-size: 0.88rem;
+  max-width: 180px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.actionsCell {
+  display: flex;
+  gap: 0.25rem;
+  justify-content: flex-end;
+}
+
+/* ── Active status pills ─────────────────────── */
+.activeYes {
+  display: inline-block;
+  padding: 0.2rem 0.55rem;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  background: var(--success-dim, #dcfce7);
+  color: var(--success, #16a34a);
+}
+
+.activeNo {
+  display: inline-block;
+  padding: 0.2rem 0.55rem;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  background: var(--surface-2);
+  color: var(--muted);
+}
+
+/* ── Icon buttons ────────────────────────────── */
+.iconBtn {
+  background: none;
+  border: none;
+  padding: 0.3rem;
+  border-radius: var(--radius-sm);
+  color: var(--muted);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  transition:
+    color 0.15s,
+    background 0.15s;
+}
+.iconBtn:hover {
+  color: var(--text-2);
+  background: var(--surface-2);
+}
+.iconBtnDanger:hover {
+  color: var(--danger);
+  background: var(--danger-dim);
+}
+
+/* ── Empty state ─────────────────────────────── */
+.emptyState {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  padding: 4rem 2rem;
+  text-align: center;
+}
+
+.emptyIcon {
+  color: var(--muted);
+}
+
+.emptyText {
+  color: var(--muted);
+  font-size: 0.95rem;
+}

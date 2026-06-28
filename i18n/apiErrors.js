@@ -19,4 +19,6 @@ export const API_ERROR_MAP = {
   'Email already verified': 'errors.emailAlreadyVerified',
   'consent with policyVersion and acceptedAt is required': 'errors.consentRequired',
   'consent policyVersion does not match current policy': 'errors.consentRequired',
+  'Recurring rule not found': 'errors.recurringRuleNotFound',
+  'Fuel cannot be recurring': 'errors.fuelNotRecurring',
 };

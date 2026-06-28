@@ -3,6 +3,7 @@ const mongoose = require('mongoose');
 const userModel = require('../../lib/models/user.model');
 const expenseModel = require('../../lib/models/expense.model');
 const reminderModel = require('../../lib/models/reminder.model');
+const recurringRuleModel = require('../../lib/models/recurringRule.model');
 
 let mongod;
 
@@ -20,6 +21,7 @@ async function resetMongo() {
   await userModel._reset();
   await expenseModel._reset();
   await reminderModel._reset();
+  await recurringRuleModel._reset();
 }
 
 module.exports = { startMongo, stopMongo, resetMongo };

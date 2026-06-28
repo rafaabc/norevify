@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useTranslation } from 'react-i18next';
 import { Filter, FileX2, ChevronDown, ChevronUp, Pencil, Trash2 } from 'lucide-react';
-import { expensesApi } from '@/services/apiService.js';
+import { expensesApi, recurringApi } from '@/services/apiService.js';
 import { useAuth } from '@/context/AuthContext.jsx';
 import ExpenseRow from '@/components/ExpenseRow.jsx';
 import ErrorBanner from '@/components/ErrorBanner.jsx';
@@ -115,6 +115,12 @@ export default function ExpensesListPage() {
     } finally {
       setLoading(false);
     }
+  }, []);
+
+  // Fire-and-forget catch-up on mount so any overdue recurring expenses are created
+  // before the list loads. Idempotent — safe to run on every visit.
+  useEffect(() => {
+    recurringApi.catchUp().catch(() => {});
   }, []);
 
   useEffect(() => {
