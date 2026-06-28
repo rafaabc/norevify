@@ -49,7 +49,10 @@ describe('recurringService.createRule() — validation', () => {
     const userId = makeUserId();
     await assert.rejects(
       () => recurringService.createRule(userId, { ...validRule(), category: 'Fuel' }),
-      (err) => { assert.strictEqual(err.status, 400); return true; },
+      (err) => {
+        assert.strictEqual(err.status, 400);
+        return true;
+      },
     );
   });
 
@@ -57,7 +60,10 @@ describe('recurringService.createRule() — validation', () => {
     const userId = makeUserId();
     await assert.rejects(
       () => recurringService.createRule(userId, { ...validRule(), category: 'Food' }),
-      (err) => { assert.strictEqual(err.status, 400); return true; },
+      (err) => {
+        assert.strictEqual(err.status, 400);
+        return true;
+      },
     );
   });
 
@@ -65,7 +71,10 @@ describe('recurringService.createRule() — validation', () => {
     const userId = makeUserId();
     await assert.rejects(
       () => recurringService.createRule(userId, { ...validRule(), amount: undefined }),
-      (err) => { assert.strictEqual(err.status, 400); return true; },
+      (err) => {
+        assert.strictEqual(err.status, 400);
+        return true;
+      },
     );
   });
 
@@ -73,7 +82,10 @@ describe('recurringService.createRule() — validation', () => {
     const userId = makeUserId();
     await assert.rejects(
       () => recurringService.createRule(userId, { ...validRule(), amount: 0 }),
-      (err) => { assert.strictEqual(err.status, 400); return true; },
+      (err) => {
+        assert.strictEqual(err.status, 400);
+        return true;
+      },
     );
   });
 
@@ -81,7 +93,10 @@ describe('recurringService.createRule() — validation', () => {
     const userId = makeUserId();
     await assert.rejects(
       () => recurringService.createRule(userId, { ...validRule(), interval: 3 }),
-      (err) => { assert.strictEqual(err.status, 400); return true; },
+      (err) => {
+        assert.strictEqual(err.status, 400);
+        return true;
+      },
     );
   });
 
@@ -89,7 +104,10 @@ describe('recurringService.createRule() — validation', () => {
     const userId = makeUserId();
     await assert.rejects(
       () => recurringService.createRule(userId, { ...validRule(), litres: 50 }),
-      (err) => { assert.strictEqual(err.status, 400); return true; },
+      (err) => {
+        assert.strictEqual(err.status, 400);
+        return true;
+      },
     );
   });
 });
@@ -99,9 +117,12 @@ describe('recurringService.createRule() — validation', () => {
 describe('recurringService CRUD', () => {
   it('creates a rule and derives dayOfMonth from startDate', async () => {
     const user = await createUser();
-    const rule = await recurringService.createRule(user._id.toString(), validRule({
-      startDate: '2024-01-15',
-    }));
+    const rule = await recurringService.createRule(
+      user._id.toString(),
+      validRule({
+        startDate: '2024-01-15',
+      }),
+    );
     assert.strictEqual(rule.category, 'Insurance');
     assert.strictEqual(rule.amount, 150);
     assert.strictEqual(rule.interval, 1);
@@ -121,20 +142,26 @@ describe('recurringService CRUD', () => {
     assert.strictEqual(u1Rules[0].category, 'Insurance');
   });
 
-  it('getRule throws 404 for another user\'s rule', async () => {
+  it("getRule throws 404 for another user's rule", async () => {
     const u1 = await createUser();
     const u2 = await createUser();
     const rule = await recurringService.createRule(u1._id.toString(), validRule());
 
     await assert.rejects(
       () => recurringService.getRule(u2._id.toString(), rule.id),
-      (err) => { assert.strictEqual(err.status, 404); return true; },
+      (err) => {
+        assert.strictEqual(err.status, 404);
+        return true;
+      },
     );
   });
 
   it('updateRule updates fields and recalculates dayOfMonth on startDate change', async () => {
     const user = await createUser();
-    const rule = await recurringService.createRule(user._id.toString(), validRule({ startDate: '2024-01-15' }));
+    const rule = await recurringService.createRule(
+      user._id.toString(),
+      validRule({ startDate: '2024-01-15' }),
+    );
     const updated = await recurringService.updateRule(user._id.toString(), rule.id, {
       startDate: '2024-03-20',
       amount: 200,
@@ -157,7 +184,10 @@ describe('recurringService CRUD', () => {
     const rule = await recurringService.createRule(u1._id.toString(), validRule());
     await assert.rejects(
       () => recurringService.deleteRule(u2._id.toString(), rule.id),
-      (err) => { assert.strictEqual(err.status, 404); return true; },
+      (err) => {
+        assert.strictEqual(err.status, 404);
+        return true;
+      },
     );
   });
 });
@@ -239,6 +269,9 @@ describe('recurringService.runCatchUp()', () => {
     await recurringService.runCatchUp(user._id.toString());
 
     const rules = await recurringService.listRules(user._id.toString());
-    assert.ok(rules[0].lastGeneratedDate !== null, 'lastGeneratedDate should be set after catch-up');
+    assert.ok(
+      rules[0].lastGeneratedDate !== null,
+      'lastGeneratedDate should be set after catch-up',
+    );
   });
 });

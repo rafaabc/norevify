@@ -30,8 +30,10 @@ vi.mock('@/context/AuthContext.jsx', () => ({
 
 const mockList = vi.fn();
 const mockRemove = vi.fn();
+const mockCatchUp = vi.fn();
 vi.mock('@/services/apiService.js', () => ({
   expensesApi: { list: () => mockList(), remove: (...args) => mockRemove(...args) },
+  recurringApi: { catchUp: () => mockCatchUp() },
 }));
 
 const expenses = [
@@ -45,6 +47,7 @@ describe('ExpensesListPage', () => {
     mockUseRouter.mockReturnValue({ push: mockPush });
     mockList.mockResolvedValue(expenses);
     mockRemove.mockResolvedValue(null);
+    mockCatchUp.mockResolvedValue({ created: 0 });
     globalThis.confirm = vi.fn().mockReturnValue(true);
   });
 

@@ -125,7 +125,9 @@ export default function RecurringListPage() {
                 <tr>
                   <th scope="col">{t('recurring.fields.category')}</th>
                   <th scope="col">{t('recurring.fields.description')}</th>
-                  <th scope="col" className="num">{t('recurring.fields.amount')}</th>
+                  <th scope="col" className="num">
+                    {t('recurring.fields.amount')}
+                  </th>
                   <th scope="col">{t('recurring.fields.interval')}</th>
                   <th scope="col">{t('recurring.fields.status')}</th>
                   <th scope="col">
