@@ -277,6 +277,7 @@
   "mobile": {
     "newAction": "What do you want to add?",
     "newExpense": "New expense",
+    "newRecurring": "New recurring",
     "newReminder": "New reminder"
   },
   "recurring": {

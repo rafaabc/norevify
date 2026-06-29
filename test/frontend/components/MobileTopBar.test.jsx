@@ -20,6 +20,14 @@ describe('MobileTopBar', () => {
     expect(screen.getByText('NORE')).toBeInTheDocument();
   });
 
+  it('should render recurring link', () => {
+    render(<MobileTopBar />);
+    expect(screen.getByRole('link', { name: 'nav.recurring' })).toHaveAttribute(
+      'href',
+      '/recurring',
+    );
+  });
+
   it('should render reminders link', () => {
     render(<MobileTopBar />);
     expect(screen.getByRole('link', { name: 'nav.reminders' })).toHaveAttribute(

@@ -44,6 +44,13 @@ describe('MobileNewActionSheet', () => {
     expect(mockPush).toHaveBeenCalledWith('/expenses/new');
   });
 
+  it('should navigate to /recurring/new and close', () => {
+    renderSheet();
+    fireEvent.click(screen.getByText('mobile.newRecurring'));
+    expect(onClose).toHaveBeenCalledOnce();
+    expect(mockPush).toHaveBeenCalledWith('/recurring/new');
+  });
+
   it('should navigate to /reminders/new and close', () => {
     renderSheet();
     fireEvent.click(screen.getByText('mobile.newReminder'));

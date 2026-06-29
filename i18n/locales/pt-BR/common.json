@@ -277,6 +277,7 @@
   "mobile": {
     "newAction": "O que deseja criar?",
     "newExpense": "Novo gasto",
+    "newRecurring": "Nova recorrência",
     "newReminder": "Novo lembrete"
   },
   "recurring": {
