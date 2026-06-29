@@ -7,6 +7,7 @@ import { recurringApi } from '@/services/apiService.js';
 import { useAuth } from '@/context/AuthContext.jsx';
 import ErrorBanner from '@/components/ErrorBanner.jsx';
 import Loading from '@/components/Loading.jsx';
+import PropTypes from 'prop-types';
 import { formatCurrency } from '@/utils/formatCurrency.js';
 import styles from './RecurringListPage.module.css';
 
@@ -54,6 +55,21 @@ function RecurringCard({ rule, onDelete, router, currency, t }) {
     </div>
   );
 }
+
+RecurringCard.propTypes = {
+  rule: PropTypes.shape({
+    id: PropTypes.string.isRequired,
+    category: PropTypes.string.isRequired,
+    description: PropTypes.string,
+    amount: PropTypes.number.isRequired,
+    interval: PropTypes.number.isRequired,
+    active: PropTypes.bool.isRequired,
+  }).isRequired,
+  onDelete: PropTypes.func.isRequired,
+  router: PropTypes.shape({ push: PropTypes.func.isRequired }).isRequired,
+  currency: PropTypes.string,
+  t: PropTypes.func.isRequired,
+};
 
 export default function RecurringListPage() {
   const { t } = useTranslation();
