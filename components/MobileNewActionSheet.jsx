@@ -38,6 +38,14 @@ export default function MobileNewActionSheet({ open, onClose }) {
         <button
           type="button"
           className="action-sheet-btn"
+          onClick={() => go('/recurring/new')}
+          data-action="new-recurring"
+        >
+          {t('mobile.newRecurring')}
+        </button>
+        <button
+          type="button"
+          className="action-sheet-btn"
           onClick={() => go('/reminders/new')}
           data-action="new-reminder"
         >

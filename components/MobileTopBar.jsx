@@ -1,5 +1,5 @@
 'use client';
-import { LogOut, Gauge, Bell } from 'lucide-react';
+import { LogOut, Gauge, Bell, RefreshCw } from 'lucide-react';
 import Link from 'next/link';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '@/context/AuthContext.jsx';
@@ -17,6 +17,9 @@ export default function MobileTopBar({ badgeCount = 0 }) {
         </span>
       </div>
       <div className={styles.actions}>
+        <Link href="/recurring" className={styles.bellBtn} aria-label={t('nav.recurring')}>
+          <RefreshCw size={18} />
+        </Link>
         <Link href="/reminders" className={styles.bellBtn} aria-label={t('nav.reminders')}>
           <Bell size={18} />
           {badgeCount > 0 && <span className={styles.badge}>{badgeCount}</span>}

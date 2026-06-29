@@ -84,6 +84,73 @@
   background: var(--danger-dim);
 }
 
+/* ── Mobile: card list ───────────────────────── */
+.cardList {
+  display: none;
+}
+
+.recurringCard {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 0.875rem 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.cardTop {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.cardDesc {
+  font-size: 0.85rem;
+  color: var(--muted);
+  margin: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.cardBody {
+  display: flex;
+  align-items: baseline;
+  gap: 0.625rem;
+}
+
+.cardAmount {
+  font-family: var(--font-mono);
+  font-size: 1.4rem;
+  font-weight: 600;
+  color: var(--text);
+  letter-spacing: -0.01em;
+}
+
+.cardInterval {
+  font-size: 0.78rem;
+  color: var(--muted);
+}
+
+.cardActions {
+  display: flex;
+  gap: 0.5rem;
+  justify-content: flex-end;
+}
+
+@media (max-width: 640px) {
+  .tableCard {
+    display: none;
+  }
+  .cardList {
+    display: flex;
+    flex-direction: column;
+    gap: 0.625rem;
+  }
+}
+
 /* ── Empty state ─────────────────────────────── */
 .emptyState {
   display: flex;
