@@ -97,8 +97,8 @@
 }
 .navBadge {
   margin-left: auto;
-  background: #c0392b;
-  color: #fff;
+  background: var(--redline);
+  color: #0c0d0f;
   border-radius: 999px;
   font-size: 0.7rem;
   font-weight: 700;

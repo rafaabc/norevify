@@ -66,8 +66,8 @@
   position: absolute;
   top: 1px;
   right: 1px;
-  background: #c0392b;
-  color: #fff;
+  background: var(--redline);
+  color: #0c0d0f;
   border-radius: 999px;
   font-size: 0.6rem;
   font-weight: 700;
