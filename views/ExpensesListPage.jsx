@@ -127,7 +127,7 @@ export default function ExpensesListPage() {
     const controller = new AbortController();
     // eslint-disable-next-line react-hooks/set-state-in-effect -- fetchExpenses is async, setState only after await
     fetchExpenses(filters, controller.signal);
-    return () => controller.abort('Component unmounted');
+    return () => controller.abort();
   }, [filters, fetchExpenses]);
 
   function handleFilterChange(e) {
