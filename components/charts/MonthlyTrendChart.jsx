@@ -28,8 +28,8 @@ export default function MonthlyTrendChart({ data = [] }) {
       <AreaChart data={formatted} margin={{ top: 8, right: 16, bottom: 0, left: 0 }}>
         <defs>
           <linearGradient id={gradientId} x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stopColor="rgba(45,212,191,0.3)" />
-            <stop offset="100%" stopColor="rgba(45,212,191,0)" />
+            <stop offset="0%" stopColor="rgba(255,122,26,0.3)" />
+            <stop offset="100%" stopColor="rgba(255,122,26,0)" />
           </linearGradient>
         </defs>
         <CartesianGrid {...GRID_STYLE} />
@@ -53,7 +53,7 @@ export default function MonthlyTrendChart({ data = [] }) {
         <Area
           type="monotone"
           dataKey="total"
-          stroke="#2dd4bf"
+          stroke="#ff7a1a"
           strokeWidth={2}
           fill={`url(#${gradientId})`}
           dot={false}

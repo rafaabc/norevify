@@ -2,6 +2,7 @@
 import {
   BarChart,
   Bar,
+  Cell,
   XAxis,
   YAxis,
   CartesianGrid,
@@ -22,6 +23,16 @@ export default function StackedMonthlyBar({ data = [], categories = [] }) {
     );
 
   const formatted = data.map((d) => ({ ...d, label: monthLabel(d.month) }));
+
+  const peakIdx = formatted.reduce((pi, d, i) => {
+    const total = Object.entries(d)
+      .filter(([k]) => k !== 'month' && k !== 'name' && k !== 'label')
+      .reduce((s, [, v]) => s + (typeof v === 'number' ? v : 0), 0);
+    const peakTotal = Object.entries(formatted[pi])
+      .filter(([k]) => k !== 'month' && k !== 'name' && k !== 'label')
+      .reduce((s, [, v]) => s + (typeof v === 'number' ? v : 0), 0);
+    return total > peakTotal ? i : pi;
+  }, 0);
 
   return (
     <ResponsiveContainer width="100%" height={280}>
@@ -47,8 +58,8 @@ export default function StackedMonthlyBar({ data = [], categories = [] }) {
         <Legend
           wrapperStyle={{
             fontSize: 12,
-            fontFamily: 'Inter, system-ui, sans-serif',
-            color: '#a7bccd',
+            fontFamily: 'Barlow, system-ui, sans-serif',
+            color: '#aab0b8',
           }}
         />
         {categories.map((cat) => (
@@ -57,8 +68,15 @@ export default function StackedMonthlyBar({ data = [], categories = [] }) {
             dataKey={cat}
             name={categoryLabel(cat, t)}
             stackId="a"
-            fill={CATEGORY_COLORS[cat] ?? '#94a3b8'}
-          />
+            fill={CATEGORY_COLORS[cat] ?? '#7d828c'}
+          >
+            {formatted.map((d, idx) => (
+              <Cell
+                key={d.month}
+                fill={idx === peakIdx ? '#ff3b30' : (CATEGORY_COLORS[cat] ?? '#7d828c')}
+              />
+            ))}
+          </Bar>
         ))}
       </BarChart>
     </ResponsiveContainer>

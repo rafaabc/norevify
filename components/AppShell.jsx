@@ -67,8 +67,8 @@ function EmailVerificationBanner({ emailVerified }) {
   return (
     <div
       style={{
-        background: '#854d0e',
-        color: '#fef9c3',
+        background: 'rgba(255, 176, 32, 0.15)',
+        color: 'var(--warning)',
         padding: '0.5rem 1rem',
         display: 'flex',
         alignItems: 'center',
@@ -85,8 +85,8 @@ function EmailVerificationBanner({ emailVerified }) {
           disabled={sending}
           style={{
             background: 'none',
-            border: '1px solid #fef9c3',
-            color: '#fef9c3',
+            border: '1px solid rgba(255, 176, 32, 0.4)',
+            color: 'var(--warning)',
             borderRadius: '4px',
             padding: '0.25rem 0.75rem',
             cursor: 'pointer',

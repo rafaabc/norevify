@@ -54,7 +54,7 @@
 }
 .newBtn .icon {
   background: var(--primary);
-  color: #07101a;
+  color: var(--bg);
   border-radius: 50%;
   padding: 0.22rem;
   box-sizing: content-box;

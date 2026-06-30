@@ -6,9 +6,9 @@ vi.mock('react-i18next', () => ({ useTranslation: () => ({ t: (k) => k }) }));
 vi.mock('@/i18n/index.js', () => ({ default: { language: 'en', changeLanguage: vi.fn() } }));
 vi.mock('@/views/DashboardPage.module.css', () => ({ default: {} }));
 vi.mock('@/components/Loading.jsx', () => ({ default: () => <div data-testid="loading" /> }));
-vi.mock('@/components/KpiCard.jsx', () => ({
-  default: ({ label, value }) => (
-    <div data-testid="kpi-card">
+vi.mock('@/components/Gauge.jsx', () => ({
+  Gauge: ({ label, value }) => (
+    <div data-testid="gauge">
       <span>{label}</span>
       <span>{value}</span>
     </div>
@@ -53,7 +53,7 @@ describe('DashboardPage', () => {
     await act(async () => {
       render(<DashboardPage />);
     });
-    const cards = screen.getAllByTestId('kpi-card');
+    const cards = screen.getAllByTestId('gauge');
     expect(cards.length).toBeGreaterThanOrEqual(4);
   });
 

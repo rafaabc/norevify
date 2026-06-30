@@ -43,6 +43,17 @@
   }
 }
 
+.gaugeCard {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: var(--space-5);
+  box-shadow: var(--shadow-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
 /* Charts row */
 .chartsRow {
   display: grid;
