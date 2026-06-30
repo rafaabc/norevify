@@ -18,7 +18,7 @@ export default function FieldLabelWithHint({ htmlFor, label, hint }) {
             border: 'none',
             padding: 0,
             cursor: 'pointer',
-            color: 'var(--text-muted)',
+            color: 'var(--muted)',
             display: 'flex',
             alignItems: 'center',
           }}
@@ -27,7 +27,7 @@ export default function FieldLabelWithHint({ htmlFor, label, hint }) {
         </button>
       </div>
       {show && (
-        <small style={{ color: 'var(--text-muted)', marginBottom: '.35rem', display: 'block' }}>
+        <small style={{ color: 'var(--muted)', marginBottom: '.35rem', display: 'block' }}>
           {hint}
         </small>
       )}
