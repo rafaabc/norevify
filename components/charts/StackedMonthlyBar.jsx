@@ -70,9 +70,9 @@ export default function StackedMonthlyBar({ data = [], categories = [] }) {
             stackId="a"
             fill={CATEGORY_COLORS[cat] ?? '#7d828c'}
           >
-            {formatted.map((_, idx) => (
+            {formatted.map((d, idx) => (
               <Cell
-                key={idx}
+                key={d.month}
                 fill={idx === peakIdx ? '#ff3b30' : (CATEGORY_COLORS[cat] ?? '#7d828c')}
               />
             ))}

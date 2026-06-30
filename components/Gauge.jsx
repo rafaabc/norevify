@@ -1,5 +1,6 @@
 'use client';
 import React from 'react';
+import PropTypes from 'prop-types';
 
 /**
  * Gauge — the signature Norevify dial. An arc sweeps from ~7 o'clock through
@@ -76,3 +77,12 @@ export function Gauge({ label, value, percent = 60, redlineAt = 100, size = 92, 
     </div>
   );
 }
+
+Gauge.propTypes = {
+  label: PropTypes.string,
+  value: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+  percent: PropTypes.number,
+  redlineAt: PropTypes.number,
+  size: PropTypes.number,
+  style: PropTypes.object,
+};

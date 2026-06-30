@@ -1,7 +1,7 @@
 import sharp from 'sharp';
-import { readFile } from 'fs/promises';
-import { fileURLToPath } from 'url';
-import path from 'path';
+import { readFile } from 'node:fs/promises';
+import { fileURLToPath } from 'node:url';
+import path from 'node:path';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const root = path.join(__dirname, '..');
