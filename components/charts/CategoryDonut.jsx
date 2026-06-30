@@ -40,7 +40,7 @@ export default function CategoryDonut({ data, currency = 'BRL' }) {
             paddingAngle={2}
           >
             {data.map((entry) => (
-              <Cell key={entry.category} fill={CATEGORY_COLORS[entry.category] ?? '#94a3b8'} />
+              <Cell key={entry.category} fill={CATEGORY_COLORS[entry.category] ?? '#7d828c'} />
             ))}
           </Pie>
           <Tooltip
@@ -78,7 +78,7 @@ export default function CategoryDonut({ data, currency = 'BRL' }) {
                 width: 10,
                 height: 10,
                 borderRadius: '50%',
-                background: CATEGORY_COLORS[entry.category] ?? '#94a3b8',
+                background: CATEGORY_COLORS[entry.category] ?? '#7d828c',
                 flexShrink: 0,
               }}
             />

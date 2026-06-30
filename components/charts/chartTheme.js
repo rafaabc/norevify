@@ -2,35 +2,35 @@
 // SVG presentation attributes (fill, stroke) do not resolve CSS custom properties,
 // so recharts axis/grid styles use raw hex values mirroring the globals.css tokens.
 export const CATEGORY_COLORS = {
-  Fuel: '#fbbf24', // --warning / amber
-  Maintenance: '#60a5fa', // --info / blue
-  Insurance: '#a78bfa', // violet
-  Parking: '#34d399', // --cat-parking / emerald
-  Toll: '#fb923c', // orange
-  Tax: '#f87171', // --danger / red
-  Other: '#94a3b8', // slate
+  Fuel: '#ff7a1a', // ignition amber (matches --cat-fuel)
+  Maintenance: '#ffb020', // warm amber-gold (matches --cat-maintenance)
+  Insurance: '#5fa8ff', // blue (matches --cat-insurance)
+  Parking: '#46d17f', // green (matches --cat-parking)
+  Toll: '#c08cff', // violet (matches --cat-toll)
+  Tax: '#ff3b30', // redline (matches --cat-tax)
+  Other: '#7d828c', // muted (matches --cat-other)
 };
 
 export const AXIS_STYLE = {
-  tick: { fill: '#6f8aa3', fontSize: 12, fontFamily: 'Inter, system-ui, sans-serif' },
-  axisLine: { stroke: '#1f3149' },
-  tickLine: { stroke: '#1f3149' },
+  tick: { fill: '#7d828c', fontSize: 12, fontFamily: 'Barlow, system-ui, sans-serif' },
+  axisLine: { stroke: '#26292f' },
+  tickLine: { stroke: '#26292f' },
 };
 
 export const GRID_STYLE = {
-  stroke: '#1f3149',
+  stroke: '#26292f',
   strokeDasharray: '3 3',
 };
 
 export const TOOLTIP_STYLE = {
   contentStyle: {
-    background: '#0f1b27',
-    border: '1px solid #1f3149',
-    borderRadius: '10px',
-    color: '#e2ecf5',
+    background: '#16181c',
+    border: '1px solid #26292f',
+    borderRadius: '12px',
+    color: '#e9eaec',
     fontSize: 13,
-    fontFamily: 'Inter, system-ui, sans-serif',
+    fontFamily: 'Barlow, system-ui, sans-serif',
   },
-  labelStyle: { color: '#a7bccd' },
-  cursor: { fill: 'rgba(45,212,191,0.06)' },
+  labelStyle: { color: '#aab0b8' },
+  cursor: { fill: 'rgba(255,122,26,0.06)' },
 };

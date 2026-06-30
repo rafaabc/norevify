@@ -2,7 +2,7 @@
 import { useId } from 'react';
 import { AreaChart, Area, ResponsiveContainer } from 'recharts';
 
-export default function Sparkline({ data = [], color = '#2dd4bf', height = 40 }) {
+export default function Sparkline({ data = [], color = '#ff7a1a', height = 40 }) {
   const uid = useId().replace(/:/g, '');
   const gradientId = `spark-fill-${uid}`;
 
