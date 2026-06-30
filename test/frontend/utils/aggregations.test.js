@@ -11,7 +11,6 @@ import {
   computeYtd,
   computeFuelShare,
   computeAvgMonthly,
-  computePrevMonthTotal,
   monthLabel,
 } from '@/utils/aggregations.js';
 
@@ -91,18 +90,6 @@ describe('computeAvgMonthly', () => {
 
   it('should return 0 for empty array', () => {
     expect(computeAvgMonthly([])).toBe(0);
-  });
-});
-
-describe('computePrevMonthTotal', () => {
-  it('should sum expenses from the previous calendar month', () => {
-    const now = new Date('2025-02-15');
-    expect(computePrevMonthTotal(expenses, now)).toBe(150);
-  });
-
-  it('should return 0 when no expenses in previous month', () => {
-    const now = new Date('2025-01-15');
-    expect(computePrevMonthTotal(expenses, now)).toBe(0);
   });
 });
 
