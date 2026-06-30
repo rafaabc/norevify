@@ -11,6 +11,12 @@ Sentry.init({
   replaysSessionSampleRate: 0.1,
   replaysOnErrorSampleRate: 1.0,
   sendDefaultPii: true,
+  beforeSend(event, hint) {
+    // AbortErrors are intentional fetch cancellations (component unmount / filter change).
+    // They are caught and handled by callers — not actionable errors.
+    if (hint?.originalException?.name === 'AbortError') return null;
+    return event;
+  },
 });
 
 module.exports = {
