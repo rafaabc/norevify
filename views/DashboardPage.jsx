@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { useTranslation } from 'react-i18next';
 import { expensesApi } from '@/services/apiService.js';
 import { useAuth } from '@/context/AuthContext.jsx';
-import KpiCard from '@/components/KpiCard.jsx';
+import { Gauge } from '@/components/Gauge.jsx';
 import MonthlyTrendChart from '@/components/charts/MonthlyTrendChart.jsx';
 import CategoryDonut from '@/components/charts/CategoryDonut.jsx';
 import Loading from '@/components/Loading.jsx';
@@ -16,7 +16,6 @@ import {
   computeYtd,
   computeFuelShare,
   computeAvgMonthly,
-  computePrevMonthTotal,
 } from '@/utils/aggregations.js';
 import { formatDate } from '@/utils/formatDate.js';
 import { formatCurrency } from '@/utils/formatCurrency.js';
@@ -76,9 +75,6 @@ export default function DashboardPage() {
   const curYearExpenses = expenses.filter((e) => e._curYear);
 
   const mtd = computeMtd(curYearExpenses);
-  const prevMonthTotal = computePrevMonthTotal(expenses);
-  const mtdDelta =
-    prevMonthTotal > 0 ? Math.round(((mtd - prevMonthTotal) / prevMonthTotal) * 1000) / 10 : null;
 
   const ytd = computeYtd(curYearExpenses);
   const fuelShare = computeFuelShare(curYearExpenses);
@@ -88,7 +84,7 @@ export default function DashboardPage() {
 
   const categoryData = aggregateByCategory(curYearExpenses);
 
-  const last6Months = monthlyData.slice(-6);
+  const peakMonth = monthlyData.length > 0 ? Math.max(...monthlyData.map((m) => m.total)) : 0;
 
   const recentExpenses = [...curYearExpenses]
     .sort((a, b) => new Date(b.date) - new Date(a.date))
@@ -99,34 +95,40 @@ export default function DashboardPage() {
       <h1 className={styles.pageTitle}>{t('dashboard.heading')}</h1>
 
       <div className={styles.kpiRow}>
-        <KpiCard
-          label={t('dashboard.thisMonth')}
-          value={formatCurrency(mtd, currency)}
-          delta={mtdDelta}
-          sparkData={last6Months}
-          invertColors
-        />
-        <KpiCard
-          label={t('dashboard.totalSpent')}
-          subtitle={String(currentYear)}
-          value={formatCurrency(ytd, currency)}
-          delta={null}
-          sparkData={monthlyData}
-        />
-        <KpiCard
-          label={t('dashboard.avgMonthly')}
-          subtitle={String(currentYear)}
-          value={formatCurrency(avgMonthly, currency)}
-          delta={null}
-          sparkData={monthlyData}
-        />
-        <KpiCard
-          label={t('dashboard.fuelShare')}
-          subtitle={String(currentYear)}
-          value={`${fuelShare}%`}
-          delta={null}
-          sparkData={null}
-        />
+        <div className={styles.gaugeCard}>
+          <Gauge
+            label={t('dashboard.thisMonth')}
+            value={formatCurrency(mtd, currency)}
+            percent={peakMonth > 0 ? Math.min(100, Math.round((mtd / peakMonth) * 100)) : 0}
+            redlineAt={90}
+          />
+        </div>
+        <div className={styles.gaugeCard}>
+          <Gauge
+            label={`${t('dashboard.totalSpent')} ${currentYear}`}
+            value={formatCurrency(ytd, currency)}
+            percent={
+              avgMonthly > 0 ? Math.min(100, Math.round((ytd / (avgMonthly * 12)) * 100)) : 0
+            }
+            redlineAt={85}
+          />
+        </div>
+        <div className={styles.gaugeCard}>
+          <Gauge
+            label={t('dashboard.avgMonthly')}
+            value={formatCurrency(avgMonthly, currency)}
+            percent={peakMonth > 0 ? Math.min(100, Math.round((avgMonthly / peakMonth) * 100)) : 0}
+            redlineAt={80}
+          />
+        </div>
+        <div className={styles.gaugeCard}>
+          <Gauge
+            label={t('dashboard.fuelShare')}
+            value={`${fuelShare}%`}
+            percent={fuelShare}
+            redlineAt={60}
+          />
+        </div>
       </div>
 
       <div className={styles.chartsRow}>
