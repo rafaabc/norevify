@@ -66,7 +66,7 @@
     "@testing-library/react": "^16.0.0",
     "@testing-library/user-event": "^14.5.0",
     "@types/prop-types": "^15.7.15",
-    "@types/react": "19.2.15",
+    "@types/react": "19.2.17",
     "@types/react-dom": "19.2.3",
     "@vitejs/plugin-react": "^4.7.0",
     "@vitest/coverage-v8": "^4.1.8",
@@ -88,7 +88,7 @@
     "vitest": "^4.1.8"
   },
   "overrides": {
-    "@types/react": "19.2.15",
+    "@types/react": "19.2.17",
     "@types/react-dom": "19.2.3",
     "serialize-javascript": "^7.0.5",
     "esbuild": "^0.28.1",
