@@ -8,48 +8,52 @@
 
 :root {
   /* Surfaces */
-  --bg: #07101a;
-  --surface: #0f1b27;
-  --surface-2: #16263a;
-  --surface-3: #1c3148;
-  --border: #1f3149;
-  --border-strong: #2a4366;
+  --bg: #0c0d0f;
+  --surface: #16181c;
+  --surface-2: #1c1f24;
+  --surface-3: #23272e;
+  --border: #26292f;
+  --border-strong: #353a42;
 
   /* Brand / accent */
-  --primary: #2dd4bf;
-  --primary-hover: #14b8a6;
-  --primary-dim: rgba(45, 212, 191, 0.1);
-  --primary-glow: rgba(45, 212, 191, 0.22);
+  --primary: #ff7a1a;
+  --primary-hover: #ff8f3a;
+  --primary-dim: rgba(255, 122, 26, 0.12);
+  --primary-glow: rgba(255, 122, 26, 0.4);
+
+  /* Redline signal (over-budget / danger / tachometer hot zone) */
+  --redline: #ff3b30;
 
   /* Semantic */
-  --danger: #f87171;
-  --danger-dim: rgba(248, 113, 113, 0.1);
-  --danger-border: rgba(248, 113, 113, 0.25);
-  --success: #4ade80;
-  --success-dim: rgba(74, 222, 128, 0.1);
-  --success-border: rgba(74, 222, 128, 0.25);
-  --info: #60a5fa;
-  --info-dim: rgba(96, 165, 250, 0.1);
-  --info-border: rgba(96, 165, 250, 0.25);
-  --warning: #fbbf24;
+  --danger: #ff3b30;
+  --danger-dim: rgba(255, 59, 48, 0.12);
+  --danger-border: rgba(255, 59, 48, 0.3);
+  --success: #46d17f;
+  --success-dim: rgba(70, 209, 127, 0.12);
+  --success-border: rgba(70, 209, 127, 0.28);
+  --info: #5fa8ff;
+  --info-dim: rgba(95, 168, 255, 0.12);
+  --info-border: rgba(95, 168, 255, 0.28);
+  --warning: #ffb020;
 
-  /* Category tokens (used by badges and charts) */
-  --cat-fuel: #fbbf24;
-  --cat-maintenance: #60a5fa;
-  --cat-insurance: #a78bfa;
-  --cat-parking: #34d399;
-  --cat-toll: #fb923c;
-  --cat-tax: #f87171;
-  --cat-other: #94a3b8;
+  /* Category tokens */
+  --cat-fuel: #ff7a1a;
+  --cat-maintenance: #ffb020;
+  --cat-insurance: #5fa8ff;
+  --cat-parking: #46d17f;
+  --cat-toll: #c08cff;
+  --cat-tax: #ff3b30;
+  --cat-other: #7d828c;
 
   /* Text */
-  --text: #e2ecf5;
-  --text-2: #a7bccd;
-  --muted: #6f8aa3;
+  --text: #e9eaec;
+  --text-2: #aab0b8;
+  --muted: #7d828c;
 
   /* Typography */
-  --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
-  --font-mono: 'JetBrains Mono', 'Courier New', monospace;
+  --font-display: 'Saira Semi Condensed', system-ui, sans-serif;
+  --font-sans: 'Barlow', system-ui, -apple-system, sans-serif;
+  --font-mono: 'IBM Plex Mono', 'Courier New', monospace;
 
   /* Spacing scale */
   --space-1: 0.25rem;
@@ -64,14 +68,17 @@
   --space-16: 4rem;
 
   /* Radii */
-  --radius-sm: 6px;
-  --radius: 10px;
+  --radius-sm: 4px;
+  --radius: 12px;
   --radius-lg: 14px;
 
   /* Shadows */
-  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.4);
-  --shadow: 0 4px 16px rgba(0, 0, 0, 0.45);
-  --shadow-lg: 0 12px 40px rgba(0, 0, 0, 0.55);
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.5);
+  --shadow: 0 8px 28px rgba(0, 0, 0, 0.55);
+  --shadow-lg: 0 20px 60px rgba(0, 0, 0, 0.6);
+
+  /* Amber glow */
+  --glow-amber: 0 0 18px var(--primary-glow);
 
   /* Layout */
   --sidebar-width: 232px;
@@ -148,12 +155,12 @@ a[class*='btn-'] {
 
 .btn-primary {
   background: var(--primary);
-  color: #07101a;
+  color: #0c0d0f;
   font-weight: 700;
 }
 .btn-primary:hover:not(:disabled) {
   background: var(--primary-hover);
-  box-shadow: 0 0 18px var(--primary-glow);
+  box-shadow: var(--glow-amber);
 }
 .btn-primary:active:not(:disabled) {
   transform: scale(0.975);
@@ -240,6 +247,7 @@ input[type='date']::-webkit-calendar-picker-indicator {
 }
 
 label {
+  font-family: var(--font-display);
   font-size: 0.72rem;
   font-weight: 600;
   letter-spacing: 0.08em;
@@ -281,10 +289,11 @@ label {
 }
 
 .page-title {
-  font-family: var(--font-sans);
-  font-size: 1.85rem;
+  font-family: var(--font-display);
+  font-size: 2.1rem;
   font-weight: 700;
-  letter-spacing: -0.01em;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
   color: var(--text);
   line-height: 1.1;
 }
@@ -305,6 +314,7 @@ table {
 }
 
 th {
+  font-family: var(--font-display);
   text-align: left;
   padding: 0.65rem 1rem;
   font-size: 0.68rem;
@@ -392,17 +402,17 @@ tbody tr:hover td {
 }
 .alert-error {
   background: var(--danger-dim);
-  color: #fca5a5;
+  color: var(--danger);
   border-color: var(--danger-border);
 }
 .alert-success {
   background: var(--success-dim);
-  color: #6ee7b7;
+  color: var(--success);
   border-color: var(--success-border);
 }
 .alert-info {
   background: var(--info-dim);
-  color: #93c5fd;
+  color: var(--info);
   border-color: var(--info-border);
 }
 
@@ -423,47 +433,62 @@ tbody tr:hover td {
   animation: spin 0.75s linear infinite;
 }
 
-/* Category badges */
+/* Category badges — rectangular instrument tags */
 .badge {
   display: inline-flex;
   align-items: center;
-  padding: 0.18rem 0.65rem;
-  border-radius: 99px;
-  font-size: 0.72rem;
+  gap: 0.35rem;
+  padding: 0.16rem 0.5rem;
+  border-radius: var(--radius-sm);
+  font-family: var(--font-display);
+  font-size: 0.74rem;
   font-weight: 600;
-  letter-spacing: 0.03em;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
   border: 1px solid transparent;
   white-space: nowrap;
 }
+
+/* 3px colored left tick (the instrument-tag signature) */
+.badge::before {
+  content: '';
+  display: inline-block;
+  width: 3px;
+  height: 11px;
+  border-radius: 2px;
+  background: currentColor;
+  flex-shrink: 0;
+}
+
 .badge[data-cat='Fuel'] {
-  background: rgba(251, 191, 36, 0.12);
   color: var(--cat-fuel);
-  border-color: rgba(251, 191, 36, 0.22);
+  background: color-mix(in srgb, var(--cat-fuel) 12%, transparent);
+  border-color: color-mix(in srgb, var(--cat-fuel) 45%, transparent);
 }
 .badge[data-cat='Maintenance'] {
-  background: rgba(96, 165, 250, 0.12);
   color: var(--cat-maintenance);
-  border-color: rgba(96, 165, 250, 0.22);
+  background: color-mix(in srgb, var(--cat-maintenance) 12%, transparent);
+  border-color: color-mix(in srgb, var(--cat-maintenance) 45%, transparent);
 }
 .badge[data-cat='Insurance'] {
-  background: rgba(167, 139, 250, 0.12);
   color: var(--cat-insurance);
-  border-color: rgba(167, 139, 250, 0.22);
+  background: color-mix(in srgb, var(--cat-insurance) 12%, transparent);
+  border-color: color-mix(in srgb, var(--cat-insurance) 45%, transparent);
 }
 .badge[data-cat='Parking'] {
-  background: rgba(52, 211, 153, 0.12);
   color: var(--cat-parking);
-  border-color: rgba(52, 211, 153, 0.22);
+  background: color-mix(in srgb, var(--cat-parking) 12%, transparent);
+  border-color: color-mix(in srgb, var(--cat-parking) 45%, transparent);
 }
 .badge[data-cat='Toll'] {
-  background: rgba(251, 146, 60, 0.12);
   color: var(--cat-toll);
-  border-color: rgba(251, 146, 60, 0.22);
+  background: color-mix(in srgb, var(--cat-toll) 12%, transparent);
+  border-color: color-mix(in srgb, var(--cat-toll) 45%, transparent);
 }
 .badge[data-cat='Tax'] {
-  background: rgba(248, 113, 113, 0.12);
   color: var(--cat-tax);
-  border-color: rgba(248, 113, 113, 0.22);
+  background: color-mix(in srgb, var(--cat-tax) 12%, transparent);
+  border-color: color-mix(in srgb, var(--cat-tax) 45%, transparent);
 }
 
 .modal-backdrop {
@@ -526,7 +551,7 @@ tbody tr:hover td {
   background: var(--hover, rgba(255, 255, 255, 0.05));
 }
 .badge[data-cat='Other'] {
-  background: rgba(148, 163, 184, 0.1);
   color: var(--cat-other);
-  border-color: rgba(148, 163, 184, 0.18);
+  background: color-mix(in srgb, var(--cat-other) 12%, transparent);
+  border-color: color-mix(in srgb, var(--cat-other) 45%, transparent);
 }

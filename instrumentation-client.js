@@ -11,6 +11,17 @@ Sentry.init({
   replaysSessionSampleRate: 0.1,
   replaysOnErrorSampleRate: 1.0,
   sendDefaultPii: true,
+  beforeSend(event, hint) {
+    // AbortErrors are intentional fetch cancellations (component unmount / filter change).
+    // They are caught and handled by callers — not actionable errors.
+    const ex = hint?.originalException;
+    if (!ex) return event;
+    if (ex.name === 'AbortError') return null;
+    // React 19 surfaces signal.reason directly; guard against string/Error reasons too.
+    const msg = typeof ex === 'string' ? ex : ex.message;
+    if (msg === 'signal is aborted without reason' || msg === 'Component unmounted') return null;
+    return event;
+  },
 });
 
 module.exports = {

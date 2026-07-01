@@ -15,6 +15,7 @@ const config = [
       'public/workbox-*.js',
       'public/swe-worker-*.js',
       '_usability/**',
+      'Norevify Design System/**',
       'frontend/**',
     ],
   },

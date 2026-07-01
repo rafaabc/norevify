@@ -47,8 +47,8 @@ export default function StackedMonthlyBar({ data = [], categories = [] }) {
         <Legend
           wrapperStyle={{
             fontSize: 12,
-            fontFamily: 'Inter, system-ui, sans-serif',
-            color: '#a7bccd',
+            fontFamily: 'Barlow, system-ui, sans-serif',
+            color: '#aab0b8',
           }}
         />
         {categories.map((cat) => (
@@ -57,7 +57,7 @@ export default function StackedMonthlyBar({ data = [], categories = [] }) {
             dataKey={cat}
             name={categoryLabel(cat, t)}
             stackId="a"
-            fill={CATEGORY_COLORS[cat] ?? '#94a3b8'}
+            fill={CATEGORY_COLORS[cat] ?? '#7d828c'}
           />
         ))}
       </BarChart>
