@@ -2,7 +2,6 @@
 import {
   BarChart,
   Bar,
-  Cell,
   XAxis,
   YAxis,
   CartesianGrid,
@@ -23,16 +22,6 @@ export default function StackedMonthlyBar({ data = [], categories = [] }) {
     );
 
   const formatted = data.map((d) => ({ ...d, label: monthLabel(d.month) }));
-
-  const peakIdx = formatted.reduce((pi, d, i) => {
-    const total = Object.entries(d)
-      .filter(([k]) => k !== 'month' && k !== 'name' && k !== 'label')
-      .reduce((s, [, v]) => s + (typeof v === 'number' ? v : 0), 0);
-    const peakTotal = Object.entries(formatted[pi])
-      .filter(([k]) => k !== 'month' && k !== 'name' && k !== 'label')
-      .reduce((s, [, v]) => s + (typeof v === 'number' ? v : 0), 0);
-    return total > peakTotal ? i : pi;
-  }, 0);
 
   return (
     <ResponsiveContainer width="100%" height={280}>
@@ -69,14 +58,7 @@ export default function StackedMonthlyBar({ data = [], categories = [] }) {
             name={categoryLabel(cat, t)}
             stackId="a"
             fill={CATEGORY_COLORS[cat] ?? '#7d828c'}
-          >
-            {formatted.map((d, idx) => (
-              <Cell
-                key={d.month}
-                fill={idx === peakIdx ? '#ff3b30' : (CATEGORY_COLORS[cat] ?? '#7d828c')}
-              />
-            ))}
-          </Bar>
+          />
         ))}
       </BarChart>
     </ResponsiveContainer>
