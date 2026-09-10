@@ -38,7 +38,7 @@ TRUSTED_PROXY        # 'true' if self-hosting behind a reverse proxy that overwr
 
 Next.js 16 App Router — single repo, API routes + frontend, deployed on Vercel Fluid Compute.
 
-- `app/api/` — Route Handlers. `withAuth(handler)` in `lib/auth.mjs` decodes JWT and passes `user` as 3rd arg (`NextRequest` is immutable).
+- `app/api/` — Route Handlers. `withAuth(handler)` in `lib/auth.mjs` decodes JWT and passes `user` as 3rd arg (`NextRequest` is immutable). It also calls `connectDB()` itself (needed for the `tokenVersion` check — see Auth hardening below) before the handler's own `connectDB()` call runs.
 - `lib/services/` — all business logic. Errors thrown with `.status`; handlers read `err.status || 500`.
 - `lib/db.mjs` — `connectDB()` called at top of every Route Handler; uses `globalThis._mongoose` cache.
 - `views/` — page-level components (renamed from `pages/` to avoid Pages Router conflict).
@@ -65,6 +65,8 @@ Sentry gotcha: `instrumentation.js` and `instrumentation-client.js` use CJS (`re
 - **Password strength + breach check** (`lib/services/passwordPolicy.js`): zxcvbn score ≥2 (not ≥3 — would defeat the existing 8-char minimum) + HaveIBeenPwned k-anonymity range check, fail-open on network error. Runs on register/changePassword/resetPassword, after existing length/format/duplicate checks.
 - **Register email enumeration**: duplicate **email** returns the same generic success (no account created, notifies the existing address via `sendAccountExistsEmail`) instead of 409 — email is the sensitive identifier. Duplicate **username** still 409 (a deliberately public handle).
 - **Vercel BotID**: `checkBotId()` gate on login/register, opt-in via `BOTID_ENABLED`/`NEXT_PUBLIC_BOTID_ENABLED` — off by default so CI (`next build && next start`, no real Vercel deployment) isn't blocked.
+- **Session revocation** (`user.tokenVersion`, default 0): access tokens carry a `tv` claim set at issue time; `withAuth` (`lib/auth.mjs`) rejects a request when `tv` doesn't match the user's current `tokenVersion`, read from Mongo and cached per-instance for 5s (`TOKEN_VERSION_CACHE_TTL_MS`) so revocation isn't a DB read on every request — propagation lag is bounded by that TTL. `changePassword`/`resetPassword` (via `userModel.updatePassword`, which also clears any lockout) and `unlinkGoogle` all bump it, invalidating every previously-issued token immediately. `POST /api/auth/refresh-token` carries the original `oiat` (issued-at) claim forward across renewals — capped at 30 days from first login (`REFRESH_MAX_AGE_SECONDS`) — and refuses to refresh while the account is locked out. A token predating this field has no `tv`/`oiat` claim; both are treated as `0`/"now" so existing sessions keep working rather than being force-logged-out at deploy.
+- **Password-reset tokens are single-use**: the reset JWT also carries `tv` at issue time; `resetPassword` compares it against the user's current `tokenVersion` (loaded by username) and rejects a mismatch with the same generic `401 Invalid or expired reset token` a bad/expired token gets. Since a successful reset bumps `tokenVersion`, the link dies the instant it's used — or if the password changes any other way first.
 
 ## Frontend
 
@@ -98,7 +100,7 @@ Swagger UI: `GET /api-docs`. Auth: `Authorization: Bearer <token>` → `req.user
 
 ## Tests
 
-**Backend unit** (`test/unit/`): Node test runner + `node:assert`. Each file boots in-memory Mongo via `test/helpers/mongo.js` (`startMongo/stopMongo/resetMongo`).
+**Backend unit** (`test/unit/`): Node test runner + `node:assert`. Each file boots in-memory Mongo via `test/helpers/mongo.js` (`startMongo/stopMongo/resetMongo`). `lib/db.mjs`'s `connectDB()` reuses that connection (checks `mongoose.connection.readyState` before dialing `MONGODB_URI`, which is unset in this suite) — needed because `withAuth` now calls `connectDB()` itself; a test exercising `withAuth` directly still needs `startMongo()`/`resetMongo()` like any other Mongo-backed unit test (see `test/unit/middleware/auth.middleware.test.js`).
 
 **Frontend unit** (`test/frontend/`): Vitest + Testing Library. Global mocks in `test/frontend/setup.tsx` (next/navigation, next/link). Per-file patterns:
 

@@ -2,16 +2,22 @@
 
 process.env.JWT_SECRET = process.env.JWT_SECRET || 'test-secret';
 
-const { describe, it, before } = require('node:test');
+const { describe, it, before, after, beforeEach } = require('node:test');
 const assert = require('node:assert/strict');
 const jwt = require('jsonwebtoken');
+
+const { startMongo, stopMongo, resetMongo } = require('../../helpers/mongo');
+const userModel = require('../../../lib/models/user.model');
 
 const SECRET = process.env.JWT_SECRET;
 
 let withAuth;
 before(async () => {
+  await startMongo();
   ({ withAuth } = await import('../../../lib/auth.mjs'));
 });
+after(async () => await stopMongo());
+beforeEach(async () => await resetMongo());
 
 function makeReq(authHeader) {
   return {
@@ -27,9 +33,19 @@ function makeHandler(captured = {}) {
   };
 }
 
+async function makeUser(overrides = {}) {
+  return userModel.create({
+    username: 'alice',
+    password: 'x',
+    email: 'alice@test.com',
+    ...overrides,
+  });
+}
+
 describe('withAuth', () => {
   it('should call handler with decoded user when token is valid', async () => {
-    const payload = { typ: 'access', id: 'abc123', username: 'alice' };
+    const user = await makeUser();
+    const payload = { typ: 'access', id: user._id.toString(), username: 'alice', tv: 0 };
     const token = jwt.sign(payload, SECRET, { expiresIn: '1h' });
     const captured = {};
     const res = await withAuth(makeHandler(captured))(makeReq(`Bearer ${token}`), {});
@@ -93,5 +109,54 @@ describe('withAuth', () => {
     const token = jwt.sign({ id: 'attacker' }, undefined, { algorithm: 'none' });
     const res = await withAuth(makeHandler())(makeReq(`Bearer ${token}`), {});
     assert.strictEqual(res.status, 401);
+  });
+
+  // Session revocation via tokenVersion (lib/models/user.model.js, bumped on
+  // password change/reset and unlinking Google) — see lib/services/auth.service.js.
+  describe('tokenVersion revocation', () => {
+    it('should return 401 when the token tv is behind the current DB tokenVersion', async () => {
+      const user = await makeUser();
+      await userModel.bumpTokenVersion(user._id);
+      const token = jwt.sign(
+        { typ: 'access', id: user._id.toString(), username: 'alice', tv: 0 },
+        SECRET,
+        { expiresIn: '1h' },
+      );
+      const res = await withAuth(makeHandler())(makeReq(`Bearer ${token}`), {});
+      assert.strictEqual(res.status, 401);
+    });
+
+    it('should return 401 when the token has no tv claim but the DB tokenVersion is non-zero', async () => {
+      const user = await makeUser();
+      await userModel.bumpTokenVersion(user._id);
+      const token = jwt.sign(
+        { typ: 'access', id: user._id.toString(), username: 'alice' },
+        SECRET,
+        { expiresIn: '1h' },
+      );
+      const res = await withAuth(makeHandler())(makeReq(`Bearer ${token}`), {});
+      assert.strictEqual(res.status, 401);
+    });
+
+    it('should allow a token with no tv claim when the DB tokenVersion is still 0 (pre-existing tokens)', async () => {
+      const user = await makeUser();
+      const token = jwt.sign(
+        { typ: 'access', id: user._id.toString(), username: 'alice' },
+        SECRET,
+        { expiresIn: '1h' },
+      );
+      const res = await withAuth(makeHandler())(makeReq(`Bearer ${token}`), {});
+      assert.strictEqual(res.status, 200);
+    });
+
+    it('should return 401 when the user no longer exists (deleted mid-session)', async () => {
+      const token = jwt.sign(
+        { typ: 'access', id: '000000000000000000000000', username: 'ghost', tv: 0 },
+        SECRET,
+        { expiresIn: '1h' },
+      );
+      const res = await withAuth(makeHandler())(makeReq(`Bearer ${token}`), {});
+      assert.strictEqual(res.status, 401);
+    });
   });
 });
