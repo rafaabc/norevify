@@ -143,6 +143,24 @@ describe('incomeService.listIncome() / getIncome()', () => {
       (err) => err.status === 404,
     );
   });
+
+  it('rejects getIncome with 402 once the owner is downgraded to free', async () => {
+    const u = await proUser('getfree');
+    const income = await incomeService.createIncome(u, {
+      date: TODAY,
+      amount: 100,
+      source: 'Uber',
+    });
+    await userModel.updatePlan(u, 'free');
+    await assert.rejects(
+      () => incomeService.getIncome(u, income.id),
+      (err) => {
+        assert.strictEqual(err.status, 402);
+        assert.match(err.message, /income_feature_locked/);
+        return true;
+      },
+    );
+  });
 });
 
 describe('incomeService.updateIncome() / deleteIncome()', () => {
@@ -202,6 +220,42 @@ describe('incomeService.updateIncome() / deleteIncome()', () => {
     await assert.rejects(
       () => incomeService.getIncome(u, income.id),
       (err) => err.status === 404,
+    );
+  });
+
+  it('rejects updateIncome with 402 once the owner is downgraded to free', async () => {
+    const u = await proUser('updfree');
+    const income = await incomeService.createIncome(u, {
+      date: TODAY,
+      amount: 100,
+      source: 'Uber',
+    });
+    await userModel.updatePlan(u, 'free');
+    await assert.rejects(
+      () => incomeService.updateIncome(u, income.id, { amount: 150 }),
+      (err) => {
+        assert.strictEqual(err.status, 402);
+        assert.match(err.message, /income_feature_locked/);
+        return true;
+      },
+    );
+  });
+
+  it('rejects deleteIncome with 402 once the owner is downgraded to free', async () => {
+    const u = await proUser('delfree');
+    const income = await incomeService.createIncome(u, {
+      date: TODAY,
+      amount: 100,
+      source: 'Uber',
+    });
+    await userModel.updatePlan(u, 'free');
+    await assert.rejects(
+      () => incomeService.deleteIncome(u, income.id),
+      (err) => {
+        assert.strictEqual(err.status, 402);
+        assert.match(err.message, /income_feature_locked/);
+        return true;
+      },
     );
   });
 });

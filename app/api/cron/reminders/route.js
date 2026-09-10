@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import { connectDB } from '@/lib/db.mjs';
 import notificationsService from '@/lib/services/notifications.service';
-import { reportHandlerError } from '@/lib/sentry.mjs';
+import { errorResponse } from '@/lib/handlerResponse.mjs';
 import { isValidCronRequest } from '@/lib/cronAuth.mjs';
 
 export const GET = async (request) => {
@@ -15,9 +15,6 @@ export const GET = async (request) => {
     const result = await notificationsService.runReminderDigest(new Date());
     return NextResponse.json({ ok: true, ...result });
   } catch (err) {
-    return NextResponse.json(
-      { message: err.message },
-      { status: reportHandlerError(err, { route: '/api/cron/reminders' }) },
-    );
+    return errorResponse(err, { route: '/api/cron/reminders' });
   }
 };
