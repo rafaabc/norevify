@@ -28,6 +28,8 @@ RESEND_API_KEY       # Resend email API
 GOOGLE_CLIENT_ID / NEXT_PUBLIC_GOOGLE_CLIENT_ID
 SENTRY_DSN / NEXT_PUBLIC_SENTRY_DSN / SENTRY_AUTH_TOKEN
 BOTID_ENABLED / NEXT_PUBLIC_BOTID_ENABLED  # opt-in Vercel BotID gate on login/register
+DPO_CONTACT          # LGPD contact shown by GET /api/auth/me/access; falls back to a placeholder if unset
+TRUSTED_PROXY        # 'true' if self-hosting behind a reverse proxy that overwrites X-Forwarded-For; see Auth hardening
 ```
 
 `SENTRY_DSN` server-only; `NEXT_PUBLIC_SENTRY_DSN` client + server — both must be set in Vercel.
@@ -42,7 +44,7 @@ Next.js 16 App Router — single repo, API routes + frontend, deployed on Vercel
 - `views/` — page-level components (renamed from `pages/` to avoid Pages Router conflict).
 - All page/component files are `'use client'` — JWT in localStorage requires client-side auth.
 
-Error convention: `makeError(status, message)` → `Error` with `.status` field.
+Error convention: `makeError(status, message)` → `Error` with `.status` field. Route Handler catch blocks call `errorResponse(err, { route })` from `lib/handlerResponse.mjs` — it masks the message as `'Internal server error'` for 5xx (Mongoose/driver/Stripe/Resend internals never reach the client) while still reporting the real exception to Sentry via `reportHandlerError`; 4xx messages pass through unchanged since they're intentional and mapped in `i18n/apiErrors.js`. Built on the global `Response`, not `NextResponse` — keeps the helper importable under plain `node --test` (`next/server` only resolves under Next's own bundler).
 
 Sentry gotcha: `instrumentation.js` and `instrumentation-client.js` use CJS (`require`/`module.exports`) — ESM/CJS conflict with Turbopack. Webpack ESM rule in `next.config.mjs` handles prod build.
 
@@ -54,9 +56,11 @@ Sentry gotcha: `instrumentation.js` and `instrumentation-client.js` use CJS (`re
 
 **Odometer**: `Fuel` expense with `odometer` field updates `user.currentKm`. Drives km-based reminder status.
 
+**Income (Pro feature)**: every entry point in `lib/services/income.service.js` — `createIncome`, `listIncome`, `getProfitSummary`, `getIncome`, `updateIncome`, `deleteIncome` — calls `assertProPlan(userId, 'income_feature_locked')` (`lib/planGate.js`) first, so a user downgraded off Pro loses read access to existing rows too, not just writes. `deleteAllByUser` (account deletion) is intentionally ungated. `income_feature_locked` is mapped in `i18n/apiErrors.js`.
+
 **Auth hardening** (password path, alongside Google): password sign-in stays for non-Google users, hardened:
 
-- **Rate limiting** (`lib/middleware/rateLimit.js` + `lib/models/rateLimit.model.js`): Mongo-backed, not `globalThis` — required so limits hold across Vercel Fluid Compute instances. `withRateLimitedHandler` is async now; the 4 password routes + `/google` + `/resend-verification` call `connectDB()` **before** the rate-limited handler (limiter needs Mongo, and calling it after would hang on a cold instance).
+- **Rate limiting** (`lib/middleware/rateLimit.js` + `lib/models/rateLimit.model.js`): Mongo-backed, not `globalThis` — required so limits hold across Vercel Fluid Compute instances. `withRateLimitedHandler` is async now; the 4 password routes + `/google` + `/resend-verification` call `connectDB()` **before** the rate-limited handler (limiter needs Mongo, and calling it after would hang on a cold instance). `clientIp()` only trusts `X-Forwarded-For` when `VERCEL === '1'` or `TRUSTED_PROXY=true` — Vercel's edge always overwrites the header, but off-Vercel it's fully client-controlled otherwise. Untrusted ⇒ `null` IP, which is fail-**open** (same bucket as a header-less request today), not fail-closed — CI's proxy-less `next start` would otherwise be rate-limited into failure. `lib/validateEnv.js` warns at boot when neither condition holds, since IP-based limiting is silently inert in that case.
 - **Account lockout** (`lib/services/auth.service.js`): 5 consecutive bad passwords locks the account with exponential backoff (1m→1h, capped). Locked-out login still returns the generic `401 Invalid credentials` — never reveals the lock state.
 - **Password strength + breach check** (`lib/services/passwordPolicy.js`): zxcvbn score ≥2 (not ≥3 — would defeat the existing 8-char minimum) + HaveIBeenPwned k-anonymity range check, fail-open on network error. Runs on register/changePassword/resetPassword, after existing length/format/duplicate checks.
 - **Register email enumeration**: duplicate **email** returns the same generic success (no account created, notifies the existing address via `sendAccountExistsEmail`) instead of 409 — email is the sensitive identifier. Duplicate **username** still 409 (a deliberately public handle).

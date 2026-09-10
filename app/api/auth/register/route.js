@@ -3,7 +3,7 @@ import { connectDB } from '@/lib/db.mjs';
 import authService from '@/lib/services/auth.service';
 import { createRateLimiter, withRateLimitedHandler } from '@/lib/middleware/rateLimit';
 import { isBotRequest } from '@/lib/middleware/botid';
-import { reportHandlerError } from '@/lib/sentry.mjs';
+import { errorResponse } from '@/lib/handlerResponse.mjs';
 
 const limiter = createRateLimiter({ max: 5, windowMs: 60 * 60_000, key: 'register' });
 
@@ -24,10 +24,7 @@ export const POST = async (req) => {
       const result = await authService.register({ ...body, ip });
       return NextResponse.json(result, { status: 201 });
     } catch (err) {
-      return NextResponse.json(
-        { message: err.message },
-        { status: reportHandlerError(err, { route: '/api/auth/register', method: 'POST' }) },
-      );
+      return errorResponse(err, { route: '/api/auth/register', method: 'POST' });
     }
   })(req);
 };

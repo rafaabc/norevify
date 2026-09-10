@@ -2,7 +2,8 @@ import { NextResponse } from 'next/server';
 import { connectDB } from '@/lib/db.mjs';
 import stripeLib from '@/lib/stripe.js';
 import billingService from '@/lib/services/billing.service';
-import { reportHandlerError, reportWebhookConfigError } from '@/lib/sentry.mjs';
+import { reportWebhookConfigError } from '@/lib/sentry.mjs';
+import { errorResponse } from '@/lib/handlerResponse.mjs';
 
 export const runtime = 'nodejs';
 
@@ -27,9 +28,6 @@ export async function POST(req) {
     await billingService.handleWebhookEvent(event);
     return NextResponse.json({ received: true });
   } catch (err) {
-    return NextResponse.json(
-      { message: err.message },
-      { status: reportHandlerError(err, { route: '/api/billing/webhook', method: 'POST' }) },
-    );
+    return errorResponse(err, { route: '/api/billing/webhook', method: 'POST' });
   }
 }

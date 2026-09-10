@@ -3,7 +3,7 @@ import { connectDB } from '@/lib/db.mjs';
 import { withAuth } from '@/lib/auth.mjs';
 import authService from '@/lib/services/auth.service';
 import { createRateLimiter, withRateLimitedHandler } from '@/lib/middleware/rateLimit';
-import { reportHandlerError } from '@/lib/sentry.mjs';
+import { errorResponse } from '@/lib/handlerResponse.mjs';
 
 const limiter = createRateLimiter({ max: 3, windowMs: 60 * 60_000, key: 'resend-verification' });
 
@@ -19,15 +19,7 @@ export const POST = async (req, ctx) => {
         const result = await authService.resendVerification({ userId: user.id });
         return NextResponse.json(result);
       } catch (err) {
-        return NextResponse.json(
-          { message: err.message },
-          {
-            status: reportHandlerError(err, {
-              route: '/api/auth/resend-verification',
-              method: 'POST',
-            }),
-          },
-        );
+        return errorResponse(err, { route: '/api/auth/resend-verification', method: 'POST' });
       }
     }),
   )(req, ctx);

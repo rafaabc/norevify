@@ -4,7 +4,7 @@ import { withAuth } from '@/lib/auth.mjs';
 export const GET = withAuth(async (_req, _ctx, _user) => {
   return NextResponse.json({
     dataController: 'Norevify',
-    dpoContact: 'faelsabc21@gmail.com',
+    dpoContact: process.env.DPO_CONTACT || 'privacy@norevify.app',
     dataTreated: ['name', 'email', 'expenses', 'reminders', 'odometer'],
     purposes: ['expense tracking', 'reminder notifications', 'usage analytics'],
     retention: '14 months from last login',
