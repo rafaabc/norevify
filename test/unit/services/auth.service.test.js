@@ -569,6 +569,41 @@ describe('authService.changePassword()', () => {
     assert.strictEqual(result.message, 'Password updated successfully');
   });
 
+  it('should bump tokenVersion so a previously issued token is invalidated', async () => {
+    const registered = await authService.register({
+      username: 'alice',
+      password: STRONG_PASSWORD,
+      email: 'alice@example.com',
+      ...VALID_CONSENT,
+    });
+    const before = await userModel.findById(registered.id);
+    await authService.changePassword({
+      username: 'alice',
+      currentPassword: STRONG_PASSWORD,
+      newPassword: 'newPass99',
+    });
+    const after = await userModel.findById(registered.id);
+    assert.strictEqual(after.tokenVersion, (before.tokenVersion ?? 0) + 1);
+  });
+
+  it('should throw 401 when the account has no password set (Google-only)', async () => {
+    const fakeVerify = async () => fakePayload();
+    const { token } = await authService.googleLogin({ idToken: 'tok' }, fakeVerify);
+    const { username } = jwt.decode(token);
+    await assert.rejects(
+      () =>
+        authService.changePassword({
+          username,
+          currentPassword: 'whatever',
+          newPassword: 'newPass99',
+        }),
+      (err) => {
+        assert.strictEqual(err.status, 401);
+        return true;
+      },
+    );
+  });
+
   it('should throw 401 when currentPassword is wrong', async () => {
     await authService.register({
       username: 'alice',
@@ -850,6 +885,23 @@ describe('authService.unlinkGoogle()', () => {
       },
     );
   });
+
+  it('should bump tokenVersion so a previously issued token is rejected by withAuth', async () => {
+    const user = await authService.register({
+      username: 'carol',
+      password: STRONG_PASSWORD,
+      email: 'carol@gmail.com',
+      ...VALID_CONSENT,
+    });
+    const fakeVerify = async () => fakePayload({ sub: 'sub-carol', email: 'carol@gmail.com' });
+    await authService.linkGoogle({ userId: user.id, idToken: 'tok' }, fakeVerify);
+
+    const before = await userModel.findById(user.id);
+    await authService.unlinkGoogle({ userId: user.id });
+    const after = await userModel.findById(user.id);
+
+    assert.strictEqual(after.tokenVersion, (before.tokenVersion ?? 0) + 1);
+  });
 });
 
 // ---------------------------------------------------------------------------
@@ -1020,6 +1072,63 @@ describe('authService.resetPassword()', () => {
         return true;
       },
     );
+  });
+
+  it('should reject reusing the same reset token a second time (single-use)', async () => {
+    await authService.resetPassword({ token: validToken, newPassword: 'newPass99' });
+    await assert.rejects(
+      () => authService.resetPassword({ token: validToken, newPassword: 'anotherPass9' }),
+      (err) => {
+        assert.strictEqual(err.status, 401);
+        assert.match(err.message, /invalid or expired/i);
+        return true;
+      },
+    );
+  });
+
+  it('should reject a reset token issued before an unrelated changePassword call', async () => {
+    await authService.changePassword({
+      username: 'alice',
+      currentPassword: STRONG_PASSWORD,
+      newPassword: 'changedPass9',
+    });
+    await assert.rejects(
+      () => authService.resetPassword({ token: validToken, newPassword: 'newPass99' }),
+      (err) => {
+        assert.strictEqual(err.status, 401);
+        return true;
+      },
+    );
+  });
+
+  it('should reject a reset token for a username that no longer exists', async () => {
+    const ghostToken = jwt.sign({ username: 'ghost', purpose: 'reset' }, process.env.JWT_SECRET, {
+      expiresIn: '15m',
+    });
+    await assert.rejects(
+      () => authService.resetPassword({ token: ghostToken, newPassword: 'newPass99' }),
+      (err) => {
+        assert.strictEqual(err.status, 401);
+        return true;
+      },
+    );
+  });
+
+  it('should clear an account lockout on a successful reset', async () => {
+    for (let i = 0; i < 5; i++) {
+      await assert.rejects(() =>
+        authService.login({ username: 'alice', password: 'wrong-password' }),
+      );
+    }
+    await assert.rejects(
+      () => authService.login({ username: 'alice', password: STRONG_PASSWORD }),
+      (err) => err.status === 401,
+    );
+
+    await authService.resetPassword({ token: validToken, newPassword: 'newPass99' });
+
+    const { token } = await authService.login({ username: 'alice', password: 'newPass99' });
+    assert.ok(token);
   });
 });
 

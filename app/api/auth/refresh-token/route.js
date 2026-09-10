@@ -7,7 +7,7 @@ import { reportHandlerError } from '@/lib/sentry.mjs';
 export const POST = withAuth(async (_req, _ctx, user) => {
   await connectDB();
   try {
-    const result = await authService.refreshToken({ id: user.id });
+    const result = await authService.refreshToken({ id: user.id, oiat: user.oiat });
     return NextResponse.json(result);
   } catch (err) {
     return NextResponse.json(
