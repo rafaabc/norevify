@@ -1,7 +1,7 @@
 /// <reference lib="webworker" />
 import { defaultCache } from '@serwist/next/worker';
 import type { PrecacheEntry, SerwistGlobalConfig } from 'serwist';
-import { CacheableResponsePlugin, ExpirationPlugin, NetworkFirst, Serwist } from 'serwist';
+import { Serwist } from 'serwist';
 
 declare global {
   interface WorkerGlobalScope extends SerwistGlobalConfig {
@@ -17,20 +17,13 @@ const serwist = new Serwist({
   clientsClaim: true,
   navigationPreload: true,
   disableDevLogs: true,
-  runtimeCaching: [
-    {
-      matcher: ({ url }: { url: URL }) => url.pathname.startsWith('/api/'),
-      handler: new NetworkFirst({
-        cacheName: 'api-cache',
-        networkTimeoutSeconds: 5,
-        plugins: [
-          new ExpirationPlugin({ maxEntries: 50, maxAgeSeconds: 60 * 60 * 24 }),
-          new CacheableResponsePlugin({ statuses: [200] }),
-        ],
-      }),
-    },
-    ...defaultCache,
-  ],
+  // /api/ responses are never cached: NetworkFirst previously kept 200s here for
+  // 24h under a URL-only key, so after logout (which only clears the localStorage
+  // token) the next user on a shared device could read the prior user's expenses,
+  // income, account export, or admin user list straight out of CacheStorage, with
+  // no token, either via DevTools or the NetworkFirst offline/slow-network
+  // fallback. See CLAUDE.md (PWA) — do not reintroduce an /api/ matcher here.
+  runtimeCaching: [...defaultCache],
 });
 
 serwist.addEventListeners();

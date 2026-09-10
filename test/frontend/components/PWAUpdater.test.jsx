@@ -123,4 +123,14 @@ describe('PWAUpdater', () => {
 
     expect(reg.update).toHaveBeenCalled();
   });
+
+  it('drops the legacy service-worker api-cache on mount', async () => {
+    const deleteCache = vi.fn().mockResolvedValue(true);
+    vi.stubGlobal('caches', { delete: deleteCache });
+
+    await renderWithServiceWorker();
+
+    expect(deleteCache).toHaveBeenCalledWith('api-cache');
+    vi.unstubAllGlobals();
+  });
 });

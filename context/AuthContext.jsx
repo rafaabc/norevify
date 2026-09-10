@@ -9,6 +9,16 @@ import { setLanguageCookie } from '@/utils/languageCookie.js';
 
 const AuthContext = createContext(null);
 
+// Best-effort: the service worker no longer caches /api/ at all (see app/sw.ts),
+// but an install upgrading from an older build may still be holding a populated
+// 'api-cache' from before that change, keyed only by URL with no per-user
+// isolation — clear it on every logout so a shared-device switch never serves
+// the outgoing user's data to the next one offline or on a slow network.
+function clearApiCache() {
+  if (typeof caches === 'undefined') return;
+  caches.delete('api-cache').catch(() => {});
+}
+
 export function AuthProvider({ children }) {
   const [token, setToken] = useState(null);
   const [authLoading, setAuthLoading] = useState(true);
@@ -45,6 +55,7 @@ export function AuthProvider({ children }) {
   const logout = useCallback(() => {
     localStorage.removeItem('token');
     setToken(null);
+    clearApiCache();
     router.push('/login?loggedOut=1');
   }, [router]);
 
@@ -52,6 +63,7 @@ export function AuthProvider({ children }) {
     function handleExpiry() {
       setToken(null);
       setExpiredBanner(true);
+      clearApiCache();
       router.push('/login');
     }
     window.addEventListener('auth:logout', handleExpiry);
