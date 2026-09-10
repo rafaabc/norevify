@@ -38,6 +38,14 @@ export default function PWAUpdater() {
       return;
     }
 
+    // The service worker no longer caches /api/ (see app/sw.ts) — an install
+    // upgrading from an older build may still be holding a populated
+    // 'api-cache' with no per-user isolation. Drop it here too (not just on
+    // logout) so it's gone even for a session that never logs out again.
+    if ('caches' in window) {
+      caches.delete('api-cache').catch(() => {});
+    }
+
     let lastUpdateCheck = 0;
     let regRef = null;
 

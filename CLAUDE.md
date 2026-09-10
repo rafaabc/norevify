@@ -82,6 +82,8 @@ Sentry gotcha: `instrumentation.js` and `instrumentation-client.js` use CJS (`re
 
 **PWA**: dev uses Turbopack, prod uses Webpack (`next build --webpack`). PWA assets (`public/sw.js`, `.map` files) generated at build time, gitignored — not committed. `components/PWAUpdater.jsx` reloads on `controllerchange` (with a timeout fallback in case the `SKIP_WAITING` message is dropped) rather than reloading synchronously after posting it — a synchronous reload can tear the page down before the message reaches the waiting worker, leaving it stuck and the update toast reappearing on every later deploy. In dev, `PWAUpdater` instead unregisters any existing service worker and clears caches — Serwist is disabled in dev and `public/sw.js` isn't built, but a worker registered by an earlier `npm run build && npm start` on the same origin outlives that build and intercepts fetches (breaking cross-origin requests like the Google Fonts stylesheet).
 
+`app/sw.ts` never caches `/api/` responses — an earlier `NetworkFirst` entry kept 200s for 24h keyed only by URL, so after logout (which only clears the `localStorage` token) the next user on a shared device could read the prior user's expenses/income/export/admin-list data straight out of CacheStorage, offline or on a slow network. Do not reintroduce an `/api/` matcher in `runtimeCaching`. `AuthContext.logout()` and its `auth:logout` handler, plus `PWAUpdater` on mount, all best-effort `caches.delete('api-cache')` to purge the cache on installs still holding it from before this fix.
+
 ## API
 
 Swagger UI: `GET /api-docs`. Auth: `Authorization: Bearer <token>` → `req.user = { id, username }`.

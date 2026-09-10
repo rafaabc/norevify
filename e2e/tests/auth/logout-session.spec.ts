@@ -43,4 +43,33 @@ test.describe('Logout and Session Expiry', () => {
     await expect(page).toHaveURL('/login');
     await expect(page.getByRole('heading', { name: /sign in/i })).toBeVisible();
   });
+
+  // Regression for the audited cross-user leak: the service worker used to
+  // NetworkFirst-cache every /api/ response for 24h keyed only by URL, so a
+  // logout (which only clears the localStorage token) left the prior user's
+  // data readable from CacheStorage. Meaningful against a production build
+  // (`next build --webpack && next start`) where Serwist actually registers;
+  // trivially satisfied in dev, where no cache is ever populated.
+  test('should never populate an api-cache in CacheStorage, before or after logout', async ({
+    page,
+    request,
+  }) => {
+    const { token } = await createAndLoginUser(request, 'apicache');
+
+    await page.addInitScript((t) => {
+      localStorage.setItem('token', t);
+      localStorage.setItem('i18nextLng', 'en');
+    }, token);
+    await page.goto('/expenses');
+    await expect(page).toHaveURL('/expenses');
+
+    const cacheKeysBeforeLogout = await page.evaluate(() => caches.keys());
+    expect(cacheKeysBeforeLogout).not.toContain('api-cache');
+
+    await page.getByRole('button', { name: 'Log out' }).click();
+    await expect(page).toHaveURL('/login');
+
+    const cacheKeysAfterLogout = await page.evaluate(() => caches.keys());
+    expect(cacheKeysAfterLogout).not.toContain('api-cache');
+  });
 });

@@ -208,6 +208,51 @@ describe('AuthProvider', () => {
     expect(mockRouterPush).toHaveBeenCalledWith('/login');
   });
 
+  // Both api-cache purge sites (logout button + auth:logout event) share this
+  // render-a-logged-in-Consumer setup — factored out below to keep the three
+  // cache tests from repeating it.
+  async function renderLoggedInConsumer(id) {
+    const token = makeToken({ id, username: `user-${id}`, currency: 'BRL', language: 'pt-BR' });
+    localStorage.setItem('token', token);
+    await act(async () => {
+      render(
+        <AuthProvider>
+          <Consumer />
+        </AuthProvider>,
+      );
+    });
+  }
+
+  it('should clear the legacy service-worker api-cache on logout', async () => {
+    const deleteCache = vi.fn().mockResolvedValue(true);
+    vi.stubGlobal('caches', { delete: deleteCache });
+    await renderLoggedInConsumer('5b');
+    await act(async () => {
+      screen.getByRole('button', { name: 'logout' }).click();
+    });
+    expect(deleteCache).toHaveBeenCalledWith('api-cache');
+    vi.unstubAllGlobals();
+  });
+
+  it('should clear the legacy service-worker api-cache on auth:logout event', async () => {
+    const deleteCache = vi.fn().mockResolvedValue(true);
+    vi.stubGlobal('caches', { delete: deleteCache });
+    await renderLoggedInConsumer('6b');
+    await act(async () => {
+      globalThis.dispatchEvent(new Event('auth:logout'));
+    });
+    expect(deleteCache).toHaveBeenCalledWith('api-cache');
+    vi.unstubAllGlobals();
+  });
+
+  it('should not throw on logout when the caches API is unavailable (non-PWA browsers)', async () => {
+    await renderLoggedInConsumer('5c');
+    await act(async () => {
+      screen.getByRole('button', { name: 'logout' }).click();
+    });
+    expect(mockRouterPush).toHaveBeenCalledWith('/login?loggedOut=1');
+  });
+
   it('should update token after updateCurrency', async () => {
     const { authApi } = await import('@/services/apiService.js');
     const newToken = makeToken({ id: '7', username: 'grace', currency: 'USD', language: 'en' });
