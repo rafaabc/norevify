@@ -9,6 +9,7 @@ const VALID_ENV = {
   JWT_SECRET: 'a-sufficiently-long-test-secret',
   MONGODB_URI: 'mongodb://localhost:27017/test',
   CRON_SECRET: 'some-cron-secret',
+  TRUSTED_PROXY: 'true',
 };
 
 describe('validateRequiredEnv()', () => {
@@ -51,9 +52,30 @@ describe('validateRequiredEnv()', () => {
     assert.deepStrictEqual(reported, ['CRON_SECRET']);
   });
 
-  it('does not report anything when CRON_SECRET is present', () => {
+  it('does not report anything when CRON_SECRET and TRUSTED_PROXY are present', () => {
     const reported = [];
     validateRequiredEnv(VALID_ENV, (key) => reported.push(key));
+    assert.deepStrictEqual(reported, []);
+  });
+
+  it('reports TRUSTED_PROXY missing when not on Vercel and no trusted proxy is declared', () => {
+    const env = { ...VALID_ENV, TRUSTED_PROXY: undefined };
+    const reported = [];
+    validateRequiredEnv(env, (key) => reported.push(key));
+    assert.deepStrictEqual(reported, ['TRUSTED_PROXY']);
+  });
+
+  it('does not report TRUSTED_PROXY when running on Vercel', () => {
+    const env = { ...VALID_ENV, TRUSTED_PROXY: undefined, VERCEL: '1' };
+    const reported = [];
+    validateRequiredEnv(env, (key) => reported.push(key));
+    assert.deepStrictEqual(reported, []);
+  });
+
+  it('does not report TRUSTED_PROXY when it is explicitly declared true', () => {
+    const env = { ...VALID_ENV, TRUSTED_PROXY: 'true' };
+    const reported = [];
+    validateRequiredEnv(env, (key) => reported.push(key));
     assert.deepStrictEqual(reported, []);
   });
 });

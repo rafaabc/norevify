@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server';
 import { connectDB } from '@/lib/db.mjs';
 import { withAuth, withVerifiedUser } from '@/lib/auth.mjs';
 import incomeService from '@/lib/services/income.service';
-import { reportHandlerError } from '@/lib/sentry.mjs';
+import { errorResponse } from '@/lib/handlerResponse.mjs';
 
 export const GET = withAuth(async (req, _ctx, user) => {
   await connectDB();
@@ -15,10 +15,7 @@ export const GET = withAuth(async (req, _ctx, user) => {
     });
     return NextResponse.json(result);
   } catch (err) {
-    return NextResponse.json(
-      { message: err.message },
-      { status: reportHandlerError(err, { route: '/api/income' }) },
-    );
+    return errorResponse(err, { route: '/api/income' });
   }
 });
 
@@ -29,9 +26,6 @@ export const POST = withVerifiedUser(async (req, _ctx, user) => {
     const result = await incomeService.createIncome(user.id, body);
     return NextResponse.json(result, { status: 201 });
   } catch (err) {
-    return NextResponse.json(
-      { message: err.message },
-      { status: reportHandlerError(err, { route: '/api/income' }) },
-    );
+    return errorResponse(err, { route: '/api/income' });
   }
 });

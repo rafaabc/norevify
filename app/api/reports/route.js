@@ -1,9 +1,8 @@
-import { NextResponse } from 'next/server';
 import { connectDB } from '@/lib/db.mjs';
 import { withAuth } from '@/lib/auth.mjs';
 import reportsService from '@/lib/services/reports.service';
 import { createRateLimiter, withRateLimitedHandler } from '@/lib/middleware/rateLimit';
-import { reportHandlerError } from '@/lib/sentry.mjs';
+import { errorResponse } from '@/lib/handlerResponse.mjs';
 
 // PDF/CSV generation is CPU/memory work on Fluid Compute — rate-limited to
 // keep it from being an unmetered cost-abuse vector even though it's auth-gated.
@@ -35,10 +34,7 @@ export const GET = async (req) => {
           },
         });
       } catch (err) {
-        return NextResponse.json(
-          { message: err.message },
-          { status: reportHandlerError(err, { route: '/api/reports' }) },
-        );
+        return errorResponse(err, { route: '/api/reports' });
       }
     }),
   )(req);

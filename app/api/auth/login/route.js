@@ -3,7 +3,7 @@ import { connectDB } from '@/lib/db.mjs';
 import authService from '@/lib/services/auth.service';
 import { createRateLimiter, withRateLimitedHandler } from '@/lib/middleware/rateLimit';
 import { isBotRequest } from '@/lib/middleware/botid';
-import { reportHandlerError } from '@/lib/sentry.mjs';
+import { errorResponse } from '@/lib/handlerResponse.mjs';
 
 const limiter = createRateLimiter({ max: 10, windowMs: 15 * 60_000, key: 'login' });
 
@@ -21,10 +21,7 @@ export const POST = async (req) => {
       const result = await authService.login(body);
       return NextResponse.json(result);
     } catch (err) {
-      return NextResponse.json(
-        { message: err.message },
-        { status: reportHandlerError(err, { route: '/api/auth/login', method: 'POST' }) },
-      );
+      return errorResponse(err, { route: '/api/auth/login', method: 'POST' });
     }
   })(req);
 };
