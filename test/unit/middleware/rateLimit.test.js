@@ -8,6 +8,7 @@ const rateLimitModel = require('../../../lib/models/rateLimit.model');
 const {
   createRateLimiter,
   clientIp,
+  trustsProxy,
   withRateLimitedHandler,
 } = require('../../../lib/middleware/rateLimit.js');
 
@@ -16,21 +17,61 @@ const IP_A = '192.0.2.1';
 const IP_B = '192.0.2.2';
 const IP_C = '192.0.2.3';
 
-before(async () => await startMongo());
-after(async () => await stopMongo());
+// createRateLimiter()/withRateLimitedHandler() below call clientIp(req) with no
+// explicit env, so they read process.env — set TRUSTED_PROXY so those existing
+// per-IP behaviors (blocking, isolation, loopback bypass) keep exercising real
+// IPs instead of every request collapsing to the null-ip path. The trust gate
+// itself is covered against explicit env objects in describe('clientIp()') below.
+const originalTrustedProxy = process.env.TRUSTED_PROXY;
+
+before(async () => {
+  process.env.TRUSTED_PROXY = 'true';
+  await startMongo();
+});
+after(async () => {
+  if (originalTrustedProxy === undefined) delete process.env.TRUSTED_PROXY;
+  else process.env.TRUSTED_PROXY = originalTrustedProxy;
+  await stopMongo();
+});
 beforeEach(async () => await rateLimitModel._reset());
 
 function makeReq(forwardedFor) {
   return { headers: { get: (h) => (h === 'x-forwarded-for' ? forwardedFor : null) } };
 }
 
+describe('trustsProxy()', () => {
+  it('should trust the proxy on Vercel', () => {
+    assert.strictEqual(trustsProxy({ VERCEL: '1' }), true);
+  });
+
+  it('should trust the proxy when TRUSTED_PROXY=true is set explicitly', () => {
+    assert.strictEqual(trustsProxy({ TRUSTED_PROXY: 'true' }), true);
+  });
+
+  it('should not trust the proxy when neither is set', () => {
+    assert.strictEqual(trustsProxy({}), false);
+  });
+});
+
 describe('clientIp()', () => {
-  it('should return the first IP from x-forwarded-for', () => {
-    assert.strictEqual(clientIp(makeReq(`${IP_A}, ${IP_B}`)), IP_A);
+  it('should return the first IP from x-forwarded-for when the proxy is trusted', () => {
+    const env = { VERCEL: '1' };
+    assert.strictEqual(clientIp(makeReq(`${IP_A}, ${IP_B}`), env), IP_A);
   });
 
   it('should return null when x-forwarded-for is absent', () => {
-    assert.strictEqual(clientIp(makeReq(null)), null);
+    assert.strictEqual(clientIp(makeReq(null), { VERCEL: '1' }), null);
+  });
+
+  it('should ignore a forged x-forwarded-for when the proxy is not trusted (VERCEL unset, no TRUSTED_PROXY)', () => {
+    const env = {};
+    assert.strictEqual(clientIp(makeReq('127.0.0.1'), env), null);
+    assert.strictEqual(clientIp(makeReq(IP_A), env), null);
+  });
+
+  it('should trust x-forwarded-for when TRUSTED_PROXY=true is set off Vercel', () => {
+    const env = { TRUSTED_PROXY: 'true' };
+    assert.strictEqual(clientIp(makeReq(IP_A), env), IP_A);
   });
 });
 

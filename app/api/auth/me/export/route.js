@@ -3,7 +3,7 @@ import { connectDB } from '@/lib/db.mjs';
 import { withAuth } from '@/lib/auth.mjs';
 import authService from '@/lib/services/auth.service';
 import { createRateLimiter, withRateLimitedHandler } from '@/lib/middleware/rateLimit';
-import { reportHandlerError } from '@/lib/sentry.mjs';
+import { errorResponse } from '@/lib/handlerResponse.mjs';
 
 // Full-account data export is a heavier read than typical routes — rate-limited to
 // keep it from being an unmetered cost-abuse vector even though it's auth-gated.
@@ -20,10 +20,7 @@ export const GET = async (req) => {
         const result = await authService.exportUserData({ userId: user.id });
         return NextResponse.json(result);
       } catch (err) {
-        return NextResponse.json(
-          { message: err.message },
-          { status: reportHandlerError(err, { route: '/api/auth/me/export', method: 'GET' }) },
-        );
+        return errorResponse(err, { route: '/api/auth/me/export', method: 'GET' });
       }
     }),
   )(req);
