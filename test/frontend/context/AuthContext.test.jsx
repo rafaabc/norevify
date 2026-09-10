@@ -180,29 +180,6 @@ describe('AuthProvider', () => {
     expect(mockRouterPush).toHaveBeenCalledWith('/login?loggedOut=1');
   });
 
-  it('should clear the legacy service-worker api-cache on logout', async () => {
-    const deleteCache = vi.fn().mockResolvedValue(true);
-    vi.stubGlobal('caches', { delete: deleteCache });
-    const token = makeToken({ id: '5b', username: 'eve2', currency: 'BRL', language: 'pt-BR' });
-    localStorage.setItem('token', token);
-    function LogoutConsumer() {
-      const { logout } = useAuth();
-      return <button onClick={logout}>logout</button>;
-    }
-    await act(async () => {
-      render(
-        <AuthProvider>
-          <LogoutConsumer />
-        </AuthProvider>,
-      );
-    });
-    await act(async () => {
-      screen.getByRole('button', { name: 'logout' }).click();
-    });
-    expect(deleteCache).toHaveBeenCalledWith('api-cache');
-    vi.unstubAllGlobals();
-  });
-
   it('should clear token and set expiredBanner on auth:logout event', async () => {
     const token = makeToken({ id: '6', username: 'frank', currency: 'BRL', language: 'pt-BR' });
     localStorage.setItem('token', token);
@@ -231,10 +208,11 @@ describe('AuthProvider', () => {
     expect(mockRouterPush).toHaveBeenCalledWith('/login');
   });
 
-  it('should clear the legacy service-worker api-cache on auth:logout event', async () => {
-    const deleteCache = vi.fn().mockResolvedValue(true);
-    vi.stubGlobal('caches', { delete: deleteCache });
-    const token = makeToken({ id: '6b', username: 'frank2', currency: 'BRL', language: 'pt-BR' });
+  // Both api-cache purge sites (logout button + auth:logout event) share this
+  // render-a-logged-in-Consumer setup — factored out below to keep the three
+  // cache tests from repeating it.
+  async function renderLoggedInConsumer(id) {
+    const token = makeToken({ id, username: `user-${id}`, currency: 'BRL', language: 'pt-BR' });
     localStorage.setItem('token', token);
     await act(async () => {
       render(
@@ -243,6 +221,23 @@ describe('AuthProvider', () => {
         </AuthProvider>,
       );
     });
+  }
+
+  it('should clear the legacy service-worker api-cache on logout', async () => {
+    const deleteCache = vi.fn().mockResolvedValue(true);
+    vi.stubGlobal('caches', { delete: deleteCache });
+    await renderLoggedInConsumer('5b');
+    await act(async () => {
+      screen.getByRole('button', { name: 'logout' }).click();
+    });
+    expect(deleteCache).toHaveBeenCalledWith('api-cache');
+    vi.unstubAllGlobals();
+  });
+
+  it('should clear the legacy service-worker api-cache on auth:logout event', async () => {
+    const deleteCache = vi.fn().mockResolvedValue(true);
+    vi.stubGlobal('caches', { delete: deleteCache });
+    await renderLoggedInConsumer('6b');
     await act(async () => {
       globalThis.dispatchEvent(new Event('auth:logout'));
     });
@@ -251,19 +246,7 @@ describe('AuthProvider', () => {
   });
 
   it('should not throw on logout when the caches API is unavailable (non-PWA browsers)', async () => {
-    const token = makeToken({ id: '5c', username: 'eve3', currency: 'BRL', language: 'pt-BR' });
-    localStorage.setItem('token', token);
-    function LogoutConsumer() {
-      const { logout } = useAuth();
-      return <button onClick={logout}>logout</button>;
-    }
-    await act(async () => {
-      render(
-        <AuthProvider>
-          <LogoutConsumer />
-        </AuthProvider>,
-      );
-    });
+    await renderLoggedInConsumer('5c');
     await act(async () => {
       screen.getByRole('button', { name: 'logout' }).click();
     });
