@@ -63,7 +63,7 @@
     "recharts": "^3.8.1",
     "remark-gfm": "^4.0.1",
     "resend": "^6.12.4",
-    "stripe": "^22.3.0",
+    "stripe": "^22.6.2",
     "swagger-ui-express": "^5.0.1",
     "swagger-ui-react": "^5.32.13"
   },
