@@ -33,6 +33,10 @@ export default defineConfig({
   },
   resolve: {
     alias: {
+      // @sentry/nextjs >=10.73 pulls a build-time webpack plugin that calls
+      // fileURLToPath(import.meta.url) at import time and throws under jsdom.
+      // Stub it for all frontend tests; don't remove without re-running them.
+      '@sentry/nextjs': path.resolve(__dirname, 'test/frontend/mocks/sentry.js'),
       '@': path.resolve(__dirname, '.'),
     },
   },

@@ -17,6 +17,7 @@ const config = [
       '_usability/**',
       'Norevify Design System/**',
       'frontend/**',
+      'docs/security-audit/.venv/**',
     ],
   },
   js.configs.recommended,
