@@ -12,6 +12,26 @@ updates:
     ignore:
       - dependency-name: '@eslint/js'
         update-types: ['version-update:semver-major']
+      # eslint 10 throws (`scopeManager.addGlobals is not a function`) under
+      # this repo's flat config — verified 2026-09-24 (#207). Revisit once
+      # eslint-config-next/its deps catch up.
+      - dependency-name: 'eslint'
+        update-types: ['version-update:semver-major']
+    groups:
+      # react-dom's peer range moves in lockstep with react; bumping either
+      # alone breaks npm ci with ERESOLVE (see #204).
+      react:
+        patterns:
+          - 'react'
+          - 'react-dom'
+          - '@types/react'
+          - '@types/react-dom'
+      # @vitest/coverage-v8's peer range pins the exact vitest version;
+      # bumping either alone breaks npm ci with ERESOLVE (see #208).
+      vitest:
+        patterns:
+          - 'vitest'
+          - '@vitest/*'
 
   - package-ecosystem: 'github-actions'
     directory: '/'
