@@ -32,6 +32,15 @@ updates:
         patterns:
           - 'vitest'
           - '@vitest/*'
+      # Minor/patch bumps arrive as one PR per week instead of one per package:
+      # single-package PRs each re-run the serialized CI chain and can't pass
+      # `audit` alone while other vulnerable deps remain on main.
+      prod-minor-patch:
+        dependency-type: 'production'
+        update-types: ['minor', 'patch']
+      dev-minor-patch:
+        dependency-type: 'development'
+        update-types: ['minor', 'patch']
 
   - package-ecosystem: 'github-actions'
     directory: '/'
