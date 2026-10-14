@@ -1,7 +1,8 @@
 'use client';
-import { useEffect, useRef, useCallback } from 'react';
+import { useEffect, useRef, useCallback, useState } from 'react';
 import PropTypes from 'prop-types';
 import { useRouter } from 'next/navigation';
+import { useTranslation } from 'react-i18next';
 import { authApi } from '@/services/apiService.js';
 import { useAuth } from '@/context/AuthContext.jsx';
 
@@ -23,20 +24,33 @@ function injectGisScript() {
 export default function GoogleSignInButton({ mode = 'login', onSuccess, onError, inviteCode }) {
   const { login } = useAuth() || {};
   const router = useRouter();
+  const { t } = useTranslation();
   const containerRef = useRef(null);
+  // Ref, not state, for the guard: GIS holds the callback from initialize(), so a
+  // state value captured in its closure would be stale on a second fire.
+  const pendingRef = useRef(false);
+  const [pending, setPending] = useState(false);
 
   const handleCredential = useCallback(
     async ({ credential }) => {
+      if (pendingRef.current) return;
+      pendingRef.current = true;
+      setPending(true);
       try {
         if (mode === 'link') {
           await authApi.linkGoogle({ idToken: credential });
+          pendingRef.current = false;
+          setPending(false);
           onSuccess?.();
         } else {
           const { token } = await authApi.googleLogin({ idToken: credential, inviteCode });
           login(token);
+          // Stays pending until navigation unmounts this page.
           router.push('/');
         }
       } catch (err) {
+        pendingRef.current = false;
+        setPending(false);
         onError?.(err.message);
       }
     },
@@ -85,9 +99,28 @@ export default function GoogleSignInButton({ mode = 'login', onSuccess, onError,
 
   if (!CLIENT_ID) return null;
 
-  return <div ref={containerRef} style={{ width: '100%' }} />;
+  return (
+    <div aria-busy={pending}>
+      <div
+        ref={containerRef}
+        style={{
+          width: '100%',
+          pointerEvents: pending ? 'none' : undefined,
+          opacity: pending ? 0.6 : undefined,
+        }}
+      />
+      {pending && (
+        <output style={{ display: 'block', textAlign: 'center', marginTop: '0.5rem' }}>
+          {t('auth.login.submitting')}
+        </output>
+      )}
+    </div>
+  );
 }
 
 GoogleSignInButton.propTypes = {
+  mode: PropTypes.oneOf(['login', 'register', 'link']),
+  onSuccess: PropTypes.func,
+  onError: PropTypes.func,
   inviteCode: PropTypes.string,
 };
