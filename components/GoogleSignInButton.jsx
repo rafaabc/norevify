@@ -110,9 +110,9 @@ export default function GoogleSignInButton({ mode = 'login', onSuccess, onError,
         }}
       />
       {pending && (
-        <p role="status" style={{ textAlign: 'center', marginTop: '0.5rem' }}>
+        <output style={{ display: 'block', textAlign: 'center', marginTop: '0.5rem' }}>
           {t('auth.login.submitting')}
-        </p>
+        </output>
       )}
     </div>
   );
