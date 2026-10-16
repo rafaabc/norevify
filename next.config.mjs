@@ -1,5 +1,5 @@
 import withSerwistInit from '@serwist/next';
-import { withSentryConfig } from '@sentry/nextjs';
+import { withSentryConfig } from '@sentry/nextjs/config';
 import { withBotId } from 'botid/next/config';
 
 const withSerwist = withSerwistInit({
