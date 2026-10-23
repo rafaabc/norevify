@@ -32,6 +32,11 @@ updates:
         patterns:
           - 'vitest'
           - '@vitest/*'
+      # Security fixes land as one PR: single-package security PRs (e.g.
+      # #242, #243) failed `audit` alone while other advisories were open.
+      security:
+        applies-to: security-updates
+        patterns: ['*']
       # Minor/patch bumps arrive as one PR per week instead of one per package:
       # single-package PRs each re-run the serialized CI chain and can't pass
       # `audit` alone while other vulnerable deps remain on main.
