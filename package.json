@@ -83,7 +83,7 @@
     "c8": "^12.0.0",
     "chai": "^6.3.0",
     "eslint": "^9.39.5",
-    "eslint-config-next": "^16.4.2",
+    "eslint-config-next": "^16.4.3",
     "eslint-config-prettier": "^10.1.8",
     "jsdom": "^30.1.2",
     "mocha": "^10.8.2",
