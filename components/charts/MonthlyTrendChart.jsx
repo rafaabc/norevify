@@ -13,7 +13,7 @@ import { AXIS_STYLE, GRID_STYLE, TOOLTIP_STYLE } from './chartTheme.js';
 import { monthLabel } from '@/utils/aggregations.js';
 
 export default function MonthlyTrendChart({ data = [] }) {
-  const uid = useId().replace(/:/g, '');
+  const uid = useId().replaceAll(':', '');
   const gradientId = `trend-fill-${uid}`;
 
   if (!data.length)

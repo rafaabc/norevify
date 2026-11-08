@@ -29,11 +29,17 @@ export default function PWAUpdater() {
     // requests like the Google Fonts stylesheet) and serving its stale precache. Wipe
     // it and bail out; there's nothing for this component to manage in dev.
     if (process.env.NODE_ENV === 'development') {
-      navigator.serviceWorker.getRegistrations().then((regs) => {
-        regs.forEach((reg) => reg.unregister());
-      });
+      navigator.serviceWorker
+        .getRegistrations()
+        .then((regs) => {
+          regs.forEach((reg) => void reg.unregister());
+        })
+        .catch(() => {});
       if ('caches' in window) {
-        caches.keys().then((keys) => keys.forEach((key) => caches.delete(key)));
+        caches
+          .keys()
+          .then((keys) => keys.forEach((key) => void caches.delete(key)))
+          .catch(() => {});
       }
       return;
     }
@@ -61,23 +67,25 @@ export default function PWAUpdater() {
     };
     navigator.serviceWorker.addEventListener('controllerchange', reload);
 
-    navigator.serviceWorker.ready.then((reg) => {
-      regRef = reg;
-      if (reg.waiting) {
-        setWaitingSW(reg.waiting);
-        setShowPrompt(true);
-      }
-      reg.addEventListener('updatefound', () => {
-        const newSW = reg.installing;
-        if (!newSW) return;
-        newSW.addEventListener('statechange', () => {
-          if (newSW.state === 'installed' && navigator.serviceWorker.controller) {
-            setWaitingSW(newSW);
-            setShowPrompt(true);
-          }
+    navigator.serviceWorker.ready
+      .then((reg) => {
+        regRef = reg;
+        if (reg.waiting) {
+          setWaitingSW(reg.waiting);
+          setShowPrompt(true);
+        }
+        reg.addEventListener('updatefound', () => {
+          const newSW = reg.installing;
+          if (!newSW) return;
+          newSW.addEventListener('statechange', () => {
+            if (newSW.state === 'installed' && navigator.serviceWorker.controller) {
+              setWaitingSW(newSW);
+              setShowPrompt(true);
+            }
+          });
         });
-      });
-    });
+      })
+      .catch(() => {});
 
     // A resumed standalone PWA can sit idle for a long time without a cold
     // launch, so poll for updates instead of only checking on install.

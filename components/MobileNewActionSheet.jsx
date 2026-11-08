@@ -15,17 +15,13 @@ export default function MobileNewActionSheet({ open, onClose }) {
 
   return (
     <div
-      role="dialog"
-      aria-modal="true"
+      role="button"
+      tabIndex={-1}
       className="modal-backdrop"
-      onClick={onClose}
+      onClick={(e) => e.target === e.currentTarget && onClose()}
       onKeyDown={(e) => e.key === 'Escape' && onClose()}
     >
-      <div
-        className="action-sheet"
-        onClick={(e) => e.stopPropagation()}
-        onKeyDown={(e) => e.stopPropagation()}
-      >
+      <div className="action-sheet" role="dialog" aria-modal="true">
         <h3>{t('mobile.newAction')}</h3>
         <button
           type="button"
