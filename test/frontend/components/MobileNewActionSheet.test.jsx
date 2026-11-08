@@ -33,7 +33,19 @@ describe('MobileNewActionSheet', () => {
 
   it('should call onClose when backdrop clicked', () => {
     renderSheet();
+    fireEvent.click(screen.getByRole('dialog').parentElement);
+    expect(onClose).toHaveBeenCalledOnce();
+  });
+
+  it('should not call onClose when sheet content clicked', () => {
+    renderSheet();
     fireEvent.click(screen.getByRole('dialog'));
+    expect(onClose).not.toHaveBeenCalled();
+  });
+
+  it('should call onClose when Escape pressed', () => {
+    renderSheet();
+    fireEvent.keyDown(screen.getByRole('dialog'), { key: 'Escape' });
     expect(onClose).toHaveBeenCalledOnce();
   });
 

@@ -6,8 +6,8 @@ import NumericInput from '@/components/NumericInput.jsx';
 export default function FuelFields({ litres, pricePerLitre, odometer = '', onChange }) {
   const { t, i18n } = useTranslation();
   const computedRaw =
-    parseFloat(litres) > 0 && parseFloat(pricePerLitre) > 0
-      ? Math.round(parseFloat(litres) * parseFloat(pricePerLitre) * 100) / 100
+    Number.parseFloat(litres) > 0 && Number.parseFloat(pricePerLitre) > 0
+      ? Math.round(Number.parseFloat(litres) * Number.parseFloat(pricePerLitre) * 100) / 100
       : null;
   const locale = i18n.language === 'en' ? 'en-US' : 'pt-BR';
   const computed =

@@ -27,10 +27,10 @@ function useReminderBadge(isAuthed) {
       }
     }
 
-    fetchCount();
+    void fetchCount();
 
     function onChanged() {
-      fetchCount();
+      void fetchCount();
     }
     window.addEventListener('reminders:changed', onChanged);
     window.addEventListener('focus', onChanged);

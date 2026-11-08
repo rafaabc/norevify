@@ -204,6 +204,20 @@ describe('authService.register()', () => {
     );
   });
 
+  it('should throw 400 for emails with empty domain labels', async () => {
+    for (const email of ['a@b..com', 'a@.b.com', 'a@b.com.', 'a@b', 'a b@c.com']) {
+      await assert.rejects(
+        () => authService.register({ username: 'alice', password: STRONG_PASSWORD, email }),
+        (err) => {
+          assert.strictEqual(err.status, 400);
+          assert.match(err.message, /invalid email format/i);
+          return true;
+        },
+        email,
+      );
+    }
+  });
+
   // TC-01-07
   it('should throw 400 when password has fewer than 8 characters', async () => {
     await assert.rejects(

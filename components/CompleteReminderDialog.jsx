@@ -17,8 +17,8 @@ export default function CompleteReminderDialog({ open, reminder, onSubmit, onCan
 
   if (!open || !reminder) return null;
 
-  const parsed = parseFloat(km);
-  const validKm = !isNaN(parsed) && parsed >= 0;
+  const parsed = Number.parseFloat(km);
+  const validKm = !Number.isNaN(parsed) && parsed >= 0;
 
   let previewNextKm = null;
   let previewNextDate = null;

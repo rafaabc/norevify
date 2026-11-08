@@ -83,11 +83,11 @@ export default function ExpenseFormPage() {
     if (form.vehicleId) payload.vehicleId = form.vehicleId;
 
     if (isFuel) {
-      payload.litres = parseFloat(form.litres);
-      payload.price_per_litre = parseFloat(form.price_per_litre);
+      payload.litres = Number.parseFloat(form.litres);
+      payload.price_per_litre = Number.parseFloat(form.price_per_litre);
       if (form.odometer !== '') payload.odometer = Number(form.odometer);
     } else {
-      payload.amount = parseFloat(form.amount);
+      payload.amount = Number.parseFloat(form.amount);
     }
 
     try {
