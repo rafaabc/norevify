@@ -142,14 +142,18 @@ Non-obvious rule decisions:
 
 `.github/workflows/ci.yml` — push/PR to `main`:
 
-| Job                | Needs              | Description                                            |
-| ------------------ | ------------------ | ------------------------------------------------------ |
-| `lint`             | —                  | ESLint + Prettier check                                |
-| `audit`            | —                  | `npm audit --audit-level=high --omit=dev`              |
-| `test-unit`        | —                  | Node test runner + mongodb-memory-server               |
-| `test-integration` | `test-unit`        | In-memory Mongo, no secrets                            |
-| `test-api`         | `test-integration` | Mocha against `next build && next start`               |
-| `e2e`              | `test-api`         | Playwright Chromium against `next build && next start` |
+| Job                | Needs               | Description                                                   |
+| ------------------ | ------------------- | ------------------------------------------------------------- |
+| `changes`          | —                   | Docs-only detection (gates the test jobs via job-level `if`)  |
+| `lint`             | —                   | ESLint + Prettier check                                       |
+| `audit`            | —                   | `npm audit --package-lock-only --audit-level=high --omit=dev` |
+| `test-unit`        | `changes`           | Node test runner + mongodb-memory-server                      |
+| `test-integration` | `changes`           | In-memory Mongo, no secrets                                   |
+| `build`            | `changes`           | Single `next build`, uploaded as `next-build` artifact        |
+| `test-api`         | `build`             | Mocha against the downloaded build + `next start`             |
+| `e2e`              | `build`, `test-api` | Playwright Chromium (2 workers) against the downloaded build  |
+
+`build` is not a required check. `test-api`/`e2e` use `if: !cancelled()` plus a first step that fails when `build` (or `test-api`, for e2e) didn't succeed — a plain `needs` failure would _skip_ them, and a skipped required check reports success. e2e stays serial after `test-api` because its global teardown deletes every `@test.com` user in the shared Atlas DB, so `concurrency: ci-shared-atlas` must stay until users are scoped per run.
 
 `test-api` and `e2e` require `JWT_SECRET` + `MONGODB_URI` GitHub Secrets. Dependabot: weekly npm + github-actions updates (`.github/dependabot.yml`).
 
