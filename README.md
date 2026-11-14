@@ -24,10 +24,15 @@ The test suite mirrors the practical test pyramid: fast, numerous unit tests at 
 
 **121 test files** across the five layers. Backend and frontend unit suites run with coverage in CI (`c8` / `vitest --coverage`); integration tests boot an in-memory MongoDB per file so they run with zero external dependencies; API and E2E run against a real built-and-started Next.js server.
 
-CI enforces this pipeline in order — each stage gates the next, so a broken foundation never wastes time on the layers above it:
+CI runs every layer as a required status check. Independent stages run in parallel and the app is built once and shared, so the whole pipeline takes about 4–5 minutes:
 
 ```
-lint → audit → test-unit → test-integration → test-api → e2e
+changes ─┬─ lint
+         ├─ audit
+         ├─ test-unit
+         ├─ test-integration
+         └─ build ─┬─ test-api
+                   └─ e2e
 ```
 
 ### QA process, not just automation
@@ -121,8 +126,18 @@ npm run test:e2e          # Playwright E2E (requires running server)
 ### CI pipeline
 
 ```
-lint → audit → test-unit → test-integration → test-api → e2e
+changes ─┬─ lint
+         ├─ audit
+         ├─ test-unit
+         ├─ test-integration
+         └─ build ─┬─ test-api
+                   └─ e2e
 ```
+
+- `lint`, `audit`, `test-unit`, `test-integration`, `test-api` and `e2e` are required checks on `main`. Docs-only changes skip the test jobs but still report them as passed.
+- `build` runs `next build` once and uploads it as an artifact; `test-api` and `e2e` download it. They fail (not skip) if it didn't succeed.
+- `test-api` and `e2e` run in parallel against the same Atlas database. E2E users are tagged per run and its teardown deletes only that run's users, so concurrent runs and PRs don't interfere.
+- Playwright runs with 2 workers and 1 retry in CI.
 
 ---
 
