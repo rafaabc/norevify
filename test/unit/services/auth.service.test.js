@@ -821,6 +821,83 @@ describe('authService.googleLogin()', () => {
       },
     );
   });
+
+  it('should reject an unverified Google email that matches an existing account', async () => {
+    await authService.register({
+      username: 'victim',
+      password: STRONG_PASSWORD,
+      email: 'guser@gmail.com',
+      ...VALID_CONSENT,
+    });
+    const fakeVerify = async () => fakePayload({ emailVerified: false });
+    await assert.rejects(
+      () => authService.googleLogin({ idToken: 'tok' }, fakeVerify),
+      (err) => {
+        assert.strictEqual(err.status, 401);
+        return true;
+      },
+    );
+    const victim = await userModel.findByUsername('victim');
+    assert.strictEqual(victim.googleId, undefined, 'must not link an unverified Google account');
+  });
+
+  it('should reject a first-time Google sign-in with an unverified email', async () => {
+    const fakeVerify = async () => fakePayload({ emailVerified: false });
+    await assert.rejects(
+      () => authService.googleLogin({ idToken: 'tok' }, fakeVerify),
+      (err) => {
+        assert.strictEqual(err.status, 401);
+        return true;
+      },
+    );
+    assert.strictEqual(await userModel.findByEmail('guser@gmail.com'), null);
+  });
+
+  it('should drop the password and revoke sessions when linking into an unverified password account', async () => {
+    // Pre-account-hijacking: someone registered this email with their own password
+    // and never verified it; the real owner then signs in with Google.
+    await authService.register({
+      username: 'squatter',
+      password: STRONG_PASSWORD,
+      email: 'guser@gmail.com',
+      ...VALID_CONSENT,
+    });
+    const { token: squatterToken } = await authService.login({
+      username: 'squatter',
+      password: STRONG_PASSWORD,
+    });
+
+    await authService.googleLogin({ idToken: 'tok' }, async () => fakePayload());
+
+    const user = await userModel.findByUsername('squatter');
+    assert.strictEqual(user.password, undefined, 'squatter password must be removed');
+    assert.ok(
+      (user.tokenVersion ?? 0) > (jwt.decode(squatterToken).tv ?? 0),
+      'sessions issued before the link must be revoked',
+    );
+    await assert.rejects(
+      () => authService.login({ username: 'squatter', password: STRONG_PASSWORD }),
+      (err) => {
+        assert.strictEqual(err.status, 401);
+        return true;
+      },
+    );
+  });
+
+  it('should keep the password when linking into an already-verified password account', async () => {
+    const { id } = await authService.register({
+      username: 'owner',
+      password: STRONG_PASSWORD,
+      email: 'guser@gmail.com',
+      ...VALID_CONSENT,
+    });
+    await userModel.setEmailVerified(id);
+
+    await authService.googleLogin({ idToken: 'tok' }, async () => fakePayload());
+
+    const { token } = await authService.login({ username: 'owner', password: STRONG_PASSWORD });
+    assert.ok(token);
+  });
 });
 
 describe('authService.linkGoogle()', () => {
