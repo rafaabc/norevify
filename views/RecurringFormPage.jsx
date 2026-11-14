@@ -130,6 +130,7 @@ export default function RecurringFormPage() {
               id="field-description"
               name="description"
               type="text"
+              maxLength={200}
               value={form.description}
               onChange={handleChange}
               placeholder={t('recurring.fields.descriptionPlaceholder')}

@@ -325,7 +325,12 @@ function IncomeFormModal({
         )}
         <div className="form-group">
           <label htmlFor="income-note">{t('income.fields.note')}</label>
-          <input id="income-note" value={note} onChange={(e) => setNote(e.target.value)} />
+          <input
+            id="income-note"
+            maxLength={500}
+            value={note}
+            onChange={(e) => setNote(e.target.value)}
+          />
         </div>
         <div className="modal-actions">
           <button type="button" className="btn-secondary" onClick={onCancel}>

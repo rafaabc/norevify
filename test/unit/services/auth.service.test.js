@@ -1736,6 +1736,27 @@ describe('authService.register() - consent', () => {
     assert.ok(user.consent.ipHash, 'ipHash should be stored');
     assert.strictEqual(user.consent.ipHash.length, 16);
   });
+
+  it('hashes a null ip (untrusted proxy header dropped by clientIp) like an empty ip', async () => {
+    const consent = { policyVersion: POLICY_VERSION, acceptedAt: new Date().toISOString() };
+    await authService.register({
+      username: 'noip1',
+      password: STRONG_PASSWORD,
+      email: 'noip1@example.com',
+      consent,
+      ip: null,
+    });
+    await authService.register({
+      username: 'noip2',
+      password: STRONG_PASSWORD,
+      email: 'noip2@example.com',
+      consent,
+      ip: '',
+    });
+    const a = await userModel.findByUsername('noip1');
+    const b = await userModel.findByUsername('noip2');
+    assert.strictEqual(a.consent.ipHash, b.consent.ipHash);
+  });
 });
 
 // ---------------------------------------------------------------------------

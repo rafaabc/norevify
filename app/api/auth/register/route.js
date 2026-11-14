@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import { connectDB } from '@/lib/db.mjs';
 import authService from '@/lib/services/auth.service';
-import { createRateLimiter, withRateLimitedHandler } from '@/lib/middleware/rateLimit';
+import { createRateLimiter, withRateLimitedHandler, clientIp } from '@/lib/middleware/rateLimit';
 import { isBotRequest } from '@/lib/middleware/botid';
 import { errorResponse } from '@/lib/handlerResponse.mjs';
 
@@ -18,9 +18,7 @@ export const POST = async (req) => {
         return NextResponse.json({ message: 'Access denied' }, { status: 403 });
       }
       const body = await req.json();
-      const ip = (req.headers.get('x-forwarded-for') || req.headers.get('x-real-ip') || '')
-        .split(',')[0]
-        .trim();
+      const ip = clientIp(req) ?? '';
       const result = await authService.register({ ...body, ip });
       return NextResponse.json(result, { status: 201 });
     } catch (err) {
