@@ -1092,3 +1092,28 @@ describe('incomeService.deleteAllByUser()', () => {
     assert.strictEqual((await incomeService.listIncome(other)).length, 1);
   });
 });
+
+describe('incomeService — note validation', () => {
+  const base = { date: TODAY, amount: 100, source: 'Uber' };
+
+  it('rejects non-string and over-500 note on create, accepts exactly 500', async () => {
+    const u = await proUser('notecreate');
+    for (const note of [{ a: 1 }, ['x'], 'x'.repeat(501)]) {
+      await assert.rejects(
+        () => incomeService.createIncome(u, { ...base, note }),
+        (err) => err.status === 400,
+      );
+    }
+    const ok = await incomeService.createIncome(u, { ...base, note: 'x'.repeat(500) });
+    assert.strictEqual(ok.note.length, 500);
+  });
+
+  it('rejects over-500 note on update', async () => {
+    const u = await proUser('noteupdate');
+    const inc = await incomeService.createIncome(u, base);
+    await assert.rejects(
+      () => incomeService.updateIncome(u, inc.id, { note: 'x'.repeat(501) }),
+      (err) => err.status === 400,
+    );
+  });
+});

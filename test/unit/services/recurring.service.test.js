@@ -308,3 +308,29 @@ describe('recurringService.runCatchUp()', () => {
     );
   });
 });
+
+describe('recurringService — description validation', () => {
+  it('rejects non-string and over-200 description on create, accepts exactly 200', async () => {
+    const userId = makeUserId();
+    for (const description of [{ a: 1 }, ['x'], 'x'.repeat(201)]) {
+      await assert.rejects(
+        () => recurringService.createRule(userId, validRule({ description })),
+        (err) => err.status === 400,
+      );
+    }
+    const ok = await recurringService.createRule(
+      userId,
+      validRule({ description: 'x'.repeat(200) }),
+    );
+    assert.strictEqual(ok.description.length, 200);
+  });
+
+  it('rejects over-200 description on update', async () => {
+    const userId = makeUserId();
+    const rule = await recurringService.createRule(userId, validRule());
+    await assert.rejects(
+      () => recurringService.updateRule(userId, rule.id, { description: 'x'.repeat(201) }),
+      (err) => err.status === 400,
+    );
+  });
+});

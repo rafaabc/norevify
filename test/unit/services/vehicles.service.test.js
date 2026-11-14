@@ -51,6 +51,33 @@ describe('vehiclesService.createVehicle()', () => {
     assert.strictEqual(second.name, 'Corolla');
   });
 
+  it('rejects a name over 50 characters on create, accepts exactly 50', async () => {
+    const u = USER_ID();
+    await assert.rejects(
+      () => vehiclesService.createVehicle(u, { name: 'x'.repeat(51) }),
+      (err) => err.status === 400 && /at most 50/.test(err.message),
+    );
+    const ok = await vehiclesService.createVehicle(u, { name: 'x'.repeat(50) });
+    assert.strictEqual(ok.name.length, 50);
+  });
+
+  it('rejects a non-string name with 400', async () => {
+    const u = USER_ID();
+    await assert.rejects(
+      () => vehiclesService.createVehicle(u, { name: { $gt: '' } }),
+      (err) => err.status === 400,
+    );
+  });
+
+  it('rejects a name over 50 characters on update', async () => {
+    const u = USER_ID();
+    const v = await vehiclesService.createVehicle(u, { name: 'Civic' });
+    await assert.rejects(
+      () => vehiclesService.updateVehicle(u, v.id, { name: 'x'.repeat(51) }),
+      (err) => err.status === 400,
+    );
+  });
+
   it('rejects when name is missing', async () => {
     const u = USER_ID();
     await assert.rejects(
