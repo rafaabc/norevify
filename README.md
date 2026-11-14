@@ -16,13 +16,13 @@ The test suite mirrors the practical test pyramid: fast, numerous unit tests at 
 
 | Layer         | Files | Cases | Tooling                                  | What it answers                                                                      |
 | ------------- | ----: | ----: | ---------------------------------------- | ------------------------------------------------------------------------------------ |
-| Backend unit  |    29 |   462 | Node test runner + `node:assert`         | Does each service/model function behave correctly in isolation?                      |
-| Frontend unit |    57 |   389 | Vitest + Testing Library                 | Do components and hooks render/behave correctly given props and state?               |
-| Integration   |    12 |     — | Node test runner, in-memory Mongo        | Do services + models + middleware collaborate correctly through real internal flows? |
-| API           |     9 |     — | Mocha + Chai + Supertest                 | Does the live HTTP contract (status codes, payloads, auth) hold end-to-end?          |
-| E2E           |    14 |     — | Playwright (Chromium), Page Object Model | Do real user journeys work in a real browser against a real deployment?              |
+| Backend unit  |    30 |   522 | Node test runner + `node:assert`         | Does each service/model function behave correctly in isolation?                      |
+| Frontend unit |    58 |   415 | Vitest + Testing Library                 | Do components and hooks render/behave correctly given props and state?               |
+| Integration   |    13 |    51 | Node test runner, in-memory Mongo        | Do services + models + middleware collaborate correctly through real internal flows? |
+| API           |     9 |    87 | Mocha + Chai + Supertest                 | Does the live HTTP contract (status codes, payloads, auth) hold end-to-end?          |
+| E2E           |    14 |    44 | Playwright (Chromium), Page Object Model | Do real user journeys work in a real browser against a real deployment?              |
 
-**121 test files** across the five layers. Backend and frontend unit suites run with coverage in CI (`c8` / `vitest --coverage`); integration tests boot an in-memory MongoDB per file so they run with zero external dependencies; API and E2E run against a real built-and-started Next.js server.
+**124 test files** (1,119 test cases) across the five layers. Backend and frontend unit suites run with coverage in CI (`c8` / `vitest --coverage`); integration tests boot an in-memory MongoDB per file so they run with zero external dependencies; API and E2E run against a real built-and-started Next.js server.
 
 CI runs every layer as a required status check. Independent stages run in parallel and the app is built once and shared, so the whole pipeline takes about 4–5 minutes:
 
