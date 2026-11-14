@@ -67,10 +67,12 @@ test.describe('Data Subject Rights', () => {
     await page.getByRole('button', { name: /delete.*account/i }).click();
     await expect(page.locator('.modal')).toBeVisible();
 
+    // The password field only renders once GET /api/auth/providers resolves. A bare
+    // isVisible() doesn't wait, so on a slow response the password was never filled
+    // and the delete never happened. This user always has a password: wait for it.
     const passwordInput = page.locator('#delete-password');
-    if (await passwordInput.isVisible()) {
-      await passwordInput.fill(password);
-    }
+    await expect(passwordInput).toBeVisible();
+    await passwordInput.fill(password);
 
     await page
       .getByRole('button', { name: /delete account/i })
