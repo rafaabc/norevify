@@ -3,8 +3,15 @@
 // 'Password123' scores too low and is a known-breached password.
 export const DEFAULT_PASSWORD = process.env.E2E_TEST_PASSWORD ?? 'Qk4Wr9Ln2Vp8Mz5x'; // NOSONAR
 
+// Scopes every e2e user to one CI run (run_id + attempt) so global-teardown can delete
+// only this run's users. Locally it falls back to 'local'. Username max is 50 chars
+// (USERNAME_REGEX in auth.service.js): 'e2e' + tag(~12) + longest prefix(9) + ts(13) + n(3) fits.
+export const RUN_TAG = (process.env.E2E_RUN_TAG ?? 'local').replace(/[^a-zA-Z0-9]/g, '');
+
+export const RUN_USERNAME_PREFIX = `e2e${RUN_TAG}_`;
+
 export function uniqueUsername(prefix = 'user'): string {
-  return `${prefix}_${Date.now()}_${Math.floor(Math.random() * 999)}`;
+  return `${RUN_USERNAME_PREFIX}${prefix}_${Date.now()}_${Math.floor(Math.random() * 999)}`;
 }
 
 export const CATEGORIES = [

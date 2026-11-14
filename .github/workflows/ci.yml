@@ -12,11 +12,14 @@ on:
     # against newly-disclosed CVEs.
     - cron: '0 6 * * 1'
 
-# Serialize all runs that touch the shared Atlas DB so concurrent e2e teardowns
-# cannot delete another run's test users mid-suite.
+# One run per PR / ref; a new push to a PR cancels its superseded run. Runs of
+# different PRs no longer queue behind each other: e2e users are tagged with
+# the run id and its teardown only deletes its own (plus >3h-old leftovers), and
+# test-api only deletes the users it tracked, so concurrent runs can share the
+# Atlas DB. Pushes to main are never cancelled.
 concurrency:
-  group: ci-shared-atlas
-  cancel-in-progress: false
+  group: ci-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
   # Decides whether this push/PR touches anything besides docs. Deliberately a
@@ -271,10 +274,10 @@ jobs:
           retention-days: 7
 
   e2e:
-    # Still serial after test-api: e2e's global teardown deletes every
-    # @test.com user in the shared Atlas DB, including test-api's. Running
-    # them in parallel needs per-run user scoping first (plan phase 2).
-    needs: [changes, build, test-api]
+    # Parallel with test-api: usernames are tagged with E2E_RUN_TAG and the
+    # global teardown only removes this run's users, so it no longer deletes
+    # test-api's data.
+    needs: [changes, build]
     runs-on: ubuntu-latest
     # Same guards as test-api (!cancelled() + fork-PR skip).
     if: ${{ !cancelled() && needs.changes.outputs.code == 'true' && (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository) }}
@@ -286,12 +289,13 @@ jobs:
       JWT_SECRET: ${{ secrets.JWT_SECRET }}
       MONGODB_URI: ${{ secrets.MONGODB_URI }}
       RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
+      E2E_RUN_TAG: ${{ github.run_id }}${{ github.run_attempt }}
       NEXT_PUBLIC_GOOGLE_CLIENT_ID: ''
     steps:
-      - name: Fail if build or test-api did not succeed
-        if: needs.build.result != 'success' || needs.test-api.result != 'success'
+      - name: Fail if build did not succeed
+        if: needs.build.result != 'success'
         run: |
-          echo "build: ${{ needs.build.result }}, test-api: ${{ needs.test-api.result }}"
+          echo "build job result: ${{ needs.build.result }}"
           exit 1
       - uses: actions/checkout@v7
       - uses: actions/setup-node@v7
