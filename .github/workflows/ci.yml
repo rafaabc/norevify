@@ -105,14 +105,15 @@ jobs:
       # gets a 400 ("Invalid package tree"). Latest npm uses the bulk
       # advisory endpoint instead.
       - run: npm install -g npm@12.0.2 --ignore-scripts
-      - run: npm ci --ignore-scripts
+      # --package-lock-only audits straight from package-lock.json, so no
+      # `npm ci` (25-50s of install for a ~1s audit).
       - name: Audit production dependencies
         # npm's audit registry endpoint is prone to transient errors (503s,
         # occasional 400s) unrelated to our dependency tree — retry a few
         # times with backoff before failing the job for real.
         run: |
           for attempt in 1 2 3 4; do
-            if npm audit --audit-level=high --omit=dev; then
+            if npm audit --package-lock-only --audit-level=high --omit=dev; then
               exit 0
             fi
             if [ "$attempt" -eq 4 ]; then
@@ -124,13 +125,11 @@ jobs:
           done
 
   test-unit:
-    # Gated on lint and audit too: a lint/format failure or a real dependency
-    # CVE should fail fast instead of burning ~10min on tests that were going
-    # to be blocked from merging anyway. GitHub implicitly requires success()
-    # on all `needs` here (no status-check function in the `if` below), so a
-    # lint or audit failure/skip skips this and everything chained after it,
-    # same as the docs-only case.
-    needs: [changes, lint, audit]
+    # Runs in parallel with lint/audit/build/test-integration: none of them
+    # share data, and chaining them serially made the critical path the sum
+    # of all jobs (~10min) instead of the longest chain. All still report on
+    # every PR, so the required checks are unchanged.
+    needs: changes
     runs-on: ubuntu-latest
     if: needs.changes.outputs.code == 'true'
     steps:
@@ -156,8 +155,9 @@ jobs:
       - run: npm run test:unit:coverage
 
   test-integration:
-    needs: test-unit
+    needs: changes
     runs-on: ubuntu-latest
+    if: needs.changes.outputs.code == 'true'
     steps:
       - uses: actions/checkout@v7
       - uses: actions/setup-node@v7
@@ -173,12 +173,54 @@ jobs:
         run: node -e "const {MongoMemoryServer}=require('mongodb-memory-server');MongoMemoryServer.create().then(s=>s.stop())"
       - run: npm run test:integration:coverage
 
-  test-api:
-    needs: test-integration
+  # Single production build shared by test-api and e2e (was built twice, ~2m15
+  # combined). NEXT_PUBLIC_* values are inlined at build time, so env here is
+  # the union of what test-api and e2e used to set. build is NOT a required
+  # check: test-api/e2e fail themselves when it didn't succeed (see their
+  # first step), so a broken build still blocks merge.
+  build:
+    needs: changes
     runs-on: ubuntu-latest
-    # Fork PRs correctly don't receive repo secrets — skip rather than fail red,
-    # since JWT_SECRET/MONGODB_URI will be empty and the server can't boot.
-    if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository
+    if: needs.changes.outputs.code == 'true' && (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository)
+    env:
+      PORT: '3000'
+      BASE_URL: 'http://localhost:3000'
+      FRONTEND_URL: 'http://localhost:3000'
+      JWT_EXPIRES_IN: '1h'
+      JWT_SECRET: ${{ secrets.JWT_SECRET }}
+      MONGODB_URI: ${{ secrets.MONGODB_URI }}
+      RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
+      NEXT_PUBLIC_GOOGLE_CLIENT_ID: ''
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: '22'
+          cache: 'npm'
+      - run: npm ci --ignore-scripts
+      - uses: actions/cache@v6
+        with:
+          path: .next/cache
+          key: nextjs-${{ runner.os }}-${{ hashFiles('package-lock.json') }}-${{ hashFiles('app/**', 'components/**', 'views/**', 'lib/**', 'services/**', 'i18n/**', 'utils/**', 'next.config.mjs') }}
+          restore-keys: nextjs-${{ runner.os }}-${{ hashFiles('package-lock.json') }}-
+      - name: Build Next.js app
+        run: npm run build
+      - name: Pack build output
+        run: tar --exclude='.next/cache' -czf next-build.tgz .next
+      - uses: actions/upload-artifact@v7
+        with:
+          name: next-build
+          path: next-build.tgz
+          retention-days: 1
+
+  test-api:
+    needs: [changes, build]
+    runs-on: ubuntu-latest
+    # `!cancelled()` so this job still runs (and fails loudly) when build
+    # fails — otherwise it would be *skipped*, and a skipped required check
+    # reports success. Fork PRs correctly don't receive repo secrets — skip
+    # rather than fail red, since JWT_SECRET/MONGODB_URI will be empty.
+    if: ${{ !cancelled() && needs.changes.outputs.code == 'true' && (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository) }}
     env:
       PORT: '3000'
       BASE_URL: 'http://localhost:3000'
@@ -188,14 +230,22 @@ jobs:
       MONGODB_URI: ${{ secrets.MONGODB_URI }}
       RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
     steps:
+      - name: Fail if build did not succeed
+        if: needs.build.result != 'success'
+        run: |
+          echo "build job result: ${{ needs.build.result }}"
+          exit 1
       - uses: actions/checkout@v7
       - uses: actions/setup-node@v7
         with:
           node-version: '22'
           cache: 'npm'
       - run: npm ci --ignore-scripts
-      - name: Build Next.js app
-        run: npm run build
+      - uses: actions/download-artifact@v7
+        with:
+          name: next-build
+      - name: Unpack build output
+        run: tar -xzf next-build.tgz
       - name: Start Next.js server
         run: npm start &
       - name: Wait for server
@@ -221,10 +271,13 @@ jobs:
           retention-days: 7
 
   e2e:
-    needs: test-api
+    # Still serial after test-api: e2e's global teardown deletes every
+    # @test.com user in the shared Atlas DB, including test-api's. Running
+    # them in parallel needs per-run user scoping first (plan phase 2).
+    needs: [changes, build, test-api]
     runs-on: ubuntu-latest
-    # Same fork-PR guard as test-api — no repo secrets available on a fork PR.
-    if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository
+    # Same guards as test-api (!cancelled() + fork-PR skip).
+    if: ${{ !cancelled() && needs.changes.outputs.code == 'true' && (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository) }}
     env:
       BASE_URL: 'http://localhost:3000'
       FRONTEND_URL: 'http://localhost:3000'
@@ -235,6 +288,11 @@ jobs:
       RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
       NEXT_PUBLIC_GOOGLE_CLIENT_ID: ''
     steps:
+      - name: Fail if build or test-api did not succeed
+        if: needs.build.result != 'success' || needs.test-api.result != 'success'
+        run: |
+          echo "build: ${{ needs.build.result }}, test-api: ${{ needs.test-api.result }}"
+          exit 1
       - uses: actions/checkout@v7
       - uses: actions/setup-node@v7
         with:
@@ -243,8 +301,11 @@ jobs:
       - run: npm ci --ignore-scripts
       - name: Install Playwright browsers
         run: node_modules/.bin/playwright install chromium --with-deps
-      - name: Build Next.js app
-        run: npm run build
+      - uses: actions/download-artifact@v7
+        with:
+          name: next-build
+      - name: Unpack build output
+        run: tar -xzf next-build.tgz
       - name: Start Next.js server
         run: npm start &
       - name: Wait for server
