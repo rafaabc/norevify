@@ -2,6 +2,7 @@ import * as path from 'path';
 import { APIRequestContext } from '@playwright/test';
 import dotenv from 'dotenv';
 import mongoose from 'mongoose';
+import { assertTestDb } from '../../test/helpers/assertTestDb.js';
 import { DEFAULT_PASSWORD, uniqueUsername, todayISO } from './test-data';
 
 dotenv.config({ path: path.resolve(process.cwd(), '.env') });
@@ -9,6 +10,7 @@ dotenv.config({ path: path.resolve(process.cwd(), '.env') });
 async function markEmailVerified(userId: string): Promise<void> {
   const uri = process.env.MONGODB_URI;
   if (!uri) return;
+  assertTestDb(uri);
   if (mongoose.connection.readyState === 0) await mongoose.connect(uri);
   await mongoose.connection
     .db!.collection('users')

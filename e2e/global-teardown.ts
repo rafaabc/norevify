@@ -1,10 +1,14 @@
 import * as path from 'path';
 import dotenv from 'dotenv';
 import mongoose from 'mongoose';
+import { assertTestDb } from '../test/helpers/assertTestDb.js';
 import { RUN_TAG, RUN_USERNAME_PREFIX } from './fixtures/test-data';
 
 // Users older than this belong to a run that died before teardown (CI runs take minutes).
 const STALE_AFTER_MS = 3 * 60 * 60 * 1000;
+
+// Collections holding per-user rows; wiped for every test user deleted below.
+const OWNED_COLLECTIONS = ['expenses', 'reminders', 'vehicles', 'incomes', 'recurringrules'];
 
 dotenv.config({ path: path.resolve(process.cwd(), '.env') });
 
@@ -16,6 +20,7 @@ export default async function globalTeardown(): Promise<void> {
   }
 
   try {
+    assertTestDb(uri);
     await mongoose.connect(uri);
     const db = mongoose.connection.db!;
 
@@ -39,8 +44,9 @@ export default async function globalTeardown(): Promise<void> {
 
     if (testUsers.length > 0) {
       const ids = testUsers.map((u) => u._id);
-      await db.collection('expenses').deleteMany({ userId: { $in: ids } });
-      await db.collection('reminders').deleteMany({ userId: { $in: ids } });
+      for (const name of OWNED_COLLECTIONS) {
+        await db.collection(name).deleteMany({ userId: { $in: ids } });
+      }
       await db.collection('users').deleteMany({ _id: { $in: ids } });
     }
 

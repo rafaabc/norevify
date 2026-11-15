@@ -7,6 +7,7 @@ const {
   uniqueUsername,
   createAndLoginUser,
   verifyUserInDb,
+  trackUserId,
 } = require('../base/api-base');
 
 const VALID_CONSENT = { policyVersion: '2026-05-20', acceptedAt: new Date().toISOString() };
@@ -18,6 +19,7 @@ async function registerAndLogin(prefix, password = 'Zx7Qw2vNp9Lm4Rk8') {
     .post('/api/auth/register')
     .send({ username, password, email, consent: VALID_CONSENT });
   expect(regRes.status).to.equal(201);
+  trackUserId(regRes.body.id);
   await verifyUserInDb(regRes.body.id);
   const loginRes = await request(BASE_URL).post('/api/auth/login').send({ username, password });
   return { username, password, token: loginRes.body.token };

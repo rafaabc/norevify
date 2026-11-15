@@ -3,6 +3,7 @@
 const request = require('supertest');
 const { expect } = require('chai');
 const mongoose = require('mongoose');
+const { assertTestDb } = require('../../helpers/assertTestDb.js');
 
 // Register models with this mongoose instance (no connection needed at require time)
 require('../../../lib/models/user.model.js');
@@ -18,6 +19,9 @@ const VALID_CONSENT = { policyVersion: '2026-05-20', acceptedAt: new Date().toIS
 let authToken = null;
 let authUser = null;
 let counter = 0;
+
+// Collections holding per-user rows; wiped for every test user in after().
+const OWNED_COLLECTIONS = ['expenses', 'reminders', 'vehicles', 'incomes', 'recurringrules'];
 
 // Tracks every userId created by this test suite for cleanup in after()
 const createdUserIds = [];
@@ -35,6 +39,11 @@ function getUser() {
 
 function authHeader() {
   return { Authorization: `Bearer ${getToken()}` };
+}
+
+// Tracks a user id created outside the helpers below so after() still deletes it.
+function trackUserId(id) {
+  if (id) createdUserIds.push(id);
 }
 
 // Registers a user, tracks their ID for cleanup, returns the full supertest response.
@@ -89,6 +98,8 @@ async function promoteToAdmin(userId) {
 before(async function () {
   this.timeout(15000);
 
+  assertTestDb(); // never run against the production database
+
   // Open DB connection first so we can mark users as verified after registration.
   await mongoose.connect(process.env.MONGODB_URI);
 
@@ -125,15 +136,13 @@ after(async function () {
   this.timeout(30000);
   try {
     const UserM = mongoose.model('User');
-    const ExpenseM = mongoose.model('Expense');
-    const ReminderM = mongoose.model('Reminder');
+    const db = mongoose.connection.db;
 
-    for (const id of createdUserIds) {
-      const oid = new mongoose.Types.ObjectId(id);
-      await ExpenseM.deleteMany({ userId: oid });
-      await ReminderM.deleteMany({ userId: oid });
-      await UserM.findByIdAndDelete(oid);
+    const oids = createdUserIds.map((id) => new mongoose.Types.ObjectId(id));
+    for (const name of OWNED_COLLECTIONS) {
+      await db.collection(name).deleteMany({ userId: { $in: oids } });
     }
+    await UserM.deleteMany({ _id: { $in: oids } });
   } catch (err) {
     console.warn('[api-base] Cleanup warning:', err.message);
   } finally {
@@ -155,6 +164,7 @@ module.exports = {
   authHeader,
   createAndLoginUser,
   registerAndTrack,
+  trackUserId,
   verifyUserInDb,
   promoteToAdmin,
 };
