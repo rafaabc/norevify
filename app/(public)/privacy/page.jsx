@@ -1,4 +1,6 @@
-import PrivacyPage from '@/views/PrivacyPage.jsx';
-export default function Page() {
-  return <PrivacyPage />;
+import LegalPage from '@/views/LegalPage.jsx';
+import { loadLegalDoc } from '@/lib/legalContent.js';
+
+export default async function Page() {
+  return <LegalPage content={await loadLegalDoc('privacy')} />;
 }
