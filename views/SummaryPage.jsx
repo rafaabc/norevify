@@ -162,11 +162,11 @@ export default function SummaryPage() {
         <>
           <div className={styles.chartsGrid}>
             <div className="card">
-              <h3 className={styles.sectionTitle}>{t('summary.byMonth')}</h3>
+              <h2 className={styles.sectionTitle}>{t('summary.byMonth')}</h2>
               <StackedMonthlyBar data={barData} categories={targetCategories} />
             </div>
             <div className="card">
-              <h3 className={styles.sectionTitle}>{t('summary.byCategory')}</h3>
+              <h2 className={styles.sectionTitle}>{t('summary.byCategory')}</h2>
               <CategoryDonut data={donutData} currency={currency} />
             </div>
           </div>
@@ -178,7 +178,12 @@ export default function SummaryPage() {
                 {filters.year} {t('summary.breakdown')}
               </span>
             </summary>
-            <div style={{ overflowX: 'auto', marginTop: '1rem' }}>
+            <div
+              style={{ overflowX: 'auto', marginTop: '1rem' }}
+              tabIndex={0}
+              role="region"
+              aria-label={`${filters.year} ${t('summary.breakdown')}`}
+            >
               <table>
                 <thead>
                   <tr>
@@ -232,9 +237,9 @@ export default function SummaryPage() {
 
           {/* Mobile category bars */}
           <div className={`card ${styles.pivotMobile}`}>
-            <h3 className={styles.sectionTitle}>
+            <h2 className={styles.sectionTitle}>
               {filters.year} {t('summary.byCategory')}
-            </h3>
+            </h2>
             {donutData.length === 0 ? (
               <p className="text-muted">{t('summary.noData')}</p>
             ) : (
@@ -277,9 +282,9 @@ export default function SummaryPage() {
 
           {/* Mobile month breakdown */}
           <div className={`card ${styles.pivotMobile}`} data-testid="mobile-month-breakdown">
-            <h3 className={styles.sectionTitle}>
+            <h2 className={styles.sectionTitle}>
               {filters.year} {t('summary.breakdown')}
-            </h3>
+            </h2>
             <MonthBreakdown
               rows={Array.from({ length: 12 }, (_, i) => i + 1).map((m) => {
                 const row = monthly[m];

@@ -22,7 +22,7 @@ export default function MobileNewActionSheet({ open, onClose }) {
       onKeyDown={(e) => e.key === 'Escape' && onClose()}
     >
       <div className="action-sheet" role="dialog" aria-modal="true">
-        <h3>{t('mobile.newAction')}</h3>
+        <h2>{t('mobile.newAction')}</h2>
         <button
           type="button"
           className="action-sheet-btn"

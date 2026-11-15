@@ -8,11 +8,13 @@ export const CATEGORY_COLORS = {
   Parking: '#46d17f', // green (matches --cat-parking)
   Toll: '#c08cff', // violet (matches --cat-toll)
   Tax: '#ff3b30', // redline (matches --cat-tax)
-  Other: '#7d828c', // muted (matches --cat-other)
+  Other: '#959aa3', // muted (matches --cat-other)
 };
 
+export const FALLBACK_COLOR = '#959aa3';
+
 export const AXIS_STYLE = {
-  tick: { fill: '#7d828c', fontSize: 12, fontFamily: 'Barlow, system-ui, sans-serif' },
+  tick: { fill: '#959aa3', fontSize: 12, fontFamily: 'Barlow, system-ui, sans-serif' },
   axisLine: { stroke: '#26292f' },
   tickLine: { stroke: '#26292f' },
 };

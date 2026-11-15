@@ -52,7 +52,7 @@ export default function CompleteReminderDialog({ open, reminder, onSubmit, onCan
   return (
     <div role="dialog" aria-modal="true" className="modal-backdrop">
       <form className="modal" onSubmit={handleSubmit}>
-        <h3>{t('reminders.actions.complete')}</h3>
+        <h2>{t('reminders.actions.complete')}</h2>
         <div className="form-group">
           <FieldLabelWithHint
             htmlFor="complete-km"

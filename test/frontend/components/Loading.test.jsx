@@ -5,9 +5,9 @@ import Loading from '@/components/Loading';
 vi.mock('react-i18next', () => ({ useTranslation: () => ({ t: (k) => k }) }));
 
 describe('Loading', () => {
-  it('should render spinner container with aria-label', () => {
+  it('should expose a status region with accessible text', () => {
     render(<Loading />);
-    expect(screen.getByLabelText('common.loading')).toBeInTheDocument();
+    expect(screen.getByRole('status')).toHaveTextContent('common.loading');
   });
 
   it('should render spinner div inside container', () => {

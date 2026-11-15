@@ -8,9 +8,11 @@ import styles from './LandingPage.module.css';
 export default function LandingPage() {
   return (
     <div className={styles.page}>
-      <LandingHero />
-      <FeatureGrid />
-      <PricingTeaser />
+      <main>
+        <LandingHero />
+        <FeatureGrid />
+        <PricingTeaser />
+      </main>
       <LandingFooter />
     </div>
   );

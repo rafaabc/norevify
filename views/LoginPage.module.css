@@ -87,6 +87,10 @@
   text-align: center;
   color: var(--text-2);
 }
+.switchLink a {
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
 
 .divider {
   display: flex;

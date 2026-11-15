@@ -20,7 +20,7 @@ export default function FeatureGrid() {
         {FEATURES.map(({ key, Icon }) => (
           <div key={key} className={styles.featureCard}>
             <Icon size={28} strokeWidth={1.5} className={styles.featureIcon} />
-            <h3 className={styles.featureTitle}>{t(`landing.features.${key}.title`)}</h3>
+            <h2 className={styles.featureTitle}>{t(`landing.features.${key}.title`)}</h2>
             <p className={styles.featureBlurb}>{t(`landing.features.${key}.blurb`)}</p>
           </div>
         ))}

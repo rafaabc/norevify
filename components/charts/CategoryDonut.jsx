@@ -1,7 +1,7 @@
 'use client';
 import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer } from 'recharts';
 import { useTranslation } from 'react-i18next';
-import { CATEGORY_COLORS, TOOLTIP_STYLE } from './chartTheme.js';
+import { CATEGORY_COLORS, FALLBACK_COLOR, TOOLTIP_STYLE } from './chartTheme.js';
 import { formatCurrency } from '@/utils/formatCurrency.js';
 import { categoryLabel } from '@/utils/categories.js';
 
@@ -40,7 +40,7 @@ export default function CategoryDonut({ data, currency = 'BRL' }) {
             paddingAngle={2}
           >
             {data.map((entry) => (
-              <Cell key={entry.category} fill={CATEGORY_COLORS[entry.category] ?? '#7d828c'} />
+              <Cell key={entry.category} fill={CATEGORY_COLORS[entry.category] ?? FALLBACK_COLOR} />
             ))}
           </Pie>
           <Tooltip
@@ -78,7 +78,7 @@ export default function CategoryDonut({ data, currency = 'BRL' }) {
                 width: 10,
                 height: 10,
                 borderRadius: '50%',
-                background: CATEGORY_COLORS[entry.category] ?? '#7d828c',
+                background: CATEGORY_COLORS[entry.category] ?? FALLBACK_COLOR,
                 flexShrink: 0,
               }}
             />
