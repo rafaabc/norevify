@@ -178,7 +178,12 @@ export default function SummaryPage() {
                 {filters.year} {t('summary.breakdown')}
               </span>
             </summary>
-            <div style={{ overflowX: 'auto', marginTop: '1rem' }}>
+            <div
+              style={{ overflowX: 'auto', marginTop: '1rem' }}
+              tabIndex={0}
+              role="region"
+              aria-label={`${filters.year} ${t('summary.breakdown')}`}
+            >
               <table>
                 <thead>
                   <tr>
