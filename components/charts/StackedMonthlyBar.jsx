@@ -10,7 +10,13 @@ import {
   ResponsiveContainer,
 } from 'recharts';
 import { useTranslation } from 'react-i18next';
-import { CATEGORY_COLORS, FALLBACK_COLOR, AXIS_STYLE, GRID_STYLE, TOOLTIP_STYLE } from './chartTheme.js';
+import {
+  CATEGORY_COLORS,
+  FALLBACK_COLOR,
+  AXIS_STYLE,
+  GRID_STYLE,
+  TOOLTIP_STYLE,
+} from './chartTheme.js';
 import { monthLabel } from '@/utils/aggregations.js';
 import { categoryLabel } from '@/utils/categories.js';
 
