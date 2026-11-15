@@ -120,7 +120,7 @@ Add `vi.mock('@/i18n/index.js', ...)` in any file that imports a component using
 
 **Integration** (`test/integration/`): real service↔model calls, in-memory Mongo, no HTTP. Files named `<flow>.flow.test.js`.
 
-**API** (`test/api/`): Mocha + Chai + Supertest. Requires live server + Atlas. Root hook in `test/api/hooks/auth.js` registers a primary user once.
+**API** (`test/api/`): Mocha + Chai + Supertest. Requires live server + Atlas. **Test-DB guard**: `test/helpers/assertTestDb.js` makes `test:api` (root `before()`) and e2e (`e2e/global-setup.ts`, teardown, `markEmailVerified`) throw unless `MONGODB_URI`'s database name ends in `_test` — these suites register real users and write to Mongo, and used to leak `delwrong_*` users into prod. Local `.env` and the CI `MONGODB_URI` secret must point at `/norevify_test`; only Vercel prod uses `/norevify`. `api-base.js` `after()` and `e2e/global-teardown.ts` wipe every user-owned collection (`expenses, reminders, vehicles, incomes, recurringrules`); register users in API tests via `registerAndTrack`/`createAndLoginUser`/`trackUserId` so they're cleaned up. Root hook in `test/api/hooks/auth.js` registers a primary user once.
 
 **E2E** (`e2e/`): Playwright Page Object Model. `globalTeardown` deletes all `/@test\.com$/` users from Atlas after each run.
 
@@ -154,7 +154,7 @@ Non-obvious rule decisions:
 | `test-api`         | `build`   | Mocha against the downloaded build + `next start`             |
 | `e2e`              | `build`   | Playwright Chromium (2 workers) against the downloaded build  |
 
-`build` is not a required check. `test-api`/`e2e` use `if: !cancelled()` plus a first step that fails when `build` didn't succeed — a plain `needs` failure would _skip_ them, and a skipped required check reports success. `test-api` and `e2e` run in parallel against the shared Atlas DB: e2e usernames are tagged `e2e<E2E_RUN_TAG>_…` (`RUN_TAG` in `e2e/fixtures/test-data.ts`, set to `run_id`+`run_attempt` in CI, `local` otherwise), and `e2e/global-teardown.ts` deletes only users with that tag plus any `@test.com` user older than 3h (leftovers from runs that died before teardown) and only orphaned reminders older than 3h. Don't widen it back to "all `@test.com` users" — that would delete other runs' and test-api's live data. Concurrency is per PR/ref (`ci-<pr number or ref>`), cancelling superseded PR runs; pushes to `main` are never cancelled.
+`build` is not a required check. `test-api`/`e2e` use `if: !cancelled()` plus a first step that fails when `build` didn't succeed — a plain `needs` failure would _skip_ them, and a skipped required check reports success. `test-api` and `e2e` run in parallel against the shared Atlas **test** DB (`norevify_test` — never prod): e2e usernames are tagged `e2e<E2E_RUN_TAG>_…` (`RUN_TAG` in `e2e/fixtures/test-data.ts`, set to `run_id`+`run_attempt` in CI, `local` otherwise), and `e2e/global-teardown.ts` deletes only users with that tag plus any `@test.com` user older than 3h (leftovers from runs that died before teardown) and only orphaned reminders older than 3h. Don't widen it back to "all `@test.com` users" — that would delete other runs' and test-api's live data. Concurrency is per PR/ref (`ci-<pr number or ref>`), cancelling superseded PR runs; pushes to `main` are never cancelled.
 
 `test-api` and `e2e` require `JWT_SECRET` + `MONGODB_URI` GitHub Secrets. Dependabot: weekly npm + github-actions updates (`.github/dependabot.yml`).
 
