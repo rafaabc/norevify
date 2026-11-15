@@ -37,7 +37,7 @@ function VehicleFormModal({ open, initial, onSubmit, onCancel, error, loading })
 
   return (
     <Modal open={open} labelledBy="vehicle-modal-title">
-      <h3 id="vehicle-modal-title">{initial ? t('vehicles.editVehicle') : t('vehicles.addNew')}</h3>
+      <h2 id="vehicle-modal-title">{initial ? t('vehicles.editVehicle') : t('vehicles.addNew')}</h2>
       {error && <ErrorBanner message={error} />}
       <form onSubmit={handleSubmit}>
         <div className="form-group">

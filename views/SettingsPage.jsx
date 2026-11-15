@@ -492,7 +492,7 @@ export default function SettingsPage() {
           tabIndex={-1}
         >
           <div className="modal" role="dialog" aria-modal="true">
-            <h3 style={{ marginBottom: '1rem' }}>{t('settings.deleteAccount.heading')}</h3>
+            <h2 style={{ marginBottom: '1rem' }}>{t('settings.deleteAccount.heading')}</h2>
             <p style={{ color: 'var(--muted)', fontSize: '0.875rem', marginBottom: '1rem' }}>
               {t('settings.deleteAccount.warning')}
             </p>

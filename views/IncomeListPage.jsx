@@ -193,7 +193,7 @@ function IncomeFormModal({
 
   return (
     <Modal open={open} labelledBy="income-modal-title">
-      <h3 id="income-modal-title">{initial ? t('income.editIncome') : t('income.addNew')}</h3>
+      <h2 id="income-modal-title">{initial ? t('income.editIncome') : t('income.addNew')}</h2>
       {error && <ErrorBanner message={error} />}
       <label className={styles.shiftToggle}>
         <input type="checkbox" checked={shiftMode} onChange={toggleShiftMode} />
@@ -394,7 +394,7 @@ function ProfitSummaryCard({ summary, currency, targetHourlyRate, t }) {
 
   return (
     <div className={`card ${styles.summaryCard}`}>
-      <h3 style={{ fontSize: '1rem', fontWeight: 600 }}>{t('income.summary.heading')}</h3>
+      <h2 style={{ fontSize: '1rem', fontWeight: 600 }}>{t('income.summary.heading')}</h2>
 
       <div className={styles.headline}>
         <span className={styles.headlineLabel}>{t('income.summary.netPerHour')}</span>
@@ -698,9 +698,9 @@ function IncomeListPageInner() {
 
           {!filters.month && summary?.months && (
             <div className={`card ${styles.breakdownCard}`} data-testid="income-month-breakdown">
-              <h3 style={{ fontSize: '1rem', fontWeight: 600, marginBottom: '0.75rem' }}>
+              <h2 style={{ fontSize: '1rem', fontWeight: 600, marginBottom: '0.75rem' }}>
                 {filters.year} {t('income.summary.breakdown')}
-              </h3>
+              </h2>
               <MonthBreakdown
                 rows={summary.months.map((row) => {
                   if (!row.totalIncome) return { month: row.month, empty: true };

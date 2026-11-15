@@ -518,6 +518,10 @@ tbody tr:hover td {
   flex-direction: column;
   gap: var(--space-4);
 }
+.modal h2 {
+  font-size: 1.17em;
+  margin: 1em 0;
+}
 
 /* Native <dialog>-based .modal (see components/Modal.jsx): reset UA dialog
    defaults so it lays out identically to the div-based .modal above. */
