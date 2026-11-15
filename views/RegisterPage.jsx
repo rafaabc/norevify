@@ -159,11 +159,25 @@ export default function RegisterPage() {
                 style={{ cursor: 'pointer', fontSize: '0.875rem', lineHeight: 1.4 }}
               >
                 {t('auth.register.consentLabel')}{' '}
-                <Link href="/privacy" style={{ color: 'var(--primary)' }}>
+                <Link
+                  href="/privacy"
+                  style={{
+                    color: 'var(--primary)',
+                    textDecoration: 'underline',
+                    textUnderlineOffset: '2px',
+                  }}
+                >
                   {t('auth.register.privacyPolicy')}
                 </Link>{' '}
                 {t('auth.register.consentAnd')}{' '}
-                <Link href="/terms" style={{ color: 'var(--primary)' }}>
+                <Link
+                  href="/terms"
+                  style={{
+                    color: 'var(--primary)',
+                    textDecoration: 'underline',
+                    textUnderlineOffset: '2px',
+                  }}
+                >
                   {t('auth.register.termsOfService')}
                 </Link>
                 .
