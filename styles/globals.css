@@ -26,6 +26,7 @@
 
   /* Semantic */
   --danger: #ff3b30;
+  --danger-text: #ff5a50; /* text-only: ≥4.5:1 on danger-dim surfaces */
   --danger-dim: rgba(255, 59, 48, 0.12);
   --danger-border: rgba(255, 59, 48, 0.3);
   --success: #46d17f;
@@ -43,12 +44,12 @@
   --cat-parking: #46d17f;
   --cat-toll: #c08cff;
   --cat-tax: #ff3b30;
-  --cat-other: #7d828c;
+  --cat-other: #959aa3;
 
   /* Text */
   --text: #e9eaec;
   --text-2: #aab0b8;
-  --muted: #7d828c;
+  --muted: #959aa3;
 
   /* Typography */
   --font-display: 'Saira Semi Condensed', system-ui, sans-serif;
@@ -404,7 +405,7 @@ tbody tr:hover td {
 }
 .alert-error {
   background: var(--danger-dim);
-  color: var(--danger);
+  color: var(--danger-text);
   border-color: var(--danger-border);
 }
 .alert-success {
@@ -488,7 +489,7 @@ tbody tr:hover td {
   border-color: color-mix(in srgb, var(--cat-toll) 45%, transparent);
 }
 .badge[data-cat='Tax'] {
-  color: var(--cat-tax);
+  color: var(--danger-text);
   background: color-mix(in srgb, var(--cat-tax) 12%, transparent);
   border-color: color-mix(in srgb, var(--cat-tax) 45%, transparent);
 }
