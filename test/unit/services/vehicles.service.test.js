@@ -169,3 +169,62 @@ describe('vehiclesService.deleteAllByUser()', () => {
     assert.strictEqual((await vehiclesService.listVehicles(other)).length, 1);
   });
 });
+
+describe('vehiclesService.deleteVehicle()', () => {
+  const expenseModel = require('../../../lib/models/expense.model');
+  const incomeModel = require('../../../lib/models/income.model');
+  const reminderModel = require('../../../lib/models/reminder.model');
+  const recurringRuleModel = require('../../../lib/models/recurringRule.model');
+
+  it('deletes a vehicle that has no records', async () => {
+    const u = USER_ID();
+    const v = await vehiclesService.createVehicle(u, { name: 'Empty' });
+    await vehiclesService.deleteVehicle(u, v.id);
+    assert.strictEqual((await vehiclesService.listVehicles(u)).length, 0);
+  });
+
+  // Deleting a vehicle used to leave its records pointing at a vehicle that no longer
+  // exists: km-based reminders then read currentKm 0 and never went overdue, and
+  // per-vehicle filters/reports silently dropped the rows.
+  const RECORD_KINDS = {
+    expense: (userId, vehicleId) =>
+      expenseModel.create({ userId, vehicleId, date: new Date(), category: 'Toll', amount: 5 }),
+    income: (userId, vehicleId) =>
+      incomeModel.create({ userId, vehicleId, date: new Date(), amount: 50, source: 'Uber' }),
+    reminder: (userId, vehicleId) =>
+      reminderModel.create({ userId, vehicleId, type: 'Maintenance', dueKm: 10000 }),
+    'recurring rule': (userId, vehicleId) =>
+      recurringRuleModel.create({
+        userId,
+        vehicleId,
+        category: 'Insurance',
+        amount: 100,
+        startDate: new Date(),
+        interval: 1,
+        dayOfMonth: 1,
+      }),
+  };
+
+  for (const [kind, createRecord] of Object.entries(RECORD_KINDS)) {
+    it(`refuses with 409 vehicle_in_use while the vehicle still has a ${kind}`, async () => {
+      const u = USER_ID();
+      const v = await vehiclesService.createVehicle(u, { name: 'Used' });
+      await createRecord(u, v._id);
+      await assert.rejects(
+        () => vehiclesService.deleteVehicle(u, v.id),
+        (err) => err.status === 409 && err.message === 'vehicle_in_use',
+      );
+      assert.strictEqual((await vehiclesService.listVehicles(u)).length, 1);
+    });
+  }
+
+  it("404s on another user's vehicle without revealing whether it has records", async () => {
+    const owner = USER_ID();
+    const v = await vehiclesService.createVehicle(owner, { name: 'Theirs' });
+    await RECORD_KINDS.expense(owner, v._id);
+    await assert.rejects(
+      () => vehiclesService.deleteVehicle(USER_ID(), v.id),
+      (err) => err.status === 404,
+    );
+  });
+});

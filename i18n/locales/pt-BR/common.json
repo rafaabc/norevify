@@ -212,7 +212,8 @@
     "incomeFeatureLocked": "O controle de receita é um recurso Pro. Faça upgrade para desbloquear.",
     "reportsFeatureLocked": "Relatórios prontos para o imposto de renda são um recurso Pro. Faça upgrade para desbloquear.",
     "inviteRequired": "Um código de convite é necessário para se cadastrar no momento.",
-    "adminRequired": "Você não tem permissão para fazer isso."
+    "adminRequired": "Você não tem permissão para fazer isso.",
+    "vehicleInUse": "Este veículo ainda tem despesas, receitas, lembretes ou despesas recorrentes. Mova-os para outro veículo ou exclua-os antes."
   },
   "pwa": {
     "updateAvailable": "Nova versão disponível.",
@@ -277,7 +278,7 @@
       "currentKmHint": "Atualiza automaticamente ao registrar um abastecimento com hodômetro. Edite aqui para corrigir manualmente."
     },
     "actions": {
-      "confirmDelete": "Excluir este veículo? As despesas e lembretes são mantidos, porém desvinculados.",
+      "confirmDelete": "Excluir este veículo? Só é possível excluir um veículo sem despesas, receitas, lembretes ou despesas recorrentes.",
       "deleteSuccess": "Veículo excluído.",
       "createSuccess": "Veículo adicionado.",
       "updateSuccess": "Veículo atualizado."
