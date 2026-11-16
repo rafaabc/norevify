@@ -43,6 +43,52 @@ describe('billingService.createCheckoutSession()', () => {
     assert.strictEqual(updated.stripeCustomerId, 'cus_new1');
   });
 
+  it('parallel first checkouts (two tabs) share one Stripe customer via an idempotency key', async () => {
+    const user = await userModel.create({
+      username: 'checkoutrace1',
+      password: 'x',
+      email: 'checkoutrace1@test.com',
+    });
+
+    // Mimics Stripe: the same idempotency key returns the original customer, while a call
+    // without one creates a new customer every time.
+    const byKey = new Map();
+    let created = 0;
+    const sessionCustomers = [];
+    mock.method(stripeLib, 'getStripe', () => ({
+      customers: {
+        create: async (_params, options) => {
+          await new Promise((resolve) => setImmediate(resolve));
+          const key = options?.idempotencyKey;
+          if (key && byKey.has(key)) return byKey.get(key);
+          created += 1;
+          const customer = { id: `cus_race_${created}` };
+          if (key) byKey.set(key, customer);
+          return customer;
+        },
+      },
+      checkout: {
+        sessions: {
+          create: async (opts) => {
+            sessionCustomers.push(opts.customer);
+            return { url: 'https://checkout.stripe.com/race' };
+          },
+        },
+      },
+    }));
+
+    const userId = user._id.toString();
+    await Promise.all([
+      billingService.createCheckoutSession({ userId, interval: 'monthly' }),
+      billingService.createCheckoutSession({ userId, interval: 'monthly' }),
+    ]);
+
+    assert.strictEqual(created, 1, 'only one Stripe customer may be created');
+    assert.strictEqual(sessionCustomers[0], sessionCustomers[1]);
+    const updated = await userModel.findById(user._id);
+    assert.strictEqual(updated.stripeCustomerId, sessionCustomers[0]);
+  });
+
   it('reuses an existing stripeCustomerId instead of creating a new customer', async () => {
     const user = await userModel.create({
       username: 'checkoutuser2',
