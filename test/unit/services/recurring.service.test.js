@@ -83,6 +83,14 @@ describe('recurringService.createRule() — validation', () => {
     );
   });
 
+  it('rejects an amount with more than 2 decimals', async () => {
+    const userId = makeUserId();
+    await assert.rejects(
+      () => recurringService.createRule(userId, { ...validRule(), amount: 49.999 }),
+      (err) => err.status === 400 && /amount must have at most 2 decimal places/.test(err.message),
+    );
+  });
+
   it('rejects non-positive amount', async () => {
     const userId = makeUserId();
     await assert.rejects(

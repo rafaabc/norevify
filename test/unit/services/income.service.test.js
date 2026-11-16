@@ -89,6 +89,28 @@ describe('incomeService.createIncome()', () => {
     );
   });
 
+  it('rejects an amount with more than 2 decimals', async () => {
+    const u = await proUser('proincdec1');
+    await assert.rejects(
+      () => incomeService.createIncome(u, { date: TODAY, amount: 100.555, source: 'Uber' }),
+      (err) => err.status === 400 && /amount must have at most 2 decimal places/.test(err.message),
+    );
+  });
+
+  it('rejects tips with more than 2 decimals', async () => {
+    const u = await proUser('proincdec2');
+    await assert.rejects(
+      () =>
+        incomeService.createIncome(u, {
+          date: TODAY,
+          amount: 100,
+          source: 'Wolt',
+          tips: 5.555,
+        }),
+      (err) => err.status === 400 && /tips must have at most 2 decimal places/.test(err.message),
+    );
+  });
+
   it('rejects non-positive amount', async () => {
     const u = await proUser('proinc3');
     await assert.rejects(

@@ -213,7 +213,8 @@
     "reportsFeatureLocked": "Tax-ready reports are a Pro feature. Upgrade to unlock them.",
     "inviteRequired": "An invite code is required to sign up right now.",
     "adminRequired": "You don't have permission to do that.",
-    "vehicleInUse": "This vehicle still has expenses, income, reminders or recurring expenses. Move them to another vehicle or delete them first."
+    "vehicleInUse": "This vehicle still has expenses, income, reminders or recurring expenses. Move them to another vehicle or delete them first.",
+    "moneyTooManyDecimals": "Amounts can have at most 2 decimal places."
   },
   "pwa": {
     "updateAvailable": "New version available.",

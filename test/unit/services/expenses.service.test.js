@@ -382,6 +382,33 @@ describe('expensesService.createExpense()', () => {
 // ---------------------------------------------------------------------------
 // US-03 — Get / Update / Delete Expense
 // ---------------------------------------------------------------------------
+describe('expensesService.createExpense() — amount precision', () => {
+  it('rejects a non-Fuel amount with more than 2 decimals', async () => {
+    await assert.rejects(
+      () =>
+        expensesService.createExpense(USER_ID, { date: TODAY, category: 'Toll', amount: 19.999 }),
+      (err) => err.status === 400 && /amount must have at most 2 decimal places/.test(err.message),
+    );
+  });
+
+  it('rejects an Infinity amount', async () => {
+    await assert.rejects(
+      () =>
+        expensesService.createExpense(USER_ID, { date: TODAY, category: 'Toll', amount: Infinity }),
+      (err) => err.status === 400,
+    );
+  });
+
+  it('still accepts a 2-decimal amount', async () => {
+    const e = await expensesService.createExpense(USER_ID, {
+      date: TODAY,
+      category: 'Toll',
+      amount: 19.99,
+    });
+    assert.strictEqual(e.amount, 19.99);
+  });
+});
+
 describe('expensesService.getExpense()', () => {
   it('should return the expense when it belongs to the user', async () => {
     const created = await expensesService.createExpense(USER_ID, validOther());
