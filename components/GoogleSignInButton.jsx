@@ -21,7 +21,20 @@ function injectGisScript() {
   document.head.appendChild(s);
 }
 
-export default function GoogleSignInButton({ mode = 'login', onSuccess, onError, inviteCode }) {
+// Modes:
+//   login    — sign in; also the entry point for an existing account
+//   register — sign up; sends the consent record (and currency) for a new account
+//   reauth   — hands the fresh ID token to `onCredential` instead of signing in, so a
+//              sensitive action (deleting the account) can re-prove control of Google
+export default function GoogleSignInButton({
+  mode = 'login',
+  onCredential,
+  onError,
+  inviteCode,
+  consent,
+  currency,
+  disabled = false,
+}) {
   const { login } = useAuth() || {};
   const router = useRouter();
   const { t } = useTranslation();
@@ -29,21 +42,30 @@ export default function GoogleSignInButton({ mode = 'login', onSuccess, onError,
   // Ref, not state, for the guard: GIS holds the callback from initialize(), so a
   // state value captured in its closure would be stale on a second fire.
   const pendingRef = useRef(false);
+  const disabledRef = useRef(disabled);
   const [pending, setPending] = useState(false);
+
+  useEffect(() => {
+    disabledRef.current = disabled;
+  }, [disabled]);
 
   const handleCredential = useCallback(
     async ({ credential }) => {
-      if (pendingRef.current) return;
+      if (pendingRef.current || disabledRef.current) return;
       pendingRef.current = true;
       setPending(true);
       try {
-        if (mode === 'link') {
-          await authApi.linkGoogle({ idToken: credential });
+        if (mode === 'reauth') {
+          await onCredential?.(credential);
           pendingRef.current = false;
           setPending(false);
-          onSuccess?.();
         } else {
-          const { token } = await authApi.googleLogin({ idToken: credential, inviteCode });
+          const { token } = await authApi.googleLogin({
+            idToken: credential,
+            inviteCode,
+            consent,
+            currency,
+          });
           login(token);
           // Stays pending until navigation unmounts this page.
           router.push('/');
@@ -54,7 +76,7 @@ export default function GoogleSignInButton({ mode = 'login', onSuccess, onError,
         onError?.(err.message);
       }
     },
-    [mode, login, router, onSuccess, onError, inviteCode],
+    [mode, login, router, onCredential, onError, inviteCode, consent, currency],
   );
 
   useEffect(() => {
@@ -78,7 +100,9 @@ export default function GoogleSignInButton({ mode = 'login', onSuccess, onError,
         text: mode === 'register' ? 'signup_with' : 'signin_with',
       });
 
-      if ((mode === 'login' || mode === 'register') && process.env.NODE_ENV !== 'development') {
+      // One Tap only on the login page: on register it would fire before the user has
+      // ticked the consent box, and on reauth it would sign in instead of confirming.
+      if (mode === 'login' && process.env.NODE_ENV !== 'development') {
         globalThis.google.accounts.id.prompt();
       }
     }
@@ -100,13 +124,13 @@ export default function GoogleSignInButton({ mode = 'login', onSuccess, onError,
   if (!CLIENT_ID) return null;
 
   return (
-    <div aria-busy={pending}>
+    <div aria-busy={pending} aria-disabled={disabled}>
       <div
         ref={containerRef}
         style={{
           width: '100%',
-          pointerEvents: pending ? 'none' : undefined,
-          opacity: pending ? 0.6 : undefined,
+          pointerEvents: pending || disabled ? 'none' : undefined,
+          opacity: pending || disabled ? 0.6 : undefined,
         }}
       />
       {pending && (
@@ -119,8 +143,14 @@ export default function GoogleSignInButton({ mode = 'login', onSuccess, onError,
 }
 
 GoogleSignInButton.propTypes = {
-  mode: PropTypes.oneOf(['login', 'register', 'link']),
-  onSuccess: PropTypes.func,
+  mode: PropTypes.oneOf(['login', 'register', 'reauth']),
+  onCredential: PropTypes.func,
   onError: PropTypes.func,
   inviteCode: PropTypes.string,
+  consent: PropTypes.shape({
+    policyVersion: PropTypes.string,
+    acceptedAt: PropTypes.string,
+  }),
+  currency: PropTypes.string,
+  disabled: PropTypes.bool,
 };

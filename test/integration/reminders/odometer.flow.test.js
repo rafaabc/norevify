@@ -8,6 +8,7 @@ const assert = require('node:assert/strict');
 const { startMongo, stopMongo, resetMongo } = require('../../helpers/mongo');
 require('../../helpers/email-mock');
 const authService = require('../../../lib/services/auth.service');
+const { createUser } = require('../../helpers/createUser');
 
 const VALID_CONSENT = { policyVersion: '2026-05-20', acceptedAt: new Date().toISOString() };
 const expensesService = require('../../../lib/services/expenses.service');
@@ -22,7 +23,7 @@ const TODAY = new Date().toISOString().slice(0, 10);
 
 describe('Odometer flow', () => {
   it('fuel odometer raises the vehicle currentKm; older reading does not lower it', async () => {
-    await authService.register({
+    await createUser({
       username: 'od1',
       password: 'Zx7Qw2vNp9Lm4Rk8',
       email: 'od1@test.com',
@@ -54,7 +55,7 @@ describe('Odometer flow', () => {
   });
 
   it('manual override allows setting a lower value', async () => {
-    await authService.register({
+    await createUser({
       username: 'od2',
       password: 'Zx7Qw2vNp9Lm4Rk8',
       email: 'od2@test.com',

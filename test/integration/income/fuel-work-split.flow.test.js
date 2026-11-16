@@ -7,7 +7,7 @@ const assert = require('node:assert/strict');
 
 const { startMongo, stopMongo, resetMongo } = require('../../helpers/mongo');
 require('../../helpers/email-mock');
-const authService = require('../../../lib/services/auth.service');
+const { createUser } = require('../../helpers/createUser');
 const userModel = require('../../../lib/models/user.model');
 const expensesService = require('../../../lib/services/expenses.service');
 const incomeService = require('../../../lib/services/income.service');
@@ -22,7 +22,7 @@ const TODAY = new Date().toISOString().slice(0, 10);
 const YEAR = new Date(TODAY).getUTCFullYear();
 
 async function proUser(username) {
-  await authService.register({
+  await createUser({
     username,
     password: 'Zx7Qw2vNp9Lm4Rk8',
     email: `${username}@test.com`,

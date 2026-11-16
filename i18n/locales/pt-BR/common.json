@@ -20,7 +20,6 @@
     "income": "Receita",
     "reports": "Relatórios",
     "settings": "Configurações",
-    "changePassword": "Alterar senha",
     "logout": "Sair",
     "admin": "Admin"
   },
@@ -46,80 +45,25 @@
   "auth": {
     "login": {
       "heading": "Entrar",
-      "usernameLabel": "Usuário",
-      "usernameHint": "Use seu nome de usuário, não o email.",
-      "submit": "Entrar",
       "submitting": "Entrando…",
       "noAccount": "Não tem uma conta?",
       "register": "Cadastre-se",
-      "forgotPassword": "Esqueceu a senha?",
       "sessionExpired": "Sua sessão expirou. Faça login novamente.",
       "loggedOut": "Logout realizado com sucesso.",
-      "accountCreated": "Conta criada — faça login.",
-      "passwordChanged": "Senha atualizada. Faça login.",
       "accountDeleted": "Conta excluída com sucesso."
-    },
-    "verifyEmail": {
-      "heading": "Verifique seu email",
-      "verifying": "Verificando…",
-      "success": "Email verificado! Agora você pode usar o Norevify.",
-      "goToDashboard": "Ir para o painel",
-      "expired": "Este link de verificação expirou.",
-      "invalid": "Link de verificação inválido.",
-      "alreadyVerified": "Email já verificado.",
-      "requestNew": "Solicitar novo link",
-      "resend": "Reenviar email de verificação",
-      "resending": "Enviando…",
-      "resendSuccess": "Email de verificação enviado. Verifique sua caixa de entrada.",
-      "bannerText": "Verifique seu endereço de email.",
-      "bannerAction": "Reenviar email"
     },
     "register": {
       "heading": "Criar conta",
       "inviteLabel": "Código de convite",
       "inviteHint": "Digite o código de convite que você recebeu.",
-      "username": "Usuário",
-      "usernameHint": "3 a 50 caracteres, letras, números e sublinhado.",
-      "email": "E-mail",
-      "password": "Senha",
       "currency": "Moeda",
-      "submit": "Cadastrar",
-      "submitting": "Cadastrando…",
       "hasAccount": "Já tem uma conta?",
       "signIn": "Entrar",
       "consentLabel": "Li e aceito a",
       "privacyPolicy": "Política de Privacidade",
       "consentAnd": "e os",
       "termsOfService": "Termos de Serviço"
-    },
-    "forgotPassword": {
-      "heading": "Esqueci a senha",
-      "email": "E-mail",
-      "submit": "Enviar link de recuperação",
-      "submitting": "Enviando…",
-      "backToLogin": "Voltar ao login",
-      "success": "Se o e-mail existir, um link de recuperação foi enviado."
-    },
-    "resetPassword": {
-      "heading": "Redefinir senha",
-      "newPassword": "Nova senha",
-      "confirm": "Confirmar nova senha",
-      "requestNew": "Solicitar novo link",
-      "submit": "Redefinir senha",
-      "submitting": "Redefinindo…",
-      "success": "Senha redefinida. Faça login."
-    },
-    "changePassword": {
-      "heading": "Alterar senha",
-      "current": "Senha atual",
-      "new": "Nova senha",
-      "confirm": "Confirmar nova senha",
-      "submit": "Salvar",
-      "submitting": "Salvando…",
-      "success": "Senha alterada com sucesso."
-    },
-    "passwordHint": "Pelo menos 8 caracteres.",
-    "confirmPasswordHint": "Deve coincidir com a nova senha."
+    }
   },
   "settings": {
     "heading": "Configurações",
@@ -148,13 +92,6 @@
       "upgrade": "Assinar o Pro",
       "manage": "Gerenciar cobrança"
     },
-    "linkedAccounts": "Contas vinculadas",
-    "googleConnected": "Conta Google vinculada",
-    "googleDisconnected": "Conta Google desvinculada.",
-    "disconnectGoogle": "Desconectar Google",
-    "disconnecting": "Desconectando…",
-    "setPasswordFirst": "Defina uma senha antes de desconectar o Google.",
-    "changePassword": "Alterar senha",
     "myData": {
       "heading": "Meus dados",
       "description": "Baixe uma cópia dos seus dados ou exclua permanentemente sua conta.",
@@ -164,9 +101,15 @@
     "deleteAccount": {
       "heading": "Excluir conta",
       "warning": "Esta ação é permanente e não pode ser desfeita. Todas as suas despesas e lembretes serão excluídos.",
-      "passwordLabel": "Confirme sua senha",
       "confirm": "Excluir conta",
-      "deleting": "Excluindo…"
+      "deleting": "Excluindo…",
+      "reauthHint": "Para confirmar, entre novamente com o Google."
+    },
+    "sessions": {
+      "heading": "Sessões",
+      "description": "Saia de todos os dispositivos em que você está conectado, inclusive este.",
+      "signOutEverywhere": "Sair de todos os dispositivos",
+      "signingOut": "Saindo…"
     }
   },
   "dashboard": {
@@ -245,16 +188,10 @@
     "invalidProfitTarget": "A meta deve ser um número não negativo, ou em branco.",
     "billingNotConfigured": "A cobrança está temporariamente indisponível. Tente novamente mais tarde.",
     "emailNotVerified": "Verifique seu email antes de continuar.",
-    "invalidVerificationToken": "Token de verificação inválido ou expirado.",
-    "emailAlreadyVerified": "Email já verificado.",
     "invalidCredentials": "Credenciais inválidas.",
-    "usernameTaken": "Nome de usuário já em uso.",
-    "emailRegistered": "E-mail já cadastrado.",
     "userNotFound": "Usuário não encontrado.",
     "expenseNotFound": "Despesa não encontrada.",
-    "invalidToken": "Token inválido ou expirado.",
     "sessionExpired": "Sessão expirada. Faça login novamente.",
-    "passwordMismatch": "As senhas não coincidem.",
     "reminderNotFound": "Lembrete não encontrado.",
     "reminderAlreadyCompleted": "Lembrete já concluído.",
     "reminderCannotEditCompleted": "Não é possível editar um lembrete concluído.",
@@ -262,7 +199,7 @@
     "odometerRewind": "Hodômetro não pode ser menor que o valor atual.",
     "odometerNonFuel": "Hodômetro só é válido em abastecimento.",
     "accountDeleted": "Conta não encontrada.",
-    "consentRequired": "Você deve aceitar a política de privacidade e os termos para se cadastrar.",
+    "consentRequired": "Para criar uma conta, cadastre-se primeiro e aceite a política de privacidade e os termos.",
     "recurringRuleNotFound": "Regra de recorrência não encontrada.",
     "fuelNotRecurring": "Despesas de combustível não podem ser recorrentes.",
     "vehicleNotFound": "Veículo não encontrado.",
@@ -293,7 +230,10 @@
     "newReminder": "Novo lembrete",
     "editReminder": "Editar lembrete",
     "noReminders": "Nenhum lembrete cadastrado.",
-    "tabs": { "active": "Ativos", "history": "Histórico" },
+    "tabs": {
+      "active": "Ativos",
+      "history": "Histórico"
+    },
     "fields": {
       "type": "Tipo",
       "title": "Título (opcional)",

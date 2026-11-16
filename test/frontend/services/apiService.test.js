@@ -23,17 +23,18 @@ beforeEach(() => {
   vi.clearAllMocks();
 });
 
-describe('authApi.login', () => {
-  it('should POST /api/auth/login without auth header', async () => {
+describe('authApi.googleLogin', () => {
+  it('should POST /api/auth/google without auth header, forwarding the consent payload', async () => {
     mockFetch(200, { token: 'tok123' });
-    const result = await authApi.login({ username: 'u', password: 'p' });
+    const consent = { policyVersion: '2026-05-20', acceptedAt: '2026-11-16T00:00:00.000Z' };
+    const result = await authApi.googleLogin({ idToken: 'g-id-token', consent, currency: 'BRL' });
 
     expect(result).toEqual({ token: 'tok123' });
     const [url, opts] = globalThis.fetch.mock.calls[0];
-    expect(url).toBe('/api/auth/login');
+    expect(url).toBe('/api/auth/google');
     expect(opts.method).toBe('POST');
     expect(opts.headers['Authorization']).toBeUndefined();
-    expect(JSON.parse(opts.body)).toEqual({ username: 'u', password: 'p' });
+    expect(JSON.parse(opts.body)).toEqual({ idToken: 'g-id-token', consent, currency: 'BRL' });
   });
 
   it('should throw with mapped i18n message when backend returns 401', async () => {
@@ -42,19 +43,52 @@ describe('authApi.login', () => {
       status: 401,
       json: () => Promise.resolve({ message: 'Invalid credentials' }),
     });
-    await expect(authApi.login({ username: 'bad', password: 'wrong' })).rejects.toThrow(
+    await expect(authApi.googleLogin({ idToken: 'bad' })).rejects.toThrow(
       'errors.invalidCredentials',
     );
   });
 });
 
-describe('authApi.register', () => {
-  it('should POST /api/auth/register without auth header', async () => {
-    mockFetch(201, { id: 'uid1' });
-    await authApi.register({ username: 'u', password: 'p', email: 'u@test.com' });
+describe('authApi — retired password endpoints', () => {
+  it('should no longer expose any username/password or email-verification call', () => {
+    for (const name of [
+      'login',
+      'register',
+      'changePassword',
+      'forgotPassword',
+      'resetPassword',
+      'linkGoogle',
+      'unlinkGoogle',
+      'getProviders',
+      'verifyEmail',
+      'resendVerification',
+    ]) {
+      expect(authApi[name]).toBeUndefined();
+    }
+  });
+});
+
+describe('authApi.logoutAll', () => {
+  it('should POST /api/auth/logout-all with the bearer token', async () => {
+    localStorage.setItem('token', 'validtoken');
+    mockFetch(200, { message: 'Signed out of all devices' });
+    await authApi.logoutAll();
     const [url, opts] = globalThis.fetch.mock.calls[0];
-    expect(url).toBe('/api/auth/register');
-    expect(opts.headers['Authorization']).toBeUndefined();
+    expect(url).toBe('/api/auth/logout-all');
+    expect(opts.method).toBe('POST');
+    expect(opts.headers['Authorization']).toBe('Bearer validtoken');
+  });
+});
+
+describe('authApi.deleteAccount', () => {
+  it('should DELETE /api/auth/me carrying the Google idToken for re-authentication', async () => {
+    localStorage.setItem('token', 'validtoken');
+    mockFetch(200, {});
+    await authApi.deleteAccount({ idToken: 'fresh-google-token' });
+    const [url, opts] = globalThis.fetch.mock.calls[0];
+    expect(url).toBe('/api/auth/me');
+    expect(opts.method).toBe('DELETE');
+    expect(JSON.parse(opts.body)).toEqual({ idToken: 'fresh-google-token' });
   });
 });
 
@@ -92,7 +126,7 @@ describe('request 401/403 auth handling', () => {
     });
     const eventSpy = vi.fn();
     globalThis.addEventListener('auth:logout', eventSpy);
-    await expect(authApi.changePassword({ password: 'new' })).rejects.toThrow();
+    await expect(authApi.logoutAll()).rejects.toThrow();
     expect(localStorage.getItem('token')).toBeNull();
     expect(eventSpy).toHaveBeenCalledOnce();
     globalThis.removeEventListener('auth:logout', eventSpy);
@@ -107,7 +141,7 @@ describe('request 401/403 auth handling', () => {
     });
     const eventSpy = vi.fn();
     globalThis.addEventListener('auth:logout', eventSpy);
-    await expect(authApi.getProviders()).rejects.toThrow();
+    await expect(authApi.getAccessInfo()).rejects.toThrow();
     expect(eventSpy).not.toHaveBeenCalled();
     expect(localStorage.getItem('token')).not.toBeNull();
     globalThis.removeEventListener('auth:logout', eventSpy);
@@ -121,7 +155,7 @@ describe('request 401/403 auth handling', () => {
     });
     const eventSpy = vi.fn();
     globalThis.addEventListener('auth:logout', eventSpy);
-    await expect(authApi.login({ username: 'u', password: 'bad' })).rejects.toThrow();
+    await expect(authApi.googleLogin({ idToken: 'bad' })).rejects.toThrow();
     expect(eventSpy).not.toHaveBeenCalled();
     globalThis.removeEventListener('auth:logout', eventSpy);
   });

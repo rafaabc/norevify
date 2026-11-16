@@ -11,86 +11,60 @@ const assert = require('node:assert/strict');
 const jwt = require('jsonwebtoken');
 
 const { startMongo, stopMongo, resetMongo } = require('../helpers/mongo');
-require('../helpers/email-mock');
+const { VALID_CONSENT } = require('../helpers/fixtures');
+const { createUser } = require('../helpers/createUser');
 const authService = require('../../lib/services/auth.service');
+const userModel = require('../../lib/models/user.model');
 
 before(async () => await startMongo());
 after(async () => await stopMongo());
 beforeEach(async () => await resetMongo());
-
-const VALID_CONSENT = { policyVersion: '2026-05-20', acceptedAt: new Date().toISOString() };
 
 const fakeVerify =
   (sub = 'g-sub-1', email = 'guser@gmail.com', emailVerified = true) =>
   async () => ({ sub, email, emailVerified, name: 'G User' });
 
 describe('Google auth flow integration', () => {
-  it('should create a new user on first Google sign-in and login again finding the same user', async () => {
-    const { token: t1 } = await authService.googleLogin({ idToken: 'tok' }, fakeVerify());
+  it('should create a new user on first Google sign-in and sign in again finding the same user', async () => {
+    const { token: t1 } = await authService.googleLogin(
+      { idToken: 'tok', consent: VALID_CONSENT },
+      fakeVerify(),
+    );
     const { token: t2 } = await authService.googleLogin({ idToken: 'tok' }, fakeVerify());
-    const d1 = jwt.decode(t1);
-    const d2 = jwt.decode(t2);
-    assert.strictEqual(d1.id, d2.id, 'same user on second login');
+    assert.strictEqual(jwt.decode(t1).id, jwt.decode(t2).id, 'same user on second login');
   });
 
-  it('should auto-link Google to an existing password account sharing the same email', async () => {
-    const user = await authService.register({
-      username: 'alice',
-      password: 'Zx7Qw2vNp9Lm4Rk8',
-      email: 'guser@gmail.com',
-      consent: VALID_CONSENT,
-    });
+  it('should store the consent record and the Google identity on the new account', async () => {
+    await authService.googleLogin(
+      { idToken: 'tok', consent: VALID_CONSENT, currency: 'EUR', ip: '198.51.100.7' },
+      fakeVerify(),
+    );
+    const user = await userModel.findByGoogleId('g-sub-1');
+    assert.strictEqual(user.email, 'guser@gmail.com');
+    assert.strictEqual(user.currency, 'EUR');
+    assert.strictEqual(user.consent.policyVersion, VALID_CONSENT.policyVersion);
+    assert.match(user.consent.ipHash, /^[0-9a-f]{16}$/);
+  });
+
+  it('should auto-link Google to a legacy account sharing the same verified email', async () => {
+    const user = await createUser({ username: 'alice', email: 'guser@gmail.com' });
     const { token } = await authService.googleLogin({ idToken: 'tok' }, fakeVerify());
     const decoded = jwt.decode(token);
     assert.strictEqual(decoded.id, user.id, 'same user id after auto-link');
     assert.strictEqual(decoded.username, 'alice');
+    assert.strictEqual((await userModel.findById(user.id)).googleId, 'g-sub-1');
   });
 
-  it('should allow linking Google via Settings then unlinking (user has password)', async () => {
-    const user = await authService.register({
-      username: 'bob',
-      password: 'Zx7Qw2vNp9Lm4Rk8',
-      email: 'bob@gmail.com',
-      consent: VALID_CONSENT,
-    });
-    const verify = fakeVerify('g-sub-bob', 'bob@gmail.com');
-
-    const linkResult = await authService.linkGoogle({ userId: user.id, idToken: 'tok' }, verify);
-    assert.match(linkResult.message, /linked/i);
-
-    const unlinkResult = await authService.unlinkGoogle({ userId: user.id });
-    assert.match(unlinkResult.message, /unlinked/i);
-  });
-
-  it('should refuse unlinking Google when user has no password', async () => {
-    const { token } = await authService.googleLogin({ idToken: 'tok' }, fakeVerify());
-    const { id } = jwt.decode(token);
+  it('should not create or link anything for an unverified Google email', async () => {
+    await createUser({ username: 'alice', email: 'guser@gmail.com' });
     await assert.rejects(
-      () => authService.unlinkGoogle({ userId: id }),
-      (err) => {
-        assert.strictEqual(err.status, 400);
-        return true;
-      },
+      () =>
+        authService.googleLogin(
+          { idToken: 'tok', consent: VALID_CONSENT },
+          fakeVerify('g-sub-1', 'guser@gmail.com', false),
+        ),
+      (err) => err.status === 401,
     );
-  });
-
-  it('should return authProviders and hasPassword via getProviders', async () => {
-    const { token } = await authService.googleLogin({ idToken: 'tok' }, fakeVerify());
-    const { id } = jwt.decode(token);
-    const result = await authService.getProviders({ userId: id });
-    assert.deepStrictEqual(result.authProviders, ['google']);
-    assert.strictEqual(result.hasPassword, false);
-  });
-
-  it('should return password provider and hasPassword=true for a normal user', async () => {
-    const user = await authService.register({
-      username: 'carol',
-      password: 'Zx7Qw2vNp9Lm4Rk8',
-      email: 'carol@example.com',
-      consent: VALID_CONSENT,
-    });
-    const result = await authService.getProviders({ userId: user.id });
-    assert.deepStrictEqual(result.authProviders, ['password']);
-    assert.strictEqual(result.hasPassword, true);
+    assert.strictEqual(await userModel.findByGoogleId('g-sub-1'), null);
   });
 });

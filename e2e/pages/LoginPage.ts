@@ -1,6 +1,9 @@
-import { Page } from '@playwright/test';
+import { Page, Locator } from '@playwright/test';
 import { BasePage } from './BasePage';
 
+// Google is the only sign-in method. Real Google OAuth can't be automated, so the
+// page object only exposes what is reachable without it. Authenticated specs get a
+// session from createAndLoginUser() (seeded user + minted JWT) instead.
 export class LoginPage extends BasePage {
   constructor(page: Page) {
     super(page);
@@ -10,9 +13,11 @@ export class LoginPage extends BasePage {
     await this.page.goto('/login');
   }
 
-  async login(username: string, password: string) {
-    await this.page.locator('[name="username"]').fill(username);
-    await this.page.locator('[name="password"]').fill(password);
-    await this.page.locator('form [type="submit"]').click();
+  get usernameInput(): Locator {
+    return this.page.locator('[name="username"]');
+  }
+
+  get passwordInput(): Locator {
+    return this.page.locator('input[type="password"]');
   }
 }

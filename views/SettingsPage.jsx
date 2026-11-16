@@ -3,7 +3,7 @@ import { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { KeyRound, Car, DollarSign, FileText } from 'lucide-react';
+import { Car, DollarSign, FileText } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '@/context/AuthContext.jsx';
 import { useAsyncAction } from '@/hooks/useAsyncAction.js';
@@ -51,7 +51,6 @@ export default function SettingsPage() {
     updateCurrency,
     language,
     updateLanguage,
-    emailVerified,
     logout,
     plan,
     reminderEmailsEnabled,
@@ -87,32 +86,19 @@ export default function SettingsPage() {
   const langAction = useAsyncAction();
   const notificationsAction = useAsyncAction();
   const profitTargetAction = useAsyncAction();
-  const resendAction = useAsyncAction();
   const billingAction = useAsyncAction();
 
   useAutoClear(currencyAction.success, currencyAction.setSuccess);
   useAutoClear(langAction.success, langAction.setSuccess);
   useAutoClear(notificationsAction.success, notificationsAction.setSuccess);
   useAutoClear(profitTargetAction.success, profitTargetAction.setSuccess);
-  useAutoClear(resendAction.success, resendAction.setSuccess);
 
-  const [providers, setProviders] = useState(null);
-  const [linkError, setLinkError] = useState('');
-  const [linkSuccess, setLinkSuccess] = useState('');
-  const [unlinking, setUnlinking] = useState(false);
+  const signOutAction = useAsyncAction();
 
   const [showDeleteModal, setShowDeleteModal] = useState(false);
-  const [deletePassword, setDeletePassword] = useState('');
   const [deleteLoading, setDeleteLoading] = useState(false);
   const [deleteError, setDeleteError] = useState('');
   const [exportError, setExportError] = useState('');
-
-  useEffect(() => {
-    authApi
-      .getProviders()
-      .then(setProviders)
-      .catch(() => {});
-  }, []);
 
   useEffect(() => {
     if (searchParams.get('checkout') === 'success') {
@@ -141,25 +127,13 @@ export default function SettingsPage() {
     await profitTargetAction.run(() => updateProfitTarget(parsed));
   }
 
-  async function handleUnlink() {
-    setLinkError('');
-    setLinkSuccess('');
-    setUnlinking(true);
-    try {
-      await authApi.unlinkGoogle();
-      setLinkSuccess(t('settings.googleDisconnected'));
-      setProviders((p) => ({
-        ...p,
-        authProviders: p.authProviders.filter((x) => x !== 'google'),
-      }));
-    } catch (err) {
-      setLinkError(err.message);
-    } finally {
-      setUnlinking(false);
-    }
+  async function handleSignOutEverywhere() {
+    await signOutAction.run(async () => {
+      await authApi.logoutAll();
+      logout();
+      router.push('/login?loggedOut=1');
+    });
   }
-
-  const googleLinked = providers?.authProviders?.includes('google');
 
   async function handleExport() {
     setExportError('');
@@ -179,13 +153,13 @@ export default function SettingsPage() {
     }
   }
 
-  async function handleDeleteAccount() {
+  // Deleting the account re-authenticates with Google: the fresh ID token is checked
+  // server-side against the account's linked Google identity.
+  async function handleDeleteAccount(idToken) {
     setDeleteLoading(true);
     setDeleteError('');
     try {
-      await authApi.deleteAccount(
-        providers?.hasPassword ? { password: deletePassword } : undefined,
-      );
+      await authApi.deleteAccount({ idToken });
       logout();
       router.push('/login?deleted=1');
     } catch (err) {
@@ -367,70 +341,21 @@ export default function SettingsPage() {
       <hr style={{ margin: '2rem 0', borderColor: 'var(--border)' }} />
 
       <h2 style={{ fontSize: '1rem', fontWeight: 600, marginBottom: '1rem' }}>
-        {t('settings.linkedAccounts')}
+        {t('settings.sessions.heading')}
       </h2>
-
-      {linkSuccess && <ErrorBanner message={linkSuccess} type="success" />}
-      {linkError && <ErrorBanner message={linkError} />}
-
-      {providers &&
-        (googleLinked ? (
-          <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', flexWrap: 'wrap' }}>
-            <span style={{ color: 'var(--muted)', fontSize: '0.875rem' }}>
-              {t('settings.googleConnected')}
-            </span>
-            {providers.hasPassword ? (
-              <button
-                className={styles.settingsLink}
-                onClick={handleUnlink}
-                disabled={unlinking}
-                style={{ cursor: 'pointer', background: 'none', border: 'none', padding: 0 }}
-              >
-                {unlinking ? t('settings.disconnecting') : t('settings.disconnectGoogle')}
-              </button>
-            ) : (
-              <span style={{ color: 'var(--muted)', fontSize: '0.8125rem' }}>
-                {t('settings.setPasswordFirst')}
-              </span>
-            )}
-          </div>
-        ) : (
-          <div style={{ maxWidth: '300px' }}>
-            <GoogleSignInButton
-              mode="link"
-              onSuccess={() => {
-                setLinkSuccess(t('settings.googleConnected'));
-                setProviders((p) => ({
-                  ...p,
-                  authProviders: [...(p?.authProviders ?? []), 'google'],
-                }));
-              }}
-              onError={setLinkError}
-            />
-          </div>
-        ))}
-
-      <hr style={{ margin: '2rem 0', borderColor: 'var(--border)' }} />
-
-      {emailVerified === false && (
-        <>
-          <hr style={{ margin: '2rem 0', borderColor: 'var(--border)' }} />
-          <h2 style={{ fontSize: '1rem', fontWeight: 600, marginBottom: '1rem' }}>
-            {t('auth.verifyEmail.heading')}
-          </h2>
-          {resendAction.success && (
-            <ErrorBanner message={t('auth.verifyEmail.resendSuccess')} type="success" />
-          )}
-          {resendAction.error && <ErrorBanner message={resendAction.error} />}
-          <button
-            className="btn-secondary"
-            onClick={() => resendAction.run(() => authApi.resendVerification())}
-            disabled={resendAction.loading}
-          >
-            {resendAction.loading ? t('auth.verifyEmail.resending') : t('auth.verifyEmail.resend')}
-          </button>
-        </>
-      )}
+      <p style={{ color: 'var(--muted)', fontSize: '0.875rem', marginBottom: '1rem' }}>
+        {t('settings.sessions.description')}
+      </p>
+      {signOutAction.error && <ErrorBanner message={signOutAction.error} />}
+      <button
+        className="btn-secondary"
+        onClick={handleSignOutEverywhere}
+        disabled={signOutAction.loading}
+      >
+        {signOutAction.loading
+          ? t('settings.sessions.signingOut')
+          : t('settings.sessions.signOutEverywhere')}
+      </button>
 
       <hr style={{ margin: '2rem 0', borderColor: 'var(--border)' }} />
 
@@ -457,12 +382,6 @@ export default function SettingsPage() {
 
       <hr style={{ margin: '2rem 0', borderColor: 'var(--border)' }} />
 
-      <Link href="/change-password" className={styles.settingsLink}>
-        <KeyRound size={16} />
-        {t('settings.changePassword')}
-      </Link>
-
-      <hr style={{ margin: '2rem 0', borderColor: 'var(--border)' }} />
       <h2 style={{ fontSize: '1rem', fontWeight: 600, marginBottom: '1rem' }}>
         {t('settings.myData.heading')}
       </h2>
@@ -496,18 +415,17 @@ export default function SettingsPage() {
             <p style={{ color: 'var(--muted)', fontSize: '0.875rem', marginBottom: '1rem' }}>
               {t('settings.deleteAccount.warning')}
             </p>
-            {providers?.hasPassword && (
-              <div className="form-group">
-                <label htmlFor="delete-password">{t('settings.deleteAccount.passwordLabel')}</label>
-                <input
-                  id="delete-password"
-                  type="password"
-                  autoComplete="current-password"
-                  value={deletePassword}
-                  onChange={(e) => setDeletePassword(e.target.value)}
-                />
-              </div>
-            )}
+            <p style={{ color: 'var(--muted)', fontSize: '0.875rem', marginBottom: '1rem' }}>
+              {t('settings.deleteAccount.reauthHint')}
+            </p>
+            <div style={{ marginBottom: '1rem' }}>
+              <GoogleSignInButton
+                mode="reauth"
+                onCredential={handleDeleteAccount}
+                onError={setDeleteError}
+                disabled={deleteLoading}
+              />
+            </div>
             {deleteError && (
               <p
                 style={{
@@ -522,19 +440,6 @@ export default function SettingsPage() {
             <div style={{ display: 'flex', gap: '1rem', justifyContent: 'flex-end' }}>
               <button className="btn-secondary" onClick={() => setShowDeleteModal(false)}>
                 {t('common.cancel')}
-              </button>
-              <button
-                className="btn-primary"
-                style={{
-                  background: 'var(--danger, #ef4444)',
-                  borderColor: 'var(--danger, #ef4444)',
-                }}
-                onClick={handleDeleteAccount}
-                disabled={deleteLoading || (providers?.hasPassword && !deletePassword)}
-              >
-                {deleteLoading
-                  ? t('settings.deleteAccount.deleting')
-                  : t('settings.deleteAccount.confirm')}
               </button>
             </div>
           </div>

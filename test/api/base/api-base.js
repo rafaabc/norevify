@@ -15,8 +15,6 @@ const BASE_URL = process.env.BASE_URL || 'http://localhost:3000';
 
 const CATEGORIES = ['Fuel', 'Maintenance', 'Insurance', 'Parking', 'Toll', 'Tax', 'Other'];
 
-const VALID_CONSENT = { policyVersion: '2026-05-20', acceptedAt: new Date().toISOString() };
-
 let authToken = null;
 let authUser = null;
 let counter = 0;
@@ -47,59 +45,18 @@ function trackUserId(id) {
   if (id) createdUserIds.push(id);
 }
 
-// Registers a user, tracks their ID for cleanup, returns the full supertest response.
-async function registerAndTrack(username, password, email) {
-  const res = await request(BASE_URL)
-    .post('/api/auth/register')
-    .send({ username, password, email: email || `${username}@test.com`, consent: VALID_CONSENT });
-
-  if (res.status === 201 && res.body.id) {
-    createdUserIds.push(res.body.id);
-  }
-  return res;
-}
-
 // Seeds a fresh verified user straight into the test DB and mints its session JWT
 // (see test/helpers/seedUser.js); tracks them for cleanup; returns token only. No
-// password exists on these users — use createPasswordUser() for tests that
-// exercise the password flow itself.
+// password exists on these users (there is no password sign-in any more).
 async function createAndLoginUser(prefix, overrides = {}) {
   const { id, token } = await seedUser(uniqueUsername(prefix), overrides);
   createdUserIds.push(id);
   return token;
 }
 
-// Registers + logs in a fresh user over HTTP, exactly as a real client would, so the
-// password path (register → verify → login) is exercised. Tracks them for cleanup.
-async function createPasswordUser(prefix) {
-  const username = uniqueUsername(prefix);
-  const password = 'Zx7Qw2vNp9Lm4Rk8'; // NOSONAR — test fixture password, not a real credential
-  const email = `${username}@test.com`;
-
-  const regRes = await request(BASE_URL)
-    .post('/api/auth/register')
-    .send({ username, password, email, consent: VALID_CONSENT });
-
-  expect(regRes.status, 'password user registration failed').to.equal(201);
-  createdUserIds.push(regRes.body.id);
-  await verifyUserInDb(regRes.body.id);
-
-  const loginRes = await request(BASE_URL).post('/api/auth/login').send({ username, password });
-  expect(loginRes.status, 'password user login failed').to.equal(200);
-
-  return { username, password, id: regRes.body.id, token: loginRes.body.token };
-}
-
-// Marks a user as email-verified directly in the DB (bypasses email flow in tests).
-async function verifyUserInDb(userId) {
-  const UserM = mongoose.model('User');
-  await UserM.findByIdAndUpdate(userId, { emailVerified: true });
-}
-
 // Promotes a user to the admin role directly in the DB (bypasses the admin API,
-// which has no self-service way to create the first admin — matches the
-// verifyUserInDb pattern above for reaching the DB in tests that can't go
-// through the public HTTP API). Relies on the root before() hook above having
+// which has no self-service way to create the first admin).
+// Relies on the root before() hook above having
 // already opened the shared mongoose connection.
 async function promoteToAdmin(userId) {
   const UserM = mongoose.model('User');
@@ -166,9 +123,6 @@ module.exports = {
   uniqueUsername,
   authHeader,
   createAndLoginUser,
-  createPasswordUser,
-  registerAndTrack,
   trackUserId,
-  verifyUserInDb,
   promoteToAdmin,
 };

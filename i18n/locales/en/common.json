@@ -20,7 +20,6 @@
     "income": "Income",
     "reports": "Reports",
     "settings": "Settings",
-    "changePassword": "Change password",
     "logout": "Log out",
     "admin": "Admin"
   },
@@ -46,80 +45,25 @@
   "auth": {
     "login": {
       "heading": "Sign in",
-      "usernameLabel": "Username",
-      "usernameHint": "Use your username, not your email.",
-      "submit": "Sign in",
       "submitting": "Signing in…",
       "noAccount": "Don't have an account?",
       "register": "Register",
-      "forgotPassword": "Forgot your password?",
       "sessionExpired": "Your session expired. Please log in again.",
       "loggedOut": "Logged out successfully.",
-      "accountCreated": "Account created — please log in.",
-      "passwordChanged": "Password updated. Please log in.",
       "accountDeleted": "Account deleted successfully."
-    },
-    "verifyEmail": {
-      "heading": "Verify your email",
-      "verifying": "Verifying…",
-      "success": "Email verified! You can now use Norevify.",
-      "goToDashboard": "Go to dashboard",
-      "expired": "This verification link has expired.",
-      "invalid": "Invalid verification link.",
-      "alreadyVerified": "Email already verified.",
-      "requestNew": "Request a new link",
-      "resend": "Resend verification email",
-      "resending": "Sending…",
-      "resendSuccess": "Verification email sent. Check your inbox.",
-      "bannerText": "Please verify your email address.",
-      "bannerAction": "Resend email"
     },
     "register": {
       "heading": "Create account",
       "inviteLabel": "Invite code",
       "inviteHint": "Enter the invite code you were given.",
-      "username": "Username",
-      "usernameHint": "3–50 characters, letters, numbers and underscore.",
-      "email": "Email",
-      "password": "Password",
       "currency": "Currency",
-      "submit": "Register",
-      "submitting": "Registering…",
       "hasAccount": "Already have an account?",
       "signIn": "Sign in",
       "consentLabel": "I have read and accept the",
       "privacyPolicy": "Privacy Policy",
       "consentAnd": "and",
       "termsOfService": "Terms of Service"
-    },
-    "forgotPassword": {
-      "heading": "Forgot password",
-      "email": "Email",
-      "submit": "Send reset link",
-      "submitting": "Sending…",
-      "backToLogin": "Back to login",
-      "success": "If the email exists, a reset link was sent."
-    },
-    "resetPassword": {
-      "heading": "Reset password",
-      "newPassword": "New password",
-      "confirm": "Confirm new password",
-      "requestNew": "Request a new link",
-      "submit": "Reset password",
-      "submitting": "Resetting…",
-      "success": "Password reset successfully. Please log in."
-    },
-    "changePassword": {
-      "heading": "Change password",
-      "current": "Current password",
-      "new": "New password",
-      "confirm": "Confirm new password",
-      "submit": "Save",
-      "submitting": "Saving…",
-      "success": "Password changed successfully."
-    },
-    "passwordHint": "At least 8 characters.",
-    "confirmPasswordHint": "Must match the new password."
+    }
   },
   "settings": {
     "heading": "Settings",
@@ -148,13 +92,6 @@
       "upgrade": "Upgrade to Pro",
       "manage": "Manage billing"
     },
-    "linkedAccounts": "Linked accounts",
-    "googleConnected": "Google account connected",
-    "googleDisconnected": "Google account disconnected.",
-    "disconnectGoogle": "Disconnect Google",
-    "disconnecting": "Disconnecting…",
-    "setPasswordFirst": "Set a password before disconnecting Google.",
-    "changePassword": "Change password",
     "myData": {
       "heading": "My data",
       "description": "Download a copy of your data or permanently delete your account.",
@@ -164,9 +101,15 @@
     "deleteAccount": {
       "heading": "Delete account",
       "warning": "This action is permanent and cannot be undone. All your expenses and reminders will be deleted.",
-      "passwordLabel": "Confirm your password",
       "confirm": "Delete account",
-      "deleting": "Deleting…"
+      "deleting": "Deleting…",
+      "reauthHint": "To confirm, sign in with Google again."
+    },
+    "sessions": {
+      "heading": "Sessions",
+      "description": "Sign out of every device where you are logged in, including this one.",
+      "signOutEverywhere": "Sign out of all devices",
+      "signingOut": "Signing out…"
     }
   },
   "dashboard": {
@@ -245,16 +188,10 @@
     "invalidProfitTarget": "Target rate must be a non-negative number, or blank.",
     "billingNotConfigured": "Billing is temporarily unavailable. Please try again later.",
     "emailNotVerified": "Please verify your email before continuing.",
-    "invalidVerificationToken": "Invalid or expired verification token.",
-    "emailAlreadyVerified": "Email already verified.",
     "invalidCredentials": "Invalid credentials.",
-    "usernameTaken": "Username already taken.",
-    "emailRegistered": "Email already registered.",
     "userNotFound": "User not found.",
     "expenseNotFound": "Expense not found.",
-    "invalidToken": "Invalid or expired token.",
     "sessionExpired": "Session expired. Please log in again.",
-    "passwordMismatch": "Passwords do not match.",
     "reminderNotFound": "Reminder not found.",
     "reminderAlreadyCompleted": "Reminder already completed.",
     "reminderCannotEditCompleted": "Cannot edit a completed reminder.",
@@ -262,7 +199,7 @@
     "odometerRewind": "Odometer cannot be lower than current reading.",
     "odometerNonFuel": "Odometer is only valid for Fuel expenses.",
     "accountDeleted": "Account not found.",
-    "consentRequired": "You must accept the privacy policy and terms to register.",
+    "consentRequired": "To create an account, sign up first and accept the privacy policy and terms.",
     "recurringRuleNotFound": "Recurring rule not found.",
     "fuelNotRecurring": "Fuel expenses cannot be set as recurring.",
     "vehicleNotFound": "Vehicle not found.",
@@ -293,7 +230,10 @@
     "newReminder": "New reminder",
     "editReminder": "Edit reminder",
     "noReminders": "No reminders yet.",
-    "tabs": { "active": "Active", "history": "History" },
+    "tabs": {
+      "active": "Active",
+      "history": "History"
+    },
     "fields": {
       "type": "Type",
       "title": "Title (optional)",

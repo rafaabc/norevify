@@ -9,7 +9,7 @@ const mongoose = require('mongoose');
 
 const { startMongo, stopMongo, resetMongo } = require('../../helpers/mongo');
 require('../../helpers/email-mock');
-const authService = require('../../../lib/services/auth.service');
+const { createUser } = require('../../helpers/createUser');
 
 const VALID_CONSENT = { policyVersion: '2026-05-20', acceptedAt: new Date().toISOString() };
 const {
@@ -29,7 +29,7 @@ const TODAY = new Date().toISOString().slice(0, 10);
 describe('Expenses CRUD flow integration', () => {
   // TC-03-01 + TC-03-02
   it('should persist a non-Fuel expense and make it retrievable via list and get', async () => {
-    const user = await authService.register({
+    const user = await createUser({
       username: 'testuser',
       password: 'Zx7Qw2vNp9Lm4Rk8',
       email: 'testuser@example.com',
@@ -46,7 +46,7 @@ describe('Expenses CRUD flow integration', () => {
 
   // TC-03-01 (Fuel variant) + TC-03-02
   it('should persist a Fuel expense with computed amount and make it retrievable', async () => {
-    const user = await authService.register({
+    const user = await createUser({
       username: 'testuser',
       password: 'Zx7Qw2vNp9Lm4Rk8',
       email: 'testuser@example.com',
@@ -66,7 +66,7 @@ describe('Expenses CRUD flow integration', () => {
 
   // TC-03-13
   it('should update an existing expense and reflect the change on subsequent read', async () => {
-    const user = await authService.register({
+    const user = await createUser({
       username: 'testuser',
       password: 'Zx7Qw2vNp9Lm4Rk8',
       email: 'testuser@example.com',
@@ -80,7 +80,7 @@ describe('Expenses CRUD flow integration', () => {
 
   // TC-03-14
   it('should throw 404 when updating a non-existent expense', async () => {
-    const user = await authService.register({
+    const user = await createUser({
       username: 'testuser',
       password: 'Zx7Qw2vNp9Lm4Rk8',
       email: 'testuser@example.com',
@@ -98,7 +98,7 @@ describe('Expenses CRUD flow integration', () => {
 
   // TC-03-15
   it('should delete an existing expense so it is no longer retrievable', async () => {
-    const user = await authService.register({
+    const user = await createUser({
       username: 'testuser',
       password: 'Zx7Qw2vNp9Lm4Rk8',
       email: 'testuser@example.com',
@@ -119,7 +119,7 @@ describe('Expenses CRUD flow integration', () => {
 
   // TC-03-16
   it('should throw 404 when deleting a non-existent expense', async () => {
-    const user = await authService.register({
+    const user = await createUser({
       username: 'testuser',
       password: 'Zx7Qw2vNp9Lm4Rk8',
       email: 'testuser@example.com',

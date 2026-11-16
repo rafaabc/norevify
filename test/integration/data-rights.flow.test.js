@@ -6,7 +6,7 @@ process.env.BASE_URL = process.env.BASE_URL || 'http://localhost:3000';
 
 const { describe, it, before, after, beforeEach, mock } = require('node:test');
 const assert = require('node:assert/strict');
-const bcrypt = require('bcryptjs');
+const jwt = require('jsonwebtoken');
 
 const { startMongo, stopMongo, resetMongo } = require('../helpers/mongo');
 const { VALID_CONSENT } = require('../helpers/fixtures');
@@ -23,15 +23,22 @@ before(async () => await startMongo());
 after(async () => await stopMongo());
 beforeEach(async () => await resetMongo());
 
+const verifyAs =
+  (sub = 'g-alice', email = 'alice@test.com') =>
+  async () => ({ sub, email, emailVerified: true, name: 'Alice' });
+
+async function signUpAlice() {
+  const { token } = await authService.googleLogin(
+    { idToken: 'tok', consent: VALID_CONSENT },
+    verifyAs(),
+  );
+  return jwt.decode(token).id;
+}
+
 describe('data rights flow', () => {
-  it('should reject registration without consent', async () => {
+  it('should reject account creation without consent', async () => {
     await assert.rejects(
-      () =>
-        authService.register({
-          username: 'alice',
-          password: 'Zx7Qw2vNp9Lm4Rk8',
-          email: 'alice@test.com',
-        }),
+      () => authService.googleLogin({ idToken: 'tok' }, verifyAs()),
       (err) => {
         assert.strictEqual(err.status, 400);
         return true;
@@ -39,18 +46,9 @@ describe('data rights flow', () => {
     );
   });
 
-  it('should allow export and delete after register + verify', async () => {
-    const { id: userId } = await authService.register({
-      username: 'alice',
-      password: 'Zx7Qw2vNp9Lm4Rk8',
-      email: 'alice@test.com',
-      consent: VALID_CONSENT,
-    });
+  it('should allow export and delete after signing up with Google', async () => {
+    const userId = await signUpAlice();
 
-    // manually verify email (simulate email verification)
-    await userModel.setEmailVerified(userId);
-
-    // Create an expense
     await expensesService.createExpense(userId, {
       category: 'Fuel',
       litres: 10,
@@ -58,12 +56,12 @@ describe('data rights flow', () => {
       date: new Date(Date.now() - 86400000).toISOString(),
     });
 
-    // Export should return user data with expenses
+    // Export should return user data with expenses, and must not leak internals
     const exported = await authService.exportUserData({ userId });
-    assert.ok(exported.user.username === 'alice');
+    assert.ok(exported.user.email === 'alice@test.com');
     assert.ok(exported.expenses.length > 0);
-    assert.ok(!exported.user.password); // must not leak password
-    assert.ok(exported.user.emailVerificationToken === undefined); // must not leak token
+    assert.ok(!exported.user.password);
+    assert.ok(exported.user.googleId === undefined);
 
     const [vehicle] = await vehiclesService.listVehicles(userId);
     await incomeModel.create({
@@ -74,21 +72,30 @@ describe('data rights flow', () => {
       source: 'Uber',
     });
 
-    // Delete account
-    await authService.deleteAccount({ userId, password: 'Zx7Qw2vNp9Lm4Rk8' });
+    await authService.deleteAccount({ userId, idToken: 'fresh' }, verifyAs());
 
     // User and all owned records should no longer exist
-    const deletedUser = await userModel.findById(userId);
-    assert.strictEqual(deletedUser, null);
+    assert.strictEqual(await userModel.findById(userId), null);
     assert.strictEqual((await vehicleModel.findByUserId(userId)).length, 0);
     assert.strictEqual((await incomeModel.findByUserId(userId)).length, 0);
+  });
+
+  it('should refuse to delete when the Google re-authentication does not match the account', async () => {
+    const userId = await signUpAlice();
+
+    await assert.rejects(
+      () => authService.deleteAccount({ userId, idToken: 'fresh' }, verifyAs('g-mallory')),
+      (err) => err.status === 401,
+    );
+
+    assert.ok(await userModel.findById(userId), 'a mismatched identity must not delete the data');
   });
 
   it('cancels the Stripe subscription and scrubs billing fields when deleting an account with an active subscription', async () => {
     const user = await userModel.create({
       username: 'stripedeleteuser',
-      password: await bcrypt.hash('pass1234', 12),
       email: 'stripedeleteuser@test.com',
+      googleId: 'g-stripe',
     });
     await userModel.updatePlanAndBilling(user._id, {
       plan: 'pro',
@@ -106,10 +113,12 @@ describe('data rights flow', () => {
       },
     }));
 
-    await authService.deleteAccount({ userId: user._id.toString(), password: 'pass1234' });
+    await authService.deleteAccount(
+      { userId: user._id.toString(), idToken: 'fresh' },
+      verifyAs('g-stripe', 'stripedeleteuser@test.com'),
+    );
 
     assert.strictEqual(cancelledSubscriptionId, 'sub_delete1');
-    const deletedUser = await userModel.findById(user._id);
-    assert.strictEqual(deletedUser, null);
+    assert.strictEqual(await userModel.findById(user._id), null);
   });
 });

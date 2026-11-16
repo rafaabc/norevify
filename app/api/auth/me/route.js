@@ -7,7 +7,7 @@ export const DELETE = withAuth(async (req, ctx, user) => {
   await connectDB();
   try {
     const body = await req.json().catch(() => ({}));
-    await authService.deleteAccount({ userId: user.id, password: body.password });
+    await authService.deleteAccount({ userId: user.id, idToken: body.idToken });
     return new Response(null, { status: 204 });
   } catch (err) {
     return errorResponse(err, { route: '/api/auth/me', method: 'DELETE' });

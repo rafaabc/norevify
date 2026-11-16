@@ -14,7 +14,6 @@ describe('userModel.create()', () => {
   it('should create a user with a unique _id', async () => {
     const user = await userModel.create({
       username: 'alice',
-      password: 'hashed',
       email: 'alice@example.com',
     });
     assert.ok(user._id);
@@ -24,7 +23,6 @@ describe('userModel.create()', () => {
   it('should populate createdAt and updatedAt timestamps', async () => {
     const user = await userModel.create({
       username: 'ts_user',
-      password: 'hashed',
       email: 'ts@example.com',
     });
     assert.ok(user.createdAt instanceof Date, 'createdAt should be a Date');
@@ -34,12 +32,10 @@ describe('userModel.create()', () => {
   it('should assign distinct _ids to multiple users', async () => {
     const first = await userModel.create({
       username: 'alice',
-      password: 'hashed',
       email: 'alice@example.com',
     });
     const second = await userModel.create({
       username: 'bob',
-      password: 'hashed',
       email: 'bob@example.com',
     });
     assert.notStrictEqual(first._id.toString(), second._id.toString());
@@ -78,7 +74,6 @@ describe('userModel.findById()', () => {
   it('should return the user when id matches', async () => {
     const created = await userModel.create({
       username: 'alice',
-      password: 'hashed',
       email: 'alice@example.com',
     });
     const found = await userModel.findById(created._id);
@@ -102,19 +97,6 @@ describe('userModel._reset()', () => {
   });
 });
 
-describe('userModel.updatePassword()', () => {
-  it('should persist hashed password to the user document', async () => {
-    await userModel.create({
-      username: 'alice',
-      password: 'original_hash',
-      email: 'alice@example.com',
-    });
-    await userModel.updatePassword('alice', 'new_hash');
-    const found = await userModel.findByUsername('alice');
-    assert.strictEqual(found.password, 'new_hash');
-  });
-});
-
 describe('userModel language field', () => {
   it('should default language to pt-BR', async () => {
     const user = await userModel.create({ username: 'lang1', password: 'h', email: 'lang1@x.com' });
@@ -126,7 +108,6 @@ describe('userModel language field', () => {
       () =>
         userModel.create({
           username: 'lang2',
-          password: 'h',
           email: 'lang2@x.com',
           language: 'fr',
         }),
@@ -146,7 +127,6 @@ describe('userModel — odometer', () => {
   it('should default currentKm to 0 and currentKmUpdatedAt to undefined', async () => {
     const user = await userModel.create({
       username: 'odo1',
-      password: 'x',
       email: 'odo1@test.com',
     });
     assert.strictEqual(user.currentKm, 0);
@@ -156,7 +136,6 @@ describe('userModel — odometer', () => {
   it('should update currentKm and currentKmUpdatedAt via updateOdometerAndReturn', async () => {
     const user = await userModel.create({
       username: 'odo2',
-      password: 'x',
       email: 'odo2@test.com',
     });
     const updated = await userModel.updateOdometerAndReturn(user._id, 12345);
@@ -169,7 +148,6 @@ describe('userModel — role', () => {
   it('should default role to user', async () => {
     const user = await userModel.create({
       username: 'role1',
-      password: 'hashed',
       email: 'role1@example.com',
     });
     assert.strictEqual(user.role, 'user');
@@ -180,7 +158,6 @@ describe('userModel — role', () => {
       () =>
         userModel.create({
           username: 'role2',
-          password: 'hashed',
           email: 'role2@example.com',
           role: 'superuser',
         }),
@@ -191,7 +168,6 @@ describe('userModel — role', () => {
   it('updateRole() should persist the new role', async () => {
     const user = await userModel.create({
       username: 'role3',
-      password: 'hashed',
       email: 'role3@example.com',
     });
     await userModel.updateRole(user._id, 'admin');
@@ -202,12 +178,10 @@ describe('userModel — role', () => {
   it('listForAdmin() should return users sorted by createdAt descending, projected fields only', async () => {
     const first = await userModel.create({
       username: 'role_list1',
-      password: 'hashed',
       email: 'role_list1@example.com',
     });
     const second = await userModel.create({
       username: 'role_list2',
-      password: 'hashed',
       email: 'role_list2@example.com',
     });
     const list = await userModel.listForAdmin();
@@ -225,7 +199,6 @@ describe('userModel — role', () => {
   it('setPlanManually() should set plan and planSource atomically', async () => {
     const user = await userModel.create({
       username: 'role4',
-      password: 'hashed',
       email: 'role4@example.com',
     });
     await userModel.setPlanManually(user._id, 'pro');
@@ -235,63 +208,34 @@ describe('userModel — role', () => {
   });
 });
 
-describe('userModel — account lockout', () => {
-  it('should default failedLoginAttempts to 0 for a new user', async () => {
-    const user = await userModel.create({
-      username: 'lockout1',
-      password: 'hashed',
-      email: 'lockout1@example.com',
-    });
-    assert.strictEqual(user.failedLoginAttempts, 0);
+describe('userModel — session revocation and Google identity', () => {
+  it('bumpTokenVersion() should increment tokenVersion by one each call', async () => {
+    const user = await userModel.create({ username: 'rev1', email: 'rev1@example.com' });
+    assert.strictEqual(user.tokenVersion, 0);
+    await userModel.bumpTokenVersion(user._id);
+    await userModel.bumpTokenVersion(user._id);
+    const found = await userModel.findById(user._id);
+    assert.strictEqual(found.tokenVersion, 2);
   });
 
-  it('incrementFailedLogins() should atomically bump the counter and return the updated doc', async () => {
-    const user = await userModel.create({
-      username: 'lockout2',
-      password: 'hashed',
-      email: 'lockout2@example.com',
-    });
-    await userModel.incrementFailedLogins(user._id);
-    const updated = await userModel.incrementFailedLogins(user._id);
-    assert.strictEqual(updated.failedLoginAttempts, 2);
+  it('linkGoogleId() should store the Google subject so findByGoogleId() resolves the user', async () => {
+    const user = await userModel.create({ username: 'rev2', email: 'rev2@example.com' });
+    await userModel.linkGoogleId(user._id, 'g-sub-rev2');
+    const found = await userModel.findByGoogleId('g-sub-rev2');
+    assert.strictEqual(found._id.toString(), user._id.toString());
   });
 
-  it('setLockUntil() should set the lockUntil field', async () => {
-    const user = await userModel.create({
-      username: 'lockout3',
-      password: 'hashed',
-      email: 'lockout3@example.com',
-    });
-    const until = new Date(Date.now() + 60_000);
-    await userModel.setLockUntil(user._id, until);
-    const found = await userModel.findByUsername('lockout3');
-    assert.strictEqual(found.lockUntil.getTime(), until.getTime());
+  it('toJSON should strip tokenVersion', async () => {
+    const user = await userModel.create({ username: 'rev3', email: 'rev3@example.com' });
+    assert.strictEqual(user.toJSON().tokenVersion, undefined);
   });
 
-  it('resetFailedLogins() should zero the counter and clear lockUntil', async () => {
+  it('should not persist a password field even if one is supplied', async () => {
     const user = await userModel.create({
-      username: 'lockout4',
-      password: 'hashed',
-      email: 'lockout4@example.com',
+      username: 'rev4',
+      email: 'rev4@example.com',
     });
-    await userModel.incrementFailedLogins(user._id);
-    await userModel.setLockUntil(user._id, new Date(Date.now() + 60_000));
-    await userModel.resetFailedLogins(user._id);
-    const found = await userModel.findByUsername('lockout4');
-    assert.strictEqual(found.failedLoginAttempts, 0);
-    assert.strictEqual(found.lockUntil, undefined);
-  });
-
-  it('toJSON should strip failedLoginAttempts and lockUntil', async () => {
-    const user = await userModel.create({
-      username: 'lockout5',
-      password: 'hashed',
-      email: 'lockout5@example.com',
-    });
-    await userModel.setLockUntil(user._id, new Date(Date.now() + 60_000));
-    const found = await userModel.findByUsername('lockout5');
-    const json = found.toJSON();
-    assert.strictEqual(json.failedLoginAttempts, undefined);
-    assert.strictEqual(json.lockUntil, undefined);
+    const raw = await userModel.findById(user._id).lean();
+    assert.strictEqual(raw.password, undefined);
   });
 });

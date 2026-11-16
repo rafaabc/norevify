@@ -1,50 +1,31 @@
 import { test, expect, type APIRequestContext, type Page } from '@playwright/test';
-import { uniqueUsername, DEFAULT_PASSWORD } from '../../fixtures/test-data';
+import { createAndLoginUser } from '../../fixtures/api';
 
-const VALID_CONSENT = { policyVersion: '2026-05-20', acceptedAt: new Date().toISOString() };
-
-async function loginAsNewUser(
+async function openSettingsAsNewUser(
   request: APIRequestContext,
   page: Page,
   prefix: string,
-): Promise<{ password: string }> {
-  const username = uniqueUsername(prefix);
-  const password = DEFAULT_PASSWORD;
-  const email = `${username}@test.com`;
-  const regRes = await request.post('/api/auth/register', {
-    data: { username, password, email, consent: VALID_CONSENT },
-  });
-  expect(regRes.ok()).toBeTruthy();
-  const loginRes = await request.post('/api/auth/login', { data: { username, password } });
-  const { token } = await loginRes.json();
+): Promise<void> {
+  const { token } = await createAndLoginUser(request, prefix);
   await page.addInitScript((t: string) => {
     localStorage.setItem('token', t);
     localStorage.setItem('i18nextLng', 'en');
   }, token);
   await page.goto('/settings');
-  return { password };
 }
 
 test.describe('Data Subject Rights', () => {
-  test('[TC-DR-E2E-01] should register with consent and navigate to login', async ({ page }) => {
+  test('[TC-DR-E2E-01] should require consent before sign-up is possible', async ({ page }) => {
     await page.addInitScript(() => localStorage.setItem('i18nextLng', 'en'));
     await page.goto('/register');
 
-    const username = uniqueUsername('consent');
-    await page.locator('[name="username"]').fill(username);
-    await page.locator('[name="email"]').fill(`${username}@test.com`);
-    await page.locator('[name="password"]').fill(DEFAULT_PASSWORD);
-
-    await expect(page.locator('button[type="submit"]')).toBeDisabled();
+    await expect(page.locator('#reg-consent')).not.toBeChecked();
     await page.locator('#reg-consent').check();
-    await expect(page.locator('button[type="submit"]')).toBeEnabled();
-
-    await page.locator('button[type="submit"]').click();
-    await expect(page).toHaveURL(/\/login/);
+    await expect(page.locator('#reg-consent')).toBeChecked();
   });
 
   test('[TC-DR-E2E-02] should export data as JSON download', async ({ page, request }) => {
-    await loginAsNewUser(request, page, 'export');
+    await openSettingsAsNewUser(request, page, 'export');
 
     const exportBtn = page.getByRole('button', { name: /export/i });
     await expect(exportBtn).toBeVisible();
@@ -58,26 +39,28 @@ test.describe('Data Subject Rights', () => {
     }
   });
 
-  test('[TC-DR-E2E-03] should delete account and redirect to /login with banner', async ({
+  // Confirming a delete needs a fresh Google ID token, which CI can't produce — the
+  // success path is covered by test/integration/data-rights.flow.test.js.
+  test('[TC-DR-E2E-03] should ask for Google re-authentication, not a password, to delete the account', async ({
     page,
     request,
   }) => {
-    const { password } = await loginAsNewUser(request, page, 'del');
+    await openSettingsAsNewUser(request, page, 'del');
 
     await page.getByRole('button', { name: /delete.*account/i }).click();
     await expect(page.locator('.modal')).toBeVisible();
+    await expect(page.locator('.modal input[type="password"]')).toHaveCount(0);
+    await expect(page.locator('#delete-password')).toHaveCount(0);
+  });
 
-    // The password field only renders once GET /api/auth/providers resolves. A bare
-    // isVisible() doesn't wait, so on a slow response the password was never filled
-    // and the delete never happened. This user always has a password: wait for it.
-    const passwordInput = page.locator('#delete-password');
-    await expect(passwordInput).toBeVisible();
-    await passwordInput.fill(password);
+  test('[TC-DR-E2E-04] should sign out of all devices and return to /login', async ({
+    page,
+    request,
+  }) => {
+    await openSettingsAsNewUser(request, page, 'signout');
 
-    await page
-      .getByRole('button', { name: /delete account/i })
-      .last()
-      .click();
+    await page.getByRole('button', { name: /sign out of all devices/i }).click();
+
     await expect(page).toHaveURL(/\/login/, { timeout: 10000 });
   });
 });

@@ -311,42 +311,42 @@ describe('AuthProvider', () => {
     expect(setLanguageCookie).toHaveBeenCalledWith('en');
   });
 
-  it('should update emailVerified when another tab sets a new token via storage event', async () => {
+  it('should update plan when another tab sets a new token via storage event', async () => {
     const initialToken = makeToken({
       id: '9',
       username: 'ivan',
       currency: 'BRL',
       language: 'pt-BR',
-      emailVerified: false,
+      plan: 'free',
     });
     localStorage.setItem('token', initialToken);
 
-    function VerifiedConsumer() {
-      const { emailVerified } = useAuth();
-      return <span data-testid="verified">{String(emailVerified)}</span>;
+    function PlanConsumer() {
+      const { plan } = useAuth();
+      return <span data-testid="plan">{plan}</span>;
     }
 
     await act(async () => {
       render(
         <AuthProvider>
-          <VerifiedConsumer />
+          <PlanConsumer />
         </AuthProvider>,
       );
     });
-    expect(screen.getByTestId('verified').textContent).toBe('false');
+    expect(screen.getByTestId('plan').textContent).toBe('free');
 
     const newToken = makeToken({
       id: '9',
       username: 'ivan',
       currency: 'BRL',
       language: 'pt-BR',
-      emailVerified: true,
+      plan: 'pro',
     });
     await act(async () => {
       window.dispatchEvent(new StorageEvent('storage', { key: 'token', newValue: newToken }));
     });
 
-    expect(screen.getByTestId('verified').textContent).toBe('true');
+    expect(screen.getByTestId('plan').textContent).toBe('pro');
   });
 
   it('should derive role from token, defaulting to user when absent', async () => {

@@ -47,7 +47,7 @@ function signSessionToken(user) {
 }
 
 /**
- * Creates a verified, password-less, Google-provider user. `overrides` lets a test
+ * Creates a verified, password-less user linked to a synthetic Google identity. `overrides` lets a test
  * set fields such as `role`, `plan`, `language` or `currency` up front.
  * @param {string} username
  * @param {Record<string, unknown>} [overrides]
@@ -59,7 +59,6 @@ async function seedUser(username, overrides = {}) {
     username,
     email: `${username}@test.com`,
     googleId: `seed_${username}`,
-    authProviders: ['google'],
     emailVerified: true,
     ...overrides,
   });

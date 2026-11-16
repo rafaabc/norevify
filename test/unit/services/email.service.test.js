@@ -2,7 +2,7 @@
 
 // Inject a Resend mock into the require cache before loading email.service.
 // The singleton (_resend) inside email.service will be initialized with MockResend
-// on the first sendPasswordResetEmail call, so all tests share the same captured array.
+// on the first send call, so all tests share the same captured array.
 const sentPayloads = [];
 
 const MockResend = function (apiKey) {
@@ -34,44 +34,6 @@ beforeEach(() => {
 
 afterEach(() => {
   delete process.env.RESEND_API_KEY;
-});
-
-describe('emailService.sendPasswordResetEmail()', () => {
-  it('should call Resend with correct from, to, and subject', async () => {
-    await emailService.sendPasswordResetEmail({
-      to: 'user@example.com',
-      resetUrl: 'https://localhost:3000/reset-password?token=abc',
-    });
-
-    assert.strictEqual(sentPayloads.length, 1);
-    const p = sentPayloads[0];
-    assert.strictEqual(p.to, 'user@example.com');
-    assert.match(p.from, /Norevify/i);
-    assert.match(p.subject, /senha/i);
-  });
-
-  it('should embed the reset URL in the HTML body', async () => {
-    const resetUrl = 'https://localhost:3000/reset-password?token=xyz123';
-    await emailService.sendPasswordResetEmail({ to: 'user@example.com', resetUrl });
-
-    const { html } = sentPayloads[0];
-    assert.ok(typeof html === 'string', 'html must be a string');
-    assert.ok(html.includes(resetUrl), 'html must contain the resetUrl');
-  });
-
-  it('should send one email per call and not batch', async () => {
-    await emailService.sendPasswordResetEmail({
-      to: 'a@example.com',
-      resetUrl: 'https://x.com/r?t=1',
-    });
-    await emailService.sendPasswordResetEmail({
-      to: 'b@example.com',
-      resetUrl: 'https://x.com/r?t=2',
-    });
-    assert.strictEqual(sentPayloads.length, 2);
-    assert.strictEqual(sentPayloads[0].to, 'a@example.com');
-    assert.strictEqual(sentPayloads[1].to, 'b@example.com');
-  });
 });
 
 describe('emailService.sendReminderDigest()', () => {

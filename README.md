@@ -16,13 +16,13 @@ The test suite mirrors the practical test pyramid: fast, numerous unit tests at 
 
 | Layer         | Files | Cases | Tooling                                  | What it answers                                                                      |
 | ------------- | ----: | ----: | ---------------------------------------- | ------------------------------------------------------------------------------------ |
-| Backend unit  |    30 |   522 | Node test runner + `node:assert`         | Does each service/model function behave correctly in isolation?                      |
-| Frontend unit |    58 |   415 | Vitest + Testing Library                 | Do components and hooks render/behave correctly given props and state?               |
-| Integration   |    13 |    51 | Node test runner, in-memory Mongo        | Do services + models + middleware collaborate correctly through real internal flows? |
-| API           |     9 |    87 | Mocha + Chai + Supertest                 | Does the live HTTP contract (status codes, payloads, auth) hold end-to-end?          |
-| E2E           |    14 |    44 | Playwright (Chromium), Page Object Model | Do real user journeys work in a real browser against a real deployment?              |
+| Backend unit  |    31 |   460 | Node test runner + `node:assert`         | Does each service/model function behave correctly in isolation?                      |
+| Frontend unit |    54 |   386 | Vitest + Testing Library                 | Do components and hooks render/behave correctly given props and state?               |
+| Integration   |    10 |    34 | Node test runner, in-memory Mongo        | Do services + models + middleware collaborate correctly through real internal flows? |
+| API           |     8 |    75 | Mocha + Chai + Supertest                 | Does the live HTTP contract (status codes, payloads, auth) hold end-to-end?          |
+| E2E           |    15 |    56 | Playwright (Chromium), Page Object Model | Do real user journeys work in a real browser against a real deployment?              |
 
-**124 test files** (1,119 test cases) across the five layers. Backend and frontend unit suites run with coverage in CI (`c8` / `vitest --coverage`); integration tests boot an in-memory MongoDB per file so they run with zero external dependencies; API and E2E run against a real built-and-started Next.js server.
+**118 test files** (1,011 test cases) across the five layers. Backend and frontend unit suites run with coverage in CI (`c8` / `vitest --coverage`); integration tests boot an in-memory MongoDB per file so they run with zero external dependencies; API and E2E run against a real built-and-started Next.js server.
 
 CI runs every layer as a required status check. Independent stages run in parallel and the app is built once and shared, so the whole pipeline takes about 4–5 minutes:
 
@@ -53,7 +53,7 @@ Interactive API documentation: **[`/api-docs`](https://app.norevify.com/api-docs
 - **Tax-ready reports** — CSV/PDF exports of expenses, income, and profit summaries (pro tier)
 - **Spending summaries** — category totals and trend charts by month and year
 - **Billing** — Stripe Checkout + Customer Portal for self-service subscription management
-- **Authentication** — email/password + Google OAuth; password recovery via email; rate limiting, account lockout, breach-password checks (HaveIBeenPwned), bot detection on auth endpoints
+- **Authentication** — Google sign-in only (no passwords stored); Mongo-backed rate limiting on the sign-in endpoint, server-side session revocation ("sign out of all devices"), Google re-authentication to delete the account
 - **Admin panel** — internal ops view for user/plan management, gated by server-enforced roles
 - **Internationalisation** — PT-BR and English; preference persisted across sessions
 - **PWA** — installable on Android and iOS; displays an update toast on new deploy

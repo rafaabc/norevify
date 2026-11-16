@@ -1,10 +1,7 @@
 'use client';
 import { useState } from 'react';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
 import { useTranslation } from 'react-i18next';
-import { authApi } from '@/services/apiService.js';
-import { bindField } from '@/utils/form.js';
 import ErrorBanner from '@/components/ErrorBanner.jsx';
 import FieldLabelWithHint from '@/components/FieldLabelWithHint.jsx';
 import GoogleSignInButton from '@/components/GoogleSignInButton.jsx';
@@ -13,38 +10,28 @@ import { SUPPORTED_CURRENCIES } from '@/constants/currencies.js';
 import { detectCurrency } from '@/utils/detectCurrency.js';
 import styles from './LoginPage.module.css';
 
+const POLICY_VERSION = '2026-05-20';
+
 export default function RegisterPage() {
   const { t } = useTranslation();
-  const router = useRouter();
-  const [form, setForm] = useState({
-    inviteCode: '',
-    username: '',
-    email: '',
-    password: '',
-    currency: detectCurrency(),
-  });
+  const INVITE_ONLY = process.env.NEXT_PUBLIC_INVITE_ONLY === 'true';
+  const [inviteCode, setInviteCode] = useState('');
+  const [currency, setCurrency] = useState(detectCurrency());
   const [consented, setConsented] = useState(false);
+  // Captured when the box is ticked, so the stored acceptance time is the moment the
+  // user agreed rather than the moment Google's popup returned.
+  const [acceptedAt, setAcceptedAt] = useState(null);
   const [error, setError] = useState('');
-  const [loading, setLoading] = useState(false);
 
-  const handleChange = bindField(setForm);
-
-  async function handleSubmit(e) {
-    e.preventDefault();
-    setError('');
-    setLoading(true);
-    try {
-      await authApi.register({
-        ...form,
-        consent: { policyVersion: '2026-05-20', acceptedAt: new Date().toISOString() },
-      });
-      router.push('/login?registered=1');
-    } catch (err) {
-      setError(err.message);
-    } finally {
-      setLoading(false);
-    }
+  function handleConsentChange(e) {
+    setConsented(e.target.checked);
+    setAcceptedAt(e.target.checked ? new Date().toISOString() : null);
   }
+
+  const consent =
+    consented && acceptedAt ? { policyVersion: POLICY_VERSION, acceptedAt } : undefined;
+  // Google sign-up stays locked until the required inputs are in place.
+  const locked = !consent || (INVITE_ONLY && !inviteCode.trim());
 
   return (
     <div className={styles.screen}>
@@ -56,142 +43,86 @@ export default function RegisterPage() {
 
           {error && <ErrorBanner message={error} />}
 
-          <GoogleSignInButton mode="register" onError={setError} inviteCode={form.inviteCode} />
-
-          <div className={styles.divider}>
-            <span>{t('common.or')}</span>
-          </div>
-
-          <form onSubmit={handleSubmit}>
-            {process.env.NEXT_PUBLIC_INVITE_ONLY === 'true' && (
-              <div className="form-group">
-                <FieldLabelWithHint
-                  htmlFor="reg-invite-code"
-                  label={t('auth.register.inviteLabel')}
-                  hint={t('auth.register.inviteHint')}
-                />
-                <input
-                  id="reg-invite-code"
-                  name="inviteCode"
-                  value={form.inviteCode}
-                  onChange={handleChange}
-                  required
-                />
-              </div>
-            )}
+          {INVITE_ONLY && (
             <div className="form-group">
               <FieldLabelWithHint
-                htmlFor="reg-username"
-                label={t('auth.register.username')}
-                hint={t('auth.register.usernameHint')}
+                htmlFor="reg-invite-code"
+                label={t('auth.register.inviteLabel')}
+                hint={t('auth.register.inviteHint')}
               />
               <input
-                id="reg-username"
-                name="username"
-                autoComplete="username"
-                value={form.username}
-                onChange={handleChange}
+                id="reg-invite-code"
+                name="inviteCode"
+                value={inviteCode}
+                onChange={(e) => setInviteCode(e.target.value)}
                 required
                 autoFocus
-                minLength={3}
-                maxLength={50}
-                pattern="[a-zA-Z0-9_]+"
               />
             </div>
-            <div className="form-group">
-              <label htmlFor="reg-email">{t('auth.register.email')}</label>
-              <input
-                id="reg-email"
-                type="email"
-                name="email"
-                autoComplete="email"
-                value={form.email}
-                onChange={handleChange}
-                required
-              />
-            </div>
-            <div className="form-group">
-              <FieldLabelWithHint
-                htmlFor="reg-password"
-                label={t('auth.register.password')}
-                hint={t('auth.passwordHint')}
-              />
-              <input
-                id="reg-password"
-                type="password"
-                name="password"
-                autoComplete="new-password"
-                value={form.password}
-                onChange={handleChange}
-                required
-                minLength={8}
-                maxLength={128}
-              />
-            </div>
-            <div className="form-group">
-              <label htmlFor="reg-currency">{t('auth.register.currency')}</label>
-              <select
-                id="reg-currency"
-                name="currency"
-                value={form.currency}
-                onChange={handleChange}
-              >
-                {SUPPORTED_CURRENCIES.map(({ code, label }) => (
-                  <option key={code} value={code}>
-                    {label}
-                  </option>
-                ))}
-              </select>
-            </div>
-            <div
-              className="form-group"
-              style={{ display: 'flex', alignItems: 'flex-start', gap: '0.5rem' }}
+          )}
+          <div className="form-group">
+            <label htmlFor="reg-currency">{t('auth.register.currency')}</label>
+            <select
+              id="reg-currency"
+              value={currency}
+              onChange={(e) => setCurrency(e.target.value)}
             >
-              <input
-                id="reg-consent"
-                type="checkbox"
-                checked={consented}
-                onChange={(e) => setConsented(e.target.checked)}
-                style={{ marginTop: '0.25rem', flexShrink: 0 }}
-              />
-              <label
-                htmlFor="reg-consent"
-                style={{ cursor: 'pointer', fontSize: '0.875rem', lineHeight: 1.4 }}
-              >
-                {t('auth.register.consentLabel')}{' '}
-                <Link
-                  href="/privacy"
-                  style={{
-                    color: 'var(--primary)',
-                    textDecoration: 'underline',
-                    textUnderlineOffset: '2px',
-                  }}
-                >
-                  {t('auth.register.privacyPolicy')}
-                </Link>{' '}
-                {t('auth.register.consentAnd')}{' '}
-                <Link
-                  href="/terms"
-                  style={{
-                    color: 'var(--primary)',
-                    textDecoration: 'underline',
-                    textUnderlineOffset: '2px',
-                  }}
-                >
-                  {t('auth.register.termsOfService')}
-                </Link>
-                .
-              </label>
-            </div>
-            <button
-              type="submit"
-              className="btn-primary"
-              style={{ width: '100%' }}
-              disabled={loading || !consented}
+              {SUPPORTED_CURRENCIES.map(({ code, label }) => (
+                <option key={code} value={code}>
+                  {label}
+                </option>
+              ))}
+            </select>
+          </div>
+          <div
+            className="form-group"
+            style={{ display: 'flex', alignItems: 'flex-start', gap: '0.5rem' }}
+          >
+            <input
+              id="reg-consent"
+              type="checkbox"
+              checked={consented}
+              onChange={handleConsentChange}
+              style={{ marginTop: '0.25rem', flexShrink: 0 }}
+            />
+            <label
+              htmlFor="reg-consent"
+              style={{ cursor: 'pointer', fontSize: '0.875rem', lineHeight: 1.4 }}
             >
-              {loading ? t('auth.register.submitting') : t('auth.register.submit')}
-            </button>
-          </form>
+              {t('auth.register.consentLabel')}{' '}
+              <Link
+                href="/privacy"
+                style={{
+                  color: 'var(--primary)',
+                  textDecoration: 'underline',
+                  textUnderlineOffset: '2px',
+                }}
+              >
+                {t('auth.register.privacyPolicy')}
+              </Link>{' '}
+              {t('auth.register.consentAnd')}{' '}
+              <Link
+                href="/terms"
+                style={{
+                  color: 'var(--primary)',
+                  textDecoration: 'underline',
+                  textUnderlineOffset: '2px',
+                }}
+              >
+                {t('auth.register.termsOfService')}
+              </Link>
+              .
+            </label>
+          </div>
+
+          <GoogleSignInButton
+            mode="register"
+            onError={setError}
+            inviteCode={inviteCode}
+            consent={consent}
+            currency={currency}
+            disabled={locked}
+          />
 
           <p className={styles.switchLink}>
             {t('auth.register.hasAccount')} <Link href="/login">{t('auth.register.signIn')}</Link>

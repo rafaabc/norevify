@@ -74,7 +74,6 @@ export function AuthProvider({ children }) {
   const username = decoded?.username ?? null;
   const currency = decoded?.currency ?? DEFAULT_CURRENCY;
   const language = decoded?.language ?? 'pt-BR';
-  const emailVerified = decoded?.emailVerified ?? null;
   const plan = decoded?.plan ?? 'free';
   const role = decoded?.role ?? 'user';
   const reminderEmailsEnabled = decoded?.reminderEmailsEnabled ?? true;
@@ -126,7 +125,6 @@ export function AuthProvider({ children }) {
         username,
         currency,
         language,
-        emailVerified,
         plan,
         role,
         reminderEmailsEnabled,

@@ -5,7 +5,6 @@ import {
   BarChart3,
   LogOut,
   Gauge,
-  KeyRound,
   Settings,
   Bell,
   RefreshCw,
@@ -32,7 +31,6 @@ export default function Sidebar({ badgeCount = 0 }) {
     { to: '/income', icon: DollarSign, label: t('nav.income'), pro: plan !== 'pro' },
     { to: '/reports', icon: FileText, label: t('nav.reports'), pro: plan !== 'pro' },
     { to: '/summary', icon: BarChart3, label: t('nav.summary') },
-    { to: '/change-password', icon: KeyRound, label: t('nav.changePassword') },
     { to: '/settings', icon: Settings, label: t('nav.settings') },
     ...(role === 'admin' ? [{ to: '/users', icon: ShieldCheck, label: t('nav.admin') }] : []),
   ];
