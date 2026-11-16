@@ -18,6 +18,8 @@ export const API_ERROR_MAP = {
   'Vehicle not found': 'errors.vehicleNotFound',
   vehicle_limit_reached: 'errors.vehicleLimitReached',
   vehicle_in_use: 'errors.vehicleInUse',
+  'amount must have at most 2 decimal places': 'errors.moneyTooManyDecimals',
+  'tips must have at most 2 decimal places': 'errors.moneyTooManyDecimals',
   'name is required': 'errors.vehicleNameRequired',
   'name must be at most 50 characters': 'errors.vehicleNameTooLong',
   'note must be a string': 'errors.incomeNoteInvalid',
