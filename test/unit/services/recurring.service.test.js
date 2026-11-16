@@ -20,10 +20,14 @@ function makeUserId() {
   return new mongoose.Types.ObjectId().toString();
 }
 
+// A counter, not Date.now(): two users created in the same millisecond collided on the
+// unique username index (E11000) and failed CI intermittently.
+let userSeq = 0;
 async function createUser() {
+  userSeq += 1;
   return userModel.create({
-    username: `user_${Date.now()}`,
-    email: `user_${Date.now()}@test.com`,
+    username: `user_${userSeq}`,
+    email: `user_${userSeq}@test.com`,
     password: 'hashed',
     emailVerified: true,
   });

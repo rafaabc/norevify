@@ -236,6 +236,38 @@ describe('remindersService.updateReminder()', () => {
     assert.strictEqual(updated.title, 'oil');
   });
 
+  for (const [field, value, pattern] of [
+    ['dueKm', -5, /dueKm must be a positive number/],
+    ['dueKm', 'abc', /dueKm must be a positive number/],
+    ['dueDate', 'not-a-date', /dueDate is invalid/],
+    ['intervalMonths', 0, /intervalMonths must be a positive number/],
+    ['intervalKm', -100, /intervalKm must be a positive number/],
+  ]) {
+    it(`rejects invalid ${field}=${JSON.stringify(value)} with 400`, async () => {
+      const u = USER_ID();
+      const r = await remindersService.createReminder(u, {
+        type: 'Maintenance',
+        dueDate: FUTURE_DATE(30),
+        dueKm: 10000,
+      });
+      await assert.rejects(
+        () => remindersService.updateReminder(u, r._id.toString(), { [field]: value }),
+        (err) => err.status === 400 && pattern.test(err.message),
+      );
+      const unchanged = await reminderModel.findById(r._id);
+      assert.strictEqual(unchanged.dueKm, 10000);
+    });
+  }
+
+  it('rejects clearing both dueDate and dueKm', async () => {
+    const u = USER_ID();
+    const r = await remindersService.createReminder(u, { type: 'Maintenance', dueKm: 10000 });
+    await assert.rejects(
+      () => remindersService.updateReminder(u, r._id.toString(), { dueKm: null }),
+      (err) => err.status === 400 && /must provide dueDate or dueKm/.test(err.message),
+    );
+  });
+
   it('rejects edits to completedAt/completedKm in body', async () => {
     const u = USER_ID();
     const r = await remindersService.createReminder(u, { type: 'Maintenance', dueKm: 10000 });
@@ -339,6 +371,29 @@ describe('remindersService.completeReminder()', () => {
     assert.strictEqual(result.completed.completedKm, 10500);
     assert.ok(result.next);
     assert.strictEqual(result.next.dueKm, 20500);
+  });
+
+  it('concurrent completes (double tap) complete once and create a single next reminder', async () => {
+    const u = USER_ID();
+    const r = await remindersService.createReminder(u, {
+      type: 'Maintenance',
+      dueKm: 10000,
+      intervalKm: 10000,
+    });
+    const results = await Promise.allSettled([
+      remindersService.completeReminder(u, r._id.toString(), { completedKm: 10500 }),
+      remindersService.completeReminder(u, r._id.toString(), { completedKm: 10500 }),
+    ]);
+
+    const fulfilled = results.filter((x) => x.status === 'fulfilled');
+    const rejected = results.filter((x) => x.status === 'rejected');
+    assert.strictEqual(fulfilled.length, 1);
+    assert.strictEqual(rejected.length, 1);
+    assert.strictEqual(rejected[0].reason.status, 400);
+    assert.match(rejected[0].reason.message, /already completed/i);
+
+    const all = await reminderModel.findByUserId(u);
+    assert.strictEqual(all.length, 2, 'original + exactly one next reminder');
   });
 
   it('returns next=null when no intervals', async () => {
