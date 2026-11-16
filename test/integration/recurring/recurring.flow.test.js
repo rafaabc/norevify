@@ -5,7 +5,6 @@ process.env.JWT_EXPIRES_IN = process.env.JWT_EXPIRES_IN || '1h';
 
 const { describe, it, before, after, beforeEach } = require('node:test');
 const assert = require('node:assert/strict');
-const mongoose = require('mongoose');
 
 const { startMongo, stopMongo, resetMongo } = require('../../helpers/mongo');
 const recurringService = require('../../../lib/services/recurring.service');
@@ -67,6 +66,32 @@ describe('Recurring expense flow integration', () => {
 
     const expensesAfterSecond = await expenseModel.findByUserId(uid);
     assert.strictEqual(expensesAfterSecond.length, first.created);
+  });
+
+  it('concurrent catch-ups (page mount racing the cron) create each occurrence exactly once', async () => {
+    const user = await createUser();
+    const uid = user._id.toString();
+
+    await recurringService.createRule(uid, {
+      category: 'Insurance',
+      amount: 120,
+      startDate: monthsAgoISO(3),
+      interval: 1,
+    });
+
+    const [a, b, c] = await Promise.all([
+      recurringService.runCatchUp(uid),
+      recurringService.runCatchUp(uid),
+      recurringService.runCatchUpAllUsers(),
+    ]);
+
+    const expenses = await expenseModel.findByUserId(uid);
+    const dates = expenses.map((e) => e.date.toISOString());
+    assert.strictEqual(new Set(dates).size, dates.length, `duplicate dates: ${dates.join(', ')}`);
+    assert.ok(expenses.length >= 3, `Expected >=3 expenses, got ${expenses.length}`);
+    // `created` counts only rows this run actually inserted, so the runs together
+    // account for every expense exactly once.
+    assert.strictEqual(a.created + b.created + c.created, expenses.length);
   });
 
   it('runCatchUpAllUsers generates for all users', async () => {
