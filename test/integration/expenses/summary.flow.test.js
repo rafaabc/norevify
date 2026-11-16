@@ -8,7 +8,7 @@ const assert = require('node:assert/strict');
 
 const { startMongo, stopMongo, resetMongo } = require('../../helpers/mongo');
 require('../../helpers/email-mock');
-const authService = require('../../../lib/services/auth.service');
+const { createUser } = require('../../helpers/createUser');
 
 const VALID_CONSENT = { policyVersion: '2026-05-20', acceptedAt: new Date().toISOString() };
 const { createExpense, getSummary } = require('../../../lib/services/expenses.service');
@@ -24,7 +24,7 @@ const PAST_YEAR = new Date().getFullYear() - 1;
 //   March    — Parking           = 20.00
 //   March    — Fuel  20L × 2.00 = 40.00
 async function seedUser() {
-  const user = await authService.register({
+  const user = await createUser({
     username: 'testuser',
     password: 'Zx7Qw2vNp9Lm4Rk8',
     email: 'testuser@example.com',

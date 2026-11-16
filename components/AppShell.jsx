@@ -8,7 +8,7 @@ import MobileTopBar from './MobileTopBar.jsx';
 import BottomTabs from './BottomTabs.jsx';
 import styles from './AppShell.module.css';
 import { useAuth } from '@/context/AuthContext.jsx';
-import { remindersApi, authApi } from '@/services/apiService.js';
+import { remindersApi } from '@/services/apiService.js';
 
 function useReminderBadge(isAuthed) {
   const pathname = usePathname();
@@ -45,65 +45,9 @@ function useReminderBadge(isAuthed) {
   return isAuthed ? count : 0;
 }
 
-function EmailVerificationBanner({ emailVerified }) {
-  const { t } = useTranslation();
-  const [sent, setSent] = useState(false);
-  const [sending, setSending] = useState(false);
-
-  if (emailVerified !== false) return null;
-
-  async function handleResend() {
-    setSending(true);
-    try {
-      await authApi.resendVerification();
-      setSent(true);
-    } catch {
-      // best-effort
-    } finally {
-      setSending(false);
-    }
-  }
-
-  return (
-    <div
-      style={{
-        background: 'rgba(255, 176, 32, 0.15)',
-        color: 'var(--warning)',
-        padding: '0.5rem 1rem',
-        display: 'flex',
-        alignItems: 'center',
-        gap: '1rem',
-        fontSize: '0.875rem',
-      }}
-    >
-      <span style={{ flex: 1 }}>
-        {sent ? t('auth.verifyEmail.resendSuccess') : t('auth.verifyEmail.bannerText')}
-      </span>
-      {!sent && (
-        <button
-          onClick={handleResend}
-          disabled={sending}
-          style={{
-            background: 'none',
-            border: '1px solid rgba(255, 176, 32, 0.4)',
-            color: 'var(--warning)',
-            borderRadius: '4px',
-            padding: '0.25rem 0.75rem',
-            cursor: 'pointer',
-            fontSize: '0.8125rem',
-            whiteSpace: 'nowrap',
-          }}
-        >
-          {sending ? t('auth.verifyEmail.resending') : t('auth.verifyEmail.bannerAction')}
-        </button>
-      )}
-    </div>
-  );
-}
-
 export default function AppShell({ children }) {
   const { t } = useTranslation();
-  const { isAuthed, emailVerified } = useAuth();
+  const { isAuthed } = useAuth();
   const badgeCount = useReminderBadge(isAuthed);
 
   return (
@@ -111,7 +55,6 @@ export default function AppShell({ children }) {
       <Sidebar badgeCount={badgeCount} />
       <MobileTopBar badgeCount={badgeCount} />
       <main className={styles.main}>
-        <EmailVerificationBanner emailVerified={emailVerified} />
         {children}
         <footer
           style={{

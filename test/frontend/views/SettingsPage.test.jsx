@@ -6,8 +6,12 @@ vi.mock('react-i18next', () => ({
   useTranslation: () => ({ t: (k) => k, i18n: { language: 'en' } }),
 }));
 vi.mock('@/views/SettingsPage.module.css', () => ({ default: {} }));
+let reauthProps;
 vi.mock('@/components/GoogleSignInButton.jsx', () => ({
-  default: ({ onSuccess }) => <button onClick={onSuccess}>google-link</button>,
+  default: (props) => {
+    reauthProps = props;
+    return <div data-testid="reauth-btn" data-mode={props.mode} />;
+  },
 }));
 
 const mockPush = vi.fn();
@@ -25,7 +29,6 @@ let mockAuthState = {
   updateCurrency: null,
   updateLanguage: null,
 };
-let mockEmailVerified = true;
 const mockLogout = vi.fn();
 
 vi.mock('@/context/AuthContext.jsx', () => ({
@@ -35,22 +38,17 @@ vi.mock('@/context/AuthContext.jsx', () => ({
     updateLanguage: mockUpdateLanguage,
     logout: mockLogout,
     login: vi.fn(),
-    emailVerified: mockEmailVerified,
   }),
 }));
 
-const mockGetProviders = vi.fn();
-const mockUnlinkGoogle = vi.fn();
+const mockLogoutAll = vi.fn();
 const mockExportData = vi.fn();
 const mockDeleteAccount = vi.fn();
-const mockResendVerification = vi.fn();
 vi.mock('@/services/apiService.js', () => ({
   authApi: {
-    getProviders: () => mockGetProviders(),
-    unlinkGoogle: () => mockUnlinkGoogle(),
+    logoutAll: () => mockLogoutAll(),
     exportData: () => mockExportData(),
     deleteAccount: (...args) => mockDeleteAccount(...args),
-    resendVerification: () => mockResendVerification(),
   },
 }));
 
@@ -68,14 +66,12 @@ describe('SettingsPage', () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
-    mockEmailVerified = true;
+    reauthProps = undefined;
     mockUpdateCurrency.mockResolvedValue({});
     mockUpdateLanguage.mockResolvedValue({});
-    mockUnlinkGoogle.mockResolvedValue({});
-    mockGetProviders.mockResolvedValue({ authProviders: ['google'], hasPassword: true });
+    mockLogoutAll.mockResolvedValue({});
     mockExportData.mockResolvedValue({ user: {}, expenses: [] });
     mockDeleteAccount.mockResolvedValue({});
-    mockResendVerification.mockResolvedValue({});
   });
 
   it('should render heading and username', async () => {
@@ -111,34 +107,6 @@ describe('SettingsPage', () => {
     expect(mockUpdateLanguage).toHaveBeenCalledWith('pt-BR');
   });
 
-  it('should show disconnect button when google is linked', async () => {
-    await renderPage();
-    expect(screen.getByText('settings.disconnectGoogle')).toBeInTheDocument();
-  });
-
-  it('should call unlinkGoogle and update providers on disconnect', async () => {
-    await renderPage();
-    await act(async () => {
-      fireEvent.click(screen.getByText('settings.disconnectGoogle'));
-    });
-    expect(mockUnlinkGoogle).toHaveBeenCalledOnce();
-    expect(screen.getByRole('alert')).toHaveTextContent('settings.googleDisconnected');
-  });
-
-  it('should show google link button when google is not linked', async () => {
-    mockGetProviders.mockResolvedValue({ authProviders: [], hasPassword: true });
-    await renderPage();
-    expect(screen.getByText('google-link')).toBeInTheDocument();
-  });
-
-  it('should render change-password link', async () => {
-    await renderPage();
-    expect(screen.getByRole('link', { name: /settings\.changePassword/ })).toHaveAttribute(
-      'href',
-      '/change-password',
-    );
-  });
-
   it('should render export data button', async () => {
     await renderPage();
     expect(screen.getByRole('button', { name: 'settings.myData.export' })).toBeInTheDocument();
@@ -154,15 +122,6 @@ describe('SettingsPage', () => {
   it('should show delete modal when delete account button is clicked', async () => {
     await openDeleteModal();
     expect(screen.getByText('settings.deleteAccount.heading')).toBeInTheDocument();
-  });
-
-  it('should show error banner when unlinkGoogle fails', async () => {
-    mockUnlinkGoogle.mockRejectedValue(new Error('unlink failed'));
-    await renderPage();
-    await act(async () => {
-      fireEvent.click(screen.getByText('settings.disconnectGoogle'));
-    });
-    expect(screen.getByRole('alert')).toHaveTextContent('unlink failed');
   });
 
   it('should trigger file download on export data', async () => {
@@ -187,54 +146,57 @@ describe('SettingsPage', () => {
     expect(screen.getByRole('alert')).toHaveTextContent('export error');
   });
 
-  it('should call deleteAccount, logout and redirect on confirmed delete', async () => {
+  it('should not offer a password field or a link to change the password', async () => {
     await openDeleteModal();
-    const passwordInput = screen.getByLabelText('settings.deleteAccount.passwordLabel');
-    fireEvent.change(passwordInput, { target: { value: 'secret' } });
-    await act(async () => {
-      fireEvent.click(screen.getByRole('button', { name: 'settings.deleteAccount.confirm' }));
-    });
-    expect(mockDeleteAccount).toHaveBeenCalledWith({ password: 'secret' });
+    expect(screen.queryByRole('link', { name: /settings\.changePassword/ })).toBeNull();
+    expect(document.querySelector('input[type="password"]')).not.toBeInTheDocument();
+  });
+
+  it('should ask for Google re-authentication inside the delete modal', async () => {
+    await openDeleteModal();
+    expect(screen.getByTestId('reauth-btn')).toHaveAttribute('data-mode', 'reauth');
+  });
+
+  it('should call deleteAccount with the fresh idToken, logout and redirect', async () => {
+    await openDeleteModal();
+    await act(async () => reauthProps.onCredential('fresh-id-token'));
+    expect(mockDeleteAccount).toHaveBeenCalledWith({ idToken: 'fresh-id-token' });
     expect(mockLogout).toHaveBeenCalled();
     expect(mockPush).toHaveBeenCalledWith('/login?deleted=1');
   });
 
-  it('should show delete error when deleteAccount fails', async () => {
+  it('should show delete error and stay signed in when deleteAccount fails', async () => {
     mockDeleteAccount.mockRejectedValue(new Error('delete failed'));
     await openDeleteModal();
-    const passwordInput = screen.getByLabelText('settings.deleteAccount.passwordLabel');
-    fireEvent.change(passwordInput, { target: { value: 'bad' } });
-    await act(async () => {
-      fireEvent.click(screen.getByRole('button', { name: 'settings.deleteAccount.confirm' }));
-    });
+    await act(async () => reauthProps.onCredential('bad-token'));
     expect(screen.getByText('delete failed')).toBeInTheDocument();
+    expect(mockLogout).not.toHaveBeenCalled();
   });
 
-  describe('when emailVerified is false', () => {
-    beforeEach(() => {
-      mockEmailVerified = false;
-    });
+  it('should show the error reported by the re-authentication step', async () => {
+    await openDeleteModal();
+    await act(async () => reauthProps.onError('reauth failed'));
+    expect(screen.getByText('reauth failed')).toBeInTheDocument();
+  });
 
-    it('should show resend verification button', async () => {
-      await renderPage();
-      expect(screen.getByRole('button', { name: 'auth.verifyEmail.resend' })).toBeInTheDocument();
+  it('should sign out of all devices, then logout locally and redirect', async () => {
+    await renderPage();
+    await act(async () => {
+      fireEvent.click(screen.getByRole('button', { name: 'settings.sessions.signOutEverywhere' }));
     });
+    expect(mockLogoutAll).toHaveBeenCalledOnce();
+    expect(mockLogout).toHaveBeenCalled();
+    expect(mockPush).toHaveBeenCalledWith('/login?loggedOut=1');
+  });
 
-    it('should call resendVerification when resend button is clicked', async () => {
-      await renderPage();
-      await act(async () => {
-        fireEvent.click(screen.getByRole('button', { name: 'auth.verifyEmail.resend' }));
-      });
-      expect(mockResendVerification).toHaveBeenCalled();
+  it('should show an error and stay signed in when sign-out-everywhere fails', async () => {
+    mockLogoutAll.mockRejectedValue(new Error('logout-all failed'));
+    await renderPage();
+    await act(async () => {
+      fireEvent.click(screen.getByRole('button', { name: 'settings.sessions.signOutEverywhere' }));
     });
-
-    it('should show resend success banner after successful resend', async () => {
-      await renderPage();
-      await act(async () => {
-        fireEvent.click(screen.getByRole('button', { name: 'auth.verifyEmail.resend' }));
-      });
-      expect(screen.getByRole('alert')).toHaveTextContent('auth.verifyEmail.resendSuccess');
-    });
+    expect(screen.getByRole('alert')).toHaveTextContent('logout-all failed');
+    expect(mockLogout).not.toHaveBeenCalled();
   });
 
   it('should close delete modal when cancel button is clicked', async () => {

@@ -16,7 +16,7 @@ vi.mock('@/i18n/index.js', () => ({
   default: { t: (k) => k, changeLanguage: vi.fn(), language: 'en' },
 }));
 vi.mock('@/services/apiService.js', () => ({
-  authApi: { getProviders: vi.fn().mockResolvedValue({ authProviders: [], hasPassword: true }) },
+  authApi: {},
   billingApi: {
     checkout: vi.fn().mockResolvedValue({ url: 'https://checkout.stripe.com/fake' }),
     portal: vi.fn().mockResolvedValue({ url: 'https://billing.stripe.com/fake' }),
@@ -35,7 +35,6 @@ describe('SettingsPage — billing section', () => {
       language: 'en',
       updateCurrency: vi.fn(),
       updateLanguage: vi.fn(),
-      emailVerified: true,
       logout: vi.fn(),
       plan: 'free',
       reminderEmailsEnabled: true,
@@ -63,7 +62,6 @@ describe('SettingsPage — billing section', () => {
       language: 'en',
       updateCurrency: vi.fn(),
       updateLanguage: vi.fn(),
-      emailVerified: true,
       logout: vi.fn(),
       plan: 'pro',
       reminderEmailsEnabled: true,
@@ -84,7 +82,6 @@ describe('SettingsPage — billing section', () => {
       language: 'en',
       updateCurrency: vi.fn(),
       updateLanguage: vi.fn(),
-      emailVerified: true,
       logout: vi.fn(),
       plan: 'free',
       reminderEmailsEnabled: true,

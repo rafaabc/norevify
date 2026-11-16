@@ -24,11 +24,7 @@
   ],
   "components": {
     "securitySchemes": {
-      "bearerAuth": {
-        "type": "http",
-        "scheme": "bearer",
-        "bearerFormat": "JWT"
-      },
+      "bearerAuth": { "type": "http", "scheme": "bearer", "bearerFormat": "JWT" },
       "cronSecret": {
         "type": "http",
         "scheme": "bearer",
@@ -38,9 +34,7 @@
     "schemas": {
       "Error": {
         "type": "object",
-        "properties": {
-          "message": { "type": "string", "example": "Error description" }
-        }
+        "properties": { "message": { "type": "string", "example": "Error description" } }
       },
       "SuccessMessage": {
         "type": "object",
@@ -50,9 +44,7 @@
       },
       "TokenResponse": {
         "type": "object",
-        "properties": {
-          "token": { "type": "string", "example": "eyJhbGciOiJIUzI1NiIs..." }
-        }
+        "properties": { "token": { "type": "string", "example": "eyJhbGciOiJIUzI1NiIs..." } }
       },
       "ConsentInput": {
         "type": "object",
@@ -62,127 +54,30 @@
           "acceptedAt": { "type": "string", "format": "date-time" }
         }
       },
-      "RegisterRequest": {
-        "type": "object",
-        "required": ["username", "password", "email", "consent"],
-        "properties": {
-          "username": {
-            "type": "string",
-            "description": "3-50 chars, alphanumeric and underscores only",
-            "example": "alice"
-          },
-          "password": {
-            "type": "string",
-            "minLength": 8,
-            "maxLength": 128,
-            "example": "Zx7Qw2vNp9Lm4Rk8"
-          },
-          "email": { "type": "string", "format": "email", "example": "alice@example.com" },
-          "currency": {
-            "type": "string",
-            "enum": ["BRL", "DKK", "USD", "EUR", "GBP", "JPY", "CHF", "SEK", "NOK", "CAD"],
-            "default": "BRL"
-          },
-          "consent": { "$ref": "#/components/schemas/ConsentInput" },
-          "inviteCode": {
-            "type": "string",
-            "description": "Required only when INVITE_ONLY=true.",
-            "nullable": true
-          }
-        }
-      },
-      "RegisterResponse": {
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "string",
-            "nullable": true,
-            "description": "Mongo ObjectId of the created user. Null when the email was already registered — the endpoint returns the same generic success shape either way to avoid email enumeration.",
-            "example": "665f1c2b8a1e9c0012a34567"
-          },
-          "username": { "type": "string", "example": "alice" }
-        }
-      },
-      "LoginRequest": {
-        "type": "object",
-        "required": ["username", "password"],
-        "properties": {
-          "username": { "type": "string", "example": "alice" },
-          "password": { "type": "string", "example": "Zx7Qw2vNp9Lm4Rk8" }
-        }
-      },
       "LoginResponse": {
         "type": "object",
-        "properties": {
-          "token": { "type": "string", "example": "eyJhbGciOiJIUzI1NiIs..." }
-        }
-      },
-      "ForgotPasswordRequest": {
-        "type": "object",
-        "required": ["email"],
-        "properties": {
-          "email": { "type": "string", "format": "email", "example": "alice@example.com" }
-        }
-      },
-      "ResetPasswordRequest": {
-        "type": "object",
-        "required": ["token", "newPassword"],
-        "properties": {
-          "token": { "type": "string", "description": "JWT emailed by /forgot-password" },
-          "newPassword": { "type": "string", "minLength": 8, "maxLength": 128 }
-        }
-      },
-      "ChangePasswordRequest": {
-        "type": "object",
-        "required": ["currentPassword", "newPassword"],
-        "properties": {
-          "currentPassword": { "type": "string", "example": "oldSecret99" },
-          "newPassword": {
-            "type": "string",
-            "minLength": 8,
-            "maxLength": 128,
-            "example": "Zx7Qw2vNp9Lm4Rk8"
-          }
-        }
+        "properties": { "token": { "type": "string", "example": "eyJhbGciOiJIUzI1NiIs..." } }
       },
       "GoogleLoginRequest": {
         "type": "object",
         "required": ["idToken"],
         "properties": {
           "idToken": { "type": "string", "description": "Google Identity Services ID token" },
-          "inviteCode": { "type": "string", "nullable": true }
-        }
-      },
-      "LinkGoogleRequest": {
-        "type": "object",
-        "required": ["idToken"],
-        "properties": {
-          "idToken": { "type": "string" }
-        }
-      },
-      "ProvidersResponse": {
-        "type": "object",
-        "properties": {
-          "authProviders": {
-            "type": "array",
-            "items": { "type": "string", "enum": ["password", "google"] }
+          "inviteCode": { "type": "string", "nullable": true },
+          "consent": {
+            "allOf": [{ "$ref": "#/components/schemas/ConsentInput" }],
+            "description": "Required only when the sign-in creates a new account; ignored otherwise."
           },
-          "hasPassword": { "type": "boolean" }
-        }
-      },
-      "VerifyEmailRequest": {
-        "type": "object",
-        "required": ["token"],
-        "properties": {
-          "token": { "type": "string" }
+          "currency": {
+            "type": "string",
+            "description": "Initial currency for a new account (defaults to BRL)."
+          }
         }
       },
       "NotificationPrefsRequest": {
         "type": "object",
         "required": ["reminderEmailsEnabled"],
-        "properties": {
-          "reminderEmailsEnabled": { "type": "boolean" }
-        }
+        "properties": { "reminderEmailsEnabled": { "type": "boolean" } }
       },
       "ProfitTargetRequest": {
         "type": "object",
@@ -198,9 +93,7 @@
       "OdometerRequest": {
         "type": "object",
         "required": ["currentKm"],
-        "properties": {
-          "currentKm": { "type": "number", "minimum": 0, "example": 45230 }
-        }
+        "properties": { "currentKm": { "type": "number", "minimum": 0, "example": 45230 } }
       },
       "OdometerResponse": {
         "type": "object",
@@ -241,10 +134,11 @@
       },
       "DeleteAccountRequest": {
         "type": "object",
+        "required": ["idToken"],
         "properties": {
-          "password": {
+          "idToken": {
             "type": "string",
-            "description": "Required only for accounts with a password set; not required for Google-only accounts."
+            "description": "Fresh Google ID token; its subject must match the account’s linked Google identity."
           }
         }
       },
@@ -281,7 +175,7 @@
         "properties": {
           "date": { "type": "string", "format": "date", "example": "2026-04-22" },
           "category": { "type": "string", "enum": ["Fuel"], "example": "Fuel" },
-          "litres": { "type": "number", "example": 40.0 },
+          "litres": { "type": "number", "example": 40 },
           "price_per_litre": { "type": "number", "example": 1.85 },
           "odometer": {
             "type": "number",
@@ -305,7 +199,7 @@
             "enum": ["Maintenance", "Insurance", "Parking", "Toll", "Tax", "Other"],
             "example": "Maintenance"
           },
-          "amount": { "type": "number", "example": 50.0 },
+          "amount": { "type": "number", "example": 50 },
           "vehicleId": { "type": "string", "nullable": true }
         }
       },
@@ -314,7 +208,7 @@
         "properties": {
           "date": { "type": "string", "format": "date", "example": "2026-04-22" },
           "category": { "type": "string", "enum": ["Fuel"] },
-          "litres": { "type": "number", "example": 40.0 },
+          "litres": { "type": "number", "example": 40 },
           "price_per_litre": { "type": "number", "example": 1.85 },
           "odometer": { "type": "number", "example": 45230 },
           "vehicleId": { "type": "string", "nullable": true }
@@ -328,7 +222,7 @@
             "type": "string",
             "enum": ["Maintenance", "Insurance", "Parking", "Toll", "Tax", "Other"]
           },
-          "amount": { "type": "number", "example": 50.0 },
+          "amount": { "type": "number", "example": 50 },
           "vehicleId": { "type": "string", "nullable": true }
         }
       },
@@ -340,8 +234,8 @@
           "vehicleId": { "type": "string", "example": "665f1c2b8a1e9c0012a34501" },
           "date": { "type": "string", "format": "date", "example": "2026-04-22" },
           "category": { "type": "string", "example": "Fuel" },
-          "amount": { "type": "number", "example": 74.0 },
-          "litres": { "type": "number", "nullable": true, "example": 40.0 },
+          "amount": { "type": "number", "example": 74 },
+          "litres": { "type": "number", "nullable": true, "example": 40 },
           "price_per_litre": { "type": "number", "nullable": true, "example": 1.85 },
           "odometer": { "type": "number", "nullable": true, "example": 45230 },
           "recurringRuleId": {
@@ -364,7 +258,7 @@
           "categories": {
             "type": "object",
             "example": {
-              "Fuel": 74.0,
+              "Fuel": 74,
               "Maintenance": 0,
               "Insurance": 0,
               "Parking": 0,
@@ -373,7 +267,7 @@
               "Other": 0
             }
           },
-          "total": { "type": "number", "example": 74.0 }
+          "total": { "type": "number", "example": 74 }
         }
       },
       "Income": {
@@ -423,7 +317,7 @@
             "example": 22.1
           },
           "deliveries": { "type": "integer", "nullable": true, "example": 3 },
-          "tips": { "type": "number", "nullable": true, "example": 10.0 }
+          "tips": { "type": "number", "nullable": true, "example": 10 }
         }
       },
       "IncomeSegment": {
@@ -457,12 +351,7 @@
             "description": "Legacy single-block form; provide together with endTime, and only when segments is absent",
             "example": "13:15"
           },
-          "endTime": {
-            "type": "string",
-            "nullable": true,
-            "deprecated": true,
-            "example": "15:00"
-          },
+          "endTime": { "type": "string", "nullable": true, "deprecated": true, "example": "15:00" },
           "hours": {
             "type": "number",
             "nullable": true,
@@ -475,7 +364,7 @@
             "type": "number",
             "nullable": true,
             "description": "Must not exceed amount",
-            "example": 10.0
+            "example": 10
           }
         }
       },
@@ -511,11 +400,11 @@
               "month": { "type": "integer", "example": 4 }
             }
           },
-          "totalIncome": { "type": "number", "example": 2400.0 },
-          "totalExpenses": { "type": "number", "example": 900.0 },
-          "profit": { "type": "number", "example": 1500.0 },
+          "totalIncome": { "type": "number", "example": 2400 },
+          "totalExpenses": { "type": "number", "example": 900 },
+          "profit": { "type": "number", "example": 1500 },
           "profitPerKm": { "type": "number", "nullable": true, "example": 1.2 },
-          "profitPerDay": { "type": "number", "example": 50.0 },
+          "profitPerDay": { "type": "number", "example": 50 },
           "fuelSpend": {
             "type": "number",
             "nullable": true,
@@ -546,7 +435,7 @@
             "description": "Which fallback produced workShare",
             "example": "odometerSplit"
           },
-          "tips": { "type": "number", "nullable": true, "example": 20.0 },
+          "tips": { "type": "number", "nullable": true, "example": 20 },
           "netPerHourExcludingTips": { "type": "number", "nullable": true, "example": 145.5 },
           "kmDriven": {
             "type": "number",
@@ -555,7 +444,7 @@
             "example": 1250
           },
           "hours": { "type": "number", "nullable": true, "example": 2.95 },
-          "workKm": { "type": "number", "nullable": true, "example": 41.0 },
+          "workKm": { "type": "number", "nullable": true, "example": 41 },
           "deliveries": { "type": "integer", "nullable": true, "example": 7 },
           "costPerKm": {
             "type": "number",
@@ -579,10 +468,7 @@
             "items": {
               "type": "object",
               "properties": {
-                "flag": {
-                  "type": "string",
-                  "enum": ["impliedRangeTooHigh", "missingOdometer"]
-                },
+                "flag": { "type": "string", "enum": ["impliedRangeTooHigh", "missingOdometer"] },
                 "date": {
                   "type": "string",
                   "format": "date-time",
@@ -634,17 +520,14 @@
               "type": "object",
               "properties": {
                 "month": { "type": "integer", "example": 4 },
-                "totalIncome": { "type": "number", "example": 500.0 },
+                "totalIncome": { "type": "number", "example": 500 },
                 "costPerKm": { "type": "number", "nullable": true, "example": 1.35 },
                 "costPerKmSamples": { "type": "integer", "example": 2 },
                 "costPerKmFlags": {
                   "type": "array",
                   "items": { "type": "string", "enum": ["impliedRangeTooHigh", "missingOdometer"] }
                 },
-                "costPerKmFlagDetails": {
-                  "type": "array",
-                  "items": { "type": "object" }
-                },
+                "costPerKmFlagDetails": { "type": "array", "items": { "type": "object" } },
                 "costPerKmSpanKm": { "type": "number", "nullable": true },
                 "fuelSpend": { "type": "number", "nullable": true, "example": 55.35 },
                 "totalKm": { "type": "number", "nullable": true },
@@ -655,7 +538,7 @@
                 "netEarnings": { "type": "number", "nullable": true, "example": 339.02 },
                 "netPerHour": { "type": "number", "nullable": true, "example": 114.92 },
                 "hours": { "type": "number", "nullable": true, "example": 2.95 },
-                "workKm": { "type": "number", "nullable": true, "example": 41.0 },
+                "workKm": { "type": "number", "nullable": true, "example": 41 },
                 "tips": { "type": "number", "nullable": true }
               }
             }
@@ -793,9 +676,7 @@
       "CompleteReminderRequest": {
         "type": "object",
         "required": ["completedKm"],
-        "properties": {
-          "completedKm": { "type": "number", "minimum": 0, "example": 45500 }
-        }
+        "properties": { "completedKm": { "type": "number", "minimum": 0, "example": 45500 } }
       },
       "CompleteReminderResponse": {
         "type": "object",
@@ -818,9 +699,7 @@
       "CheckoutRequest": {
         "type": "object",
         "required": ["interval"],
-        "properties": {
-          "interval": { "type": "string", "enum": ["monthly", "annual"] }
-        }
+        "properties": { "interval": { "type": "string", "enum": ["monthly", "annual"] } }
       },
       "CheckoutResponse": {
         "type": "object",
@@ -859,15 +738,11 @@
       "SetPlanRequest": {
         "type": "object",
         "required": ["plan"],
-        "properties": {
-          "plan": { "type": "string", "enum": ["free", "pro"] }
-        }
+        "properties": { "plan": { "type": "string", "enum": ["free", "pro"] } }
       },
       "HealthResponse": {
         "type": "object",
-        "properties": {
-          "status": { "type": "string", "example": "ok" }
-        }
+        "properties": { "status": { "type": "string", "example": "ok" } }
       }
     },
     "responses": {
@@ -898,149 +773,11 @@
     }
   },
   "paths": {
-    "/api/auth/register": {
-      "post": {
-        "tags": ["Auth"],
-        "summary": "Register a new user",
-        "description": "Rate limited (5/hour/IP). Duplicate email returns the same generic success shape as a fresh registration (no account created, existing address notified) to avoid email enumeration; duplicate username returns 409.",
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": { "schema": { "$ref": "#/components/schemas/RegisterRequest" } }
-          }
-        },
-        "responses": {
-          "201": {
-            "description": "User created (or duplicate-email no-op)",
-            "content": {
-              "application/json": { "schema": { "$ref": "#/components/schemas/RegisterResponse" } }
-            }
-          },
-          "400": { "$ref": "#/components/responses/ValidationError" },
-          "403": {
-            "description": "Invite required or bot detected",
-            "content": {
-              "application/json": { "schema": { "$ref": "#/components/schemas/Error" } }
-            }
-          },
-          "409": {
-            "description": "Username already taken",
-            "content": {
-              "application/json": { "schema": { "$ref": "#/components/schemas/Error" } }
-            }
-          },
-          "429": { "$ref": "#/components/responses/TooManyRequests" },
-          "500": {
-            "description": "Internal server error",
-            "content": {
-              "application/json": { "schema": { "$ref": "#/components/schemas/Error" } }
-            }
-          }
-        }
-      }
-    },
-    "/api/auth/login": {
-      "post": {
-        "tags": ["Auth"],
-        "summary": "Login and receive a JWT",
-        "description": "Rate limited (10/15min/IP). 5 consecutive bad passwords locks the account with exponential backoff; a locked-out login still returns the generic 401 (lock state is never revealed).",
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": { "schema": { "$ref": "#/components/schemas/LoginRequest" } }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "Login successful",
-            "content": {
-              "application/json": { "schema": { "$ref": "#/components/schemas/LoginResponse" } }
-            }
-          },
-          "400": { "$ref": "#/components/responses/ValidationError" },
-          "401": {
-            "description": "Invalid credentials",
-            "content": {
-              "application/json": { "schema": { "$ref": "#/components/schemas/Error" } }
-            }
-          },
-          "403": {
-            "description": "Bot detected",
-            "content": {
-              "application/json": { "schema": { "$ref": "#/components/schemas/Error" } }
-            }
-          },
-          "429": { "$ref": "#/components/responses/TooManyRequests" },
-          "500": {
-            "description": "Internal server error",
-            "content": {
-              "application/json": { "schema": { "$ref": "#/components/schemas/Error" } }
-            }
-          }
-        }
-      }
-    },
-    "/api/auth/forgot-password": {
-      "post": {
-        "tags": ["Auth"],
-        "summary": "Request a password reset email",
-        "description": "Rate limited (3/hour/IP). Always returns the same generic message regardless of whether the email exists.",
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": { "$ref": "#/components/schemas/ForgotPasswordRequest" }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "Generic acknowledgement",
-            "content": {
-              "application/json": { "schema": { "$ref": "#/components/schemas/SuccessMessage" } }
-            }
-          },
-          "400": { "$ref": "#/components/responses/ValidationError" },
-          "429": { "$ref": "#/components/responses/TooManyRequests" }
-        }
-      }
-    },
-    "/api/auth/reset-password": {
-      "post": {
-        "tags": ["Auth"],
-        "summary": "Reset password using a reset token",
-        "description": "Rate limited (5/15min/IP). Token is a short-lived JWT emailed by /forgot-password.",
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": { "$ref": "#/components/schemas/ResetPasswordRequest" }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "Password updated",
-            "content": {
-              "application/json": { "schema": { "$ref": "#/components/schemas/SuccessMessage" } }
-            }
-          },
-          "400": { "$ref": "#/components/responses/ValidationError" },
-          "401": {
-            "description": "Invalid or expired reset token",
-            "content": {
-              "application/json": { "schema": { "$ref": "#/components/schemas/Error" } }
-            }
-          },
-          "429": { "$ref": "#/components/responses/TooManyRequests" }
-        }
-      }
-    },
     "/api/auth/google": {
       "post": {
         "tags": ["Auth"],
         "summary": "Sign in (or register) with a Google ID token",
-        "description": "Rate limited (10/15min/IP). Creates a new account on first sign-in unless invite-gated; links to an existing account matching the verified Google email.",
+        "description": "Google is the only way to sign in or sign up. Rate limited (10/15min/IP). Existing Google identities sign in directly; an account with the same verified Google email is linked. A brand-new account additionally requires `consent` (current policy version) and, when invite-gated, an `inviteCode`.",
         "requestBody": {
           "required": true,
           "content": {
@@ -1062,92 +799,6 @@
             }
           },
           "429": { "$ref": "#/components/responses/TooManyRequests" }
-        }
-      }
-    },
-    "/api/auth/verify-email": {
-      "post": {
-        "tags": ["Auth"],
-        "summary": "Verify an email address using the emailed token",
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": { "schema": { "$ref": "#/components/schemas/VerifyEmailRequest" } }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "Email verified — returns a fresh JWT with emailVerified: true",
-            "content": {
-              "application/json": { "schema": { "$ref": "#/components/schemas/TokenResponse" } }
-            }
-          },
-          "400": {
-            "description": "Invalid, expired, or already-verified token",
-            "content": {
-              "application/json": { "schema": { "$ref": "#/components/schemas/Error" } }
-            }
-          }
-        }
-      }
-    },
-    "/api/auth/resend-verification": {
-      "post": {
-        "tags": ["Auth"],
-        "summary": "Resend the email verification link",
-        "description": "Rate limited (3/hour/IP).",
-        "security": [{ "bearerAuth": [] }],
-        "responses": {
-          "200": {
-            "description": "Verification email sent",
-            "content": {
-              "application/json": { "schema": { "$ref": "#/components/schemas/SuccessMessage" } }
-            }
-          },
-          "400": {
-            "description": "Email already verified",
-            "content": {
-              "application/json": { "schema": { "$ref": "#/components/schemas/Error" } }
-            }
-          },
-          "401": { "$ref": "#/components/responses/Unauthorized" },
-          "429": { "$ref": "#/components/responses/TooManyRequests" }
-        }
-      }
-    },
-    "/api/auth/password": {
-      "patch": {
-        "tags": ["Auth"],
-        "summary": "Change the current user's password",
-        "security": [{ "bearerAuth": [] }],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": { "$ref": "#/components/schemas/ChangePasswordRequest" }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "Password updated successfully",
-            "content": {
-              "application/json": { "schema": { "$ref": "#/components/schemas/SuccessMessage" } }
-            }
-          },
-          "400": { "$ref": "#/components/responses/ValidationError" },
-          "401": {
-            "description": "Invalid credentials",
-            "content": {
-              "application/json": { "schema": { "$ref": "#/components/schemas/Error" } }
-            }
-          },
-          "404": {
-            "description": "User not found",
-            "content": {
-              "application/json": { "schema": { "$ref": "#/components/schemas/Error" } }
-            }
-          }
         }
       }
     },
@@ -1268,9 +919,7 @@
         "requestBody": {
           "required": true,
           "content": {
-            "application/json": {
-              "schema": { "$ref": "#/components/schemas/ProfitTargetRequest" }
-            }
+            "application/json": { "schema": { "$ref": "#/components/schemas/ProfitTargetRequest" } }
           }
         },
         "responses": {
@@ -1348,95 +997,6 @@
         }
       }
     },
-    "/api/auth/google/link": {
-      "post": {
-        "tags": ["Auth"],
-        "summary": "Link a Google account to the current user",
-        "security": [{ "bearerAuth": [] }],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": { "schema": { "$ref": "#/components/schemas/LinkGoogleRequest" } }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "Linked successfully",
-            "content": {
-              "application/json": { "schema": { "$ref": "#/components/schemas/SuccessMessage" } }
-            }
-          },
-          "400": {
-            "description": "Google account email does not match",
-            "content": {
-              "application/json": { "schema": { "$ref": "#/components/schemas/Error" } }
-            }
-          },
-          "401": { "$ref": "#/components/responses/Unauthorized" },
-          "404": {
-            "description": "User not found",
-            "content": {
-              "application/json": { "schema": { "$ref": "#/components/schemas/Error" } }
-            }
-          },
-          "409": {
-            "description": "Google account already linked to another user",
-            "content": {
-              "application/json": { "schema": { "$ref": "#/components/schemas/Error" } }
-            }
-          }
-        }
-      },
-      "delete": {
-        "tags": ["Auth"],
-        "summary": "Unlink the current user's Google account",
-        "description": "Requires a password to already be set on the account.",
-        "security": [{ "bearerAuth": [] }],
-        "responses": {
-          "200": {
-            "description": "Unlinked successfully",
-            "content": {
-              "application/json": { "schema": { "$ref": "#/components/schemas/SuccessMessage" } }
-            }
-          },
-          "400": {
-            "description": "No password set — cannot unlink",
-            "content": {
-              "application/json": { "schema": { "$ref": "#/components/schemas/Error" } }
-            }
-          },
-          "401": { "$ref": "#/components/responses/Unauthorized" },
-          "404": {
-            "description": "User not found",
-            "content": {
-              "application/json": { "schema": { "$ref": "#/components/schemas/Error" } }
-            }
-          }
-        }
-      }
-    },
-    "/api/auth/providers": {
-      "get": {
-        "tags": ["Auth"],
-        "summary": "Get the current user's linked auth providers",
-        "security": [{ "bearerAuth": [] }],
-        "responses": {
-          "200": {
-            "description": "Linked providers",
-            "content": {
-              "application/json": { "schema": { "$ref": "#/components/schemas/ProvidersResponse" } }
-            }
-          },
-          "401": { "$ref": "#/components/responses/Unauthorized" },
-          "404": {
-            "description": "User not found",
-            "content": {
-              "application/json": { "schema": { "$ref": "#/components/schemas/Error" } }
-            }
-          }
-        }
-      }
-    },
     "/api/auth/me": {
       "delete": {
         "tags": ["Auth"],
@@ -1444,7 +1004,7 @@
         "description": "Cascades to expenses, reminders, recurring rules, income, and vehicles; cancels any active Stripe subscription.",
         "security": [{ "bearerAuth": [] }],
         "requestBody": {
-          "required": false,
+          "required": true,
           "content": {
             "application/json": {
               "schema": { "$ref": "#/components/schemas/DeleteAccountRequest" }
@@ -1454,12 +1014,17 @@
         "responses": {
           "204": { "description": "Account deleted" },
           "400": {
-            "description": "password is required (accounts with a password set)",
+            "description": "idToken is required",
             "content": {
               "application/json": { "schema": { "$ref": "#/components/schemas/Error" } }
             }
           },
-          "401": { "$ref": "#/components/responses/Unauthorized" },
+          "401": {
+            "description": "Invalid or expired session, or the Google identity does not match the account",
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/Error" } }
+            }
+          },
           "404": {
             "description": "User not found",
             "content": {
@@ -2537,6 +2102,29 @@
             "description": "Service is up",
             "content": {
               "application/json": { "schema": { "$ref": "#/components/schemas/HealthResponse" } }
+            }
+          }
+        }
+      }
+    },
+    "/api/auth/logout-all": {
+      "post": {
+        "tags": ["Auth"],
+        "summary": "Sign out of all devices",
+        "description": "Revokes every access token issued so far (including the caller’s own) by bumping the account’s tokenVersion. Propagation can lag up to 5 s per server instance.",
+        "security": [{ "bearerAuth": [] }],
+        "responses": {
+          "200": {
+            "description": "All sessions revoked",
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/SuccessMessage" } }
+            }
+          },
+          "401": { "$ref": "#/components/responses/Unauthorized" },
+          "404": {
+            "description": "User not found",
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/Error" } }
             }
           }
         }

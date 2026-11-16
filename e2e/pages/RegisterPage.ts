@@ -1,6 +1,8 @@
 import { Page, Locator } from '@playwright/test';
 import { BasePage } from './BasePage';
 
+// Sign-up happens through Google (the button is disabled until consent is given), so
+// this page object covers the form controls that precede it.
 export class RegisterPage extends BasePage {
   constructor(page: Page) {
     super(page);
@@ -10,12 +12,16 @@ export class RegisterPage extends BasePage {
     await this.page.goto('/register');
   }
 
-  async register(username: string, password: string, email?: string) {
-    await this.page.locator('[name="username"]').fill(username);
-    await this.page.locator('[name="email"]').fill(email ?? `${username}@test.com`);
-    await this.page.locator('[name="password"]').fill(password);
-    await this.page.locator('#reg-consent').check();
-    await this.page.locator('button[type="submit"]').click();
+  get consentCheckbox(): Locator {
+    return this.page.locator('#reg-consent');
+  }
+
+  get currencySelect(): Locator {
+    return this.page.locator('#reg-currency');
+  }
+
+  get inviteCodeInput(): Locator {
+    return this.page.locator('#reg-invite-code');
   }
 
   get usernameInput(): Locator {
@@ -23,14 +29,10 @@ export class RegisterPage extends BasePage {
   }
 
   get emailInput(): Locator {
-    return this.page.locator('[name="email"]');
+    return this.page.locator('input[type="email"]');
   }
 
   get passwordInput(): Locator {
-    return this.page.locator('[name="password"]');
-  }
-
-  get submitButton(): Locator {
-    return this.page.locator('button[type="submit"]');
+    return this.page.locator('input[type="password"]');
   }
 }

@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { render, screen, act, fireEvent } from '@testing-library/react';
+import { render, screen, act } from '@testing-library/react';
 import AppShell from '@/components/AppShell';
 
 vi.mock('@/components/Sidebar.jsx', () => ({
@@ -15,25 +15,20 @@ vi.mock('@/components/AppShell.module.css', () => ({ default: {} }));
 vi.mock('react-i18next', () => ({ useTranslation: () => ({ t: (k) => k }) }));
 
 const mockBadgeCount = vi.fn();
-const mockResendVerification = vi.fn();
 vi.mock('@/services/apiService.js', () => ({
   remindersApi: { badgeCount: () => mockBadgeCount() },
-  authApi: { resendVerification: () => mockResendVerification() },
 }));
 
 let mockIsAuthed = true;
-let mockEmailVerified = null;
 vi.mock('@/context/AuthContext.jsx', () => ({
-  useAuth: () => ({ isAuthed: mockIsAuthed, emailVerified: mockEmailVerified }),
+  useAuth: () => ({ isAuthed: mockIsAuthed }),
 }));
 
 describe('AppShell', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     mockIsAuthed = true;
-    mockEmailVerified = null;
     mockBadgeCount.mockResolvedValue({ dueSoon: 2, overdue: 1 });
-    mockResendVerification.mockResolvedValue({});
   });
 
   it('should render sidebar, top bar, bottom tabs and children', async () => {
@@ -86,8 +81,7 @@ describe('AppShell', () => {
     expect(screen.getByTestId('sidebar').dataset.badge).toBe('0');
   });
 
-  it('should not show email verification banner when emailVerified is true', async () => {
-    mockEmailVerified = true;
+  it('should not render an email verification banner (Google accounts are always verified)', async () => {
     await act(async () => {
       render(
         <AppShell>
@@ -96,52 +90,6 @@ describe('AppShell', () => {
       );
     });
     expect(screen.queryByText('auth.verifyEmail.bannerText')).not.toBeInTheDocument();
-  });
-
-  it('should show email verification banner when emailVerified is false', async () => {
-    mockEmailVerified = false;
-    await act(async () => {
-      render(
-        <AppShell>
-          <span>x</span>
-        </AppShell>,
-      );
-    });
-    expect(screen.getByText('auth.verifyEmail.bannerText')).toBeInTheDocument();
-  });
-
-  it('should show resend button in banner and call resendVerification on click', async () => {
-    mockEmailVerified = false;
-    await act(async () => {
-      render(
-        <AppShell>
-          <span>x</span>
-        </AppShell>,
-      );
-    });
-    const resendBtn = screen.getByRole('button', { name: 'auth.verifyEmail.bannerAction' });
-    expect(resendBtn).toBeInTheDocument();
-    await act(async () => {
-      fireEvent.click(resendBtn);
-    });
-    expect(mockResendVerification).toHaveBeenCalledOnce();
-    expect(screen.getByText('auth.verifyEmail.resendSuccess')).toBeInTheDocument();
-  });
-
-  it('should hide resend button after successful resend', async () => {
-    mockEmailVerified = false;
-    await act(async () => {
-      render(
-        <AppShell>
-          <span>x</span>
-        </AppShell>,
-      );
-    });
-    await act(async () => {
-      fireEvent.click(screen.getByRole('button', { name: 'auth.verifyEmail.bannerAction' }));
-    });
-    expect(
-      screen.queryByRole('button', { name: 'auth.verifyEmail.bannerAction' }),
-    ).not.toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'auth.verifyEmail.bannerAction' })).toBeNull();
   });
 });

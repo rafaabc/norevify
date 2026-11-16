@@ -53,7 +53,7 @@ Interactive API documentation: **[`/api-docs`](https://app.norevify.com/api-docs
 - **Tax-ready reports** — CSV/PDF exports of expenses, income, and profit summaries (pro tier)
 - **Spending summaries** — category totals and trend charts by month and year
 - **Billing** — Stripe Checkout + Customer Portal for self-service subscription management
-- **Authentication** — email/password + Google OAuth; password recovery via email; rate limiting, account lockout, breach-password checks (HaveIBeenPwned), bot detection on auth endpoints
+- **Authentication** — Google sign-in only (no passwords stored); Mongo-backed rate limiting on the sign-in endpoint, server-side session revocation ("sign out of all devices"), Google re-authentication to delete the account
 - **Admin panel** — internal ops view for user/plan management, gated by server-enforced roles
 - **Internationalisation** — PT-BR and English; preference persisted across sessions
 - **PWA** — installable on Android and iOS; displays an update toast on new deploy

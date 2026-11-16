@@ -12,6 +12,7 @@ const { describe, it, before, after, beforeEach } = require('node:test');
 const assert = require('node:assert/strict');
 const jwt = require('jsonwebtoken');
 
+const { VALID_CONSENT } = require('../helpers/fixtures');
 const { startMongo, stopMongo, resetMongo } = require('../helpers/mongo');
 require('../helpers/email-mock');
 const authService = require('../../lib/services/auth.service');
@@ -31,7 +32,10 @@ const fakeVerify = async () => ({
 
 describe('seedUser.signSessionToken()', () => {
   it('should issue the same claim set as the real issueToken()', async () => {
-    const { token: real } = await authService.googleLogin({ idToken: 'tok' }, fakeVerify);
+    const { token: real } = await authService.googleLogin(
+      { idToken: 'tok', consent: VALID_CONSENT },
+      fakeVerify,
+    );
     const realClaims = jwt.verify(real, process.env.JWT_SECRET);
     const user = await userModel.findById(realClaims.id);
 
@@ -41,7 +45,10 @@ describe('seedUser.signSessionToken()', () => {
   });
 
   it('should carry identical values for every claim except the timestamps', async () => {
-    const { token: real } = await authService.googleLogin({ idToken: 'tok' }, fakeVerify);
+    const { token: real } = await authService.googleLogin(
+      { idToken: 'tok', consent: VALID_CONSENT },
+      fakeVerify,
+    );
     const realClaims = jwt.verify(real, process.env.JWT_SECRET);
     const user = await userModel.findById(realClaims.id);
 

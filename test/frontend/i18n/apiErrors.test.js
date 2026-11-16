@@ -4,11 +4,8 @@ import { API_ERROR_MAP } from '@/i18n/apiErrors.js';
 describe('API_ERROR_MAP', () => {
   it('should map known backend messages to i18n keys', () => {
     expect(API_ERROR_MAP['Invalid credentials']).toBe('errors.invalidCredentials');
-    expect(API_ERROR_MAP['username already taken']).toBe('errors.usernameTaken');
-    expect(API_ERROR_MAP['email already registered']).toBe('errors.emailRegistered');
     expect(API_ERROR_MAP['User not found']).toBe('errors.userNotFound');
     expect(API_ERROR_MAP['Expense not found']).toBe('errors.expenseNotFound');
-    expect(API_ERROR_MAP['Invalid or expired reset token']).toBe('errors.invalidToken');
     expect(API_ERROR_MAP['Reminder not found']).toBe('errors.reminderNotFound');
     expect(API_ERROR_MAP['reminder already completed']).toBe('errors.reminderAlreadyCompleted');
     expect(API_ERROR_MAP['cannot edit completed reminder']).toBe(
@@ -20,6 +17,25 @@ describe('API_ERROR_MAP', () => {
     );
     expect(API_ERROR_MAP['odometer is only valid for Fuel category']).toBe(
       'errors.odometerNonFuel',
+    );
+  });
+
+  it('should no longer map the retired password and email-verification messages', () => {
+    for (const retired of [
+      'username already taken',
+      'email already registered',
+      'Invalid or expired reset token',
+      'Invalid or expired verification token',
+      'Verification token has expired',
+      'Email already verified',
+    ]) {
+      expect(API_ERROR_MAP[retired]).toBeUndefined();
+    }
+  });
+
+  it('should map the consent errors raised when a new Google account has none', () => {
+    expect(API_ERROR_MAP['consent with policyVersion and acceptedAt is required']).toBe(
+      'errors.consentRequired',
     );
   });
 

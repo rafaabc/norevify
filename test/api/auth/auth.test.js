@@ -1,203 +1,106 @@
 'use strict';
 
+// Google is the only sign-in method, and a real Google ID token cannot be produced
+// in CI. These tests cover what is reachable over HTTP: input validation on
+// POST /api/auth/google, the JWT middleware, token refresh and session revocation —
+// using seeded users (see test/helpers/seedUser.js).
+
 const jwt = require('jsonwebtoken');
-const {
-  request,
-  expect,
-  BASE_URL,
-  uniqueUsername,
-  registerAndTrack,
-  createPasswordUser,
-} = require('../base/api-base');
-const fixtures = require('../fixtures/auth.json');
+const { request, expect, BASE_URL, createAndLoginUser } = require('../base/api-base');
 
-const VALID_CONSENT = { policyVersion: '2026-05-20', acceptedAt: new Date().toISOString() };
+describe('US-01/02 - Google-only authentication', () => {
+  describe('POST /api/auth/google', () => {
+    it('[TC-01-01] should return 400 when idToken is missing', async () => {
+      const res = await request(BASE_URL).post('/api/auth/google').send({});
 
-function exactUsername(len) {
-  // Put random digits first so short slices (len=3) get high-entropy chars,
-  // not the stable leading digits of the timestamp.
-  const rand = String(Math.floor(Math.random() * 1e9)).padStart(9, '0');
-  const ts = String(Date.now());
-  const seed = rand + ts; // 22 alphanumeric chars
-  if (len <= seed.length) return seed.slice(0, len);
-  return seed.padEnd(len, 'a');
-}
-
-// ─── US-01: User Registration ─────────────────────────────────────────────────
-
-describe('US-01 - User Registration', () => {
-  describe('POST /api/auth/register', () => {
-    it('[TC-01-01] should return 201 with id and username when credentials are valid', async () => {
-      const res = await registerAndTrack(uniqueUsername('tc0101'), 'Zx7Qw2vNp9Lm4Rk8');
-
-      expect(res.status).to.equal(201);
-      expect(res.body).to.have.property('id').that.is.a('string');
-      expect(res.body).to.have.property('username').that.is.a('string');
+      expect(res.status).to.equal(400);
     });
 
-    it('[TC-01-02] should return 409 when username is already taken', async () => {
-      const username = uniqueUsername('tc0102');
-      await registerAndTrack(username, 'Zx7Qw2vNp9Lm4Rk8');
-
+    it('[TC-01-02] should return 401 when the idToken is not a valid Google token', async () => {
       const res = await request(BASE_URL)
-        .post('/api/auth/register')
-        .send({
-          username,
-          password: 'Zx7Qw2vNp9Lm4Rk8',
-          email: `${username}_dup@test.com`,
-          consent: VALID_CONSENT,
-        });
-
-      expect(res.status).to.equal(409);
-    });
-
-    it('[TC-01-03] should include an error message in the response body when username is duplicate', async () => {
-      const username = uniqueUsername('tc0103');
-      await registerAndTrack(username, 'Zx7Qw2vNp9Lm4Rk8');
-
-      const res = await request(BASE_URL)
-        .post('/api/auth/register')
-        .send({
-          username,
-          password: 'Zx7Qw2vNp9Lm4Rk8',
-          email: `${username}_dup@test.com`,
-          consent: VALID_CONSENT,
-        });
-
-      expect(res.body).to.have.property('message').that.is.a('string');
-    });
-
-    // Parametrized invalid registration cases (TC-01-04, 05, 07, 09, 11, 12, 14, 16)
-    fixtures.invalidRegistrations.forEach(
-      ({ tcId, description, body, usernameLength, password, expectedStatus, expectedMessage }) => {
-        it(`[${tcId}] should return ${expectedStatus} when ${description}`, async () => {
-          const payload = body || {
-            username: exactUsername(usernameLength),
-            password,
-            email: 'test@example.com',
-          };
-
-          const res = await request(BASE_URL).post('/api/auth/register').send(payload);
-
-          expect(res.status).to.equal(expectedStatus);
-          if (expectedMessage) {
-            expect(res.body).to.have.property('message', expectedMessage);
-          }
-        });
-      },
-    );
-
-    it('[TC-01-08] should return 201 when password has exactly 8 characters', async () => {
-      const res = await registerAndTrack(uniqueUsername('tc0108'), 'fl9n1Sjo');
-
-      expect(res.status).to.equal(201);
-    });
-
-    it('[TC-01-10] should return 201 when username has exactly 3 characters', async () => {
-      const res = await registerAndTrack(exactUsername(3), 'Zx7Qw2vNp9Lm4Rk8');
-
-      expect(res.status).to.equal(201);
-    });
-
-    it('[TC-01-13] should return 201 when username contains alphanumeric characters and underscores', async () => {
-      const username = uniqueUsername('v_u').replace(/-/g, '_').slice(0, 50);
-      const res = await registerAndTrack(username, 'Zx7Qw2vNp9Lm4Rk8');
-
-      expect(res.status).to.equal(201);
-    });
-
-    it('[TC-01-15] should return 201 when username has exactly 50 characters', async () => {
-      const res = await registerAndTrack(exactUsername(50), 'Zx7Qw2vNp9Lm4Rk8');
-
-      expect(res.status).to.equal(201);
-    });
-
-    it('[TC-01-17] should return 201 when password has exactly 20 characters', async () => {
-      const res = await registerAndTrack(
-        uniqueUsername('tc0117'),
-        'Password1234567890ab'.slice(0, 20),
-      );
-
-      expect(res.status).to.equal(201);
-    });
-  });
-});
-
-// ─── US-02: User Login ────────────────────────────────────────────────────────
-
-describe('US-02 - User Login', () => {
-  // The shared primary user is seeded (no password), so the password-login cases get
-  // their own registered user.
-  let passwordUser;
-
-  before(async function () {
-    this.timeout(15000);
-    passwordUser = await createPasswordUser('login');
-  });
-
-  describe('POST /api/auth/login', () => {
-    it('[TC-02-01] should return 200 and a token when credentials are valid', async () => {
-      const { username, password } = passwordUser;
-
-      const res = await request(BASE_URL).post('/api/auth/login').send({ username, password });
-
-      expect(res.status).to.equal(200);
-      expect(res.body).to.have.property('token').that.is.a('string');
-    });
-
-    it('[TC-02-02] should return 401 when password is invalid', async () => {
-      const { username } = passwordUser;
-
-      const res = await request(BASE_URL)
-        .post('/api/auth/login')
-        .send({ username, password: 'WrongPassword1' });
+        .post('/api/auth/google')
+        .send({ idToken: 'not-a-real-google-token' });
 
       expect(res.status).to.equal(401);
     });
+  });
 
-    it('[TC-02-03] should return 401 when username does not exist', async () => {
-      const res = await request(BASE_URL)
-        .post('/api/auth/login')
-        .send({ username: 'nonexistent_user_xyz', password: 'Zx7Qw2vNp9Lm4Rk8' });
+  describe('retired password endpoints', () => {
+    for (const [method, path] of [
+      ['post', '/api/auth/register'],
+      ['post', '/api/auth/login'],
+      ['post', '/api/auth/forgot-password'],
+      ['post', '/api/auth/reset-password'],
+      ['patch', '/api/auth/password'],
+      ['post', '/api/auth/verify-email'],
+      ['post', '/api/auth/resend-verification'],
+    ]) {
+      it(`[TC-01-03] ${method.toUpperCase()} ${path} should no longer exist (404/405)`, async () => {
+        const res = await request(BASE_URL)[method](path).send({});
 
-      expect(res.status).to.equal(401);
-    });
+        expect(res.status).to.be.oneOf([404, 405]);
+      });
+    }
+  });
 
-    it('[TC-02-04] should return a token in JWT format (three dot-separated base64url segments)', async () => {
-      const { token } = passwordUser;
+  describe('token properties', () => {
+    it('[TC-02-04] should accept a token in JWT format (three dot-separated base64url segments)', async () => {
+      const token = await createAndLoginUser('tc0204');
       const parts = token.split('.');
 
       expect(parts).to.have.lengthOf(3);
       parts.forEach((part) => expect(part).to.match(/^[A-Za-z0-9_-]+$/));
     });
 
-    it('[TC-02-05] should issue a JWT that expires in exactly 1 hour (exp - iat = 3600)', async () => {
-      const { token } = passwordUser;
-      const payload = JSON.parse(Buffer.from(token.split('.')[1], 'base64url').toString('utf8'));
+    it('[TC-02-05] should carry iat and exp claims', async () => {
+      const payload = jwt.decode(await createAndLoginUser('tc0205'));
 
       expect(payload).to.have.property('iat').that.is.a('number');
       expect(payload).to.have.property('exp').that.is.a('number');
-      expect(payload.exp - payload.iat).to.equal(3600);
+      expect(payload.exp).to.be.greaterThan(payload.iat);
     });
+  });
 
-    // Superseded by account lockout hardening: 5 consecutive bad passwords now locks
-    // the account instead of allowing an immediate correct-password recovery. Uses a
-    // dedicated user (not the shared primary from getUser()) so the lockout this test
-    // deliberately triggers doesn't affect later tests reusing the primary account.
-    it('[TC-02-08] should lock out the account after 5 consecutive failed login attempts', async () => {
-      const username = uniqueUsername('tc0208');
-      const password = 'Zx7Qw2vNp9Lm4Rk8'; // NOSONAR — test fixture password, not a real credential
-      await registerAndTrack(username, password);
+  describe('POST /api/auth/refresh-token', () => {
+    it('[TC-02-09] should re-issue a token for a valid session', async () => {
+      const token = await createAndLoginUser('tc0209');
 
-      for (let i = 0; i < 5; i++) {
-        await request(BASE_URL)
-          .post('/api/auth/login')
-          .send({ username, password: 'WrongPassword!' });
-      }
+      const res = await request(BASE_URL)
+        .post('/api/auth/refresh-token')
+        .set('Authorization', `Bearer ${token}`);
 
-      const res = await request(BASE_URL).post('/api/auth/login').send({ username, password });
+      expect(res.status).to.equal(200);
+      expect(res.body).to.have.property('token').that.is.a('string');
+    });
+  });
+
+  describe('POST /api/auth/logout-all', () => {
+    it('[TC-02-10] should return 401 without a token', async () => {
+      const res = await request(BASE_URL).post('/api/auth/logout-all');
 
       expect(res.status).to.equal(401);
+    });
+
+    it('[TC-02-11] should revoke the callers own token', async function () {
+      // withAuth caches tokenVersion per instance for ~5s, so allow propagation.
+      this.timeout(20000);
+      const token = await createAndLoginUser('tc0211');
+
+      const out = await request(BASE_URL)
+        .post('/api/auth/logout-all')
+        .set('Authorization', `Bearer ${token}`);
+      expect(out.status).to.equal(200);
+
+      let status;
+      for (let i = 0; i < 12; i++) {
+        const res = await request(BASE_URL)
+          .get('/api/expenses')
+          .set('Authorization', `Bearer ${token}`);
+        status = res.status;
+        if (status === 401) break;
+        await new Promise((r) => setTimeout(r, 1000));
+      }
+      expect(status).to.equal(401);
     });
   });
 

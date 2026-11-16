@@ -1,8 +1,7 @@
 import { test, expect } from '@playwright/test';
 import { RegisterPage } from '../../pages/RegisterPage';
-import { DEFAULT_PASSWORD, uniqueUsername } from '../../fixtures/test-data';
 
-test.describe('US-01: User Registration', () => {
+test.describe('US-01: User Registration (Google only)', () => {
   let registerPage: RegisterPage;
 
   test.beforeEach(async ({ page }) => {
@@ -11,38 +10,24 @@ test.describe('US-01: User Registration', () => {
     await registerPage.navigate();
   });
 
-  // TC-01-01
-  test('[TC-01-01] should redirect to /login with success banner after valid registration', async ({
-    page,
-  }) => {
-    const username = uniqueUsername('reg');
-    await registerPage.register(username, DEFAULT_PASSWORD);
-
-    await expect(page).toHaveURL(/\/login/);
-    await expect(page.locator('.alert-success')).toBeVisible();
+  test('[TC-01-01] should ask only for currency and consent — no username, email or password', async () => {
+    await expect(registerPage.currencySelect).toBeVisible();
+    await expect(registerPage.consentCheckbox).not.toBeChecked();
+    await expect(registerPage.usernameInput).toHaveCount(0);
+    await expect(registerPage.emailInput).toHaveCount(0);
+    await expect(registerPage.passwordInput).toHaveCount(0);
   });
 
-  // TC-01-02 / TC-01-03
-  test('[TC-01-02/03] should show error banner when username is already taken', async ({
-    page,
-    request,
-  }) => {
-    const username = uniqueUsername('dup');
+  test('[TC-01-02] should let the user tick and untick the consent box', async () => {
+    await registerPage.consentCheckbox.check();
+    await expect(registerPage.consentCheckbox).toBeChecked();
+    await registerPage.consentCheckbox.uncheck();
+    await expect(registerPage.consentCheckbox).not.toBeChecked();
+  });
 
-    await request.post('/api/auth/register', {
-      data: {
-        username,
-        password: DEFAULT_PASSWORD,
-        email: `${username}@test.com`,
-        consent: { policyVersion: '2026-05-20', acceptedAt: new Date().toISOString() },
-      },
-    });
+  test('[TC-01-03] should keep the old password sign-up endpoint closed', async ({ request }) => {
+    const res = await request.post('/api/auth/register', { data: {} });
 
-    await registerPage.register(username, DEFAULT_PASSWORD);
-
-    await expect(page).toHaveURL('/register');
-    await expect(registerPage.errorBanner).toContainText('username already taken', {
-      ignoreCase: true,
-    });
+    expect([404, 405]).toContain(res.status());
   });
 });
