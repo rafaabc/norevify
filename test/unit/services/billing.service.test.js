@@ -213,6 +213,37 @@ describe('billingService.handleWebhookEvent()', () => {
     assert.strictEqual(updated.stripeSubscriptionId, undefined);
   });
 
+  it('customer.subscription.deleted is one write that keeps the customer link and records the event', async () => {
+    const user = await makeStripeUser({ stripeCustomerId: 'cus_wh_single' });
+    await userModel.updatePlanAndBilling(user._id, {
+      plan: 'pro',
+      stripeCustomerId: 'cus_wh_single',
+      stripeSubscriptionId: 'sub_single',
+      stripeSubscriptionStatus: 'active',
+    });
+    // The old two-step path (clearBilling, then restore stripeCustomerId) could die between
+    // the writes and leave the user unreachable by findByStripeCustomerId.
+    const clearBillingMock = mock.method(userModel, 'clearBilling');
+
+    await billingService.handleWebhookEvent({
+      id: 'evt_single',
+      type: 'customer.subscription.deleted',
+      data: { object: { customer: 'cus_wh_single', id: 'sub_single' } },
+    });
+
+    const clearBillingCalls = clearBillingMock.mock.callCount();
+    clearBillingMock.mock.restore();
+    assert.strictEqual(clearBillingCalls, 0);
+    const updated = await userModel.findByStripeCustomerId('cus_wh_single');
+    assert.ok(updated, 'user must stay reachable by stripeCustomerId');
+    assert.strictEqual(updated.plan, 'free');
+    assert.strictEqual(updated.planSource, 'stripe');
+    assert.strictEqual(updated.stripeSubscriptionId, undefined);
+    assert.strictEqual(updated.stripeSubscriptionStatus, undefined);
+    assert.strictEqual(updated.lastStripeEventId, 'evt_single');
+    assert.ok(updated.processedStripeEventIds.includes('evt_single'));
+  });
+
   it('invoice.payment_failed records past_due without downgrading plan', async () => {
     const user = await makeStripeUser({ stripeCustomerId: 'cus_wh6' });
     await userModel.updatePlanAndBilling(user._id, { plan: 'pro', stripeCustomerId: 'cus_wh6' });
