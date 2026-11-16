@@ -5,10 +5,9 @@ const {
   request,
   expect,
   BASE_URL,
-  getToken,
-  getUser,
   uniqueUsername,
   registerAndTrack,
+  createPasswordUser,
 } = require('../base/api-base');
 const fixtures = require('../fixtures/auth.json');
 
@@ -127,9 +126,18 @@ describe('US-01 - User Registration', () => {
 // ─── US-02: User Login ────────────────────────────────────────────────────────
 
 describe('US-02 - User Login', () => {
+  // The shared primary user is seeded (no password), so the password-login cases get
+  // their own registered user.
+  let passwordUser;
+
+  before(async function () {
+    this.timeout(15000);
+    passwordUser = await createPasswordUser('login');
+  });
+
   describe('POST /api/auth/login', () => {
     it('[TC-02-01] should return 200 and a token when credentials are valid', async () => {
-      const { username, password } = getUser();
+      const { username, password } = passwordUser;
 
       const res = await request(BASE_URL).post('/api/auth/login').send({ username, password });
 
@@ -138,7 +146,7 @@ describe('US-02 - User Login', () => {
     });
 
     it('[TC-02-02] should return 401 when password is invalid', async () => {
-      const { username } = getUser();
+      const { username } = passwordUser;
 
       const res = await request(BASE_URL)
         .post('/api/auth/login')
@@ -156,7 +164,7 @@ describe('US-02 - User Login', () => {
     });
 
     it('[TC-02-04] should return a token in JWT format (three dot-separated base64url segments)', async () => {
-      const token = getToken();
+      const { token } = passwordUser;
       const parts = token.split('.');
 
       expect(parts).to.have.lengthOf(3);
@@ -164,7 +172,7 @@ describe('US-02 - User Login', () => {
     });
 
     it('[TC-02-05] should issue a JWT that expires in exactly 1 hour (exp - iat = 3600)', async () => {
-      const token = getToken();
+      const { token } = passwordUser;
       const payload = JSON.parse(Buffer.from(token.split('.')[1], 'base64url').toString('utf8'));
 
       expect(payload).to.have.property('iat').that.is.a('number');
