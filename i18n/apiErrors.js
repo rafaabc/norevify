@@ -17,6 +17,7 @@ export const API_ERROR_MAP = {
   'Fuel cannot be recurring': 'errors.fuelNotRecurring',
   'Vehicle not found': 'errors.vehicleNotFound',
   vehicle_limit_reached: 'errors.vehicleLimitReached',
+  vehicle_in_use: 'errors.vehicleInUse',
   'name is required': 'errors.vehicleNameRequired',
   'name must be at most 50 characters': 'errors.vehicleNameTooLong',
   'note must be a string': 'errors.incomeNoteInvalid',

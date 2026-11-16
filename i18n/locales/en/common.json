@@ -212,7 +212,8 @@
     "incomeFeatureLocked": "Income tracking is a Pro feature. Upgrade to unlock it.",
     "reportsFeatureLocked": "Tax-ready reports are a Pro feature. Upgrade to unlock them.",
     "inviteRequired": "An invite code is required to sign up right now.",
-    "adminRequired": "You don't have permission to do that."
+    "adminRequired": "You don't have permission to do that.",
+    "vehicleInUse": "This vehicle still has expenses, income, reminders or recurring expenses. Move them to another vehicle or delete them first."
   },
   "pwa": {
     "updateAvailable": "New version available.",
@@ -277,7 +278,7 @@
       "currentKmHint": "Updates automatically when you log Fuel with an odometer reading. Edit here to correct it manually."
     },
     "actions": {
-      "confirmDelete": "Delete this vehicle? Its expenses and reminders are kept but unassigned.",
+      "confirmDelete": "Delete this vehicle? A vehicle can only be deleted once it has no expenses, income, reminders or recurring expenses.",
       "deleteSuccess": "Vehicle deleted.",
       "createSuccess": "Vehicle added.",
       "updateSuccess": "Vehicle updated."
