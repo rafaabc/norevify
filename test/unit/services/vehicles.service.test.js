@@ -87,6 +87,54 @@ describe('vehiclesService.createVehicle()', () => {
   });
 });
 
+describe('vehiclesService.createVehicle() — concurrency', () => {
+  it('parallel creates cannot push a free user past the 1-vehicle limit', async () => {
+    const u = USER_ID();
+    await userModel.create({ _id: u, username: 'freerace', password: 'x', email: 'fr@test.com' });
+    const results = await Promise.allSettled(
+      Array.from({ length: 4 }, (_, i) => vehiclesService.createVehicle(u, { name: `Car ${i}` })),
+    );
+    const ok = results.filter((r) => r.status === 'fulfilled');
+    const failed = results.filter((r) => r.status === 'rejected');
+    assert.strictEqual((await vehiclesService.listVehicles(u)).length, 1);
+    assert.strictEqual(ok.length, 1);
+    for (const f of failed) assert.strictEqual(f.reason.status, 402);
+  });
+
+  it('an explicit create racing the default auto-create cannot give a free user 2 vehicles', async () => {
+    const u = USER_ID();
+    await userModel.create({ _id: u, username: 'freemix', password: 'x', email: 'fm@test.com' });
+    await Promise.allSettled([
+      vehiclesService.createVehicle(u, { name: 'Explicit' }),
+      vehiclesService.resolveVehicleId(u, undefined),
+      vehiclesService.resolveVehicleId(u, undefined),
+    ]);
+    assert.strictEqual((await vehiclesService.listVehicles(u)).length, 1);
+  });
+
+  it('does not expose the internal guardKey in API output', async () => {
+    const u = USER_ID();
+    const v = await vehiclesService.createVehicle(u, { name: 'Civic' });
+    assert.strictEqual('guardKey' in v.toJSON(), false);
+  });
+
+  it('does not limit a Pro user', async () => {
+    const u = USER_ID();
+    await userModel.create({
+      _id: u,
+      username: 'prorace',
+      password: 'x',
+      email: 'pr@test.com',
+      plan: 'pro',
+    });
+    const results = await Promise.all(
+      Array.from({ length: 4 }, (_, i) => vehiclesService.createVehicle(u, { name: `Car ${i}` })),
+    );
+    assert.strictEqual(results.length, 4);
+    assert.strictEqual((await vehiclesService.listVehicles(u)).length, 4);
+  });
+});
+
 describe('vehiclesService.resolveVehicleId()', () => {
   it('auto-creates a default vehicle when the user has none', async () => {
     const u = USER_ID();
@@ -111,6 +159,15 @@ describe('vehiclesService.resolveVehicleId()', () => {
       () => vehiclesService.createVehicle(u, { name: 'Second' }),
       (err) => err.status === 402,
     );
+  });
+
+  it('concurrent first uses create exactly one default vehicle and all get the same id', async () => {
+    const u = USER_ID();
+    const results = await Promise.all(
+      Array.from({ length: 5 }, () => vehiclesService.resolveVehicleId(u, undefined)),
+    );
+    assert.strictEqual((await vehiclesService.listVehicles(u)).length, 1);
+    assert.strictEqual(new Set(results.map((v) => v.id)).size, 1);
   });
 
   it('throws 404 when an explicit vehicleId does not belong to the user', async () => {
