@@ -1,6 +1,6 @@
 import { test, expect } from '@playwright/test';
 import { LoginPage } from '../../pages/LoginPage';
-import { createAndLoginUser } from '../../fixtures/api';
+import { registerPasswordUser } from '../../fixtures/api';
 import { DEFAULT_PASSWORD } from '../../fixtures/test-data';
 
 test.describe('US-02: User Login', () => {
@@ -8,7 +8,7 @@ test.describe('US-02: User Login', () => {
   let registeredUsername: string;
 
   test.beforeAll(async ({ request }) => {
-    const user = await createAndLoginUser(request, 'login');
+    const user = await registerPasswordUser(request, 'login');
     registeredUsername = user.username;
   });
 

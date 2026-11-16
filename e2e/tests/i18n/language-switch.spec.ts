@@ -1,7 +1,5 @@
 import { test, expect } from '@playwright/test';
-import { createAndLoginUser } from '../../fixtures/api';
-import { LoginPage } from '../../pages/LoginPage';
-import { DEFAULT_PASSWORD } from '../../fixtures/test-data';
+import { createAndLoginUser, mintToken } from '../../fixtures/api';
 import {
   setLanguage,
   switchToLanguage,
@@ -11,24 +9,25 @@ import {
 
 test.describe('Language switching (i18n)', () => {
   let username: string;
-  let loginPage: LoginPage;
 
   test.beforeAll(async ({ request }) => {
-    const user = await createAndLoginUser(request, 'i18n');
-    username = user.username;
+    ({ username } = await createAndLoginUser(request, 'i18n'));
   });
 
   test.beforeEach(async ({ page }) => {
-    loginPage = new LoginPage(page);
     await page.goto('/');
     await page.evaluate(() => localStorage.removeItem('i18nextLng'));
   });
 
+  // Session is injected as a JWT minted from the user's current DB state (no form login):
+  // these specs test i18n, not auth. Minting per call matters — earlier tests change the
+  // account language, and a real login would pick that up in the new token.
   async function loginAs(page: Parameters<typeof setLanguage>[0], lang?: 'en' | 'pt-BR') {
-    await loginPage.navigate();
+    await page.goto('/login');
     if (lang !== undefined) await setLanguage(page, lang);
-    await loginPage.login(username, DEFAULT_PASSWORD);
-    await page.waitForURL('/');
+    const token = await mintToken(username);
+    await page.evaluate((t) => localStorage.setItem('token', t), token);
+    await page.goto('/');
   }
 
   // TC-LG-E2E-01: PT-BR strings visible when language is set to pt-BR

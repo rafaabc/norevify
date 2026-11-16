@@ -1,13 +1,13 @@
 'use strict';
 
-const { request, expect, BASE_URL, createAndLoginUser } = require('../base/api-base');
+const { request, expect, BASE_URL, createPasswordUser } = require('../base/api-base');
 
 // ─── US-05: Change Password ───────────────────────────────────────────────────
 
 describe('US-05 - Change Password', () => {
   describe('PATCH /api/auth/password', () => {
     it('[TC-05-01] should return 200 when token is valid and credentials are correct', async () => {
-      const token = await createAndLoginUser('tc0501');
+      const { token } = await createPasswordUser('tc0501');
 
       const res = await request(BASE_URL)
         .patch('/api/auth/password')
@@ -27,7 +27,7 @@ describe('US-05 - Change Password', () => {
     });
 
     it('[TC-05-03] should return 401 when currentPassword is wrong', async () => {
-      const token = await createAndLoginUser('tc0503');
+      const { token } = await createPasswordUser('tc0503');
 
       const res = await request(BASE_URL)
         .patch('/api/auth/password')
@@ -38,7 +38,7 @@ describe('US-05 - Change Password', () => {
     });
 
     it('[TC-05-04] should return 400 when newPassword is too short', async () => {
-      const token = await createAndLoginUser('tc0504');
+      const { token } = await createPasswordUser('tc0504');
 
       const res = await request(BASE_URL)
         .patch('/api/auth/password')
@@ -49,7 +49,7 @@ describe('US-05 - Change Password', () => {
     });
 
     it('[TC-05-05] should return 400 when required fields are missing', async () => {
-      const token = await createAndLoginUser('tc0505');
+      const { token } = await createPasswordUser('tc0505');
 
       const res = await request(BASE_URL)
         .patch('/api/auth/password')

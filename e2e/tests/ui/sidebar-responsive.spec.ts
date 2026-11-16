@@ -1,29 +1,25 @@
-import { test, expect } from '@playwright/test';
+import { test, expect, Page } from '@playwright/test';
 import { createAndLoginUser } from '../../fixtures/api';
-import { LoginPage } from '../../pages/LoginPage';
-import { DEFAULT_PASSWORD } from '../../fixtures/test-data';
 import { expectEnglishNav } from '../../fixtures/i18n';
 
 const MOBILE_VIEWPORT = { width: 390, height: 844 };
 const DESKTOP_VIEWPORT = { width: 1280, height: 800 };
 
 test.describe('Sidebar responsiveness', () => {
-  let username: string;
-  let loginPage: LoginPage;
+  let token: string;
 
   test.beforeAll(async ({ request }) => {
-    const user = await createAndLoginUser(request, 'sidebar');
-    username = user.username;
+    ({ token } = await createAndLoginUser(request, 'sidebar'));
   });
 
   test.beforeEach(async ({ page }) => {
-    loginPage = new LoginPage(page);
     await page.addInitScript(() => localStorage.setItem('i18nextLng', 'en'));
   });
 
-  async function loginAndGoTo(page: (typeof loginPage)['page'], path = '/') {
-    await loginPage.navigate();
-    await loginPage.login(username, DEFAULT_PASSWORD);
+  // Session is injected as a seeded JWT (no form login): these specs test layout, not auth.
+  async function loginAndGoTo(page: Page, path = '/') {
+    await page.addInitScript((t) => localStorage.setItem('token', t), token);
+    await page.goto('/dashboard');
     await page.waitForURL('/dashboard');
     // Hide Next.js dev portal if present (Turbopack dev-mode overlay)
     await page.evaluate(() => {
