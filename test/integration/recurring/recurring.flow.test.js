@@ -15,10 +15,14 @@ before(async () => await startMongo());
 after(async () => await stopMongo());
 beforeEach(async () => await resetMongo());
 
+// A counter, not Date.now(): two users created in the same millisecond collided on the
+// unique username index (E11000) and failed the run intermittently.
+let userSeq = 0;
 async function createUser() {
+  userSeq += 1;
   return userModel.create({
-    username: `u_${Date.now()}`,
-    email: `u_${Date.now()}@test.com`,
+    username: `u_${userSeq}`,
+    email: `u_${userSeq}@test.com`,
     password: 'hashed',
     emailVerified: true,
   });
