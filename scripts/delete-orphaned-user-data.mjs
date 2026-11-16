@@ -68,12 +68,11 @@ try {
     console.error('users collection is empty — refusing to run (wrong database?)');
     process.exitCode = 1;
   } else {
-    const found = {};
-    for (const name of COLLECTIONS) {
-      const docs = await db.collection(name).aggregate(orphanPipeline()).toArray();
-      found[name] = docs;
-      console.log(`  ${name}: ${describe(docs)}`);
-    }
+    const scans = await Promise.all(
+      COLLECTIONS.map((name) => db.collection(name).aggregate(orphanPipeline()).toArray()),
+    );
+    const found = Object.fromEntries(COLLECTIONS.map((name, i) => [name, scans[i]]));
+    for (const name of COLLECTIONS) console.log(`  ${name}: ${describe(found[name])}`);
 
     const total = Object.values(found).reduce((n, docs) => n + docs.length, 0);
     if (total === 0) {
@@ -98,12 +97,15 @@ try {
         writeFileSync(file, EJSON.stringify(found, { relaxed: false }, 2));
         console.log(`exported ${total} document(s) to ${file}`);
 
-        for (const name of COLLECTIONS) {
-          const ids = found[name].map((d) => d._id);
-          if (ids.length === 0) continue;
-          const res = await db.collection(name).deleteMany({ _id: { $in: ids } });
-          console.log(`  ${name}: deleted ${res.deletedCount} of ${ids.length}`);
-        }
+        const targets = COLLECTIONS.filter((name) => found[name].length > 0);
+        const results = await Promise.all(
+          targets.map((name) =>
+            db.collection(name).deleteMany({ _id: { $in: found[name].map((d) => d._id) } }),
+          ),
+        );
+        targets.forEach((name, i) =>
+          console.log(`  ${name}: deleted ${results[i].deletedCount} of ${found[name].length}`),
+        );
       }
     }
   }
