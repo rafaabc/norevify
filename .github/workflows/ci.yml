@@ -244,7 +244,7 @@ jobs:
           node-version: '22'
           cache: 'npm'
       - run: npm ci --ignore-scripts
-      - uses: actions/download-artifact@v7
+      - uses: actions/download-artifact@v8
         with:
           name: next-build
       - name: Unpack build output
@@ -305,7 +305,7 @@ jobs:
       - run: npm ci --ignore-scripts
       - name: Install Playwright browsers
         run: node_modules/.bin/playwright install chromium --with-deps
-      - uses: actions/download-artifact@v7
+      - uses: actions/download-artifact@v8
         with:
           name: next-build
       - name: Unpack build output
